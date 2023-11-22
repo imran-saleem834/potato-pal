@@ -1,62 +1,31 @@
 <script setup>
-import { computed } from 'vue';
-import { Head, Link, useForm } from '@inertiajs/vue3';
-import AuthenticationCard from '@/Components/AuthenticationCard.vue';
-import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
+import { Link, Head } from '@inertiajs/vue3';
 
 const props = defineProps({
     status: String,
 });
-
-const form = useForm({});
-
-const submit = () => {
-    form.post(route('verification.send'));
-};
-
-const verificationLinkSent = computed(() => props.status === 'verification-link-sent');
 </script>
 
 <template>
-    <Head title="Email Verification" />
+    <Head title="Account Verification" />
 
-    <AuthenticationCard>
-        <template #logo>
-            <AuthenticationCardLogo />
-        </template>
-
-        <div class="mb-4 text-sm text-gray-600">
-            Before continuing, could you verify your email address by clicking on the link we just emailed to you? If you didn't receive the email, we will gladly send you another.
-        </div>
-
-        <div v-if="verificationLinkSent" class="mb-4 font-medium text-sm text-green-600">
-            A new verification link has been sent to the email address you provided in your profile settings.
-        </div>
-
-        <form @submit.prevent="submit">
-            <div class="mt-4 flex items-center justify-between">
-                <PrimaryButton :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
-                    Resend Verification Email
-                </PrimaryButton>
-
-                <div>
-                    <Link
-                        :href="route('profile.show')"
-                        class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                    >
-                        Edit Profile</Link>
-
-                    <Link
-                        :href="route('logout')"
-                        method="post"
-                        as="button"
-                        class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ms-2"
-                    >
-                        Log Out
+    <div  class="login-section account-approval">
+        <div class="container">
+            <div class="login-box">
+                <p>
+                    <Link :href="route('dashboard')">
+                        <img src="/images/logo.png" class="logo" alt="Potato Pal">
                     </Link>
+                </p>
+                <div class="approval-img">
+                    <img src="/images/hourglass-start.png" alt="hourglass">
                 </div>
+                <p>Your account is under progress once <span class="block"></span> completed you’ll be notified.</p>
+
+                <a href="tel:0364261590" class="btn btn-red"><span class="fa fa-call"></span> (03) 6426 1590</a>
+
+                <p>For any inquiries free to give us a call</p>
             </div>
-        </form>
-    </AuthenticationCard>
+        </div>
+    </div>
 </template>

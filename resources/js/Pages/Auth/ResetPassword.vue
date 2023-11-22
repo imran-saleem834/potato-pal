@@ -1,11 +1,6 @@
 <script setup>
 import { Head, useForm } from '@inertiajs/vue3';
-import AuthenticationCard from '@/Components/AuthenticationCard.vue';
-import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue';
-import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
+import LoginCard from '@/Components/LoginCard.vue';
 
 const props = defineProps({
     email: String,
@@ -29,57 +24,60 @@ const submit = () => {
 <template>
     <Head title="Reset Password" />
 
-    <AuthenticationCard>
-        <template #logo>
-            <AuthenticationCardLogo />
-        </template>
-
-        <form @submit.prevent="submit">
-            <div>
-                <InputLabel for="email" value="Email" />
-                <TextInput
-                    id="email"
-                    v-model="form.email"
-                    type="email"
-                    class="mt-1 block w-full"
-                    required
-                    autofocus
-                    autocomplete="username"
-                />
-                <InputError class="mt-2" :message="form.errors.email" />
-            </div>
-
-            <div class="mt-4">
-                <InputLabel for="password" value="Password" />
-                <TextInput
-                    id="password"
-                    v-model="form.password"
-                    type="password"
-                    class="mt-1 block w-full"
-                    required
-                    autocomplete="new-password"
-                />
-                <InputError class="mt-2" :message="form.errors.password" />
-            </div>
-
-            <div class="mt-4">
-                <InputLabel for="password_confirmation" value="Confirm Password" />
-                <TextInput
-                    id="password_confirmation"
-                    v-model="form.password_confirmation"
-                    type="password"
-                    class="mt-1 block w-full"
-                    required
-                    autocomplete="new-password"
-                />
-                <InputError class="mt-2" :message="form.errors.password_confirmation" />
-            </div>
-
-            <div class="flex items-center justify-end mt-4">
-                <PrimaryButton :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
-                    Reset Password
-                </PrimaryButton>
-            </div>
-        </form>
-    </AuthenticationCard>
+    <div class="login-section">
+        <div class="container">
+            <LoginCard
+                type="reset-password"
+                @submit="submit"
+            >
+                <div class="form-group has-feedback" :class="{'has-error' : form.errors.email}">
+                    <span class="fa fa-envelope-o form-control-feedback"></span>
+                    <input
+                        id="email"
+                        v-model="form.email"
+                        type="email"
+                        class="form-control customInput"
+                        placeholder="shehar@next-x.com.au"
+                        required
+                        autocomplete="username"
+                    >
+                    <span v-show="form.errors.email" class="help-block text-left">{{ form.errors.email }}</span>
+                </div>
+                <div class="form-group has-feedback" :class="{'has-error' : form.errors.password}">
+                    <span class="fa fa-globe form-control-feedback"></span>
+                    <input
+                        id="password"
+                        v-model="form.password"
+                        type="password"
+                        class="form-control customInput"
+                        placeholder="***************"
+                        required
+                        autocomplete="new-password"
+                    >
+                    <span v-show="form.errors.password" class="help-block text-left">{{ form.errors.password }}</span>
+                </div>
+                <div class="form-group has-feedback" :class="{'has-error' : form.errors.password_confirmation}">
+                    <span class="fa fa-globe form-control-feedback"></span>
+                    <input
+                        id="password"
+                        v-model="form.password_confirmation"
+                        type="password"
+                        class="form-control customInput"
+                        placeholder="***************"
+                        required
+                        autocomplete="new-password"
+                    >
+                    <span v-show="form.errors.password_confirmation" class="help-block text-left">{{ form.errors.password_confirmation }}</span>
+                </div>
+                <div class="form-group has-feedback">
+                    <input
+                        type="submit"
+                        value="Reset Password"
+                        class="btn btn-red"
+                        :disabled="form.processing"
+                    >
+                </div>
+            </LoginCard>
+        </div>
+    </div>
 </template>

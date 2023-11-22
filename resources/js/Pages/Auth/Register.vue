@@ -1,19 +1,15 @@
 <script setup>
-import { Head, Link, useForm } from '@inertiajs/vue3';
-import AuthenticationCard from '@/Components/AuthenticationCard.vue';
-import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue';
-import Checkbox from '@/Components/Checkbox.vue';
-import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
+import { Head, useForm } from '@inertiajs/vue3';
+import LoginCard from '@/Components/LoginCard.vue';
 
 const form = useForm({
     name: '',
     email: '',
+    username: '',
+    phone: '',
     password: '',
     password_confirmation: '',
-    terms: false,
+    terms: true,
 });
 
 const submit = () => {
@@ -26,87 +22,148 @@ const submit = () => {
 <template>
     <Head title="Register" />
 
-    <AuthenticationCard>
-        <template #logo>
-            <AuthenticationCardLogo />
-        </template>
-
-        <form @submit.prevent="submit">
-            <div>
-                <InputLabel for="name" value="Name" />
-                <TextInput
-                    id="name"
-                    v-model="form.name"
-                    type="text"
-                    class="mt-1 block w-full"
-                    required
-                    autofocus
-                    autocomplete="name"
-                />
-                <InputError class="mt-2" :message="form.errors.name" />
-            </div>
-
-            <div class="mt-4">
-                <InputLabel for="email" value="Email" />
-                <TextInput
-                    id="email"
-                    v-model="form.email"
-                    type="email"
-                    class="mt-1 block w-full"
-                    required
-                    autocomplete="username"
-                />
-                <InputError class="mt-2" :message="form.errors.email" />
-            </div>
-
-            <div class="mt-4">
-                <InputLabel for="password" value="Password" />
-                <TextInput
-                    id="password"
-                    v-model="form.password"
-                    type="password"
-                    class="mt-1 block w-full"
-                    required
-                    autocomplete="new-password"
-                />
-                <InputError class="mt-2" :message="form.errors.password" />
-            </div>
-
-            <div class="mt-4">
-                <InputLabel for="password_confirmation" value="Confirm Password" />
-                <TextInput
-                    id="password_confirmation"
-                    v-model="form.password_confirmation"
-                    type="password"
-                    class="mt-1 block w-full"
-                    required
-                    autocomplete="new-password"
-                />
-                <InputError class="mt-2" :message="form.errors.password_confirmation" />
-            </div>
-
-            <div v-if="$page.props.jetstream.hasTermsAndPrivacyPolicyFeature" class="mt-4">
-                <InputLabel for="terms">
-                    <div class="flex items-center">
-                        <Checkbox id="terms" v-model:checked="form.terms" name="terms" required />
-
-                        <div class="ms-2">
-                            I agree to the <a target="_blank" :href="route('terms.show')" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Terms of Service</a> and <a target="_blank" :href="route('policy.show')" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Privacy Policy</a>
+    <div class="signup-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-offset-2 col-lg-3 col-md-offset-2 col-md-4 col-sm-6">
+                    <LoginCard
+                        type="register"
+                        @submit="submit"
+                    >
+                        <div class="form-group has-feedback" :class="{'has-error' : form.errors.name}">
+                            <span class="fa fa-user-o form-control-feedback"></span>
+                            <input
+                                id="name"
+                                v-model="form.name"
+                                type="text"
+                                class="form-control customInput"
+                                placeholder="Shehar Yar"
+                                autofocus
+                                required
+                                autocomplete="name"
+                            >
+                            <span v-show="form.errors.name" class="help-block text-left">{{ form.errors.name }}</span>
+                        </div>
+                        <div class="form-group has-feedback" :class="{'has-error' : form.errors.email}">
+                            <span class="fa fa-envelope-o form-control-feedback"></span>
+                            <input
+                                id="email"
+                                v-model="form.email"
+                                type="email"
+                                class="form-control customInput"
+                                placeholder="shehar@next-x.com.au"
+                                required
+                                autocomplete="username"
+                            >
+                            <span v-show="form.errors.email" class="help-block text-left">{{ form.errors.email }}</span>
+                        </div>
+                        <div class="form-group has-feedback" :class="{'has-error' : form.errors.username}">
+                            <span class="fa fa-user-plus form-control-feedback"></span>
+                            <input
+                                id="name"
+                                v-model="form.username"
+                                type="text"
+                                class="form-control customInput"
+                                placeholder="sheharyar"
+                                required
+                                autocomplete="username"
+                            >
+                            <span v-show="form.errors.username" class="help-block text-left">{{ form.errors.username }}</span>
+                        </div>
+                        <div class="form-group has-feedback" :class="{'has-error' : form.errors.phone}">
+                            <span class="fa fa-phone form-control-feedback"></span>
+                            <input
+                                id="name"
+                                v-model="form.phone"
+                                type="text"
+                                class="form-control customInput"
+                                placeholder="04727294564"
+                                required
+                                autocomplete="phone"
+                            >
+                            <span v-show="form.errors.phone" class="help-block text-left">{{ form.errors.phone }}</span>
+                        </div>
+                        <div class="form-group has-feedback" :class="{'has-error' : form.errors.password}">
+                            <span class="fa fa-globe form-control-feedback"></span>
+                            <input
+                                id="password"
+                                v-model="form.password"
+                                type="password"
+                                class="form-control customInput"
+                                placeholder="***************"
+                                required
+                                autocomplete="new-password"
+                            >
+                            <span v-show="form.errors.password" class="help-block text-left">{{ form.errors.password }}</span>
+                        </div>
+                        <div class="form-group has-feedback" :class="{'has-error' : form.errors.password_confirmation}">
+                            <span class="fa fa-globe form-control-feedback"></span>
+                            <input
+                                id="password"
+                                v-model="form.password_confirmation"
+                                type="password"
+                                class="form-control customInput"
+                                placeholder="***************"
+                                required
+                                autocomplete="new-password"
+                            >
+                            <span v-show="form.errors.password_confirmation" class="help-block text-left">{{ form.errors.password_confirmation }}</span>
+                        </div>
+                        <p>
+                            <input
+                                type="submit"
+                                value="Create Account"
+                                class="btn btn-red"
+                                :disabled="form.processing"
+                            >
+                        </p>
+                    </LoginCard>
+                </div>
+                <!-- col -->
+                <div class="col-lg-6 col-md-6 col-sm-6">
+                    <div class="slider-box">
+                        <div id="carousel-example-generic" class="carousel slide" data-ride="carousel">
+                            <!-- Indicators -->
+                            <ol class="carousel-indicators">
+                                <li data-target="#carousel-example-generic" data-slide-to="0" class="active"></li>
+                                <li data-target="#carousel-example-generic" data-slide-to="1"></li>
+                                <li data-target="#carousel-example-generic" data-slide-to="2"></li>
+                            </ol>
+                            <!-- Wrapper for slides -->
+                            <div class="carousel-inner" role="listbox">
+                                <div class="item active">
+                                    <img src="images/carrot.png" alt="...">
+                                    <div class="">
+                                        <h4>Baby Steps Count</h4>
+                                        <p>
+                                            One step forward at a time
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="item">
+                                    <img src="images/carrot.png" alt="...">
+                                    <div class="">
+                                        <h4>Baby Steps Count</h4>
+                                        <p>
+                                            One step forward at a time
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="item">
+                                    <img src="images/carrot.png" alt="...">
+                                    <div class="">
+                                        <h4>Baby Steps Count</h4>
+                                        <p>
+                                            One step forward at a time
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <InputError class="mt-2" :message="form.errors.terms" />
-                </InputLabel>
+                    <!-- slider-box -->
+                </div>
             </div>
-
-            <div class="flex items-center justify-end mt-4">
-                <Link :href="route('login')" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    Already registered?
-                </Link>
-
-                <PrimaryButton class="ms-4" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
-                    Register
-                </PrimaryButton>
-            </div>
-        </form>
-    </AuthenticationCard>
+        </div>
+    </div>
 </template>

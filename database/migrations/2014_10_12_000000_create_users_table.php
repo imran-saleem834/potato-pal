@@ -13,13 +13,20 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
+            $table->string('name', 50);
+            $table->string('email', 90)->unique();
+            $table->string('username', 50)->unique();
+            $table->string('phone', 20)->nullable();
+            $table->text('role')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
             $table->foreignId('current_team_id')->nullable();
             $table->string('profile_photo_path', 2048)->nullable();
+            $table->string('grower_name', 50)->nullable();
+            $table->text('grower_tags')->nullable();
+            $table->text('buyer_tags')->nullable();
+            $table->text('paddocks')->nullable();
             $table->timestamps();
         });
     }

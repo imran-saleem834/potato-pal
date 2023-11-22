@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
+use App\Http\Controllers\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,21 +14,17 @@ use Inertia\Inertia;
 |
 */
 
-Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
-});
+Route::inertia('/terms-of-service', 'TermsOfService')->name('terms.show');
+Route::inertia('/privacy-policy', 'PrivacyPolicy')->name('policy.show');
 
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
     'verified',
 ])->group(function () {
-    Route::get('/dashboard', function () {
-        return Inertia::render('Dashboard');
-    })->name('dashboard');
+    Route::inertia('/dashboard', 'Dashboard');
+    Route::inertia('/', 'Dashboard')->name('dashboard');
+    Route::inertia('/users', 'User/Index')->name('users');
+    Route::get('/users/list', [UserController::class, 'index'])->name('users.list');
+    Route::resource('/users', UserController::class)->except(['index', 'create', 'edit']);
 });

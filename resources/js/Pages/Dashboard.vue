@@ -1,22 +1,58 @@
 <script setup>
-import AppLayout from '@/Layouts/AppLayout.vue';
-import Welcome from '@/Components/Welcome.vue';
+import { Head, Link } from '@inertiajs/vue3';
+import LogoutButton from '@/Components/LogoutButton.vue';
+
+const menus = [
+    { route: route('users'), image: 'menu1.png', label: 'Users' },
+    { route: '', image: 'menu2.png', label: 'Receivals' },
+    { route: '', image: 'menu3.png', label: 'Unloading' },
+    { route: '', image: 'menu4.png', label: 'TIA Samples' },
+    { route: '', image: 'menu5.png', label: 'Allocations' },
+    { route: '', image: 'menu6.png', label: 'Inventory' },
+    { route: '', image: 'menu7.png', label: 'Invoices' },
+    { route: '', image: 'menu8.png', label: 'Labels' },
+    { route: '', image: 'menu9.png', label: 'Dispatch' },
+    { route: '', image: 'menu10.png', label: 'Reports' },
+    { route: '', image: 'menu11.png', label: 'Cutting' },
+    { route: '', image: 'menu12.png', label: 'Weighbridge' },
+    { route: '', image: 'menu13.png', label: 'Other Jobs' },
+    { route: '', image: 'menu14.png', label: 'Notifications' },
+    { route: '', image: 'menu15.png', label: 'Notes' },
+    { route: '', image: 'menu16.png', label: 'Files' },
+];
+
 </script>
 
 <template>
-    <AppLayout title="Dashboard">
-        <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                Dashboard
-            </h2>
-        </template>
+    <Head title="Log in"></Head>
 
-        <div class="py-12">
-            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
-                    <Welcome />
+    <div class="admin-access">
+        <div class="container">
+            <div class="logout-text">
+                <LogoutButton/>
+            </div>
+            <div class="top-logo">
+                <Link :href="route('dashboard')">
+                    <img src="/images/logo.png" alt="Potato Pal">
+                </Link>
+            </div>
+            <div class="admin-menu">
+                <h5>Welcome {{ $page.props.auth.user.name }}</h5>
+                <div class="row">
+                    <div
+                        v-for="menu in menus"
+                        :key="menu.image"
+                        class="col-md-3 col-sm-3 col-xs-3"
+                    >
+                        <div class="menu-icon" :class="{ 'opacity-0-5' : menu.route === '' }">
+                            <Link :href="menu.route">
+                                <img :src="`/images/${menu.image}`" :alt="menu.label">
+                                <span>{{ menu.label }}</span>
+                            </Link>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </AppLayout>
+    </div>
 </template>

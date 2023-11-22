@@ -8,7 +8,11 @@
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+        <link rel="stylesheet" type="text/css" href="{{ asset('css/bootstrap.min.css') }}" />
+        <link rel="stylesheet" type="text/css" href="{{ asset('css/style.css') }}" />
+        <link rel="stylesheet" type="text/css" href="{{ asset('css/font-awesome.css') }}" />
+        <link rel="stylesheet" type="text/css" href="{{ asset('css/animate.css') }}" />
+        <link rel="stylesheet" type="text/css" href="{{ asset('css/hover.css') }}" />
 
         <!-- Scripts -->
         @routes
@@ -18,4 +22,9 @@
     <body class="font-sans antialiased">
         @inertia
     </body>
+
+    <script type="text/javascript" src="{{ asset('js/jquery.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/bootstrap.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/index.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/wow.js') }}"></script>
 </html>
