@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\Receival;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CategoryController;
@@ -40,24 +39,5 @@ Route::middleware([
 });
 
 Route::get('/abc', function () {
-    $receivals = Receival::query()
-        ->with([
-            'user'
-        ])
-        ->select('id', 'user_id')
-        ->get();
 
-    echo '<pre>';
-    print_r($receivals->toArray());
-//    foreach (['Buyer 1', 'Buyer 3', 'Buyer 2'] as $item) {
-//        \App\Models\Category::create(['name' => $item, 'type' => 'buyer']);
-//    }
-//
-//    foreach (['Grower 1', 'Grower 3', 'Grower 2'] as $item) {
-//        \App\Models\Category::create(['name' => $item, 'type' => 'grower']);
-//    }
 });
-
-// Updated user access
-// Fix design for left bar for users and admin options
-//
