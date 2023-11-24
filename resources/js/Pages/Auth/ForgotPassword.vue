@@ -45,7 +45,7 @@ const submit = () => {
                     <input
                         type="submit"
                         value="Email Password Reset Link"
-                        class="btn btn-red"
+                        class="btn btn-red-large"
                         :disabled="form.processing"
                     >
                 </div>

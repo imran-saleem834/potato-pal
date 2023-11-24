@@ -1,36 +1,36 @@
 <script setup>
-import { Link, } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { Link, router } from '@inertiajs/vue3';
+import { ref, watch, onMounted } from 'vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import TopBar from '@/Components/TopBar.vue';
 import MiddleBar from '@/Components/MiddleBar.vue';
-import Details from '@/Pages/User/Details.vue';
+import Details from '@/Pages/Receival/Details.vue';
 import LeftBar from "@/Components/LeftBar.vue";
 
-const users = ref(null);
-const user = ref(null);
+const receivals = ref([]);
+const receival = ref(null);
 const activeTab = ref(null);
 const edit = ref(null);
 const isNewRecord = ref(false);
 const growerGroups = ref([]);
 const buyerGroups = ref([]);
 
-const getUsers = (keyword = null) => {
-    axios.get(route('users.list'), { params: { keyword: keyword, userId: edit.value } }).then(response => {
-        users.value = response.data.users;
-        user.value = response.data.user || {};
+const getReceivals = (keyword = null) => {
+    axios.get(route('receivals.list'), { params: { keyword: keyword, receivalId: edit.value } }).then(response => {
+        receivals.value = response.data.receivals;
+        receival.value = response.data.receival || {};
 
         if (!edit.value) {
-            setActiveTab(response.data.user?.id);
+            setActiveTab(response.data.receival?.id);
         } else {
             setEditUser(edit.value);
         }
     });
 };
 
-const getUser = (id) => {
-    axios.get(route('users.show', id)).then(response => {
-        user.value = response.data;
+const getReceival = (id) => {
+    axios.get(route('receivals.show', id)).then(response => {
+        receival.value = response.data;
 
         setActiveTab(response.data.id);
     });
@@ -50,14 +50,14 @@ const setEditUser = (id) => {
 const setNewRecord = () => {
     isNewRecord.value = true;
     edit.value = null;
-    user.value = {};
+    receival.value = {};
     activeTab.value = null;
 }
 
 const deleteUser = (id) => {
-    axios.delete(route('users.destroy', id), {
+    axios.delete(route('receivals.destroy', id), {
         onSuccess: () => {
-            getUsers();
+            getReceivals();
         },
     });
 }
@@ -72,7 +72,7 @@ const getCategories = (hardRefresh = false) => {
             return { 'value': category.id, 'label': category.name };
         });
 
-        getUsers();
+        getReceivals();
         return;
     }
 
@@ -87,21 +87,21 @@ getCategories();
 </script>
 
 <template>
-    <AppLayout title="Users">
+    <AppLayout title="Receivals">
         <TopBar
-            type="Users"
-            @search="getUsers"
+            type="Receivals"
+            @search="getReceivals"
             @newRecord="setNewRecord"
         />
         <MiddleBar
-            v-if="user"
-            type="Users"
-            :title="user.name || 'New'"
+            v-if="receival"
+            type="Receivals"
+            :title="receival.user?.name || 'New'"
             :is-edit-record-selected="!!edit"
             :is-new-record-selected="isNewRecord"
             @newRecord="setNewRecord"
-            @editRecord="() => setEditUser(user?.id)"
-            @deleteRecord="() => deleteUser(user?.id)"
+            @editRecord="() => setEditUser(receival?.id)"
+            @deleteRecord="() => deleteUser(receival?.id)"
         />
 
         <!-- tab-section -->
@@ -109,18 +109,18 @@ getCategories();
             <div class="row row0">
                 <div class="col-lg-3 col-sm-6" :class="{'mobile-userlist' : $windowWidth <= 767}">
                     <LeftBar
-                        :items="users"
+                        :items="receivals"
                         :active-tab="activeTab"
-                        :row-1="{title: 'Name', value: 'name'}"
-                        :row-2="{title: 'Email', value: 'email'}"
-                        @click="getUser"
+                        :row-1="{title: 'Grower\'s Name', value: 'user.name'}"
+                        :row-2="{title: 'Receival Id', value: 'id'}"
+                        @click="getReceival"
                     />
                 </div>
                 <div class="col-lg-8 col-sm-6">
-                    <div class="tab-content" v-if="user">
+                    <div class="tab-content" v-if="receival">
                         <div class="tab-pane active">
                             <Details
-                                :user="user"
+                                :receival="receival"
                                 :is-edit="!!edit"
                                 :is-new="isNewRecord"
                                 :grower-groups="growerGroups"
@@ -178,12 +178,12 @@ getCategories();
                                 </button>
                                 <ul class="dropdown-menu">
                                     <li>
-                                        <a role="button" @click="deleteUser(user?.id)">
+                                        <a role="button" @click="deleteUser(receival?.id)">
                                             <span class="fa fa-trash-o"></span> Delete
                                         </a>
                                     </li>
                                     <li>
-                                        <a role="button" @click="setEditUser(user?.id)">
+                                        <a role="button" @click="setEditUser(receival?.id)">
                                             <span class="fa fa-edit"></span>Edit
                                         </a>
                                     </li>
@@ -191,19 +191,19 @@ getCategories();
                             </div>
                         </div>
                     </div>
-                    <div class="modal-body" v-if="user">
+                    <div class="modal-body" v-if="receival">
                         <ol class="breadcrumb">
                             <li>
                                 <Link :href="route('dashboard')" data-dismiss="modal" aria-label="Close">Menu</Link>
                             </li>
                             <li>
-                                <Link href="" data-dismiss="modal" aria-label="Close">Users</Link>
+                                <Link href="" data-dismiss="modal" aria-label="Close">Receivals</Link>
                             </li>
                             <li class="active" v-if="isNewRecord">New</li>
-                            <li class="active" v-else-if="user">{{ user.name }}</li>
+                            <li class="active" v-else-if="receival">{{ receival.user?.name }}</li>
                         </ol>
                         <Details
-                            :user="user"
+                            :receival="receival"
                             :is-edit="!!edit"
                             :is-new="isNewRecord"
                             :grower-groups="growerGroups"

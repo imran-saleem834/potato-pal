@@ -24,15 +24,19 @@ class UserRequest extends FormRequest
     public function rules(): array
     {
         $rules = [
-            'name'        => ['required', 'string', 'max:50'],
-            'email'       => ['required', 'string', 'email', 'max:90', 'unique:users'],
-            'username'    => ['required', 'string', 'max:50', 'unique:users'],
-            'phone'       => ['required', 'string', 'max:20'],
-            'role'        => ['nullable', 'array'],
-            'grower_name' => ['nullable', 'string', 'max:50'],
-            'grower_tags' => ['nullable', 'array'],
-            'buyer_tags'  => ['nullable', 'array'],
-            'paddocks'    => ['nullable', 'array'],
+            'name'                => ['required', 'string', 'max:50'],
+            'email'               => ['required', 'string', 'email', 'max:90', 'unique:users'],
+            'username'            => ['required', 'string', 'max:50', 'unique:users'],
+            'phone'               => ['required', 'string', 'max:20'],
+            'role'                => ['nullable', 'array'],
+            'grower_groups'       => ['nullable', 'array'],
+            'grower_name'         => ['nullable', 'string', 'max:50'],
+            'grower_tags'         => ['nullable', 'array'],
+            'buyer_groups'        => ['nullable', 'array'],
+            'buyer_tags'          => ['nullable', 'array'],
+            'paddocks'            => ['nullable', 'array'],
+            'paddocks.*.name'     => ['required', 'string', 'max:50'],
+            'paddocks.*.hectares' => ['required', 'string', 'max:20'],
         ];
 
         if (!$this->isMethod('POST')) {
@@ -56,5 +60,30 @@ class UserRequest extends FormRequest
         }
 
         return $rules;
+    }
+
+
+    public function prepareForValidation()
+    {
+        $paddocks = $this->input('paddocks');
+        foreach ($this->input('paddocks') as $index => $paddock) {
+            if (empty($paddock['name']) && empty($paddock['hectares'])) {
+                unset($paddocks[$index]);
+            }
+        }
+        $this->merge(['paddocks' => $paddocks]);
+    }
+
+    /**
+     * Get custom attributes for validator errors.
+     *
+     * @return array<string, string>
+     */
+    public function attributes(): array
+    {
+        return [
+            'paddocks.*.name'     => 'paddock name',
+            'paddocks.*.hectares' => 'paddock hectares',
+        ];
     }
 }

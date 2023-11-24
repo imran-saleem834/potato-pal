@@ -88,20 +88,29 @@
      height: 15px;
      margin-right: 5px;
  }
- .btn-red{
+ .btn-red,
+ .btn-red-large{
      background: #E22827;
      border: 1px solid #E22827;
      color: #fff !important;
+     border-radius: 3px;
+     text-decoration: none !important;
+     transition: 300ms ease-out !important;
+ }
+.btn-red{
+    padding: 8px 22px;
+    box-shadow: 1px 5px 8px rgba(0, 0, 0, 0.09);
+}
+ .btn-red-large{
      border-radius: 6px;
      width: 100%;
      font-family: 'Montserrat-Medium';
      padding: 13px 20px;
      font-size: 16px;
-     transition: 300ms ease-out !important;
      margin-bottom: 25px;
-     text-decoration: none !important;
  }
- .btn-red:hover{
+ .btn-red:hover,
+ .btn-red-large:hover{
      background: #fff;
      color: #E22827 !important;
  }
@@ -553,7 +562,6 @@
           margin-bottom: 25px;
    }
    .tab-section  .user-boxes .form-control{
-     border-radius: 6px;
      height: 40px;
      background: #F2F2F2;
    }
@@ -597,6 +605,7 @@
      background: #000000;
      color: #FFFFFF;
    }
+    .user-details  .user-boxes ul li .red-btn,
    .tab-section  .user-boxes ul li .red-btn{
      background: #E22727;
      color: #FFFFFF;
@@ -615,7 +624,7 @@
    }
    .tab-section  .user-boxes   .user-column-two{
      display: flex;
-     align-items: center;
+     align-items: flex-start;
      justify-content: space-between;
    }
    .tab-section .tab-content h4{
@@ -802,16 +811,10 @@
 
  .tabs-left li a span.angle-right{
      position: absolute;
-     bottom: 0;
+     top: calc(50% - 10px);
      right: 0;
      font-size: 20px;
      color: #000000;
- }
- .tabs-left-admin li a span.angle-right{
-     position: absolute;
-     top: 18px;
-     right: 30px;
-     font-size: 20px;
  }
 
 /****** Files ********/

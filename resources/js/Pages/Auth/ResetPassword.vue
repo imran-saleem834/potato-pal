@@ -73,7 +73,7 @@ const submit = () => {
                     <input
                         type="submit"
                         value="Reset Password"
-                        class="btn btn-red"
+                        class="btn btn-red-large"
                         :disabled="form.processing"
                     >
                 </div>

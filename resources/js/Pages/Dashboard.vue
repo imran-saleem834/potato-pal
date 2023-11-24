@@ -4,7 +4,7 @@ import LogoutButton from '@/Components/LogoutButton.vue';
 
 const menus = [
     { route: route('users'), image: 'menu1.png', label: 'Users' },
-    { route: '', image: 'menu2.png', label: 'Receivals' },
+    { route: route('receivals.index'), image: 'menu2.png', label: 'Receivals' },
     { route: '', image: 'menu3.png', label: 'Unloading' },
     { route: '', image: 'menu4.png', label: 'TIA Samples' },
     { route: '', image: 'menu5.png', label: 'Allocations' },
@@ -15,7 +15,7 @@ const menus = [
     { route: '', image: 'menu10.png', label: 'Reports' },
     { route: '', image: 'menu11.png', label: 'Cutting' },
     { route: '', image: 'menu12.png', label: 'Weighbridge' },
-    { route: '', image: 'menu13.png', label: 'Other Jobs' },
+    { route: route('options'), image: 'menu13.png', label: 'Admin Options' },
     { route: '', image: 'menu14.png', label: 'Notifications' },
     { route: '', image: 'menu15.png', label: 'Notes' },
     { route: '', image: 'menu16.png', label: 'Files' },
@@ -24,7 +24,7 @@ const menus = [
 </script>
 
 <template>
-    <Head title="Log in"></Head>
+    <Head title="Dashboard"></Head>
 
     <div class="admin-access">
         <div class="container">

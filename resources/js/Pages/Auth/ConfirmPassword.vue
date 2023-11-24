@@ -49,7 +49,7 @@ const submit = () => {
                     <input
                         type="submit"
                         value="Confirm"
-                        class="btn btn-red"
+                        class="btn btn-red-large"
                         :disabled="form.processing"
                     >
                 </div>

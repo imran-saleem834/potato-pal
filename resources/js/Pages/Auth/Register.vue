@@ -113,7 +113,7 @@ const submit = () => {
                             <input
                                 type="submit"
                                 value="Create Account"
-                                class="btn btn-red"
+                                class="btn btn-red-large"
                                 :disabled="form.processing"
                             >
                         </p>

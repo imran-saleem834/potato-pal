@@ -19,6 +19,7 @@
         "vue": "^3.2.31"
     },
     "dependencies": {
+        "@vueform/multiselect": "^2.6.6",
         "vue-window-size": "^2.0.0"
     }
 }

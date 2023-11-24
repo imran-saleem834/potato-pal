@@ -2,7 +2,11 @@
 import { onMounted, ref } from 'vue';
 
 defineProps({
-    modelValue: String,
+    modelValue: String|Number,
+    error: {
+        type: String,
+        default: ''
+    }
 });
 
 defineEmits(['update:modelValue']);
@@ -19,10 +23,16 @@ defineExpose({ focus: () => input.value.focus() });
 </script>
 
 <template>
-    <input
-        ref="input"
-        class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
-        :value="modelValue"
-        @input="$emit('update:modelValue', $event.target.value)"
-    >
+    <div class="form-group" :class="{'has-error' : error}">
+        <div :class="{ 'input-group' : $slots.addon }">
+            <input
+                ref="input"
+                class="form-control"
+                :value="modelValue"
+                @input="$emit('update:modelValue', $event.target.value)"
+            >
+            <slot name="addon"/>
+        </div>
+        <span v-show="error" class="help-block text-left">{{ error }}</span>
+    </div>
 </template>

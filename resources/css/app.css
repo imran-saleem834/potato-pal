@@ -5,3 +5,72 @@
 /*[x-cloak] {*/
 /*    display: none;*/
 /*}*/
+
+@import "@vueform/multiselect/themes/default.css";
+
+.multiselect {
+    height: 40px;
+    background: #F2F2F2;
+}
+
+.multiselect-tags-search {
+    background: #F2F2F2;
+    line-height: 30px;
+    margin-top: -6px;
+    font-size: 14px;
+}
+
+.multiselect-tag {
+    line-height: 20px;
+    font-size: 12px;
+    font-weight: normal;
+    background: white;
+    color: black;
+}
+
+.nav-tabs > li > a {
+    margin-right: 0;
+}
+
+.user-table .table tr > td:first-child,
+.user-table .table tr > th:first-child {
+    width: 40%;
+}
+
+.input-group-addon:hover {
+    color: white;
+    background: #E22827 !important;
+}
+
+.mb-1 {
+    margin-bottom: 1rem;
+}
+
+.mb-2 {
+    margin-bottom: 2rem;
+}
+
+.flex-end {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.create-update-btn {
+    z-index: 9;
+    margin-top: 0;
+    position: relative;
+    margin-bottom: -3rem;
+}
+
+@media only screen and (max-width: 991px) {
+    .create-update-btn {
+        margin-bottom: 1rem;
+    }
+}
+
+@media only screen and (max-width: 767px) {
+    .create-update-btn {
+        margin-top: -5.5rem;
+        margin-bottom: 2rem;
+    }
+}
