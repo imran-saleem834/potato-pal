@@ -20,6 +20,7 @@ const optionTypes = [
     { slug: 'grower', label: 'Grower Group Type' },
     { slug: 'seed-type', label: 'Seed Type' },
     { slug: 'seed-variety', label: 'Seed Variety' },
+    { slug: 'transport', label: 'Transport Co.' },
 ];
 
 const setActiveTab = (id) => {
@@ -89,7 +90,9 @@ getCategories('seed-class');
                                 <div class="user-table">
                                     <table class="table">
                                         <tbody>
-                                        <tr><th>{{ optionType.label }}</th></tr>
+                                        <tr>
+                                            <th>{{ optionType.label }}</th>
+                                        </tr>
                                         </tbody>
                                     </table>
                                     <span class="fa fa-angle-right angle-right"></span>

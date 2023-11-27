@@ -20,6 +20,7 @@
     },
     "dependencies": {
         "@vueform/multiselect": "^2.6.6",
+        "moment": "^2.29.4",
         "vue-window-size": "^2.0.0"
     }
 }

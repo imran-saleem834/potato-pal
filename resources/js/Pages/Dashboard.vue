@@ -5,7 +5,7 @@ import LogoutButton from '@/Components/LogoutButton.vue';
 const menus = [
     { route: route('users'), image: 'menu1.png', label: 'Users' },
     { route: route('receivals.index'), image: 'menu2.png', label: 'Receivals' },
-    { route: '', image: 'menu3.png', label: 'Unloading' },
+    { route: route('unloading.index'), image: 'menu3.png', label: 'Unloading' },
     { route: '', image: 'menu4.png', label: 'TIA Samples' },
     { route: '', image: 'menu5.png', label: 'Allocations' },
     { route: '', image: 'menu6.png', label: 'Inventory' },

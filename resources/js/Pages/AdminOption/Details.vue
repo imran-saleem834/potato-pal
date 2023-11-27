@@ -1,29 +1,3 @@
-<template>
-    <div class="user-boxes">
-        <h4>Name</h4>
-        <TextInput v-if="edit || isNew" v-model="form.name" :error="form.errors.name" type="text"/>
-        <h5 style="margin-bottom: 40px;" v-else>{{ category.name }}</h5>
-
-        <ul>
-            <li v-if="isNew">
-                <a role="button" @click="storeRecord" class="red-btn"><span class="fa fa-edit hidden"></span> Create</a>
-            </li>
-            <li v-if="!isNew && !edit">
-                <a role="button" @click="editRecord" class="red-btn"><span class="fa fa-edit hidden"></span> Edit</a>
-            </li>
-            <li v-if="edit">
-                <a role="button" @click="updateRecord" class="red-btn"><span class="fa fa-edit hidden"></span> Update</a>
-            </li>
-            <li class="hidden" v-if="!isNew">
-                <a role="button" @click="deleteRecord" class="trash-btn"><span class="fa fa-trash-o"></span></a>
-            </li>
-            <li v-if="!isNew">
-                <a role="button" @click="deleteRecord" class="red-btn">Delete</a>
-            </li>
-        </ul>
-    </div>
-</template>
-
 <script setup>
 import { ref, watch } from "vue";
 import { useForm } from "@inertiajs/vue3";
@@ -79,3 +53,31 @@ const deleteRecord = () => {
     });
 }
 </script>
+
+<template>
+    <div class="user-boxes">
+        <h4>Name</h4>
+        <TextInput v-if="edit || isNew" v-model="form.name" :error="form.errors.name" type="text"/>
+        <h5 style="margin-bottom: 40px;" v-else>{{ category.name }}</h5>
+
+        <ul>
+            <li v-if="isNew">
+                <a role="button" @click="storeRecord" class="red-btn"><span class="fa fa-edit hidden"></span> Create</a>
+            </li>
+            <li v-if="!isNew && !edit">
+                <a role="button" @click="editRecord" class="red-btn"><span class="fa fa-edit hidden"></span> Edit</a>
+            </li>
+            <li v-if="edit">
+                <a role="button" @click="updateRecord" class="red-btn">
+                    <span class="fa fa-edit hidden"></span> Update
+                </a>
+            </li>
+            <li class="hidden" v-if="!isNew">
+                <a role="button" @click="deleteRecord" class="trash-btn"><span class="fa fa-trash-o"></span></a>
+            </li>
+            <li v-if="!isNew">
+                <a role="button" @click="deleteRecord" class="red-btn">Delete</a>
+            </li>
+        </ul>
+    </div>
+</template>

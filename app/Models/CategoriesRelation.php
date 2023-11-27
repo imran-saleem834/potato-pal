@@ -15,9 +15,10 @@ class CategoriesRelation extends Model
      * @var array<string>
      */
     protected $fillable = [
-        'user_id',
+        'category_id',
         'categorizable_id',
-        'categorizable_type'
+        'categorizable_type',
+        'type',
     ];
 
     /**
@@ -26,4 +27,9 @@ class CategoriesRelation extends Model
      * @var bool
      */
     public $timestamps = false;
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
 }

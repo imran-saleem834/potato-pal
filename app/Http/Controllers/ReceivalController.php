@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CategoriesRelation;
-use App\Models\Category;
-use App\Models\Receival;
+use App\Models\Unload;
 use App\Models\User;
-use Illuminate\Http\Request;
-use App\Http\Requests\ReceivalRequest;
 use Inertia\Inertia;
+use App\Models\Receival;
+use Illuminate\Http\Request;
+use App\Helpers\CategoriesHelper;
+use App\Http\Requests\ReceivalRequest;
 
 class ReceivalController extends Controller
 {
@@ -17,7 +17,9 @@ class ReceivalController extends Controller
      */
     public function index()
     {
-        return Inertia::render('Receival/Index');
+        return Inertia::render('Receival/Index', [
+            'users' => User::select(['id', 'name', 'paddocks'])->get()->toArray()
+        ]);
     }
 
     /**
@@ -26,7 +28,7 @@ class ReceivalController extends Controller
      */
     public function list(Request $request)
     {
-        $keyword   = $request->input('keyword', '');
+        $keyword = $request->input('keyword', '');
         $receivals = Receival::query()
             ->with([
                 'user' => function ($query) {
@@ -35,32 +37,30 @@ class ReceivalController extends Controller
             ])
             ->select('id', 'user_id')
             ->when($keyword, function ($query, $keyword) {
-                $keyword = strtolower($keyword);
-                return $query->whereRaw("`id` LIKE '%$keyword%'")
-                    ->orWhereRaw("LOWER(`paddocks`) LIKE '%$keyword%'")
-                    ->orWhereRaw("LOWER(`tia_sample_id`) LIKE '%$keyword%'")
-                    ->orWhereRaw("LOWER(`unloading_status`) LIKE '%$keyword%'")
-                    ->orWhereRaw("`unloading_id` LIKE '%$keyword%'")
-                    ->orWhereRaw("LOWER(`transport`) LIKE '%$keyword%'")
-                    ->orWhereRaw("`grower_docket_no` LIKE '%$keyword%'")
-                    ->orWhereRaw("`chc_receival_docket_no` LIKE '%$keyword%'")
-                    ->orWhereRaw("`driver_name` LIKE '%$keyword%'")
-                    ->orWhereRaw("`comments` LIKE '%$keyword%'");
+                return $query->where('id', 'LIKE', "%$keyword%")
+                    ->orWhere('paddocks', 'LIKE', "%$keyword%")
+                    ->orWhere('tia_sample_id', 'LIKE', "%$keyword%")
+                    ->orWhere('unload_id', 'LIKE', "%$keyword%")
+                    ->orWhere('grower_docket_no', 'LIKE', "%$keyword%")
+                    ->orWhere('chc_receival_docket_no', 'LIKE', "%$keyword%")
+                    ->orWhere('chc_receival_docket_no', 'LIKE', "%$keyword%")
+                    ->orWhere('driver_name', 'LIKE', "%$keyword%")
+                    ->orWhere('comments', 'LIKE', "%$keyword%");
             })
             ->get();
 
         $receivalId = $request->input('receivalId', $receivals->first()->id ?? 0);
 
         $receival = Receival::with([
+            'categories',
             'user' => function ($query) {
                 return $query->select('id', 'name');
             }
         ])->find($receivalId);
-        //        $receival = $this->getRelations($receival);
 
         return response()->json([
             'receivals' => $receivals,
-            'receival' => $receival,
+            'receival'  => $receival,
         ]);
     }
 
@@ -71,11 +71,19 @@ class ReceivalController extends Controller
     {
         $inputs = $request->validated();
 
-        $user = Receival::create($inputs);
+        $receival = Receival::create($inputs);
 
-//        foreach ($inputs['grower_groups'] ?? [] as $input) {
-//            $this->createCategoriesRelation($user->id, $input, 'grower');
-//        }
+        $inputs = $request->only([
+            'grower',
+            'seed_type',
+            'seed_variety',
+            'seed_generation',
+            'seed_class',
+            'delivery_type',
+            'fungicide',
+            'transport'
+        ]);
+        CategoriesHelper::createRelationOfTypes($inputs, $receival->id, Receival::class);
 
         return back();
     }
@@ -86,11 +94,11 @@ class ReceivalController extends Controller
     public function show(string $id)
     {
         $receival = Receival::with([
+            'categories',
             'user' => function ($query) {
                 return $query->select('id', 'name');
             }
         ])->find($id);
-        // $user = $this->getRelations($user);
 
         return response()->json($receival);
     }
@@ -106,15 +114,17 @@ class ReceivalController extends Controller
         $receival->update($inputs);
         $receival->save();
 
-//        $categoryIds = [];
-//        foreach ($inputs['buyer_groups'] ?? [] as $input) {
-//            $categoryIds[] = $this->createCategoriesRelation($user->id, $input, 'buyer');
-//        }
-//        foreach ($inputs['grower_groups'] ?? [] as $input) {
-//            $categoryIds[] = $this->createCategoriesRelation($user->id, $input, 'grower');
-//        }
-//
-//        CategoriesRelation::where('user_id', $user->id)->whereNotIn('categorizable_id', $categoryIds)->delete();
+        $inputs = $request->only([
+            'grower',
+            'seed_type',
+            'seed_variety',
+            'seed_generation',
+            'seed_class',
+            'delivery_type',
+            'fungicide',
+            'transport'
+        ]);
+        CategoriesHelper::createRelationOfTypes($inputs, $receival->id, Receival::class);
 
         return back();
     }
@@ -124,41 +134,25 @@ class ReceivalController extends Controller
      */
     public function destroy(string $id)
     {
+        CategoriesHelper::deleteCategoryRealtions($id, Receival::class);
         Receival::destroy($id);
     }
 
-    private function createCategoriesRelation($userId, $categoryId, $type)
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function pushForUnload(string $id)
     {
-        if (!is_int($categoryId)) {
-            $categoryId = $this->firstOrCreateCategory($categoryId, $type);
-        }
-
-        CategoriesRelation::firstOrCreate([
-            'user_id'            => $userId,
-            'categorizable_id'   => $categoryId,
-            'categorizable_type' => $type
-        ]);
-
-        return $categoryId;
+        Receival::find($id)->update(['unload_id' => $id]);
+        Unload::firstOrCreate(['receival_id' => $id]);
     }
 
-    private function firstOrCreateCategory(string $name, string $type)
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function pushForTiaSample(string $id)
     {
-        $lowerName = strtolower($name);
-        $category  = Category::whereRaw("LOWER(`name`) = '$lowerName'")->where('type', $type)->first();
-        if (!$category) {
-            $category = Category::create(['name' => $name, 'type' => $type]);
-        }
-        return $category->id;
-    }
-
-    private function getRelations($user)
-    {
-        $relations = CategoriesRelation::where('user_id', $user->id)->get();
-
-        $user->grower_groups = $relations->where('categorizable_type', 'grower')->pluck('categorizable_id')->toArray();
-        $user->buyer_groups  = $relations->where('categorizable_type', 'buyer')->pluck('categorizable_id')->toArray();
-
-        return $user;
+//        CategoriesHelper::deleteCategoryRealtions($id, Receival::class);
+//        Receival::destroy($id);
     }
 }

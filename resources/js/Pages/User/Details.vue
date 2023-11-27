@@ -1,3 +1,101 @@
+<script setup>
+import { computed, watch } from "vue";
+import { useForm } from "@inertiajs/vue3";
+import { getCategoriesDropDownByType, getCategoryIdsByType } from "@/helper.js";
+import Multiselect from '@vueform/multiselect'
+import TextInput from "@/Components/TextInput.vue";
+
+const UserAccess = [
+    { value: 'admin', label: 'Admin' },
+    { value: 'buyer-group', label: 'Buyer Group' },
+    { value: 'grower-group', label: 'Grower Group' },
+    { value: 'unloading', label: 'Unloading' },
+    { value: 'grower', label: 'Grower' },
+    { value: 'buyer', label: 'Buyer' },
+    { value: 'transport-companies', label: 'Transport Companies' },
+    { value: 'tia-sampling', label: 'TIA Sampling' },
+    { value: 'cool-store-access', label: 'CoolStore Access' },
+];
+
+const props = defineProps({
+    user: Object,
+    colSize: String,
+    isEdit: Boolean,
+    isNew: Boolean,
+    categories: Array,
+});
+
+const emit = defineEmits(['updateRecord']);
+
+const form = useForm({
+    name: props.user.name,
+    email: props.user.email,
+    username: props.user.username,
+    phone: props.user.phone,
+    role: props.user.role,
+    grower: getCategoryIdsByType(props.user.categories, 'grower'),
+    grower_name: props.user.grower_name,
+    grower_tags: props.user.grower_tags,
+    buyer: getCategoryIdsByType(props.user.categories, 'buyer'),
+    buyer_tags: props.user.buyer_tags,
+    paddocks: props.user.paddocks === undefined || props.user.paddocks === null ? [] : props.user.paddocks,
+    password: '',
+    password_confirmation: '',
+});
+
+watch(() => props.user,
+    (user) => {
+        form.clearErrors();
+        form.name = user.name
+        form.email = user.email
+        form.username = user.username
+        form.phone = user.phone
+        form.role = user.role
+        form.password = ''
+        form.password_confirmation = ''
+        form.grower = getCategoryIdsByType(user.categories, 'grower')
+        form.grower_name = user.grower_name
+        form.grower_tags = user.grower_tags
+        form.buyer = getCategoryIdsByType(user.categories, 'buyer')
+        form.buyer_tags = user.buyer_tags
+        form.paddocks = user.paddocks === undefined || user.paddocks === null ? [] : user.paddocks
+    }
+);
+
+const isForm = computed(() => {
+    return props.isEdit || props.isNew;
+})
+
+const addMorePaddocks = () => {
+    if (props.user.paddocks === undefined || props.user.paddocks === null) {
+        props.user.paddocks = [];
+    }
+
+    props.user.paddocks.push({ name: '', hectares: '' });
+    form.paddocks = props.user.paddocks;
+}
+
+const removePaddocks = (index) => {
+    props.user.paddocks = props.user.paddocks.filter((paddocks, i) => i !== index)
+}
+
+const updateRecord = () => {
+    form.patch(route('users.update', props.user.id), {
+        onSuccess: () => {
+            emit('updateRecord')
+        },
+    });
+}
+
+const storeRecord = () => {
+    form.post(route('users.store'), {
+        onSuccess: () => {
+            emit('updateRecord')
+        },
+    });
+}
+</script>
+
 <template>
     <div class="row">
         <div v-if="isEdit || isNew" class="col-md-12">
@@ -62,16 +160,16 @@
                 <h6>Grower Group</h6>
                 <Multiselect
                     v-if="isForm"
-                    v-model="form.grower_groups"
+                    v-model="form.grower"
                     mode="tags"
                     placeholder="Choose a grower group"
                     :searchable="true"
                     :create-option="true"
-                    :options="growerGroups"
+                    :options="getCategoriesDropDownByType(categories, 'grower')"
                 />
-                <ul v-else-if="user.grower_groups">
-                    <li v-for="group in user.grower_groups" :key="group">
-                        <a>{{ growerGroups.find(g => g.value === group)?.label || group }}</a>
+                <ul v-else-if="getCategoryIdsByType(user.categories, 'grower')">
+                    <li v-for="group in getCategoryIdsByType(user.categories, 'grower')" :key="group">
+                        <a>{{ getCategoriesDropDownByType(categories, 'grower').find(g => g.value === group)?.label || group }}</a>
                     </li>
                 </ul>
 
@@ -100,16 +198,16 @@
                 <h6>Buyer Group</h6>
                 <Multiselect
                     v-if="isForm"
-                    v-model="form.buyer_groups"
+                    v-model="form.buyer"
                     mode="tags"
                     placeholder="Choose a buyer group"
                     :searchable="true"
                     :create-option="true"
-                    :options="buyerGroups"
+                    :options="getCategoriesDropDownByType(categories, 'buyer')"
                 />
-                <ul v-else-if="user.buyer_groups">
-                    <li v-for="group in user.buyer_groups" :key="group">
-                        <a>{{ buyerGroups.find(g => g.value === group)?.label || group }}</a>
+                <ul v-else-if="getCategoryIdsByType(user.categories, 'buyer')">
+                    <li v-for="group in getCategoryIdsByType(user.categories, 'buyer')" :key="group">
+                        <a>{{ getCategoriesDropDownByType(categories, 'buyer').find(g => g.value === group)?.label || group }}</a>
                     </li>
                 </ul>
 
@@ -169,101 +267,3 @@
         </div>
     </div>
 </template>
-
-<script setup>
-import { computed, watch } from "vue";
-import { useForm } from "@inertiajs/vue3";
-import Multiselect from '@vueform/multiselect'
-import TextInput from "@/Components/TextInput.vue";
-
-const UserAccess = [
-    { value: 'admin', label: 'Admin' },
-    { value: 'buyer-group', label: 'Buyer Group' },
-    { value: 'grower-group', label: 'Grower Group' },
-    { value: 'unloading', label: 'Unloading' },
-    { value: 'grower', label: 'Grower' },
-    { value: 'buyer', label: 'Buyer' },
-    { value: 'transport-companies', label: 'Transport Companies' },
-    { value: 'tia-sampling', label: 'TIA Sampling' },
-    { value: 'cool-store-access', label: 'CoolStore Access' },
-];
-
-const props = defineProps({
-    user: Object,
-    colSize: String,
-    isEdit: Boolean,
-    isNew: Boolean,
-    growerGroups: Array,
-    buyerGroups: Array,
-});
-
-const emit = defineEmits(['updateRecord']);
-
-const form = useForm({
-    name: props.user.name,
-    email: props.user.email,
-    username: props.user.username,
-    phone: props.user.phone,
-    role: props.user.role,
-    grower_groups: props.user.grower_groups,
-    grower_name: props.user.grower_name,
-    grower_tags: props.user.grower_tags,
-    buyer_groups: props.user.buyer_groups,
-    buyer_tags: props.user.buyer_tags,
-    paddocks: props.user.paddocks === undefined || props.user.paddocks === null ? [] : props.user.paddocks,
-    password: '',
-    password_confirmation: '',
-});
-
-watch(() => props.user,
-    (user) => {
-        form.clearErrors();
-        form.name = user.name
-        form.email = user.email
-        form.username = user.username
-        form.phone = user.phone
-        form.role = user.role
-        form.password = ''
-        form.password_confirmation = ''
-        form.grower_groups = user.grower_groups
-        form.grower_name = user.grower_name
-        form.grower_tags = user.grower_tags
-        form.buyer_groups = user.buyer_groups
-        form.buyer_tags = user.buyer_tags
-        form.paddocks = user.paddocks === undefined || user.paddocks === null ? [] : user.paddocks
-    }
-);
-
-const isForm = computed(() => {
-    return props.isEdit || props.isNew;
-})
-
-const addMorePaddocks = () => {
-    if (props.user.paddocks === undefined || props.user.paddocks === null) {
-        props.user.paddocks = [];
-    }
-
-    props.user.paddocks.push({ name: '', hectares: '' });
-    form.paddocks = props.user.paddocks;
-}
-
-const removePaddocks = (index) => {
-    props.user.paddocks = props.user.paddocks.filter((paddocks, i) => i !== index)
-}
-
-const updateRecord = () => {
-    form.patch(route('users.update', props.user.id), {
-        onSuccess: () => {
-            emit('updateRecord')
-        },
-    });
-}
-
-const storeRecord = () => {
-    form.post(route('users.store'), {
-        onSuccess: () => {
-            emit('updateRecord')
-        },
-    });
-}
-</script>

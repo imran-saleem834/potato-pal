@@ -12,8 +12,7 @@ const user = ref(null);
 const activeTab = ref(null);
 const edit = ref(null);
 const isNewRecord = ref(false);
-const growerGroups = ref([]);
-const buyerGroups = ref([]);
+const categories = ref([]);
 
 const getUsers = (keyword = null) => {
     axios.get(route('users.list'), { params: { keyword: keyword, userId: edit.value } }).then(response => {
@@ -23,7 +22,7 @@ const getUsers = (keyword = null) => {
         if (!edit.value) {
             setActiveTab(response.data.user?.id);
         } else {
-            setEditUser(edit.value);
+            setEdit(edit.value);
         }
     });
 };
@@ -42,7 +41,7 @@ const setActiveTab = (id) => {
     isNewRecord.value = false;
 };
 
-const setEditUser = (id) => {
+const setEdit = (id) => {
     edit.value = edit.value === id ? null : id;
     isNewRecord.value = false;
 }
@@ -62,24 +61,10 @@ const deleteUser = (id) => {
     });
 }
 
-const getCategories = (hardRefresh = false) => {
-    const categories = JSON.parse(localStorage.getItem('categories'));
-    if (!hardRefresh && categories) {
-        growerGroups.value = categories.filter(category => category.type === 'grower').map(category => {
-            return { 'value': category.id, 'label': category.name };
-        });
-        buyerGroups.value = categories.filter(category => category.type === 'buyer').map(category => {
-            return { 'value': category.id, 'label': category.name };
-        });
-
-        getUsers();
-        return;
-    }
-
+const getCategories = () => {
     axios.get(route('categories.index'), { params: { type: ['buyer', 'grower'] } }).then(response => {
-        localStorage.setItem('categories', JSON.stringify(response.data));
-
-        getCategories();
+        categories.value = response.data
+        getUsers();
     });
 }
 
@@ -100,7 +85,7 @@ getCategories();
             :is-edit-record-selected="!!edit"
             :is-new-record-selected="isNewRecord"
             @newRecord="setNewRecord"
-            @editRecord="() => setEditUser(user?.id)"
+            @editRecord="() => setEdit(user?.id)"
             @deleteRecord="() => deleteUser(user?.id)"
         />
 
@@ -123,9 +108,8 @@ getCategories();
                                 :user="user"
                                 :is-edit="!!edit"
                                 :is-new="isNewRecord"
-                                :grower-groups="growerGroups"
-                                :buyer-groups="buyerGroups"
-                                @updateRecord="() => getCategories(true)"
+                                :categories="categories"
+                                @updateRecord="getCategories"
                                 col-size="col-md-6"
                             />
                         </div>
@@ -183,7 +167,7 @@ getCategories();
                                         </a>
                                     </li>
                                     <li>
-                                        <a role="button" @click="setEditUser(user?.id)">
+                                        <a role="button" @click="setEdit(user?.id)">
                                             <span class="fa fa-edit"></span>Edit
                                         </a>
                                     </li>
@@ -206,9 +190,8 @@ getCategories();
                             :user="user"
                             :is-edit="!!edit"
                             :is-new="isNewRecord"
-                            :grower-groups="growerGroups"
-                            :buyer-groups="buyerGroups"
-                            @updateRecord="() => getCategories(true)"
+                            :categories="categories"
+                            @updateRecord="getCategories"
                             col-size="col-md-12"
                         />
                     </div>

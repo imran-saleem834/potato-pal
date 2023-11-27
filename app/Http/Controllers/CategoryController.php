@@ -6,7 +6,6 @@ use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Models\CategoriesRelation;
 use App\Http\Requests\CategoryRequest;
-use Inertia\Inertia;
 
 class CategoryController extends Controller
 {
@@ -18,8 +17,7 @@ class CategoryController extends Controller
         $keyword = $request->input('keyword');
         $categories = Category::whereIn('type', $request->input('type'))
             ->when($keyword, function ($query, $keyword) {
-                $keyword = strtolower($keyword);
-                return $query->whereRaw("`name` LIKE '%$keyword%'");
+                return $query->where('name', 'LIKE', "%$keyword%");
             })
             ->get();
 
@@ -51,7 +49,7 @@ class CategoryController extends Controller
      */
     public function destroy(string $id)
     {
-        CategoriesRelation::where('categorizable_id', $id)->delete();
+        CategoriesRelation::where('category_id', $id)->delete();
         Category::destroy($id);
     }
 }

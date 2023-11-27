@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CategoriesRelation;
-use App\Models\Category;
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Helpers\CategoriesHelper;
 use App\Http\Requests\UserRequest;
 
 class UserController extends Controller
@@ -19,23 +18,22 @@ class UserController extends Controller
         $users   = User::select('id', 'name', 'email')
             ->when($keyword, function ($query, $keyword) {
                 $keyword = strtolower($keyword);
-                return $query->whereRaw("`id` LIKE '%$keyword%'")
-                    ->orWhereRaw("LOWER(`name`) LIKE '%$keyword%'")
-                    ->orWhereRaw("LOWER(`email`) LIKE '%$keyword%'")
-                    ->orWhereRaw("LOWER(`username`) LIKE '%$keyword%'")
-                    ->orWhereRaw("`phone` LIKE '%$keyword%'")
-                    ->orWhereRaw("LOWER(`role`) LIKE '%$keyword%'")
-                    ->orWhereRaw("LOWER(`grower_name`) LIKE '%$keyword%'")
-                    ->orWhereRaw("LOWER(`grower_tags`) LIKE '%$keyword%'")
-                    ->orWhereRaw("LOWER(`buyer_tags`) LIKE '%$keyword%'")
-                    ->orWhereRaw("LOWER(`paddocks`) LIKE '%$keyword%'");
+                return $query->where('id', 'LIKE', "%$keyword%")
+                    ->orWhere('name', 'LIKE', "%$keyword%")
+                    ->orWhere('email', 'LIKE', "%$keyword%")
+                    ->orWhere('username', 'LIKE', "%$keyword%")
+                    ->orWhere('phone', 'LIKE', "%$keyword%")
+                    ->orWhere('role', 'LIKE', "%$keyword%")
+                    ->orWhere('grower_name', 'LIKE', "%$keyword%")
+                    ->orWhere('grower_tags', 'LIKE', "%$keyword%")
+                    ->orWhere('buyer_tags', 'LIKE', "%$keyword%")
+                    ->orWhere('paddocks', 'LIKE', "%$keyword%");
             })
             ->get();
 
         $userId = $request->input('userId', $users->first()->id ?? 0);
 
-        $user = User::find($userId);
-        $user = $this->getRelations($user);
+        $user = User::with(['categories'])->find($userId);
 
         return response()->json([
             'users' => $users,
@@ -50,14 +48,9 @@ class UserController extends Controller
     {
         $inputs = $request->validated();
 
-        $user = User::create($request->validated());
+        $user = User::create($inputs);
 
-        foreach ($inputs['buyer_groups'] ?? [] as $input) {
-            $this->createCategoriesRelation($user->id, $input, 'buyer');
-        }
-        foreach ($inputs['grower_groups'] ?? [] as $input) {
-            $this->createCategoriesRelation($user->id, $input, 'grower');
-        }
+        CategoriesHelper::createRelationOfTypes($request->only(['buyer', 'grower']), $user->id, User::class);
 
         return back();
     }
@@ -67,8 +60,7 @@ class UserController extends Controller
      */
     public function show(string $id)
     {
-        $user = User::find($id);
-        $user = $this->getRelations($user);
+        $user = User::with(['categories'])->find($id);
 
         return response()->json($user);
     }
@@ -84,15 +76,7 @@ class UserController extends Controller
         $user->update($inputs);
         $user->save();
 
-        $categoryIds = [];
-        foreach ($inputs['buyer_groups'] ?? [] as $input) {
-            $categoryIds[] = $this->createCategoriesRelation($user->id, $input, 'buyer');
-        }
-        foreach ($inputs['grower_groups'] ?? [] as $input) {
-            $categoryIds[] = $this->createCategoriesRelation($user->id, $input, 'grower');
-        }
-
-        CategoriesRelation::where('user_id', $user->id)->whereNotIn('categorizable_id', $categoryIds)->delete();
+        CategoriesHelper::createRelationOfTypes($request->only(['buyer', 'grower']), $user->id, User::class);
 
         return back();
     }
@@ -102,41 +86,7 @@ class UserController extends Controller
      */
     public function destroy(string $id)
     {
+        CategoriesHelper::deleteCategoryRealtions($id, User::class);
         User::destroy($id);
-    }
-
-    private function createCategoriesRelation($userId, $categoryId, $type)
-    {
-        if (!is_int($categoryId)) {
-            $categoryId = $this->firstOrCreateCategory($categoryId, $type);
-        }
-
-        CategoriesRelation::firstOrCreate([
-            'user_id'            => $userId,
-            'categorizable_id'   => $categoryId,
-            'categorizable_type' => $type
-        ]);
-
-        return $categoryId;
-    }
-
-    private function firstOrCreateCategory(string $name, string $type)
-    {
-        $lowerName = strtolower($name);
-        $category  = Category::whereRaw("LOWER(`name`) = '$lowerName'")->where('type', $type)->first();
-        if (!$category) {
-            $category = Category::create(['name' => $name, 'type' => $type]);
-        }
-        return $category->id;
-    }
-
-    private function getRelations($user)
-    {
-        $relations = CategoriesRelation::where('user_id', $user->id)->get();
-
-        $user->grower_groups = $relations->where('categorizable_type', 'grower')->pluck('categorizable_id')->toArray();
-        $user->buyer_groups  = $relations->where('categorizable_type', 'buyer')->pluck('categorizable_id')->toArray();
-
-        return $user;
     }
 }

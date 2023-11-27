@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ReceivalController;
+use App\Http\Controllers\UnloadingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -35,7 +36,12 @@ Route::middleware([
     Route::resource('/categories', CategoryController::class);
 
     Route::get('/receivals/list', [ReceivalController::class, 'list'])->name('receivals.list');
+    Route::post('/receivals/{id}/push/unload', [ReceivalController::class, 'pushForUnload'])->name('receivals.push.unload');
+    Route::post('/receivals/{id}/push/tia-sample', [ReceivalController::class, 'pushForTiaSample'])->name('receivals.push.tia-sample');
     Route::resource('/receivals', ReceivalController::class);
+
+    Route::get('/unloading/list', [UnloadingController::class, 'list'])->name('unloading.list');
+    Route::resource('/unloading', UnloadingController::class);
 });
 
 Route::get('/abc', function () {
