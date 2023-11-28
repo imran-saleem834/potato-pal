@@ -4,36 +4,36 @@ import { ref } from 'vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import TopBar from '@/Components/TopBar.vue';
 import MiddleBar from '@/Components/MiddleBar.vue';
-import Details from '@/Pages/Unload/Details.vue';
+import Details from '@/Pages/TiaSample/Details.vue';
 import LeftBar from "@/Components/LeftBar.vue";
 
 const props = defineProps({
     receivals: Array,
 });
 
-const unloads = ref([]);
-const unload = ref(null);
+const tiaSamples = ref([]);
+const tiaSample = ref(null);
 const activeTab = ref(null);
 const edit = ref(null);
 const isNewRecord = ref(false);
 const categories = ref([]);
 
-const getUnloads = (keyword = null) => {
-    axios.get(route('unloading.list'), { params: { keyword: keyword, unloadId: edit.value } }).then(response => {
-        unloads.value = response.data.unloads;
-        unload.value = response.data.unload || {};
+const getTiaSamples = (keyword = null) => {
+    axios.get(route('tia-sample.list'), { params: { keyword: keyword, tiaSampleId: edit.value } }).then(response => {
+        tiaSamples.value = response.data.tiaSamples;
+        tiaSample.value = response.data.tiaSample || {};
 
         if (!edit.value) {
-            setActiveTab(response.data.unload?.id);
+            setActiveTab(response.data.tiaSample?.id);
         } else {
             setEdit(edit.value);
         }
     });
 };
 
-const getUnload = (id) => {
-    axios.get(route('unloading.show', id)).then(response => {
-        unload.value = response.data;
+const getTiaSample = (id) => {
+    axios.get(route('tia-sample.show', id)).then(response => {
+        tiaSample.value = response.data;
 
         setActiveTab(response.data.id);
     });
@@ -53,37 +53,37 @@ const setEdit = (id) => {
 const setNewRecord = () => {
     isNewRecord.value = true;
     edit.value = null;
-    unload.value = {};
+    tiaSample.value = {};
     activeTab.value = null;
 }
 
-const deleteUnload = (id) => {
-    axios.delete(route('unloading.destroy', id), {
+const deleteTiaSample = (id) => {
+    axios.delete(route('tia-sample.destroy', id), {
         onSuccess: () => {
-            getUnloads();
+            getTiaSamples();
         },
     });
 }
 
-getUnloads();
+getTiaSamples();
 </script>
 
 <template>
-    <AppLayout title="Unloading">
+    <AppLayout title="Tia Sample">
         <TopBar
-            type="Unloading"
-            @search="getUnloads"
+            type="Tia Sample"
+            @search="getTiaSamples"
             @newRecord="setNewRecord"
         />
         <MiddleBar
-            v-if="unload"
-            type="Unloading"
-            :title="unload?.receival?.user?.name || 'New'"
+            v-if="tiaSample"
+            type="Tia Sample"
+            :title="tiaSample?.receival?.user?.name || 'New'"
             :is-edit-record-selected="!!edit"
             :is-new-record-selected="isNewRecord"
             @newRecord="setNewRecord"
-            @editRecord="() => setEdit(unload?.id)"
-            @deleteRecord="() => deleteUnload(unload?.id)"
+            @editRecord="() => setEdit(tiaSample?.id)"
+            @deleteRecord="() => deleteTiaSample(tiaSample?.id)"
         />
 
         <!-- tab-section -->
@@ -91,22 +91,22 @@ getUnloads();
             <div class="row row0">
                 <div class="col-lg-3 col-sm-6" :class="{'mobile-userlist' : $windowWidth <= 767}">
                     <LeftBar
-                        :items="unloads"
+                        :items="tiaSamples"
                         :active-tab="activeTab"
                         :row-1="{title: 'Grower\'s Name', value: 'receival.user.name'}"
-                        :row-2="{title: 'Unloading Id', value: 'id'}"
-                        @click="getUnload"
+                        :row-2="{title: 'Tia Sample Id', value: 'id'}"
+                        @click="getTiaSample"
                     />
                 </div>
                 <div class="col-lg-8 col-sm-6">
-                    <div class="tab-content" v-if="unload">
+                    <div class="tab-content" v-if="tiaSample">
                         <div class="tab-pane active">
                             <Details
-                                :unload="unload"
+                                :tia-sample="tiaSample"
                                 :is-edit="!!edit"
                                 :is-new="isNewRecord"
                                 :receivals="receivals"
-                                @updateRecord="getUnloads"
+                                @updateRecord="getTiaSamples"
                                 col-size="col-md-6"
                             />
                         </div>
@@ -159,12 +159,12 @@ getUnloads();
                                 </button>
                                 <ul class="dropdown-menu">
                                     <li>
-                                        <a role="button" @click="deleteUnload(unload?.id)">
+                                        <a role="button" @click="deleteTiaSample(tiaSample?.id)">
                                             <span class="fa fa-trash-o"></span> Delete
                                         </a>
                                     </li>
                                     <li>
-                                        <a role="button" @click="setEdit(unload?.id)">
+                                        <a role="button" @click="setEdit(tiaSample?.id)">
                                             <span class="fa fa-edit"></span>Edit
                                         </a>
                                     </li>
@@ -172,23 +172,23 @@ getUnloads();
                             </div>
                         </div>
                     </div>
-                    <div class="modal-body" v-if="unload">
+                    <div class="modal-body" v-if="tiaSample">
                         <ol class="breadcrumb">
                             <li>
                                 <Link :href="route('dashboard')" data-dismiss="modal" aria-label="Close">Menu</Link>
                             </li>
                             <li>
-                                <Link href="" data-dismiss="modal" aria-label="Close">Unloading</Link>
+                                <Link href="" data-dismiss="modal" aria-label="Close">Tia Sample</Link>
                             </li>
                             <li class="active" v-if="isNewRecord">New</li>
-                            <li class="active" v-else-if="unload">{{ unload?.receival?.user?.name }}</li>
+                            <li class="active" v-else-if="tiaSample">{{ tiaSample?.receival?.user?.name }}</li>
                         </ol>
                         <Details
-                            :unload="unload"
+                            :tia-sample="tiaSample"
                             :is-edit="!!edit"
                             :is-new="isNewRecord"
                             :receivals="receivals"
-                            @updateRecord="getUnloads"
+                            @updateRecord="getTiaSamples"
                             col-size="col-md-12"
                         />
                     </div>

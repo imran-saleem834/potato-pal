@@ -2,13 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Unload;
-use App\Models\User;
 use Inertia\Inertia;
-use App\Models\Receival;
 use Illuminate\Http\Request;
 use App\Helpers\CategoriesHelper;
 use App\Http\Requests\ReceivalRequest;
+use App\Models\{User, Unload, Receival, TiaSample};
 
 class ReceivalController extends Controller
 {
@@ -53,9 +51,15 @@ class ReceivalController extends Controller
 
         $receival = Receival::with([
             'categories',
+            'unload' => function ($query) {
+                return $query->select('id', 'receival_id');
+            },
+            'tiaSample' => function ($query) {
+                return $query->select('id', 'receival_id');
+            },
             'user' => function ($query) {
                 return $query->select('id', 'name');
-            }
+            },
         ])->find($receivalId);
 
         return response()->json([
@@ -95,9 +99,15 @@ class ReceivalController extends Controller
     {
         $receival = Receival::with([
             'categories',
+            'unload' => function ($query) {
+                return $query->select('id', 'receival_id');
+            },
+            'tiaSample' => function ($query) {
+                return $query->select('id', 'receival_id');
+            },
             'user' => function ($query) {
                 return $query->select('id', 'name');
-            }
+            },
         ])->find($id);
 
         return response()->json($receival);
@@ -143,7 +153,6 @@ class ReceivalController extends Controller
      */
     public function pushForUnload(string $id)
     {
-        Receival::find($id)->update(['unload_id' => $id]);
         Unload::firstOrCreate(['receival_id' => $id]);
     }
 
@@ -152,7 +161,6 @@ class ReceivalController extends Controller
      */
     public function pushForTiaSample(string $id)
     {
-//        CategoriesHelper::deleteCategoryRealtions($id, Receival::class);
-//        Receival::destroy($id);
+        TiaSample::firstOrCreate(['receival_id' => $id]);
     }
 }

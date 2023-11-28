@@ -169,7 +169,7 @@ const storeRecord = () => {
                 />
                 <ul v-else-if="getCategoryIdsByType(user.categories, 'grower')">
                     <li v-for="group in getCategoryIdsByType(user.categories, 'grower')" :key="group">
-                        <a>{{ getCategoriesDropDownByType(categories, 'grower').find(g => g.value === group)?.label || group }}</a>
+                        <a>{{ getCategoriesDropDownByType(categories, 'grower').find(g => parseInt(g.value) === parseInt(group))?.label || group }}</a>
                     </li>
                 </ul>
 
@@ -207,7 +207,7 @@ const storeRecord = () => {
                 />
                 <ul v-else-if="getCategoryIdsByType(user.categories, 'buyer')">
                     <li v-for="group in getCategoryIdsByType(user.categories, 'buyer')" :key="group">
-                        <a>{{ getCategoriesDropDownByType(categories, 'buyer').find(g => g.value === group)?.label || group }}</a>
+                        <a>{{ getCategoriesDropDownByType(categories, 'buyer').find(g => parseInt(g.value) === parseInt(group))?.label || group }}</a>
                     </li>
                 </ul>
 

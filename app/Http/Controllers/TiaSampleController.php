@@ -4,10 +4,10 @@ namespace App\Http\Controllers;
 
 use Inertia\Inertia;
 use Illuminate\Http\Request;
-use App\Models\{Unload, Receival};
-use App\Http\Requests\UnloadRequest;
+use App\Models\{Receival, TiaSample};
+use App\Http\Requests\TiaSampleRequest;
 
-class UnloadingController extends Controller
+class TiaSampleController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -26,7 +26,7 @@ class UnloadingController extends Controller
                 return ['value' => $receival->id, 'label' => "ReceivalId:{$receival->id} {$receival->user->name}"];
             });
 
-        return Inertia::render('Unload/Index', [
+        return Inertia::render('TiaSample/Index', [
             'receivals' => $receivals
         ]);
     }
@@ -38,7 +38,7 @@ class UnloadingController extends Controller
     public function list(Request $request)
     {
         $keyword = $request->input('keyword', '');
-        $unloads = Unload::query()
+        $tiaSamples = TiaSample::query()
             ->with([
                 'receival'      => function ($query) {
                     return $query->select('id', 'user_id');
@@ -51,29 +51,31 @@ class UnloadingController extends Controller
             ->when($keyword, function ($query, $keyword) {
                 return $query->where('id', 'LIKE', "%$keyword%")
                     ->orWhere('receival_id', 'LIKE', "%$keyword%")
-                    ->orWhere('total_seed_bins', 'LIKE', "%$keyword%")
-                    ->orWhere('weight_seed_bins', 'LIKE', "%$keyword%")
-                    ->orWhere('total_oversize_bins', 'LIKE', "%$keyword%")
-                    ->orWhere('weight_oversize_bins', 'LIKE', "%$keyword%");
+                    ->orWhere('processor', 'LIKE', "%$keyword%")
+                    ->orWhere('inspection_no', 'LIKE', "%$keyword%")
+                    ->orWhere('inspection_date', 'LIKE', "%$keyword%")
+                    ->orWhere('cool_store', 'LIKE', "%$keyword%")
+                    ->orWhere('size', 'LIKE', "%$keyword%")
+                    ->orWhere('status', 'LIKE', "%$keyword%");
             })
             ->get();
 
-        $unloadId = $request->input('unloadId', $unloads->first()->id ?? 0);
+        $tiaSampleId = $request->input('tiaSampleId', $tiaSamples->first()->id ?? 0);
 
-        $unload = Unload::with(['receival.user', 'receival.categories.category'])->find($unloadId);
+        $tiaSample = TiaSample::with(['receival.user', 'receival.categories.category'])->find($tiaSampleId);
 
         return response()->json([
-            'unloads' => $unloads,
-            'unload'  => $unload,
+            'tiaSamples' => $tiaSamples,
+            'tiaSample'  => $tiaSample,
         ]);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(UnloadRequest $request)
+    public function store(TiaSampleRequest $request)
     {
-        Unload::create($request->validated());
+        TiaSample::create($request->validated());
 
         return back();
     }
@@ -83,19 +85,19 @@ class UnloadingController extends Controller
      */
     public function show(string $id)
     {
-        $unload = Unload::with(['receival.user'])->find($id);
+        $tiaSample = TiaSample::with(['receival.user', 'receival.categories.category'])->find($id);
 
-        return response()->json($unload);
+        return response()->json($tiaSample);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UnloadRequest $request, string $id)
+    public function update(TiaSampleRequest $request, string $id)
     {
-        $unload = Unload::find($id);
-        $unload->update($request->validated());
-        $unload->save();
+        $tiaSample = TiaSample::find($id);
+        $tiaSample->update($request->validated());
+        $tiaSample->save();
 
         return back();
     }
@@ -105,6 +107,6 @@ class UnloadingController extends Controller
      */
     public function destroy(string $id)
     {
-        Unload::destroy($id);
+        TiaSample::destroy($id);
     }
 }

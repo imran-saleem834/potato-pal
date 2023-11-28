@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('weight_seed_bins', 50)->nullable();
             $table->integer('total_oversize_bins')->default(0);
             $table->string('weight_oversize_bins', 50)->nullable();
+            $table->string('status', 20)->default('pending');
             $table->timestamps();
         });
     }

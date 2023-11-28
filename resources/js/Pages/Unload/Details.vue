@@ -1,8 +1,9 @@
 <script setup>
 import { computed, watch } from "vue";
 import { useForm } from "@inertiajs/vue3";
-import { getCategoriesByType } from "@/helper.js";
+import { getCategoriesByType, toCamelCase } from "@/helper.js";
 import moment from 'moment';
+import Multiselect from '@vueform/multiselect';
 import TextInput from "@/Components/TextInput.vue";
 
 const props = defineProps({
@@ -10,7 +11,7 @@ const props = defineProps({
     colSize: String,
     isEdit: Boolean,
     isNew: Boolean,
-    users: Array,
+    receivals: Array,
     categories: Array,
 });
 
@@ -22,6 +23,7 @@ const form = useForm({
     weight_seed_bins: props.unload.weight_seed_bins,
     total_oversize_bins: props.unload.total_oversize_bins,
     weight_oversize_bins: props.unload.weight_oversize_bins,
+    status: props.unload.status,
 });
 
 watch(() => props.unload,
@@ -32,6 +34,7 @@ watch(() => props.unload,
         form.weight_seed_bins = unload.weight_seed_bins
         form.total_oversize_bins = unload.total_oversize_bins
         form.weight_oversize_bins = unload.weight_oversize_bins
+        form.status = unload.status
     }
 );
 
@@ -76,6 +79,9 @@ const storeRecord = () => {
                 <h6>Unloading Id</h6>
                 <h5>{{ unload.id }}</h5>
 
+                <h6>Receival Id</h6>
+                <h5>{{ unload?.receival?.id }}</h5>
+
                 <h6>Time Added</h6>
                 <h5>{{ moment(unload.created_at).format('DD/MM/YYYY hh:mm A') }}</h5>
 
@@ -89,7 +95,7 @@ const storeRecord = () => {
 
                 <h6>Status</h6>
                 <ul>
-                    <li><a role="button" class="btn-pending">Pending</a></li>
+                    <li><a role="button" :class="{'btn-pending' : unload.status === 'pending'}">{{ toCamelCase(unload.status) }}</a></li>
                 </ul>
             </div>
 
@@ -120,6 +126,20 @@ const storeRecord = () => {
         <div :class="colSize">
             <h4>Seed information to Record</h4>
             <div class="user-boxes">
+                <div v-if="isForm">
+                    <h6>Receival</h6>
+                    <Multiselect
+                        v-model="form.receival_id"
+                        mode="single"
+                        placeholder="Choose a receival"
+                        :searchable="true"
+                        :options="receivals"
+                    />
+                    <div :class="{'has-error' : form.errors.receival_id}">
+                    <span v-show="form.errors.receival_id" class="help-block text-left">{{ form.errors.receival_id }}</span>
+                    </div>
+                </div>
+
                 <h6>Number of seed bins</h6>
                 <TextInput v-if="isForm" v-model="form.total_seed_bins" :error="form.errors.total_seed_bins" type="text"/>
                 <h5 v-else>{{ unload.total_seed_bins }}</h5>
@@ -135,6 +155,29 @@ const storeRecord = () => {
                 <h6>Weight of oversize bins</h6>
                 <TextInput v-if="isForm" v-model="form.weight_oversize_bins" :error="form.errors.weight_oversize_bins" type="text"/>
                 <h5 v-else>{{ unload.weight_oversize_bins }}</h5>
+
+                <div v-if="isForm">
+                    <h6>Status</h6>
+                    <ul>
+                        <li>
+                            <a
+                                role="button"
+                                @click="() => form.status = 'pending'"
+                                :class="{'black-btn' : form.status === 'pending'}"
+                            >Pending</a>
+                        </li>
+                        <li>
+                            <a
+                                role="button"
+                                @click="() => form.status = 'completed'"
+                                :class="{'black-btn' : form.status === 'completed'}"
+                            >Complete</a>
+                        </li>
+                    </ul>
+                    <div :class="{'has-error' : form.errors.status}">
+                    <span v-show="form.errors.status" class="help-block text-left">{{ form.errors.status }}</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

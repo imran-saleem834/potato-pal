@@ -20,6 +20,7 @@ class Unload extends Model
         'weight_seed_bins',
         'total_oversize_bins',
         'weight_oversize_bins',
+        'status',
     ];
 
     public function receival()

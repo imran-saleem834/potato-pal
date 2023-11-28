@@ -3,7 +3,7 @@ import { computed, ref, watch } from "vue";
 import { useForm } from "@inertiajs/vue3";
 import { getDropDownOptions, getCategoriesDropDownByType, getCategoryIdsByType } from "@/helper.js";
 import moment from 'moment';
-import Multiselect from '@vueform/multiselect'
+import Multiselect from '@vueform/multiselect';
 import TextInput from "@/Components/TextInput.vue";
 
 const paddockOptions = ref([]);
@@ -153,7 +153,7 @@ const pushForUnload = () => {
                 />
                 <ul v-else-if="getCategoryIdsByType(receival.categories, 'grower')">
                     <li v-for="group in getCategoryIdsByType(receival.categories, 'grower')" :key="group">
-                        <a>{{ getCategoriesDropDownByType(categories, 'grower').find(g => g.value === group)?.label || group }}</a>
+                        <a>{{ getCategoriesDropDownByType(categories, 'grower').find(g => parseInt(g.value) === parseInt(group))?.label || group }}</a>
                     </li>
                 </ul>
 
@@ -191,7 +191,7 @@ const pushForUnload = () => {
                 />
                 <ul v-else-if="getCategoryIdsByType(receival.categories, 'seed-variety')">
                     <li v-for="group in getCategoryIdsByType(receival.categories, 'seed-variety')" :key="group">
-                        <a>{{ getCategoriesDropDownByType(categories, 'seed-variety').find(g => g.value === group)?.label || group }}</a>
+                        <a>{{ getCategoriesDropDownByType(categories, 'seed-variety').find(g => parseInt(g.value) === parseInt(group))?.label || group }}</a>
                     </li>
                 </ul>
 
@@ -207,7 +207,7 @@ const pushForUnload = () => {
                 />
                 <ul v-else-if="getCategoryIdsByType(receival.categories, 'seed-generation')">
                     <li v-for="group in getCategoryIdsByType(receival.categories, 'seed-generation')" :key="group">
-                        <a>{{ getCategoriesDropDownByType(categories, 'seed-generation').find(g => g.value === group)?.label || group }}</a>
+                        <a>{{ getCategoriesDropDownByType(categories, 'seed-generation').find(g => parseInt(g.value) === parseInt(group))?.label || group }}</a>
                     </li>
                 </ul>
 
@@ -223,7 +223,7 @@ const pushForUnload = () => {
                 />
                 <ul v-else-if="getCategoryIdsByType(receival.categories, 'seed-class')">
                     <li v-for="group in getCategoryIdsByType(receival.categories, 'seed-class')" :key="group">
-                        <a>{{ getCategoriesDropDownByType(categories, 'seed-class').find(g => g.value === group)?.label || group }}</a>
+                        <a>{{ getCategoriesDropDownByType(categories, 'seed-class').find(g => parseInt(g.value) === parseInt(group))?.label || group }}</a>
                     </li>
                 </ul>
 
@@ -231,13 +231,13 @@ const pushForUnload = () => {
                     <h6>Tia Sample Status</h6>
                     <ul>
                         <li>
-                            <a v-if="receival.tia_sample_id" role="button">Pushed for TIA Sample</a>
+                            <a v-if="receival.tia_sample?.id" role="button">Pushed for TIA Sample</a>
                             <a v-else role="button" class="black-btn" @click="pushForTiaSample">Push for TIA Sample</a>
                         </li>
                     </ul>
 
                     <h6>TIA Sample ID</h6>
-                    <h5 v-if="receival.tia_sample_id">{{ receival.tia_sample_id }}</h5>
+                    <h5 v-if="receival.tia_sample?.id">{{ receival.tia_sample?.id }}</h5>
                     <h5 v-else>-</h5>
                 </div>
             </div>
@@ -249,13 +249,13 @@ const pushForUnload = () => {
                     <h6>Unloading Status</h6>
                     <ul>
                         <li>
-                            <a v-if="receival.unload_id" role="button">Pushed for Unload</a>
+                            <a v-if="receival.unload?.id" role="button">Pushed for Unload</a>
                             <a v-else role="button" class="black-btn" @click="pushForUnload">Push for Unload</a>
                         </li>
                     </ul>
 
                     <h6>Unloading ID</h6>
-                    <h5 v-if="receival.unload_id">{{ receival.unload_id }}</h5>
+                    <h5 v-if="receival.unload?.id">{{ receival.unload.id }}</h5>
                     <h5 v-else>-</h5>
                 </div>
 
@@ -271,7 +271,7 @@ const pushForUnload = () => {
                 />
                 <ul v-else-if="getCategoryIdsByType(receival.categories, 'seed-type')">
                     <li v-for="group in getCategoryIdsByType(receival.categories, 'seed-type')" :key="group">
-                        <a>{{ getCategoriesDropDownByType(categories, 'seed-type').find(g => g.value === group)?.label || group }}</a>
+                        <a>{{ getCategoriesDropDownByType(categories, 'seed-type').find(g => parseInt(g.value) === parseInt(group))?.label || group }}</a>
                     </li>
                 </ul>
 
@@ -328,7 +328,7 @@ const pushForUnload = () => {
                 />
                 <ul v-else-if="getCategoryIdsByType(receival.categories, 'transport')">
                     <li v-for="group in getCategoryIdsByType(receival.categories, 'transport')" :key="group">
-                        <a>{{ getCategoriesDropDownByType(categories, 'transport').find(g => g.value === group)?.label || group }}</a>
+                        <a>{{ getCategoriesDropDownByType(categories, 'transport').find(g => parseInt(g.value) === parseInt(group))?.label || group }}</a>
                     </li>
                 </ul>
 
@@ -344,7 +344,7 @@ const pushForUnload = () => {
                 />
                 <ul v-else-if="getCategoryIdsByType(receival.categories, 'delivery-type')">
                     <li v-for="group in getCategoryIdsByType(receival.categories, 'delivery-type')" :key="group">
-                        <a>{{ getCategoriesDropDownByType(categories, 'delivery-type').find(g => g.value === group)?.label || group }}</a>
+                        <a>{{ getCategoriesDropDownByType(categories, 'delivery-type').find(g => parseInt(g.value) === parseInt(group))?.label || group }}</a>
                     </li>
                 </ul>
 
@@ -369,7 +369,7 @@ const pushForUnload = () => {
                 />
                 <ul v-else-if="getCategoryIdsByType(receival.categories, 'fungicide')">
                     <li v-for="group in getCategoryIdsByType(receival.categories, 'fungicide')" :key="group">
-                        <a>{{ getCategoriesDropDownByType(categories, 'fungicide').find(g => g.value === group)?.label || group }}</a>
+                        <a>{{ getCategoriesDropDownByType(categories, 'fungicide').find(g => parseInt(g.value) === parseInt(group))?.label || group }}</a>
                     </li>
                 </ul>
 

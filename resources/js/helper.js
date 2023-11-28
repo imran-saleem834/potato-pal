@@ -15,3 +15,14 @@ export function getCategoriesDropDownByType(categories, type) {
 export function getCategoryIdsByType(categories, type) {
     return getCategoriesByType(categories, type).map((category) => category.category_id);
 }
+
+export function toCamelCase(string) {
+    if(!string) return '';
+    const words = string.toLowerCase().split(' ');
+    const uppercaseWords = words.map(word => {
+        let splitWord = word.split('');
+        splitWord[0] = splitWord[0].toUpperCase();
+        return splitWord.join('');
+    });
+    return uppercaseWords.join(' ')
+}

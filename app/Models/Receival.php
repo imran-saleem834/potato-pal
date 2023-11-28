@@ -18,8 +18,8 @@ class Receival extends Model
     protected $fillable = [
         'user_id',
         'paddocks',
-        'tia_sample_id',
-        'unload_id',
+//        'tia_sample_id',
+//        'unload_id',
         'oversize_bin_size',
         'seed_bin_size',
         'grower_docket_no',
@@ -40,6 +40,16 @@ class Receival extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function unload()
+    {
+        return $this->hasOne(Unload::class);
+    }
+
+    public function tiaSample()
+    {
+        return $this->hasOne(TiaSample::class);
     }
 
     public function categories(): MorphMany

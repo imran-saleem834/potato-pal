@@ -3,6 +3,14 @@ import { onMounted, ref } from 'vue';
 
 defineProps({
     modelValue: String|Number,
+    type: {
+        type: String,
+        default: 'text',
+    },
+    disabled: {
+        type: Boolean,
+        default: false,
+    },
     error: {
         type: String,
         default: ''
@@ -27,7 +35,9 @@ defineExpose({ focus: () => input.value.focus() });
         <div :class="{ 'input-group' : $slots.addon }">
             <input
                 ref="input"
+                :type="type"
                 class="form-control"
+                :disabled="disabled"
                 :value="modelValue"
                 @input="$emit('update:modelValue', $event.target.value)"
             >

@@ -65,6 +65,21 @@
     justify-content: flex-end;
 }
 
+.tab-section .user-boxes .multiple-inputs {
+    padding-top: 0 !important;
+    margin-bottom: 10px !important;
+}
+
+.tab-section .user-boxes .multiple-inputs li {
+    width: calc(15% - 10px);
+    display: inline-block;
+}
+
+.tab-section .user-boxes .multiple-inputs li:last-of-type {
+    text-align: center;
+    width: calc(25% - 10px);
+}
+
 .create-update-btn {
     z-index: 9;
     margin-top: 0;

@@ -5,6 +5,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ReceivalController;
 use App\Http\Controllers\UnloadingController;
+use App\Http\Controllers\TiaSampleController;
 
 /*
 |--------------------------------------------------------------------------
@@ -42,6 +43,9 @@ Route::middleware([
 
     Route::get('/unloading/list', [UnloadingController::class, 'list'])->name('unloading.list');
     Route::resource('/unloading', UnloadingController::class);
+
+    Route::get('/tia-sample/list', [TiaSampleController::class, 'list'])->name('tia-sample.list');
+    Route::resource('/tia-sample', TiaSampleController::class);
 });
 
 Route::get('/abc', function () {
