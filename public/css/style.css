@@ -562,8 +562,10 @@
           margin-bottom: 25px;
    }
    .tab-section  .user-boxes .form-control{
-     height: 40px;
      background: #F2F2F2;
+   }
+   .tab-section  .user-boxes input.form-control{
+     height: 40px;
    }
    .tab-section  .user-boxes ul{
      list-style-type: none;

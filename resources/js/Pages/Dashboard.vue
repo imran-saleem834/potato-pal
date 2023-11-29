@@ -17,7 +17,7 @@ const menus = [
     { route: '', image: 'menu12.png', label: 'Weighbridge' },
     { route: route('options'), image: 'menu13.png', label: 'Admin Options' },
     { route: '', image: 'menu14.png', label: 'Notifications' },
-    { route: '', image: 'menu15.png', label: 'Notes' },
+    { route:  route('notes.index'), image: 'menu15.png', label: 'Notes' },
     { route: '', image: 'menu16.png', label: 'Files' },
 ];
 

@@ -18,8 +18,6 @@ class Receival extends Model
     protected $fillable = [
         'user_id',
         'paddocks',
-//        'tia_sample_id',
-//        'unload_id',
         'oversize_bin_size',
         'seed_bin_size',
         'grower_docket_no',

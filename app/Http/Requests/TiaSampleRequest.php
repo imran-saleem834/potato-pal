@@ -7,6 +7,33 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class TiaSampleRequest extends FormRequest
 {
+    private array $arrayInputs = [
+        'tubers',
+        'dry_rot',
+        'black_scurf',
+        'powdery_scab',
+        'root_knot_nematode',
+        'soft_rots',
+        'pink_rot',
+        'sub_total',
+        'common_scab',
+        'total_disease',
+        'black_scurf_scatter',
+        'insect_damage',
+        'malformed_tubers',
+        'mechanical_damage',
+        'stem_end_discolour',
+        'foreign_cultivars',
+        'misc_frost',
+        'total_defects',
+        'minimal_insect_feeding',
+        'oversize',
+        'undersize',
+        'disease_powdery_scab',
+        'disease_root_knot_nematode',
+        'disease_common_scab',
+    ];
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -23,48 +50,25 @@ class TiaSampleRequest extends FormRequest
     public function rules(): array
     {
         $rules = [
-            'receival_id'              => ['required', 'exists:receivals,id', 'unique:tia_samples,receival_id'],
-            'processor'                => ['nullable', 'string', 'max:20'],
-            'inspection_no'            => ['nullable', 'string', 'max:20'],
-            'inspection_date'          => ['nullable', 'date'],
-            'cool_store'               => ['nullable', 'string', 'max:100'],
-            'size'                     => ['nullable', 'string', 'max:50'],
-            'tubers'                   => ['nullable', 'array'],
-            'tubers.*'                 => ['nullable', 'numeric'],
-            'dry_rot'                  => ['nullable', 'array'],
-            'dry_rot.*'                => ['nullable', 'numeric'],
-            'black_scurf'              => ['nullable', 'array'],
-            'black_scurf.*'            => ['nullable', 'numeric'],
-            'powdery_scab'             => ['nullable', 'array'],
-            'powdery_scab.*'           => ['nullable', 'numeric'],
-            'root_knot_nematode'       => ['nullable', 'array'],
-            'root_knot_nematode.*'     => ['nullable', 'numeric'],
-            'soft_rots'                => ['nullable', 'array'],
-            'soft_rots.*'              => ['nullable', 'numeric'],
-            'pink_rot'                 => ['nullable', 'array'],
-            'pink_rot.*'               => ['nullable', 'numeric'],
-            'black_scurf_scatter'      => ['nullable', 'array'],
-            'black_scurf_scatter.*'    => ['nullable', 'numeric'],
-            'insect_damage'            => ['nullable', 'array'],
-            'insect_damage.*'          => ['nullable', 'numeric'],
-            'malformed_tubers'         => ['nullable', 'array'],
-            'malformed_tubers.*'       => ['nullable', 'numeric'],
-            'mechanical_damage'        => ['nullable', 'array'],
-            'mechanical_damage.*'      => ['nullable', 'numeric'],
-            'stem_end_discolour'       => ['nullable', 'array'],
-            'stem_end_discolour.*'     => ['nullable', 'numeric'],
-            'foreign_cultivars'        => ['nullable', 'array'],
-            'foreign_cultivars.*'      => ['nullable', 'numeric'],
-            'misc_frost'               => ['nullable', 'array'],
-            'misc_frost.*'             => ['nullable', 'numeric'],
-            'minimal_insect_feeding'   => ['nullable', 'array'],
-            'minimal_insect_feeding.*' => ['nullable', 'numeric'],
-            'oversize'                 => ['nullable', 'array'],
-            'oversize.*'               => ['nullable', 'numeric'],
-            'undersize'                => ['nullable', 'array'],
-            'undersize.*'              => ['nullable', 'numeric'],
-            'status'                   => ['required', 'string', 'max:20'],
+            'receival_id'         => ['required', 'exists:receivals,id', 'unique:tia_samples,receival_id'],
+            'processor'           => ['nullable', 'string', 'max:20'],
+            'inspection_no'       => ['nullable', 'string', 'max:20'],
+            'inspection_date'     => ['nullable', 'date'],
+            'cool_store'          => ['nullable', 'string', 'max:100'],
+            'size'                => ['nullable', 'string', 'max:50'],
+            'disease_scoring'     => ['nullable', 'numeric', 'max:6'],
+            'excessive_dirt'      => ['nullable', 'boolean'],
+            'minor_skin_cracking' => ['nullable', 'boolean'],
+            'skinning'            => ['nullable', 'boolean'],
+            'regarding'           => ['nullable', 'boolean'],
+            'comment'             => ['nullable', 'string', 'max:255'],
+            'status'              => ['required', 'string', 'max:20'],
         ];
+
+        foreach ($this->arrayInputs as $arrayInput) {
+            $rules[$arrayInput]     = ['nullable', 'array'];
+            $rules["$arrayInput.*"] = ['nullable', 'numeric'];
+        }
 
         if ($this->isMethod('PATCH')) {
             $rules['receival_id'] = [
@@ -75,5 +79,59 @@ class TiaSampleRequest extends FormRequest
         }
 
         return $rules;
+    }
+
+    /**
+     * Prepare the data for validation.
+     *
+     * @return void
+     */
+    public function prepareForValidation()
+    {
+        foreach ($this->arrayInputs as $arrayInput) {
+            $values = $this->input($arrayInput);
+
+            foreach ($values ?? [] as $index => $value) {
+                $values[$index] = str_replace('%', '', $value);
+            }
+
+            $this->merge([$arrayInput => $values]);
+        }
+    }
+
+    /**
+     * Get custom attributes for validator errors.
+     *
+     * @return array<string, string>
+     */
+    public function attributes(): array
+    {
+        return [
+            'receival_id'                  => 'receival',
+            'tubers.*'                     => 'tuber',
+            'dry_rot.*'                    => 'dry rot',
+            'black_scurf.*'                => 'black scurf',
+            'powdery_scab.*'               => 'powdery scab',
+            'root_knot_nematode.*'         => 'rootknot nematode',
+            'soft_rots.*'                  => 'soft rots',
+            'pink_rot.*'                   => 'pink rot',
+            'sub_total.*'                  => 'sub total',
+            'common_scab.*'                => 'common scab',
+            'total_disease.*'              => 'total disease',
+            'black_scurf_scatter.*'        => 'black scurf scatter',
+            'insect_damage.*'              => 'insect damage',
+            'malformed_tubers.*'           => 'malformed tubers',
+            'mechanical_damage.*'          => 'mechanical damage',
+            'stem_end_discolour.*'         => 'stem end discolour',
+            'foreign_cultivars.*'          => 'foreign cultivars',
+            'misc_frost.*'                 => 'misc frost',
+            'total_defects.*'              => 'total defects',
+            'minimal_insect_feeding.*'     => 'minimal insect feeding',
+            'oversize.*'                   => 'oversize',
+            'undersize.*'                  => 'undersize',
+            'disease_powdery_scab.*'       => 'powdery scab',
+            'disease_root_knot_nematode.*' => 'rootknot nematode',
+            'disease_common_scab.*'        => 'common scab',
+        ];
     }
 }

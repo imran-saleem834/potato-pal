@@ -15,10 +15,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id');
             $table->string('paddocks')->nullable();
-//            $table->string('tia_sample_status', 40)->default('pending');
-//            $table->string('tia_sample_id', 100)->nullable();
-//            $table->string('unloading_status', 40)->default('pending');
-//            $table->string('unloading_id')->nullable();
             $table->string('oversize_bin_size', 20)->nullable();
             $table->string('seed_bin_size', 20)->nullable();
             $table->string('grower_docket_no', 50)->nullable();

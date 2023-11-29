@@ -62,7 +62,11 @@ class UserRequest extends FormRequest
         return $rules;
     }
 
-
+    /**
+     * Prepare the data for validation.
+     *
+     * @return void
+     */
     public function prepareForValidation()
     {
         $paddocks = $this->input('paddocks');

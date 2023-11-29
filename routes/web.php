@@ -6,6 +6,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ReceivalController;
 use App\Http\Controllers\UnloadingController;
 use App\Http\Controllers\TiaSampleController;
+use App\Http\Controllers\NoteController;
 
 /*
 |--------------------------------------------------------------------------
@@ -45,7 +46,14 @@ Route::middleware([
     Route::resource('/unloading', UnloadingController::class);
 
     Route::get('/tia-sample/list', [TiaSampleController::class, 'list'])->name('tia-sample.list');
+    Route::post('/tia-sample/{id}/upload', [TiaSampleController::class, 'upload'])->name('tia-sample.upload');
+    Route::post('/tia-sample/{id}/delete', [TiaSampleController::class, 'delete'])->name('tia-sample.delete');
     Route::resource('/tia-sample', TiaSampleController::class);
+
+    Route::get('/notes/list', [NoteController::class, 'list'])->name('notes.list');
+    Route::post('/notes/{id}/upload', [NoteController::class, 'upload'])->name('notes.upload');
+    Route::post('/notes/{id}/delete', [NoteController::class, 'delete'])->name('notes.delete');
+    Route::resource('/notes', NoteController::class);
 });
 
 Route::get('/abc', function () {

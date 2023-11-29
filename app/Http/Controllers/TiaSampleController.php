@@ -6,6 +6,7 @@ use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Models\{Receival, TiaSample};
 use App\Http\Requests\TiaSampleRequest;
+use Illuminate\Support\Facades\Storage;
 
 class TiaSampleController extends Controller
 {
@@ -37,7 +38,7 @@ class TiaSampleController extends Controller
      */
     public function list(Request $request)
     {
-        $keyword = $request->input('keyword', '');
+        $keyword    = $request->input('keyword', '');
         $tiaSamples = TiaSample::query()
             ->with([
                 'receival'      => function ($query) {
@@ -108,5 +109,48 @@ class TiaSampleController extends Controller
     public function destroy(string $id)
     {
         TiaSample::destroy($id);
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function upload(Request $request, string $id)
+    {
+        $request->validate([
+            'file' => ['required', 'mimes:jpeg,png,jpg,gif,svg,pdf', 'max:2048'],
+        ]);
+
+        $file     = $request->file('file');
+        $fileName = $file->storePublicly('tia-samples');
+
+        $tiaSample         = TiaSample::find($id);
+        $images            = $tiaSample->images ?? [];
+        $images[]          = $fileName;
+        $tiaSample->images = $images;
+        $tiaSample->save();
+
+        return back();
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function delete(Request $request, string $id)
+    {
+        $fileName = $request->input('image');
+
+        $tiaSample = TiaSample::find($id);
+        $images    = $tiaSample->images ?? [];
+
+        $pos = array_search($fileName, $images);
+        if ($pos !== false) {
+            unset($images[$pos]);
+
+            Storage::disk()->delete($fileName);
+        }
+
+        $tiaSample->images = array_values($images);
+
+        $tiaSample->save();
     }
 }
