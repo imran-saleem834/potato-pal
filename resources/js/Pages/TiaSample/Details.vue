@@ -1,10 +1,11 @@
 <script setup>
-import { computed, ref, watch } from "vue";
-import { router, useForm } from "@inertiajs/vue3";
+import { computed, watch } from "vue";
+import { useForm } from "@inertiajs/vue3";
 import { getCategoriesByType, toCamelCase } from "@/helper.js";
 import moment from 'moment';
 import Multiselect from '@vueform/multiselect';
 import TextInput from "@/Components/TextInput.vue";
+import Images from "@/Components/Images.vue";
 
 const props = defineProps({
     tiaSample: Object,
@@ -135,10 +136,6 @@ const sample2 = [
     { title: 'Common Scab', name: 'disease_common_scab', allow: '', inputs: 6 },
 ]
 
-// samples.forEach(sample => {
-//     props.tiaSample[sample.name] = addEmptyValues(props.tiaSample[sample.name] || [], sample.inputs || 5);
-// });
-
 samples.concat(sample2).forEach(sample => {
     props.tiaSample[sample.name] = addEmptyValues(props.tiaSample[sample.name] || [], sample.inputs || 5);
 });
@@ -202,9 +199,6 @@ watch(() => props.tiaSample,
         samples.concat(sample2).forEach(sample => {
             form[sample.name] = addEmptyValues(tiaSample[sample.name] || [], sample.inputs || 5);
         });
-        // sample2.forEach(sample => {
-        //     form[sample.name] = addEmptyValues(tiaSample[sample.name] || [], sample.inputs || 5);
-        // });
     }
 );
 
@@ -214,9 +208,6 @@ watch(() => props.isNew,
             samples.concat(sample2).forEach(sample => {
                 props.tiaSample[sample.name] = addEmptyValues([], sample.inputs || 5);
             });
-            // sample2.forEach(sample => {
-            //     props.tiaSample[sample.name] = addEmptyValues([], sample.inputs || 5);
-            // });
         }
     }
 );
@@ -224,41 +215,6 @@ watch(() => props.isNew,
 const isForm = computed(() => {
     return props.isEdit || props.isNew;
 })
-
-const photoInput = ref(null);
-
-const selectNewPhoto = () => {
-    photoInput.value.click();
-};
-
-const updatePhotoPreview = () => {
-    const formData = new FormData();
-    formData.append('file', photoInput.value.files[0]);
-
-    router.post(route('tia-sample.upload', props.tiaSample.id), formData, {
-        preserveScroll: true,
-        onSuccess: () => {
-            clearPhotoFileInput();
-            emit('updateRecord')
-        },
-    });
-};
-
-const deletePhoto = (image) => {
-    router.post(route('tia-sample.delete', props.tiaSample.id), { image }, {
-        preserveScroll: true,
-        onSuccess: () => {
-            clearPhotoFileInput();
-            emit('updateRecord')
-        },
-    });
-};
-
-const clearPhotoFileInput = () => {
-    if (photoInput.value?.value) {
-        photoInput.value.value = null;
-    }
-};
 
 const updateRecord = () => {
     form.patch(route('tia-sample.update', props.tiaSample.id), {
@@ -619,29 +575,13 @@ const storeRecord = () => {
                 </template>
             </div>
 
-            <h4 v-if="!isNew">Images</h4>
-            <div v-if="!isNew" class="user-boxes">
-                <input
-                    id="photo"
-                    ref="photoInput"
-                    type="file"
-                    class="hidden"
-                    @change="updatePhotoPreview"
-                >
-                <div class="user-column-two">
-                    <div>&nbsp;</div>
-                    <div>
-                        <button class="btn-red" type="button" @click="selectNewPhoto">+ Add</button>
-                    </div>
-                </div>
-
-                <div class="row tia-images">
-                    <div v-for="image in tiaSample.images" :key="image" class="col-xs-12 col-sm-4">
-                        <img :src="`storage/${image}`" :alt="image" style="width: 100%"/>
-                        <i class="fa fa-close" @click="deletePhoto(image)"></i>
-                    </div>
-                </div>
-            </div>
+            <Images
+                v-if="!isNew"
+                :images="tiaSample.images"
+                :upload-route="route('tia-sample.upload', tiaSample.id)"
+                :delete-route="route('tia-sample.delete', tiaSample.id)"
+                @updateRecord="emit('updateRecord')"
+            />
         </div>
     </div>
 </template>

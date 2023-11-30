@@ -2,21 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Note;
+use App\Models\File;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
-use App\Http\Requests\NoteRequest;
+use App\Http\Requests\FileRequest;
 use App\Helpers\NotificationHelper;
 use Illuminate\Support\Facades\Storage;
 
-class NoteController extends Controller
+class FileController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        return Inertia::render('Note/Index');
+        return Inertia::render('File/Index');
     }
 
     /**
@@ -26,36 +26,34 @@ class NoteController extends Controller
     public function list(Request $request)
     {
         $keyword = $request->input('keyword', '');
-        $notes   = Note::query()
+        $files   = File::query()
             ->select('id', 'title')
             ->when($keyword, function ($query, $keyword) {
                 return $query->where('id', 'LIKE', "%$keyword%")
                     ->orWhere('title', 'LIKE', "%$keyword%")
-                    ->orWhere('note', 'LIKE', "%$keyword%")
-                    ->orWhere('tags', 'LIKE', "%$keyword%")
                     ->orWhere('images', 'LIKE', "%$keyword%");
             })
             ->latest()
             ->get();
 
-        $noteId = $request->input('noteId', $notes->first()->id ?? 0);
+        $fileId = $request->input('fileId', $files->first()->id ?? 0);
 
-        $note = Note::find($noteId);
+        $file = File::find($fileId);
 
         return response()->json([
-            'notes' => $notes,
-            'note'  => $note,
+            'files' => $files,
+            'file'  => $file,
         ]);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(NoteRequest $request)
+    public function store(FileRequest $request)
     {
-        $note = Note::create($request->validated());
+        $file = File::create($request->validated());
 
-        NotificationHelper::addedAction('Note', $note->id);
+        NotificationHelper::addedAction('File', $file->id);
 
         return back();
     }
@@ -65,21 +63,21 @@ class NoteController extends Controller
      */
     public function show(string $id)
     {
-        $note = Note::find($id);
+        $file = File::find($id);
 
-        return response()->json($note);
+        return response()->json($file);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(NoteRequest $request, string $id)
+    public function update(FileRequest $request, string $id)
     {
-        $note = Note::find($id);
-        $note->update($request->validated());
-        $note->save();
+        $file = File::find($id);
+        $file->update($request->validated());
+        $file->save();
 
-        NotificationHelper::updatedAction('Note', $id);
+        NotificationHelper::updatedAction('File', $id);
 
         return back();
     }
@@ -89,9 +87,9 @@ class NoteController extends Controller
      */
     public function destroy(string $id)
     {
-        Note::destroy($id);
+        File::destroy($id);
 
-        NotificationHelper::deleteAction('Note', $id);
+        NotificationHelper::deleteAction('File', $id);
     }
 
     /**
@@ -104,13 +102,13 @@ class NoteController extends Controller
         ]);
 
         $file     = $request->file('file');
-        $fileName = $file->storePublicly('notes');
+        $fileName = $file->storePublicly('files');
 
-        $note         = Note::find($id);
-        $images       = $note->images ?? [];
+        $file         = File::find($id);
+        $images       = $file->images ?? [];
         $images[]     = $fileName;
-        $note->images = $images;
-        $note->save();
+        $file->images = $images;
+        $file->save();
 
         return back();
     }
@@ -122,8 +120,8 @@ class NoteController extends Controller
     {
         $fileName = $request->input('image');
 
-        $note   = Note::find($id);
-        $images = $note->images ?? [];
+        $file   = File::find($id);
+        $images = $file->images ?? [];
 
         $pos = array_search($fileName, $images);
         if ($pos !== false) {
@@ -132,8 +130,8 @@ class NoteController extends Controller
             Storage::disk()->delete($fileName);
         }
 
-        $note->images = array_values($images);
+        $file->images = array_values($images);
 
-        $note->save();
+        $file->save();
     }
 }

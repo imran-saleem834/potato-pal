@@ -1,3 +1,29 @@
+<script setup>
+import { Link } from '@inertiajs/vue3';
+import LogoutButton from '@/Components/LogoutButton.vue';
+import { ref } from 'vue';
+
+const props = defineProps({
+    type: String,
+    value: {
+        type: String,
+        default: ''
+    }
+});
+
+const keyword = ref(props.value);
+
+const emit = defineEmits(['newRecord', 'search']);
+
+const newRecord = () => {
+    emit('newRecord');
+};
+
+const search = () => {
+    emit('search', keyword.value);
+};
+</script>
+
 <template>
     <div class="main-section">
         <div class="container-fluid">
@@ -60,25 +86,3 @@
         </div>
     </div>
 </template>
-
-<script setup>
-import { Link } from '@inertiajs/vue3';
-import LogoutButton from '@/Components/LogoutButton.vue';
-import { ref } from 'vue';
-
-defineProps({
-    type: String,
-});
-
-const keyword = ref('');
-
-const emit = defineEmits(['newRecord', 'search']);
-
-const newRecord = () => {
-    emit('newRecord');
-};
-
-const search = () => {
-    emit('search', keyword.value);
-};
-</script>

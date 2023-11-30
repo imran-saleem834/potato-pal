@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Helpers\CategoriesHelper;
+use App\Helpers\NotificationHelper;
 use App\Http\Requests\ReceivalRequest;
 use App\Models\{User, Unload, Receival, TiaSample};
 
@@ -45,6 +46,7 @@ class ReceivalController extends Controller
                     ->orWhere('driver_name', 'LIKE', "%$keyword%")
                     ->orWhere('comments', 'LIKE', "%$keyword%");
             })
+            ->latest()
             ->get();
 
         $receivalId = $request->input('receivalId', $receivals->first()->id ?? 0);
@@ -88,6 +90,8 @@ class ReceivalController extends Controller
             'transport'
         ]);
         CategoriesHelper::createRelationOfTypes($inputs, $receival->id, Receival::class);
+
+        NotificationHelper::addedAction('Receival', $receival->id);
 
         return back();
     }
@@ -136,6 +140,8 @@ class ReceivalController extends Controller
         ]);
         CategoriesHelper::createRelationOfTypes($inputs, $receival->id, Receival::class);
 
+        NotificationHelper::updatedAction('Receival', $id);
+
         return back();
     }
 
@@ -144,8 +150,10 @@ class ReceivalController extends Controller
      */
     public function destroy(string $id)
     {
-        CategoriesHelper::deleteCategoryRealtions($id, Receival::class);
-        Receival::destroy($id);
+//        CategoriesHelper::deleteCategoryRealtions($id, Receival::class);
+//        Receival::destroy($id);
+//
+//        NotificationHelper::deleteAction('Receival', $id);
     }
 
     /**

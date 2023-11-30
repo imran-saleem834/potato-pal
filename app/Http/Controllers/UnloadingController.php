@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Models\{Unload, Receival};
+use App\Helpers\NotificationHelper;
 use App\Http\Requests\UnloadRequest;
 
 class UnloadingController extends Controller
@@ -56,6 +57,7 @@ class UnloadingController extends Controller
                     ->orWhere('total_oversize_bins', 'LIKE', "%$keyword%")
                     ->orWhere('weight_oversize_bins', 'LIKE', "%$keyword%");
             })
+            ->latest()
             ->get();
 
         $unloadId = $request->input('unloadId', $unloads->first()->id ?? 0);
@@ -73,7 +75,9 @@ class UnloadingController extends Controller
      */
     public function store(UnloadRequest $request)
     {
-        Unload::create($request->validated());
+        $unload = Unload::create($request->validated());
+
+        NotificationHelper::addedAction('Unload', $unload->id);
 
         return back();
     }
@@ -97,6 +101,8 @@ class UnloadingController extends Controller
         $unload->update($request->validated());
         $unload->save();
 
+        NotificationHelper::updatedAction('Unload', $id);
+
         return back();
     }
 
@@ -106,5 +112,7 @@ class UnloadingController extends Controller
     public function destroy(string $id)
     {
         Unload::destroy($id);
+
+        NotificationHelper::deleteAction('Unload', $id);
     }
 }

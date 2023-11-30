@@ -3,7 +3,7 @@ import { Head, Link } from '@inertiajs/vue3';
 import LogoutButton from '@/Components/LogoutButton.vue';
 
 const menus = [
-    { route: route('users'), image: 'menu1.png', label: 'Users' },
+    { route: route('users.index'), image: 'menu1.png', label: 'Users' },
     { route: route('receivals.index'), image: 'menu2.png', label: 'Receivals' },
     { route: route('unloading.index'), image: 'menu3.png', label: 'Unloading' },
     { route: route('tia-sample.index'), image: 'menu4.png', label: 'TIA Samples' },
@@ -16,9 +16,9 @@ const menus = [
     { route: '', image: 'menu11.png', label: 'Cutting' },
     { route: '', image: 'menu12.png', label: 'Weighbridge' },
     { route: route('options'), image: 'menu13.png', label: 'Admin Options' },
-    { route: '', image: 'menu14.png', label: 'Notifications' },
-    { route:  route('notes.index'), image: 'menu15.png', label: 'Notes' },
-    { route: '', image: 'menu16.png', label: 'Files' },
+    { route: route('notifications.index'), image: 'menu14.png', label: 'Notifications' },
+    { route: route('notes.index'), image: 'menu15.png', label: 'Notes' },
+    { route: route('files.index'), image: 'menu16.png', label: 'Files' },
 ];
 
 </script>

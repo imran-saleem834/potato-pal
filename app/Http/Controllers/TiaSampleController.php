@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Inertia\Inertia;
 use Illuminate\Http\Request;
+use App\Helpers\NotificationHelper;
 use App\Models\{Receival, TiaSample};
 use App\Http\Requests\TiaSampleRequest;
 use Illuminate\Support\Facades\Storage;
@@ -59,6 +60,7 @@ class TiaSampleController extends Controller
                     ->orWhere('size', 'LIKE', "%$keyword%")
                     ->orWhere('status', 'LIKE', "%$keyword%");
             })
+            ->latest()
             ->get();
 
         $tiaSampleId = $request->input('tiaSampleId', $tiaSamples->first()->id ?? 0);
@@ -76,7 +78,9 @@ class TiaSampleController extends Controller
      */
     public function store(TiaSampleRequest $request)
     {
-        TiaSample::create($request->validated());
+        $tiaSample = TiaSample::create($request->validated());
+
+        NotificationHelper::addedAction('Tia Sample', $tiaSample->id);
 
         return back();
     }
@@ -100,6 +104,8 @@ class TiaSampleController extends Controller
         $tiaSample->update($request->validated());
         $tiaSample->save();
 
+        NotificationHelper::updatedAction('Tia Sample', $id);
+
         return back();
     }
 
@@ -109,6 +115,8 @@ class TiaSampleController extends Controller
     public function destroy(string $id)
     {
         TiaSample::destroy($id);
+
+        NotificationHelper::deleteAction('Tia Sample', $id);
     }
 
     /**

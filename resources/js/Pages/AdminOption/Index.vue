@@ -1,27 +1,19 @@
 <script setup>
-import { Link, } from '@inertiajs/vue3';
+import { Link } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import TopBar from '@/Components/TopBar.vue';
 import MiddleBar from '@/Components/MiddleBar.vue';
 import Details from '@/Pages/AdminOption/Details.vue';
 
+const props = defineProps({
+    optionTypes: Array,
+});
+
 const categories = ref(null);
 const user = ref(null);
 const activeTab = ref(null);
 const isNewRecord = ref(false);
-
-const optionTypes = [
-    { slug: 'seed-class', label: 'Seed Class' },
-    { slug: 'delivery-type', label: 'Delivery Type' },
-    { slug: 'fungicide', label: 'Fungicide' },
-    { slug: 'seed-generation', label: 'Seed Generation' },
-    { slug: 'buyer', label: 'Buyer Group Type' },
-    { slug: 'grower', label: 'Grower Group Type' },
-    { slug: 'seed-type', label: 'Seed Type' },
-    { slug: 'seed-variety', label: 'Seed Variety' },
-    { slug: 'transport', label: 'Transport Co.' },
-];
 
 const setActiveTab = (id) => {
     activeTab.value = id;
@@ -42,7 +34,7 @@ const getCategories = (type, keyword) => {
 }
 
 const title = computed(() => {
-    return optionTypes.find(option => option.slug === activeTab.value)?.label;
+    return props.optionTypes.find(option => option.slug === activeTab.value)?.label;
 })
 
 getCategories('seed-class');

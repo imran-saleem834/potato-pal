@@ -2,42 +2,50 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
+use Inertia\Inertia;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Helpers\CategoriesHelper;
 use App\Http\Requests\UserRequest;
+use App\Helpers\NotificationHelper;
+use Illuminate\Database\Eloquent\Builder;
 
 class UserController extends Controller
 {
     /**
+     * @param Request $request
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
-        $keyword = $request->input('keyword');
-        $users   = User::select('id', 'name', 'email')
-            ->when($keyword, function ($query, $keyword) {
-                $keyword = strtolower($keyword);
-                return $query->where('id', 'LIKE', "%$keyword%")
-                    ->orWhere('name', 'LIKE', "%$keyword%")
-                    ->orWhere('email', 'LIKE', "%$keyword%")
-                    ->orWhere('username', 'LIKE', "%$keyword%")
-                    ->orWhere('phone', 'LIKE', "%$keyword%")
-                    ->orWhere('role', 'LIKE', "%$keyword%")
-                    ->orWhere('grower_name', 'LIKE', "%$keyword%")
-                    ->orWhere('grower_tags', 'LIKE', "%$keyword%")
-                    ->orWhere('buyer_tags', 'LIKE', "%$keyword%")
-                    ->orWhere('paddocks', 'LIKE', "%$keyword%");
+        $users = User::select('id', 'name', 'email')
+            ->when($request->input('search'), function (Builder $query, $search) {
+                return $query->where('id', 'LIKE', "%$search%")
+                    ->orWhere('name', 'LIKE', "%$search%")
+                    ->orWhere('email', 'LIKE', "%$search%")
+                    ->orWhere('username', 'LIKE', "%$search%")
+                    ->orWhere('phone', 'LIKE', "%$search%")
+                    ->orWhere('role', 'LIKE', "%$search%")
+                    ->orWhere('grower_name', 'LIKE', "%$search%")
+                    ->orWhere('grower_tags', 'LIKE', "%$search%")
+                    ->orWhere('buyer_tags', 'LIKE', "%$search%")
+                    ->orWhere('paddocks', 'LIKE', "%$search%");
             })
+            ->latest()
             ->get();
 
         $userId = $request->input('userId', $users->first()->id ?? 0);
 
         $user = User::with(['categories'])->find($userId);
 
-        return response()->json([
-            'users' => $users,
-            'user'  => $user,
+        $categories = Category::whereIn('type', ['buyer', 'grower'])->get();
+
+        return Inertia::render('User/Index', [
+            'users'      => $users,
+            'single'     => $user,
+            'categories' => $categories,
+            'filters'    => $request->only(['search']),
         ]);
     }
 
@@ -52,7 +60,9 @@ class UserController extends Controller
 
         CategoriesHelper::createRelationOfTypes($request->only(['buyer', 'grower']), $user->id, User::class);
 
-        return back();
+        NotificationHelper::addedAction('User', $user->id);
+
+        return to_route('users.index');
     }
 
     /**
@@ -78,7 +88,9 @@ class UserController extends Controller
 
         CategoriesHelper::createRelationOfTypes($request->only(['buyer', 'grower']), $user->id, User::class);
 
-        return back();
+        NotificationHelper::updatedAction('User', $id);
+
+        return to_route('users.index');
     }
 
     /**
@@ -88,5 +100,9 @@ class UserController extends Controller
     {
         CategoriesHelper::deleteCategoryRealtions($id, User::class);
         User::destroy($id);
+
+        NotificationHelper::deleteAction('User', $id);
+
+        return to_route('users.index');
     }
 }

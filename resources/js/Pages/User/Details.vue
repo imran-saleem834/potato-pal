@@ -25,7 +25,7 @@ const props = defineProps({
     categories: Array,
 });
 
-const emit = defineEmits(['updateRecord']);
+const emit = defineEmits(['update', 'create']);
 
 const form = useForm({
     name: props.user.name,
@@ -81,16 +81,20 @@ const removePaddocks = (index) => {
 
 const updateRecord = () => {
     form.patch(route('users.update', props.user.id), {
+        preserveScroll: true,
+        preserveState: true,
         onSuccess: () => {
-            emit('updateRecord')
+            emit('update')
         },
     });
 }
 
 const storeRecord = () => {
     form.post(route('users.store'), {
+        preserveScroll: true,
+        preserveState: true,
         onSuccess: () => {
-            emit('updateRecord')
+            emit('create')
         },
     });
 }

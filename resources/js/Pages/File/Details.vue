@@ -1,12 +1,11 @@
 <script setup>
 import { computed, watch } from "vue";
 import { useForm } from "@inertiajs/vue3";
-import Multiselect from '@vueform/multiselect'
 import TextInput from "@/Components/TextInput.vue";
 import Images from "@/Components/Images.vue";
 
 const props = defineProps({
-    note: Object,
+    file: Object,
     colSize: String,
     isEdit: Boolean,
     isNew: Boolean,
@@ -15,17 +14,13 @@ const props = defineProps({
 const emit = defineEmits(['updateRecord']);
 
 const form = useForm({
-    title: props.note.title,
-    note: props.note.note,
-    tags: props.note.tags,
+    title: props.file.title,
 });
 
-watch(() => props.note,
-    (note) => {
+watch(() => props.file,
+    (file) => {
         form.clearErrors();
-        form.title = note.title
-        form.note = note.note
-        form.tags = note.tags
+        form.title = file.title
     }
 );
 
@@ -34,7 +29,7 @@ const isForm = computed(() => {
 })
 
 const updateRecord = () => {
-    form.patch(route('notes.update', props.note.id), {
+    form.patch(route('files.update', props.file.id), {
         onSuccess: () => {
             emit('updateRecord')
         },
@@ -42,7 +37,7 @@ const updateRecord = () => {
 }
 
 const storeRecord = () => {
-    form.post(route('notes.store'), {
+    form.post(route('files.store'), {
         onSuccess: () => {
             emit('updateRecord')
         },
@@ -66,36 +61,15 @@ const storeRecord = () => {
             <div class="user-boxes">
                 <h6>Title</h6>
                 <TextInput v-if="isForm" v-model="form.title" :error="form.errors.title" type="text"/>
-                <h5 v-else>{{ note.title }}</h5>
-
-                <h6>Note</h6>
-                <div v-if="isForm" class="form-group" :class="{'has-error' : form.errors.note}">
-                    <textarea v-model="form.note" class="form-control" rows="5"></textarea>
-                    <span v-show="form.errors.note" class="help-block text-left">{{ form.errors.note }}</span>
-                </div>
-                <h5 v-else>{{ note.note }}</h5>
-
-                <h6>Unique Tags</h6>
-                <Multiselect
-                    v-if="isForm"
-                    v-model="form.tags"
-                    mode="tags"
-                    placeholder="Choose a tags"
-                    :searchable="true"
-                    :create-option="true"
-                    :options="form.tags"
-                />
-                <ul v-else-if="note.tags">
-                    <li v-for="tag in note.tags" :key="tag"><a>{{ tag }}</a></li>
-                </ul>
+                <h5 v-else>{{ file.title }}</h5>
             </div>
         </div>
         <div :class="colSize">
             <Images
                 v-if="!isNew"
-                :images="note.images"
-                :upload-route="route('notes.upload', note.id || 0)"
-                :delete-route="route('notes.delete', note.id || 0)"
+                :images="file.images"
+                :upload-route="route('files.upload', file.id || 0)"
+                :delete-route="route('files.delete', file.id || 0)"
                 @updateRecord="emit('updateRecord')"
             />
         </div>

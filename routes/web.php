@@ -1,12 +1,14 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\NoteController;
+use App\Http\Controllers\FileController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ReceivalController;
 use App\Http\Controllers\UnloadingController;
 use App\Http\Controllers\TiaSampleController;
-use App\Http\Controllers\NoteController;
+use App\Http\Controllers\NotificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,12 +31,10 @@ Route::middleware([
 ])->group(function () {
     Route::inertia('/dashboard', 'Dashboard');
     Route::inertia('/', 'Dashboard')->name('dashboard');
-    Route::inertia('/users', 'User/Index')->name('users');
 
-    Route::get('/users/list', [UserController::class, 'index'])->name('users.list');
-    Route::resource('/users', UserController::class)->except(['index', 'create', 'edit']);
+    Route::resource('/users', UserController::class)->except(['create', 'edit']);
 
-    Route::inertia('/options', 'AdminOption/Index')->name('options');
+    Route::get('/options', [CategoryController::class, 'options'])->name('options');
     Route::resource('/categories', CategoryController::class);
 
     Route::get('/receivals/list', [ReceivalController::class, 'list'])->name('receivals.list');
@@ -50,10 +50,18 @@ Route::middleware([
     Route::post('/tia-sample/{id}/delete', [TiaSampleController::class, 'delete'])->name('tia-sample.delete');
     Route::resource('/tia-sample', TiaSampleController::class);
 
+    Route::get('/notifications/list', [NotificationController::class, 'list'])->name('notifications.list');
+    Route::resource('/notifications', NotificationController::class);
+
     Route::get('/notes/list', [NoteController::class, 'list'])->name('notes.list');
     Route::post('/notes/{id}/upload', [NoteController::class, 'upload'])->name('notes.upload');
     Route::post('/notes/{id}/delete', [NoteController::class, 'delete'])->name('notes.delete');
     Route::resource('/notes', NoteController::class);
+
+    Route::get('/files/list', [FileController::class, 'list'])->name('files.list');
+    Route::post('/files/{id}/upload', [FileController::class, 'upload'])->name('files.upload');
+    Route::post('/files/{id}/delete', [FileController::class, 'delete'])->name('files.delete');
+    Route::resource('/files', FileController::class);
 });
 
 Route::get('/abc', function () {
