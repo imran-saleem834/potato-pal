@@ -13,7 +13,7 @@ export function getCategoriesDropDownByType(categories, type) {
 }
 
 export function getCategoryIdsByType(categories, type) {
-    return getCategoriesByType(categories, type).map((category) => category.category_id);
+    return getCategoriesByType(categories, type).map(category => category.category_id);
 }
 
 export function toCamelCase(string) {

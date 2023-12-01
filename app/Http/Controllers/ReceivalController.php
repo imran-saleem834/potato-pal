@@ -50,7 +50,7 @@ class ReceivalController extends Controller
         $receivalId = $request->input('receivalId', $receivals->first()->id ?? 0);
 
         $receival = Receival::with([
-            'categories',
+            'categories.category',
             'unload'    => function ($query) {
                 return $query->select('id', 'receival_id');
             },
@@ -100,7 +100,7 @@ class ReceivalController extends Controller
     public function show(string $id)
     {
         $receival = Receival::with([
-            'categories',
+            'categories.category',
             'unload'    => function ($query) {
                 return $query->select('id', 'receival_id');
             },

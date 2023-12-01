@@ -543,8 +543,8 @@ const storeRecord = () => {
             <Images
                 v-if="!isNew"
                 :images="tiaSample.images"
-                :upload-route="route('tia-samples.upload', tiaSample.id)"
-                :delete-route="route('tia-samples.delete', tiaSample.id)"
+                :upload-route="route('tia-samples.upload', tiaSample.id || 0)"
+                :delete-route="route('tia-samples.delete', tiaSample.id || 0)"
                 @updateRecord="emit('updateRecord')"
             />
         </div>

@@ -154,8 +154,8 @@ const pushForUnload = () => {
                     :options="getCategoriesDropDownByType(categories, 'grower')"
                 />
                 <ul v-else-if="getCategoryIdsByType(receival.categories, 'grower')">
-                    <li v-for="group in getCategoryIdsByType(receival.categories, 'grower')" :key="group">
-                        <a>{{ getCategoriesDropDownByType(categories, 'grower').find(g => parseInt(g.value) === parseInt(group))?.label || group }}</a>
+                    <li v-for="category in getCategoryIdsByType(receival.categories, 'grower')" :key="category.id">
+                        <a>{{ category.category.name }}</a>
                     </li>
                 </ul>
 
@@ -247,8 +247,8 @@ const pushForUnload = () => {
             <Images
                 v-if="!isNew"
                 :images="receival.images"
-                :upload-route="route('receivals.upload', receival.id)"
-                :delete-route="route('receivals.delete', receival.id)"
+                :upload-route="route('receivals.upload', receival.id || 0)"
+                :delete-route="route('receivals.delete', receival.id || 0)"
                 @updateRecord="emit('updateRecord')"
             />
         </div>
