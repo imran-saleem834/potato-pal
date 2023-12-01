@@ -66,32 +66,29 @@ const clearPhotoFileInput = () => {
 </script>
 
 <template>
-    <h4>Images</h4>
-    <div class="user-boxes">
-        <input
-            id="photo"
-            ref="photoInput"
-            type="file"
-            class="hidden"
-            @change="updatePhotoPreview"
-        >
-        <div class="user-column-two">
-            <div>&nbsp;</div>
-            <div>
-                <button class="btn-red" type="button" @click="selectNewPhoto">+ Add</button>
-            </div>
+    <input
+        id="photo"
+        ref="photoInput"
+        type="file"
+        class="hidden"
+        @change="updatePhotoPreview"
+    >
+    <div class="user-column-two">
+        <div>&nbsp;</div>
+        <div>
+            <button class="btn-red" type="button" @click="selectNewPhoto">+ Add</button>
         </div>
-        <div class="row tia-images">
-            <div v-for="(image, index) in images" :key="image" class="col-xs-12 col-sm-4">
-                <img :src="`storage/${image}`" :alt="image" @click="showImg(index)"/>
-                <i class="fa fa-close" @click="deletePhoto(image)"></i>
-            </div>
-        </div>
-        <vue-easy-lightbox
-            :visible="visibleRef"
-            :imgs="images?.map(img => `storage/${img}`)"
-            :index="indexRef"
-            @hide="onHide"
-        />
     </div>
+    <ul class="row tia-images">
+        <li v-for="(image, index) in images" :key="image">
+            <img :src="`storage/${image}`" :alt="image" @click="showImg(index)"/>
+            <i class="fa fa-close" @click="deletePhoto(image)"></i>
+        </li>
+    </ul>
+    <vue-easy-lightbox
+        :visible="visibleRef"
+        :imgs="images?.map(img => `storage/${img}`)"
+        :index="indexRef"
+        @hide="onHide"
+    />
 </template>

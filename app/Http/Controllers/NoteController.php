@@ -27,7 +27,7 @@ class NoteController extends Controller
     {
         $keyword = $request->input('keyword', '');
         $notes   = Note::query()
-            ->select('id', 'title')
+            ->select('id', 'title', 'tags', 'created_at')
             ->when($keyword, function ($query, $keyword) {
                 return $query->where('id', 'LIKE', "%$keyword%")
                     ->orWhere('title', 'LIKE', "%$keyword%")

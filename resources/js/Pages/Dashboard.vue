@@ -7,7 +7,7 @@ const menus = [
     { route: route('receivals.index'), image: 'menu2.png', label: 'Receivals' },
     { route: route('unloading.index'), image: 'menu3.png', label: 'Unloading' },
     { route: route('tia-samples.index'), image: 'menu4.png', label: 'TIA Samples' },
-    { route: '', image: 'menu5.png', label: 'Allocations' },
+    { route: route('allocations.index'), image: 'menu5.png', label: 'Allocations' },
     { route: '', image: 'menu6.png', label: 'Inventory' },
     { route: '', image: 'menu7.png', label: 'Invoices' },
     { route: '', image: 'menu8.png', label: 'Labels' },

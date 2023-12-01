@@ -4,27 +4,27 @@ import { ref, watch } from 'vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import TopBar from '@/Components/TopBar.vue';
 import MiddleBar from '@/Components/MiddleBar.vue';
-import Details from '@/Pages/User/Details.vue';
+import Details from '@/Pages/Allocation/Details.vue';
 import LeftBar from "@/Components/LeftBar.vue";
 import ModalHeader from "@/Components/ModalHeader.vue";
 import ModalBreadcrumb from "@/Components/ModalBreadcrumb.vue";
 
 const props = defineProps({
-    users: Object,
-    categories: Object,
+    allocations: Object,
     single: Object,
     filters: Object,
 });
 
-const user = ref(props.single);
+const allocation = ref(props.single);
 const activeTab = ref(null);
 const edit = ref(null);
 const isNewRecord = ref(false);
 const search = ref(props.filters.search);
+const users = ref([]);
 
 watch(search, (value) => {
     router.get(
-        route('users.index'),
+        route('allocations.index'),
         { search: value },
         { preserveState: true, preserveScroll: true },
     )
@@ -32,9 +32,9 @@ watch(search, (value) => {
 
 const filter = (keyword) => search.value = keyword;
 
-const getUser = (id) => {
-    axios.get(route('users.show', id)).then(response => {
-        user.value = response.data;
+const getAllocation = (id) => {
+    axios.get(route('allocations.show', id)).then(response => {
+        allocation.value = response.data;
 
         setActiveTab(response.data.id);
     });
@@ -54,13 +54,13 @@ const setEdit = (id) => {
 const setNewRecord = () => {
     isNewRecord.value = true;
     edit.value = null;
-    user.value = {};
+    allocation.value = {};
     activeTab.value = null;
 }
 
-const deleteUser = (id) => {
+const deleteAllocation = (id) => {
     const form = useForm({});
-    form.delete(route('users.destroy', id), {
+    form.delete(route('allocations.destroy', id), {
         preserveState: true,
         onSuccess: () => {
             onCreatedRecord();
@@ -70,28 +70,36 @@ const deleteUser = (id) => {
 
 const onCreatedRecord = () => {
     setActiveTab(props.single.id)
-    user.value = props.single;
+    allocation.value = props.single;
 }
 
-setActiveTab(user.value.id);
+setActiveTab(allocation?.value?.id);
+
+const getUsers = () => {
+    axios.get(route('allocations.users')).then(response => {
+        users.value = response.data;
+    });
+}
+
+getUsers();
 </script>
 
 <template>
-    <AppLayout title="Users">
+    <AppLayout title="Allocations">
         <TopBar
-            type="Users"
+            type="Allocations"
             :value="search"
             @search="filter"
             @newRecord="setNewRecord"
         />
         <MiddleBar
-            type="Users"
-            :title="user?.name || 'New'"
+            type="Allocations"
+            :title="allocation?.name || 'New'"
             :is-edit-record-selected="!!edit"
             :is-new-record-selected="isNewRecord"
             @newRecord="setNewRecord"
-            @editRecord="() => setEdit(user?.id)"
-            @deleteRecord="() => deleteUser(user?.id)"
+            @editRecord="() => setEdit(allocation?.id)"
+            @deleteRecord="() => deleteAllocation(allocation?.id)"
         />
 
         <!-- tab-section -->
@@ -99,22 +107,22 @@ setActiveTab(user.value.id);
             <div class="row row0">
                 <div class="col-lg-3 col-sm-6" :class="{'mobile-userlist' : $windowWidth <= 767}">
                     <LeftBar
-                        :items="users"
+                        :items="allocations"
                         :active-tab="activeTab"
-                        :row-1="{title: 'Name', value: 'name'}"
-                        :row-2="{title: 'Email', value: 'email'}"
-                        @click="getUser"
+                        :row-1="{title: 'Buyer Name', value: 'buyer.name'}"
+                        :row-2="{title: 'Allocation Id', value: 'id'}"
+                        @click="getAllocation"
                     />
                 </div>
                 <div class="col-lg-8 col-sm-6">
-                    <div class="tab-content" v-if="user">
+                    <div class="tab-content" v-if="allocation">
                         <div class="tab-pane active">
                             <Details
-                                :user="user"
+                                :allocation="allocation"
                                 :is-edit="!!edit"
                                 :is-new="isNewRecord"
-                                :categories="categories"
-                                @update="() => getUser(edit)"
+                                :users="users"
+                                @update="() => getAllocation(edit)"
                                 @create="onCreatedRecord"
                                 col-size="col-md-6"
                             />
@@ -131,22 +139,22 @@ setActiveTab(user.value.id);
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <ModalHeader
-                        title="Users"
+                        title="Allocations"
                         :is-new="isNewRecord"
-                        @edit="() => setEdit(user?.id)"
-                        @delete="() => deleteUser(user?.id)"
+                        @edit="() => setEdit(allocation?.id)"
+                        @delete="() => deleteAllocation(allocation?.id)"
                     />
-                    <div class="modal-body" v-if="user">
+                    <div class="modal-body" v-if="allocation">
                         <ModalBreadcrumb
-                            page="Users"
-                            :title="user?.name || 'Users'"
+                            page="Allocations"
+                            :title="allocation?.name || 'Allocations'"
                         />
                         <Details
-                            :user="user"
+                            :allocation="allocation"
                             :is-edit="!!edit"
                             :is-new="isNewRecord"
-                            :categories="categories"
-                            @update="() => getUser(edit)"
+                            :users="users"
+                            @update="() => getAllocation(edit)"
                             @create="onCreatedRecord"
                             col-size="col-md-12"
                         />

@@ -531,7 +531,7 @@
      color: #000000;
      font-family: 'Montserrat-Medium';
    }
-   .tab-section .user-table .table tr td  .tab-redbtn{
+   .tab-section .user-table .table tr td .tab-redbtn {
      background: #E22827;
      border: 1px solid #E22827;
      color: #fff;
@@ -541,6 +541,7 @@
      top: -5px;
      border-radius: 3px;
      transition: 300ms ease-out !important;
+     margin-right: 10px;
    }
 
    .tab-section .tab-content{
@@ -587,16 +588,31 @@
      font-family: 'Montserrat-Medium';
    }
    .tab-section .notes-list ul li{
-     margin-right: 5px;
-   }
-   .tab-section .notes-list ul li a{
-     padding: 0;
-     background: none;
+     margin-right: 10px;
+     display: inline-block;
+     position: relative;
+       padding: 0;
+       background: none;
    }
 
-   .tab-section .notes-list ul li a img{
-     height: 100px;
+   .tab-section .notes-list ul li img{
+     max-height: 100px;
    }
+
+    .tab-section .notes-list ul li .fa-close {
+        position: absolute;
+        font-size: 18px;
+        background: rgba(0, 0, 0, 0.1);
+        border-radius: 100px;
+        padding: 6px 8px;
+        top: -15px;
+        right: -10px;
+        cursor: pointer;
+    }
+
+    .tab-section .notes-list ul li .fa-close:hover {
+        background: rgba(0, 0, 0, 0.3);
+    }
 
 
    .tab-section  .user-boxes ul li .btn-pending{
@@ -1131,13 +1147,14 @@
       .tab-section .user-table .table tr td{
           font-size: 10px;
       }
-      .tab-section .user-table .table tr td .tab-redbtn{
+
+      .tab-section .user-table .table tr td .tab-redbtn {
           right: 25px;
       }
       .tab-section .user-boxes p {
           font-size: 12px;
       }
-      .tab-section .notes-list ul li a img {
+      .tab-section .notes-list ul li img {
           height: 61px;
       }
       .notes-modal ul li a img {
@@ -1214,14 +1231,14 @@
           font-family: 'Montserrat-Medium';
         }
         .user-details.right .modal-dialog .notes-list ul li{
-          margin-right: 5px;
-        }
-        .user-details.right .modal-dialog .notes-list ul li a{
-          padding: 0;
-          background: none;
+            padding: 0;
+            background: none;
+            margin-right: 10px;
+            display: inline-block;
+            position: relative;
         }
 
-        .user-details.right .modal-dialog .notes-list ul li a img{
+        .user-details.right .modal-dialog .notes-list ul li img{
           height: 100px;
         }
         .user-details.right .modal-dialog  .user-boxes ul li .btn-pending{
@@ -1289,8 +1306,8 @@
            .user-boxes.notes-list p {
                font-size: 13px;
            }
-           .notes-list ul li a img {
-               height: 65px !important;
+           .notes-list ul li img {
+               max-height: 65px !important;
            }
            .mobile-userlist  .user-table .table tr td .tab-redbtn {
                background: #E22827;
@@ -1302,6 +1319,7 @@
                top: -5px;
                border-radius: 3px;
                transition: 300ms ease-out !important;
+               margin-right: 10px;
            }
            .slider-files {
                text-align: center;

@@ -67,14 +67,14 @@ const getNotificationActionColor = (action) => {
                      :key="notification.id"
                      class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
                     <div class="card">
-                        <div class="user-boxes">
+                        <div class="user-boxes" style="padding: 10px 20px;">
                             <h5 style="margin-bottom: 0;">
                                 Status :
                                 <strong :class="getNotificationActionColor(notification.action)">
                                     {{ notification.action }}
                                 </strong>
                             </h5>
-                            <h6 style="margin-bottom: 25px;">
+                            <h6>
                                 {{ moment(notification.created_at).format('YYYY-MM-DD HH:MM:SS') }}
                             </h6>
                             <h6>

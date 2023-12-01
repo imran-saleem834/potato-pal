@@ -5,7 +5,7 @@ import AppLayout from '@/Layouts/AppLayout.vue';
 import TopBar from '@/Components/TopBar.vue';
 import MiddleBar from '@/Components/MiddleBar.vue';
 import Details from '@/Pages/Note/Details.vue';
-import LeftBar from "@/Components/LeftBar.vue";
+import LeftBar from "@/Pages/Note/LeftBar.vue";
 
 const notes = ref([]);
 const note = ref(null);
@@ -101,7 +101,6 @@ getNotes();
                                 :is-edit="!!edit"
                                 :is-new="isNewRecord"
                                 @updateRecord="getNotes"
-                                col-size="col-md-6"
                             />
                         </div>
                     </div>
@@ -144,7 +143,7 @@ getNotes();
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span class="fa fa-arrow-left"></span>
                         </button>
-                        <h4 class="modal-title" id="myModalLabel3">{{ $page.props.auth.user.name }}</h4>
+                        <h4 class="modal-title" id="myModalLabel3">Notes</h4>
                         <div class="modal-menu">
                             <div v-if="!isNewRecord" class="btn-group">
                                 <button type="button" class="dropdown-toggle" data-toggle="dropdown"
@@ -182,7 +181,6 @@ getNotes();
                             :is-edit="!!edit"
                             :is-new="isNewRecord"
                             @updateRecord="getNotes"
-                            col-size="col-md-12"
                         />
                     </div>
                 </div>

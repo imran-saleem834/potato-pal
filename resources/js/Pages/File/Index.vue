@@ -112,30 +112,6 @@ getFiles();
         <!-- tab-section -->
 
         <!-- Modal -->
-        <div class="modal right fade" id="myModal2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel2">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span class="fa fa-arrow-left"></span>
-                        </button>
-                        <h4 class="modal-title" id="myModalLabel2">files</h4>
-                    </div>
-                    <div class="modal-body">
-                        <ul>
-                            <li><a href="">Unique ID <span class="fa fa-angle-right"></span> </a></li>
-                            <li><a href="">Name <span class="fa fa-angle-right"></span> </a></li>
-                            <li><a href="">Email <span class="fa fa-angle-right"></span> </a></li>
-                            <li><a href="">Username <span class="fa fa-angle-right"></span> </a></li>
-                            <li><a href="">User Access <span class="fa fa-angle-right"></span> </a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- modal -->
-
-        <!-- Modal -->
         <div class="modal right fade user-details" id="user-details" tabindex="-1" role="dialog"
              aria-labelledby="myModalLabel3">
             <div class="modal-dialog" role="document">

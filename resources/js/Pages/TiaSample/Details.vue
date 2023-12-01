@@ -238,12 +238,8 @@ const storeRecord = () => {
     <div class="row">
         <div v-if="isEdit || isNew" class="col-md-12">
             <div class="flex-end create-update-btn">
-                <a v-if="isEdit" role="button" @click="updateRecord" class="btn btn-red">
-                    <span class="fa fa-edit"></span> Update
-                </a>
-                <a v-if="isNew" role="button" @click="storeRecord" class="btn btn-red">
-                    <span class="fa fa-edit"></span> Create
-                </a>
+                <a v-if="isEdit" role="button" @click="updateRecord" class="btn btn-red">Update</a>
+                <a v-if="isNew" role="button" @click="storeRecord" class="btn btn-red">Create</a>
             </div>
         </div>
         <div :class="colSize">
@@ -355,7 +351,6 @@ const storeRecord = () => {
                 <h5 v-else>{{ tiaSample.inspection_no }}</h5>
 
                 <h6>Inspection Date</h6>
-                {{ form.inspection_date }}
                 <TextInput
                     v-if="isForm"
                     v-model="form.inspection_date"
@@ -540,13 +535,16 @@ const storeRecord = () => {
                 </template>
             </div>
 
-            <Images
-                v-if="!isNew"
-                :images="tiaSample.images"
-                :upload-route="route('tia-samples.upload', tiaSample.id || 0)"
-                :delete-route="route('tia-samples.delete', tiaSample.id || 0)"
-                @updateRecord="emit('updateRecord')"
-            />
+            <h4>Images</h4>
+            <div class="user-boxes notes-list">
+                <Images
+                    v-if="!isNew"
+                    :images="tiaSample.images"
+                    :upload-route="route('tia-samples.upload', tiaSample.id || 0)"
+                    :delete-route="route('tia-samples.delete', tiaSample.id || 0)"
+                    @updateRecord="emit('updateRecord')"
+                />
+            </div>
         </div>
     </div>
 </template>

@@ -88,6 +88,8 @@ class UserRequest extends FormRequest
         return [
             'paddocks.*.name'     => 'paddock name',
             'paddocks.*.hectares' => 'paddock hectares',
+            'buyer'               => 'buyer group',
+            'grower'              => 'grower group',
         ];
     }
 }

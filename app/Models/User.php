@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -85,5 +86,10 @@ class User extends Authenticatable implements MustVerifyEmail
     public function categories(): MorphMany
     {
         return $this->morphMany(CategoriesRelation::class, 'categorizable');
+    }
+
+    public function receivals(): HasMany
+    {
+        return $this->hasMany(Receival::class);
     }
 }

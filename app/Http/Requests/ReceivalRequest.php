@@ -40,4 +40,17 @@ class ReceivalRequest extends FormRequest
             'comments'               => ['nullable', 'string', 'max:255'],
         ];
     }
+
+    /**
+     * Get custom attributes for validator errors.
+     *
+     * @return array<string, string>
+     */
+    public function attributes(): array
+    {
+        return [
+            'user_id' => 'grower',
+            'grower'  => 'grower group',
+        ];
+    }
 }

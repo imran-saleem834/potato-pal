@@ -7,7 +7,6 @@ import Images from "@/Components/Images.vue";
 
 const props = defineProps({
     note: Object,
-    colSize: String,
     isEdit: Boolean,
     isNew: Boolean,
 });
@@ -54,30 +53,23 @@ const storeRecord = () => {
     <div class="row">
         <div v-if="isEdit || isNew" class="col-md-12">
             <div class="flex-end create-update-btn">
-            <a v-if="isEdit" role="button" @click="updateRecord" class="btn btn-red">
-                <span class="fa fa-edit"></span> Update
-            </a>
-            <a v-if="isNew" role="button" @click="storeRecord" class="btn btn-red">
-                <span class="fa fa-edit"></span> Create
-            </a>
+                <a v-if="isEdit" role="button" @click="updateRecord" class="btn btn-red">Update</a>
+                <a v-if="isNew" role="button" @click="storeRecord" class="btn btn-red">Create</a>
             </div>
         </div>
-        <div :class="colSize">
-            <div class="user-boxes">
+        <div class="col-md-12">
+            <div v-if="isForm" class="user-boxes">
                 <h6>Title</h6>
-                <TextInput v-if="isForm" v-model="form.title" :error="form.errors.title" type="text"/>
-                <h5 v-else>{{ note.title }}</h5>
+                <TextInput v-model="form.title" :error="form.errors.title" type="text"/>
 
                 <h6>Note</h6>
-                <div v-if="isForm" class="form-group" :class="{'has-error' : form.errors.note}">
+                <div class="form-group" :class="{'has-error' : form.errors.note}">
                     <textarea v-model="form.note" class="form-control" rows="5"></textarea>
                     <span v-show="form.errors.note" class="help-block text-left">{{ form.errors.note }}</span>
                 </div>
-                <h5 v-else>{{ note.note }}</h5>
 
                 <h6>Unique Tags</h6>
                 <Multiselect
-                    v-if="isForm"
                     v-model="form.tags"
                     mode="tags"
                     placeholder="Choose a tags"
@@ -85,19 +77,18 @@ const storeRecord = () => {
                     :create-option="true"
                     :options="form.tags"
                 />
-                <ul v-else-if="note.tags">
-                    <li v-for="tag in note.tags" :key="tag"><a>{{ tag }}</a></li>
-                </ul>
             </div>
-        </div>
-        <div :class="colSize">
-            <Images
-                v-if="!isNew"
-                :images="note.images"
-                :upload-route="route('notes.upload', note.id || 0)"
-                :delete-route="route('notes.delete', note.id || 0)"
-                @updateRecord="emit('updateRecord')"
-            />
+            <div v-if="!isNew" class="user-boxes notes-list">
+                <p v-if="!isForm">{{ note.note }}</p>
+
+                <Images
+                    v-if="!isNew"
+                    :images="note.images"
+                    :upload-route="route('notes.upload', note.id || 0)"
+                    :delete-route="route('notes.delete', note.id || 0)"
+                    @updateRecord="emit('updateRecord')"
+                />
+            </div>
         </div>
     </div>
 </template>

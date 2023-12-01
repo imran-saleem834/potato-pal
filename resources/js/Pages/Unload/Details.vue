@@ -64,12 +64,8 @@ const storeRecord = () => {
     <div class="row">
         <div v-if="isEdit || isNew" class="col-md-12">
             <div class="flex-end create-update-btn">
-                <a v-if="isEdit" role="button" @click="updateRecord" class="btn btn-red">
-                    <span class="fa fa-edit"></span> Update
-                </a>
-                <a v-if="isNew" role="button" @click="storeRecord" class="btn btn-red">
-                    <span class="fa fa-edit"></span> Create
-                </a>
+                <a v-if="isEdit" role="button" @click="updateRecord" class="btn btn-red">Update</a>
+                <a v-if="isNew" role="button" @click="storeRecord" class="btn btn-red">Create</a>
             </div>
         </div>
         <div v-if="!isNew" :class="colSize">
@@ -96,7 +92,11 @@ const storeRecord = () => {
 
                 <h6>Status</h6>
                 <ul>
-                    <li><a role="button" :class="{'btn-pending' : unload.status === 'pending'}">{{ toCamelCase(unload.status) }}</a></li>
+                    <li>
+                        <a role="button"
+                           :class="{'btn-pending' : unload.status === 'pending'}"
+                        >{{ toCamelCase(unload.status) }}</a>
+                    </li>
                 </ul>
             </div>
 
@@ -109,18 +109,23 @@ const storeRecord = () => {
 
                 <h6>Fungicide</h6>
                 <ul v-if="getCategoriesByType(unload?.receival?.categories, 'fungicide')">
-                    <li v-for="category in getCategoriesByType(unload?.receival?.categories, 'fungicide')" :key="category.id">
+                    <li v-for="category in getCategoriesByType(unload?.receival?.categories, 'fungicide')"
+                        :key="category.id">
                         <a>{{ category.category?.name }}</a>
                     </li>
                 </ul>
                 <h5 v-else>-</h5>
 
                 <h6>Oversize Bin Size</h6>
-                <h5 v-if="unload?.receival?.oversize_bin_size">{{ unload.receival.oversize_bin_size === 'one-tone' ? 'One Tone' : 'Two Tone' }}</h5>
+                <h5 v-if="unload?.receival?.oversize_bin_size">
+                    {{ unload.receival.oversize_bin_size === 1 ? 'One Tone' : 'Two Tone' }}
+                </h5>
                 <h5 v-else>-</h5>
 
                 <h6>Seed Bin Size</h6>
-                <h5 v-if="unload?.receival?.seed_bin_size">{{ unload.receival.seed_bin_size === 'one-tone' ? 'One Tone' : 'Two Tone' }}</h5>
+                <h5 v-if="unload?.receival?.seed_bin_size">
+                    {{ unload.receival.seed_bin_size === 1 ? 'One Tone' : 'Two Tone' }}
+                </h5>
                 <h5 v-else>-</h5>
             </div>
         </div>
@@ -137,24 +142,30 @@ const storeRecord = () => {
                         :options="receivals"
                     />
                     <div :class="{'has-error' : form.errors.receival_id}">
-                    <span v-show="form.errors.receival_id" class="help-block text-left">{{ form.errors.receival_id }}</span>
+                        <span v-show="form.errors.receival_id" class="help-block text-left">{{
+                                form.errors.receival_id
+                            }}</span>
                     </div>
                 </div>
 
                 <h6>Number of seed bins</h6>
-                <TextInput v-if="isForm" v-model="form.total_seed_bins" :error="form.errors.total_seed_bins" type="text"/>
+                <TextInput v-if="isForm" v-model="form.total_seed_bins" :error="form.errors.total_seed_bins"
+                           type="text"/>
                 <h5 v-else>{{ unload.total_seed_bins }}</h5>
 
                 <h6>Weight of seed bins</h6>
-                <TextInput v-if="isForm" v-model="form.weight_seed_bins" :error="form.errors.weight_seed_bins" type="text"/>
+                <TextInput v-if="isForm" v-model="form.weight_seed_bins" :error="form.errors.weight_seed_bins"
+                           type="text"/>
                 <h5 v-else>{{ unload.weight_seed_bins }}</h5>
 
                 <h6>Number of oversize bins</h6>
-                <TextInput v-if="isForm" v-model="form.total_oversize_bins" :error="form.errors.total_oversize_bins" type="text"/>
+                <TextInput v-if="isForm" v-model="form.total_oversize_bins" :error="form.errors.total_oversize_bins"
+                           type="text"/>
                 <h5 v-else>{{ unload.total_oversize_bins }}</h5>
 
                 <h6>Weight of oversize bins</h6>
-                <TextInput v-if="isForm" v-model="form.weight_oversize_bins" :error="form.errors.weight_oversize_bins" type="text"/>
+                <TextInput v-if="isForm" v-model="form.weight_oversize_bins" :error="form.errors.weight_oversize_bins"
+                           type="text"/>
                 <h5 v-else>{{ unload.weight_oversize_bins }}</h5>
 
                 <div v-if="isForm">

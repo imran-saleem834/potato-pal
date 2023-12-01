@@ -104,12 +104,8 @@ const storeRecord = () => {
     <div class="row">
         <div v-if="isEdit || isNew" class="col-md-12">
             <div class="flex-end create-update-btn">
-            <a v-if="isEdit" role="button" @click="updateRecord" class="btn btn-red">
-                <span class="fa fa-edit"></span> Update
-            </a>
-            <a v-if="isNew" role="button" @click="storeRecord" class="btn btn-red">
-                <span class="fa fa-edit"></span> Create
-            </a>
+                <a v-if="isEdit" role="button" @click="updateRecord" class="btn btn-red">Update</a>
+                <a v-if="isNew" role="button" @click="storeRecord" class="btn btn-red">Create</a>
             </div>
         </div>
         <div :class="colSize">

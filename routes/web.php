@@ -9,6 +9,7 @@ use App\Http\Controllers\ReceivalController;
 use App\Http\Controllers\UnloadingController;
 use App\Http\Controllers\TiaSampleController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\AllocationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -51,6 +52,9 @@ Route::middleware([
     Route::post('/tia-samples/{id}/upload', [TiaSampleController::class, 'upload'])->name('tia-samples.upload');
     Route::post('/tia-samples/{id}/delete', [TiaSampleController::class, 'delete'])->name('tia-samples.delete');
     Route::resource('/tia-samples', TiaSampleController::class);
+
+    Route::get('/allocations/users', [AllocationController::class, 'getUsers'])->name('allocations.users');
+    Route::resource('/allocations', AllocationController::class)->except(['create', 'edit']);
 
     Route::get('/notifications/list', [NotificationController::class, 'list'])->name('notifications.list');
     Route::resource('/notifications', NotificationController::class);
