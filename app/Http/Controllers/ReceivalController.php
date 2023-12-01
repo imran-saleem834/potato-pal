@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Helpers\CategoriesHelper;
 use App\Helpers\NotificationHelper;
 use App\Http\Requests\ReceivalRequest;
+use Illuminate\Support\Facades\Storage;
 use App\Models\{User, Unload, Receival, TiaSample};
 
 class ReceivalController extends Controller
@@ -27,7 +28,7 @@ class ReceivalController extends Controller
      */
     public function list(Request $request)
     {
-        $keyword = $request->input('keyword', '');
+        $keyword   = $request->input('keyword', '');
         $receivals = Receival::query()
             ->with([
                 'user' => function ($query) {
@@ -38,10 +39,7 @@ class ReceivalController extends Controller
             ->when($keyword, function ($query, $keyword) {
                 return $query->where('id', 'LIKE', "%$keyword%")
                     ->orWhere('paddocks', 'LIKE', "%$keyword%")
-                    ->orWhere('tia_sample_id', 'LIKE', "%$keyword%")
-                    ->orWhere('unload_id', 'LIKE', "%$keyword%")
                     ->orWhere('grower_docket_no', 'LIKE', "%$keyword%")
-                    ->orWhere('chc_receival_docket_no', 'LIKE', "%$keyword%")
                     ->orWhere('chc_receival_docket_no', 'LIKE', "%$keyword%")
                     ->orWhere('driver_name', 'LIKE', "%$keyword%")
                     ->orWhere('comments', 'LIKE', "%$keyword%");
@@ -53,13 +51,13 @@ class ReceivalController extends Controller
 
         $receival = Receival::with([
             'categories',
-            'unload' => function ($query) {
+            'unload'    => function ($query) {
                 return $query->select('id', 'receival_id');
             },
             'tiaSample' => function ($query) {
                 return $query->select('id', 'receival_id');
             },
-            'user' => function ($query) {
+            'user'      => function ($query) {
                 return $query->select('id', 'name');
             },
         ])->find($receivalId);
@@ -103,13 +101,13 @@ class ReceivalController extends Controller
     {
         $receival = Receival::with([
             'categories',
-            'unload' => function ($query) {
+            'unload'    => function ($query) {
                 return $query->select('id', 'receival_id');
             },
             'tiaSample' => function ($query) {
                 return $query->select('id', 'receival_id');
             },
-            'user' => function ($query) {
+            'user'      => function ($query) {
                 return $query->select('id', 'name');
             },
         ])->find($id);
@@ -150,10 +148,10 @@ class ReceivalController extends Controller
      */
     public function destroy(string $id)
     {
-//        CategoriesHelper::deleteCategoryRealtions($id, Receival::class);
-//        Receival::destroy($id);
-//
-//        NotificationHelper::deleteAction('Receival', $id);
+        CategoriesHelper::deleteCategoryRealtions($id, Receival::class);
+        Receival::destroy($id);
+
+        NotificationHelper::deleteAction('Receival', $id);
     }
 
     /**
@@ -170,5 +168,48 @@ class ReceivalController extends Controller
     public function pushForTiaSample(string $id)
     {
         TiaSample::firstOrCreate(['receival_id' => $id]);
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function upload(Request $request, string $id)
+    {
+        $request->validate([
+            'file' => ['required', 'mimes:jpeg,png,jpg,gif,svg,pdf', 'max:2048'],
+        ]);
+
+        $file     = $request->file('file');
+        $fileName = $file->storePublicly('receivals');
+
+        $receival         = Receival::find($id);
+        $images           = $receival->images ?? [];
+        $images[]         = $fileName;
+        $receival->images = $images;
+        $receival->save();
+
+        return back();
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function delete(Request $request, string $id)
+    {
+        $fileName = $request->input('image');
+
+        $receival = Receival::find($id);
+        $images   = $receival->images ?? [];
+
+        $pos = array_search($fileName, $images);
+        if ($pos !== false) {
+            unset($images[$pos]);
+
+            Storage::disk()->delete($fileName);
+        }
+
+        $receival->images = array_values($images);
+
+        $receival->save();
     }
 }

@@ -19,7 +19,7 @@ const isNewRecord = ref(false);
 const categories = ref([]);
 
 const getTiaSamples = (keyword = null) => {
-    axios.get(route('tia-sample.list'), { params: { keyword: keyword, tiaSampleId: edit.value } }).then(response => {
+    axios.get(route('tia-samples.list'), { params: { keyword: keyword, tiaSampleId: edit.value } }).then(response => {
         tiaSamples.value = response.data.tiaSamples;
         tiaSample.value = response.data.tiaSample || {};
 
@@ -32,7 +32,7 @@ const getTiaSamples = (keyword = null) => {
 };
 
 const getTiaSample = (id) => {
-    axios.get(route('tia-sample.show', id)).then(response => {
+    axios.get(route('tia-samples.show', id)).then(response => {
         tiaSample.value = response.data;
 
         setActiveTab(response.data.id);
@@ -58,7 +58,7 @@ const setNewRecord = () => {
 }
 
 const deleteTiaSample = (id) => {
-    axios.delete(route('tia-sample.destroy', id), {
+    axios.delete(route('tia-samples.destroy', id), {
         onSuccess: () => {
             getTiaSamples();
         },

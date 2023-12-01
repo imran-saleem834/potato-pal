@@ -30,8 +30,7 @@ class FileController extends Controller
             ->select('id', 'title')
             ->when($keyword, function ($query, $keyword) {
                 return $query->where('id', 'LIKE', "%$keyword%")
-                    ->orWhere('title', 'LIKE', "%$keyword%")
-                    ->orWhere('images', 'LIKE', "%$keyword%");
+                    ->orWhere('title', 'LIKE', "%$keyword%");
             })
             ->latest()
             ->get();

@@ -40,15 +40,17 @@ Route::middleware([
     Route::get('/receivals/list', [ReceivalController::class, 'list'])->name('receivals.list');
     Route::post('/receivals/{id}/push/unload', [ReceivalController::class, 'pushForUnload'])->name('receivals.push.unload');
     Route::post('/receivals/{id}/push/tia-sample', [ReceivalController::class, 'pushForTiaSample'])->name('receivals.push.tia-sample');
+    Route::post('/receivals/{id}/upload', [ReceivalController::class, 'upload'])->name('receivals.upload');
+    Route::post('/receivals/{id}/delete', [ReceivalController::class, 'delete'])->name('receivals.delete');
     Route::resource('/receivals', ReceivalController::class);
 
     Route::get('/unloading/list', [UnloadingController::class, 'list'])->name('unloading.list');
     Route::resource('/unloading', UnloadingController::class);
 
-    Route::get('/tia-sample/list', [TiaSampleController::class, 'list'])->name('tia-sample.list');
-    Route::post('/tia-sample/{id}/upload', [TiaSampleController::class, 'upload'])->name('tia-sample.upload');
-    Route::post('/tia-sample/{id}/delete', [TiaSampleController::class, 'delete'])->name('tia-sample.delete');
-    Route::resource('/tia-sample', TiaSampleController::class);
+    Route::get('/tia-samples/list', [TiaSampleController::class, 'list'])->name('tia-samples.list');
+    Route::post('/tia-samples/{id}/upload', [TiaSampleController::class, 'upload'])->name('tia-samples.upload');
+    Route::post('/tia-samples/{id}/delete', [TiaSampleController::class, 'delete'])->name('tia-samples.delete');
+    Route::resource('/tia-samples', TiaSampleController::class);
 
     Route::get('/notifications/list', [NotificationController::class, 'list'])->name('notifications.list');
     Route::resource('/notifications', NotificationController::class);

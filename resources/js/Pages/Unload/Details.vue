@@ -5,6 +5,7 @@ import { getCategoriesByType, toCamelCase } from "@/helper.js";
 import moment from 'moment';
 import Multiselect from '@vueform/multiselect';
 import TextInput from "@/Components/TextInput.vue";
+import UlLiButton from "@/Components/UlLiButton.vue";
 
 const props = defineProps({
     unload: Object,
@@ -158,25 +159,15 @@ const storeRecord = () => {
 
                 <div v-if="isForm">
                     <h6>Status</h6>
-                    <ul>
-                        <li>
-                            <a
-                                role="button"
-                                @click="() => form.status = 'pending'"
-                                :class="{'black-btn' : form.status === 'pending'}"
-                            >Pending</a>
-                        </li>
-                        <li>
-                            <a
-                                role="button"
-                                @click="() => form.status = 'completed'"
-                                :class="{'black-btn' : form.status === 'completed'}"
-                            >Complete</a>
-                        </li>
-                    </ul>
-                    <div :class="{'has-error' : form.errors.status}">
-                    <span v-show="form.errors.status" class="help-block text-left">{{ form.errors.status }}</span>
-                    </div>
+                    <UlLiButton
+                        :value="form.status"
+                        :error="form.errors.status"
+                        :items="[
+                            {key: 'pending', value: 'Pending'},
+                            {key: 'completed', value: 'Completed'},
+                        ]"
+                        @click="(key) => form.status = key"
+                    />
                 </div>
             </div>
         </div>

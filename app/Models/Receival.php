@@ -24,6 +24,7 @@ class Receival extends Model
         'chc_receival_docket_no',
         'driver_name',
         'comments',
+        'images',
     ];
 
     /**
@@ -33,6 +34,7 @@ class Receival extends Model
      */
     protected $casts = [
         'paddocks' => 'array',
+        'images'   => 'array',
     ];
 
     public function user()

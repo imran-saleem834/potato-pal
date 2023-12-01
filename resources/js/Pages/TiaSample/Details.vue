@@ -6,6 +6,7 @@ import moment from 'moment';
 import Multiselect from '@vueform/multiselect';
 import TextInput from "@/Components/TextInput.vue";
 import Images from "@/Components/Images.vue";
+import UlLiButton from "@/Components/UlLiButton.vue";
 
 const props = defineProps({
     tiaSample: Object,
@@ -144,7 +145,7 @@ const form = useForm({
     receival_id: props.tiaSample.receival_id,
     processor: props.tiaSample.processor,
     inspection_no: props.tiaSample.inspection_no,
-    inspection_date: props.tiaSample.inspection_date,
+    inspection_date: moment(props.tiaSample.inspection_date).format('YYYY-MM-DD'),
     cool_store: props.tiaSample.cool_store,
     size: props.tiaSample.size,
     tubers: props.tiaSample.tubers,
@@ -186,7 +187,7 @@ watch(() => props.tiaSample,
         form.receival_id = tiaSample.receival_id
         form.processor = tiaSample.processor
         form.inspection_no = tiaSample.inspection_no
-        form.inspection_date = tiaSample.inspection_date
+        form.inspection_date = moment(tiaSample.inspection_date).format('YYYY-MM-DD')
         form.cool_store = tiaSample.cool_store
         form.size = tiaSample.size
         form.disease_scoring = tiaSample.disease_scoring
@@ -217,7 +218,7 @@ const isForm = computed(() => {
 })
 
 const updateRecord = () => {
-    form.patch(route('tia-sample.update', props.tiaSample.id), {
+    form.patch(route('tia-samples.update', props.tiaSample.id), {
         onSuccess: () => {
             emit('updateRecord')
         },
@@ -225,7 +226,7 @@ const updateRecord = () => {
 }
 
 const storeRecord = () => {
-    form.post(route('tia-sample.store'), {
+    form.post(route('tia-samples.store'), {
         onSuccess: () => {
             emit('updateRecord')
         },
@@ -288,43 +289,24 @@ const storeRecord = () => {
                 </template>
 
                 <h6>Status</h6>
-                <div v-if="isForm" :class="{'has-error' : form.errors.status}">
-                    <span v-show="form.errors.status" class="help-block text-left">{{ form.errors.status }}</span>
-                </div>
-                <ul v-if="isForm">
-                    <li>
-                        <a
-                            role="button"
-                            @click="() => form.status = 'pending'"
-                            :class="{'black-btn' : form.status === 'pending'}"
-                        >Pending</a>
-                    </li>
-                    <li>
-                        <a
-                            role="button"
-                            @click="() => form.status = 'certified'"
-                            :class="{'black-btn' : form.status === 'certified'}"
-                        >Certified</a>
-                    </li>
-                    <li>
-                        <a
-                            role="button"
-                            @click="() => form.status = 'not-certified'"
-                            :class="{'black-btn' : form.status === 'not-certified'}"
-                        >Not Certified</a>
-                    </li>
-                    <li>
-                        <a
-                            role="button"
-                            @click="() => form.status = 'rejected'"
-                            :class="{'black-btn' : form.status === 'rejected'}"
-                        >Rejected</a>
-                    </li>
-                </ul>
+                <UlLiButton
+                    v-if="isForm"
+                    :value="form.status"
+                    :error="form.errors.status"
+                    :items="[
+                        {key: 'pending', value: 'Pending'},
+                        {key: 'certified', value: 'Certified'},
+                        {key: 'not-certified', value: 'Not Certified'},
+                        {key: 'rejected', value: 'Rejected'},
+                    ]"
+                    @click="(key) => form.status = key"
+                />
                 <ul v-else>
-                    <li><a role="button" :class="{'btn-pending' : tiaSample.status === 'pending'}">{{
-                            toCamelCase(tiaSample.status || 'pending')
-                        }}</a></li>
+                    <li>
+                        <a role="button" :class="{'btn-pending' : tiaSample.status === 'pending'}">
+                            {{ toCamelCase(tiaSample.status || 'pending') }}
+                        </a>
+                    </li>
                 </ul>
             </div>
 
@@ -354,24 +336,18 @@ const storeRecord = () => {
                 </template>
 
                 <h6>Processor</h6>
-                <ul v-if="isForm">
-                    <li>
-                        <a
-                            role="button"
-                            @click="() => form.processor = 'one-tone'"
-                            :class="{'black-btn' : form.processor === 'one-tone'}"
-                        >One Tone</a>
-                    </li>
-                    <li>
-                        <a
-                            role="button"
-                            @click="() => form.processor = 'two-tone'"
-                            :class="{'black-btn' : form.processor === 'two-tone'}"
-                        >Two Tone</a>
-                    </li>
-                </ul>
+                <UlLiButton
+                    v-if="isForm"
+                    :value="form.processor"
+                    :error="form.errors.processor"
+                    :items="[
+                        {key: 1, value: 'One Tone'},
+                        {key: 2, value: 'Two Tone'},
+                    ]"
+                    @click="(key) => form.processor = key"
+                />
                 <h5 v-else-if="tiaSample.processor">
-                    {{ tiaSample.processor === 'one-tone' ? 'One Tone' : 'Two Tone' }}
+                    {{ tiaSample.processor === 1 ? 'One Tone' : 'Two Tone' }}
                 </h5>
 
                 <h6>Inspection No</h6>
@@ -379,9 +355,14 @@ const storeRecord = () => {
                 <h5 v-else>{{ tiaSample.inspection_no }}</h5>
 
                 <h6>Inspection Date</h6>
-                <TextInput v-if="isForm" v-model="form.inspection_date" :error="form.errors.inspection_date"
-                           type="date"/>
-                <h5 v-else>{{ tiaSample.inspection_date }}</h5>
+                {{ form.inspection_date }}
+                <TextInput
+                    v-if="isForm"
+                    v-model="form.inspection_date"
+                    :error="form.errors.inspection_date"
+                    type="date"
+                />
+                <h5 v-else>{{ moment(tiaSample.inspection_date).format('YYYY-MM-DD') }}</h5>
 
                 <h6>Cool Store</h6>
                 <TextInput v-if="isForm" v-model="form.cool_store" :error="form.errors.cool_store" type="text"/>
@@ -402,8 +383,9 @@ const storeRecord = () => {
                 </ul>
                 <div v-else>{{ tiaSample.disease_scoring }}</div>
                 <div :class="{'has-error' : form.errors.disease_scoring}">
-                    <span v-show="form.errors.disease_scoring"
-                          class="help-block text-left">{{ form.errors.disease_scoring }}</span>
+                    <span v-show="form.errors.disease_scoring" class="help-block text-left">
+                        {{ form.errors.disease_scoring }}
+                    </span>
                 </div>
 
                 <template v-for="sample in sample2" :key="sample.name">
@@ -436,6 +418,11 @@ const storeRecord = () => {
 
 
                 <h6>Excessive Dirt</h6>
+                <div v-if="isForm" :class="{'has-error' : form.errors.excessive_dirt }">
+                    <span v-show="form.errors.excessive_dirt" class="help-block text-left">
+                        {{ form.errors.excessive_dirt }}
+                    </span>
+                </div>
                 <ul v-if="isForm">
                     <li>
                         <a
@@ -444,14 +431,15 @@ const storeRecord = () => {
                             :class="{'black-btn' : form.excessive_dirt}"
                         >Excessive Dirt</a>
                     </li>
-                    <div :class="{'has-error' : form.errors.excessive_dirt }">
-                        <span v-show="form.errors.excessive_dirt"
-                              class="help-block text-left">{{ form.errors.excessive_dirt }}</span>
-                    </div>
                 </ul>
                 <h5 v-else>{{ tiaSample.excessive_dirt ? 'Yes' : 'No' }}</h5>
 
                 <h6>Minor Skin Cracking</h6>
+                <div v-if="isForm" :class="{'has-error' : form.errors.minor_skin_cracking }">
+                    <span v-show="form.errors.minor_skin_cracking" class="help-block text-left">
+                        {{ form.errors.minor_skin_cracking }}
+                    </span>
+                </div>
                 <ul v-if="isForm">
                     <li>
                         <a
@@ -460,15 +448,13 @@ const storeRecord = () => {
                             :class="{'black-btn' : form.minor_skin_cracking}"
                         >Minor Skin Cracking</a>
                     </li>
-
-                    <div :class="{'has-error' : form.errors.minor_skin_cracking }">
-                        <span v-show="form.errors.minor_skin_cracking"
-                              class="help-block text-left">{{ form.errors.minor_skin_cracking }}</span>
-                    </div>
                 </ul>
                 <h5 v-else>{{ tiaSample.minor_skin_cracking ? 'Yes' : 'No' }}</h5>
 
                 <h6>Skinning</h6>
+                <div v-if="isForm" :class="{'has-error' : form.errors.skinning }">
+                    <span v-show="form.errors.skinning" class="help-block text-left">{{ form.errors.skinning }}</span>
+                </div>
                 <ul v-if="isForm">
                     <li>
                         <a
@@ -477,16 +463,13 @@ const storeRecord = () => {
                             :class="{'black-btn' : form.skinning}"
                         >Skinning</a>
                     </li>
-
-                    <div :class="{'has-error' : form.errors.skinning }">
-                        <span v-show="form.errors.skinning" class="help-block text-left">{{
-                                form.errors.skinning
-                            }}</span>
-                    </div>
                 </ul>
                 <h5 v-else>{{ tiaSample.skinning ? 'Yes' : 'No' }}</h5>
 
                 <h6>Regarding</h6>
+                <div v-if="isForm" :class="{'has-error' : form.errors.regarding }">
+                    <span v-show="form.errors.regarding" class="help-block text-left">{{ form.errors.regarding }}</span>
+                </div>
                 <ul v-if="isForm">
                     <li>
                         <a
@@ -495,12 +478,6 @@ const storeRecord = () => {
                             :class="{'black-btn' : form.regarding}"
                         >Regarding</a>
                     </li>
-
-                    <div :class="{'has-error' : form.errors.regarding }">
-                        <span v-show="form.errors.regarding" class="help-block text-left">{{
-                                form.errors.regarding
-                            }}</span>
-                    </div>
                 </ul>
                 <h5 v-else>{{ tiaSample.regarding ? 'Yes' : 'No' }}</h5>
 
@@ -513,29 +490,17 @@ const storeRecord = () => {
             <h4>TIA Seed Potato Certificate Sheet</h4>
             <div class="user-boxes multiple-inputs-container">
                 <h6>Size</h6>
-                <ul v-if="isForm">
-                    <li>
-                        <a
-                            role="button"
-                            @click="() => form.size = '35-350g'"
-                            :class="{'black-btn' : form.size === '35-350g'}"
-                        >35 - 350g</a>
-                    </li>
-                    <li>
-                        <a
-                            role="button"
-                            @click="() => form.size = '90mm'"
-                            :class="{'black-btn' : form.size === '90mm'}"
-                        >90mm</a>
-                    </li>
-                    <li>
-                        <a
-                            role="button"
-                            @click="() => form.size = '70mm'"
-                            :class="{'black-btn' : form.size === '70mm'}"
-                        >70mm</a>
-                    </li>
-                </ul>
+                <UlLiButton
+                    v-if="isForm"
+                    :value="form.size"
+                    :error="form.errors.size"
+                    :items="[
+                        {key: '35-350g', value: '35 - 350g'},
+                        {key: '90mm', value: '90mm'},
+                        {key: '70mm', value: '70mm'},
+                    ]"
+                    @click="(key) => form.size = key"
+                />
                 <h5 v-else-if="tiaSample.size">{{ tiaSample.size.replace('-', ' ') }}</h5>
 
                 <template v-for="sample in samples" :key="sample.name">
@@ -578,8 +543,8 @@ const storeRecord = () => {
             <Images
                 v-if="!isNew"
                 :images="tiaSample.images"
-                :upload-route="route('tia-sample.upload', tiaSample.id)"
-                :delete-route="route('tia-sample.delete', tiaSample.id)"
+                :upload-route="route('tia-samples.upload', tiaSample.id)"
+                :delete-route="route('tia-samples.delete', tiaSample.id)"
                 @updateRecord="emit('updateRecord')"
             />
         </div>

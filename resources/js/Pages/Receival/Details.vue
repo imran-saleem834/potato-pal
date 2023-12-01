@@ -5,6 +5,8 @@ import { getDropDownOptions, getCategoriesDropDownByType, getCategoryIdsByType }
 import moment from 'moment';
 import Multiselect from '@vueform/multiselect';
 import TextInput from "@/Components/TextInput.vue";
+import UlLiButton from "@/Components/UlLiButton.vue";
+import Images from "@/Components/Images.vue";
 
 const paddockOptions = ref([]);
 
@@ -241,6 +243,14 @@ const pushForUnload = () => {
                     <h5 v-else>-</h5>
                 </div>
             </div>
+
+            <Images
+                v-if="!isNew"
+                :images="receival.images"
+                :upload-route="route('receivals.upload', receival.id)"
+                :delete-route="route('receivals.delete', receival.id)"
+                @updateRecord="emit('updateRecord')"
+            />
         </div>
         <div :class="colSize">
             <h4>Unloading Information</h4>
@@ -276,42 +286,30 @@ const pushForUnload = () => {
                 </ul>
 
                 <h6>Oversize Bin Size</h6>
-                <ul v-if="isForm">
-                    <li>
-                        <a
-                            role="button"
-                            @click="() => form.oversize_bin_size = 'one-tone'"
-                            :class="{'black-btn' : form.oversize_bin_size === 'one-tone'}"
-                        >One Tone</a>
-                    </li>
-                    <li>
-                        <a
-                            role="button"
-                            @click="() => form.oversize_bin_size = 'two-tone'"
-                            :class="{'black-btn' : form.oversize_bin_size === 'two-tone'}"
-                        >Two Tone</a>
-                    </li>
-                </ul>
-                <h5 v-else-if="receival.oversize_bin_size">{{ receival.oversize_bin_size === 'one-tone' ? 'One Tone' : 'Two Tone' }}</h5>
+                <UlLiButton
+                    v-if="isForm"
+                    :value="form.oversize_bin_size"
+                    :error="form.errors.oversize_bin_size"
+                    :items="[
+                        {key: 1, value: 'One Tone'},
+                        {key: 2, value: 'Two Tone'},
+                    ]"
+                    @click="(key) => form.oversize_bin_size = key"
+                />
+                <h5 v-else-if="receival.oversize_bin_size">{{ receival.oversize_bin_size === 1 ? 'One Tone' : 'Two Tone' }}</h5>
 
                 <h6>Seed Bin Size</h6>
-                <ul v-if="isForm">
-                    <li>
-                        <a
-                            role="button"
-                            @click="() => form.seed_bin_size = 'one-tone'"
-                            :class="{'black-btn' : form.seed_bin_size === 'one-tone'}"
-                        >One Tone</a>
-                    </li>
-                    <li>
-                        <a
-                            role="button"
-                            @click="() => form.seed_bin_size = 'two-tone'"
-                            :class="{'black-btn' : form.seed_bin_size === 'two-tone'}"
-                        >Two Tone</a>
-                    </li>
-                </ul>
-                <h5 v-else-if="receival.seed_bin_size">{{ receival.seed_bin_size === 'one-tone' ? 'One Tone' : 'Two Tone' }}</h5>
+                <UlLiButton
+                    v-if="isForm"
+                    :error="form.errors.seed_bin_size"
+                    :value="form.seed_bin_size"
+                    :items="[
+                        {key: 1, value: 'One Tone'},
+                        {key: 2, value: 'Two Tone'},
+                    ]"
+                    @click="(key) => form.seed_bin_size = key"
+                />
+                <h5 v-else-if="receival.seed_bin_size">{{ receival.seed_bin_size === 1 ? 'One Tone' : 'Two Tone' }}</h5>
             </div>
 
             <h4>Other Information</h4>

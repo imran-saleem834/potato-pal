@@ -32,8 +32,7 @@ class NoteController extends Controller
                 return $query->where('id', 'LIKE', "%$keyword%")
                     ->orWhere('title', 'LIKE', "%$keyword%")
                     ->orWhere('note', 'LIKE', "%$keyword%")
-                    ->orWhere('tags', 'LIKE', "%$keyword%")
-                    ->orWhere('images', 'LIKE', "%$keyword%");
+                    ->orWhere('tags', 'LIKE', "%$keyword%");
             })
             ->latest()
             ->get();
