@@ -1,5 +1,5 @@
 export function getCategoriesByType(categories, type) {
-    return (categories || []).filter((category) => category.type === type);
+    return (categories || []).filter(category => category.type === type);
 }
 
 export function getDropDownOptions(items) {

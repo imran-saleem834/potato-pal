@@ -22,7 +22,7 @@ class CategoriesHelper
 
     public static function createRelation($categoryId, int $forgingId, $model, string $type): int
     {
-        if (!is_int($categoryId)) {
+        if (!is_numeric($categoryId)) {
             $categoryId = static::getCategoryId($categoryId, $type);
         }
 
