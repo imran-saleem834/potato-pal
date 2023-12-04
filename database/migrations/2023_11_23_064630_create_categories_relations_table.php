@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('categories_relations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id');
+            $table->foreignId('category_id');
             $table->morphs('categorizable');
             $table->string('type', 50);
         });
