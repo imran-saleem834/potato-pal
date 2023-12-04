@@ -69,6 +69,15 @@ const storeRecord = () => {
                 </div>
 
                 <h6>Unique Tags</h6>
+                <div v-if="form.errors.tags" class="has-error">
+                    <span v-show="form.errors.tags" class="help-block text-left" v-text="form.errors.tags" />
+                </div>
+                <div v-if="form.errors['tags.0']" class="has-error">
+                    <span v-show="form.errors['tags.0']" class="help-block text-left" v-text="form.errors['tags.0']" />
+                </div>
+                <div v-if="form.errors['tags.1']" class="has-error">
+                    <span v-show="form.errors['tags.1']" class="help-block text-left" v-text="form.errors['tags.1']" />
+                </div>
                 <Multiselect
                     v-model="form.tags"
                     mode="tags"

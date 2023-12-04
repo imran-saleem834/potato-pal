@@ -1,6 +1,6 @@
 <script setup>
 import { computed, watch } from "vue";
-import { useForm } from "@inertiajs/vue3";
+import { useForm, Link } from "@inertiajs/vue3";
 import moment from 'moment';
 import { getCategoriesByType } from "@/helper.js";
 import Multiselect from '@vueform/multiselect'
@@ -112,7 +112,7 @@ const storeRecord = () => {
                     </ul>
 
                     <h6>Buyer Id</h6>
-                    <h5>{{ allocation.buyer?.id }}</h5>
+                    <h5><Link :href="route('users.index', {userId: allocation.buyer_id})">{{ allocation.buyer_id }}</Link></h5>
                 </template>
             </div>
 
@@ -137,7 +137,7 @@ const storeRecord = () => {
                     <h5>{{ allocation.grower?.name }}</h5>
 
                     <h6>Grower Id</h6>
-                    <h5>{{ allocation.grower?.id }}</h5>
+                    <h5><Link :href="route('users.index', {userId: allocation.grower_id})">{{ allocation.grower_id }}</Link></h5>
                 </template>
 
 
@@ -145,19 +145,19 @@ const storeRecord = () => {
                     <div v-if="form.grower_id === grower.value && isForm" class="user-table" style="margin: 20px 0;">
                         <table class="table">
                             <tr>
+                                <th>Seed Type, Variety, Class, Generation</th>
                                 <th>Receival Date</th>
-                                <th>Generation</th>
+                                <th>Grower, Paddock</th>
                                 <th>Seed Bin Size</th>
                                 <th>Oversize Bin Size</th>
                             </tr>
-                            <template v-for="receival in grower?.receivals" :key="receival.id">
-                                <tr v-for="category in receival.categories">
-                                    <td>{{ moment(receival.created_at).format('DD/MM/YYYY') }}</td>
-                                    <td>{{ category.category.name }}</td>
-                                    <td>{{ receival.seed_bin_size }} Tonnes</td>
-                                    <td>{{ receival.oversize_bin_size }} Tonnes</td>
-                                </tr>
-                            </template>
+                            <tr v-for="receival in grower?.receivals" :key="receival.id">
+                                <td>{{ `${receival['seed-type']}, ${receival['seed-variety']}, ${receival['seed-class']}, ${receival['seed-generation']}` }}</td>
+                                <td>{{ moment(receival.created_at).format('DD/MM/YYYY') }}</td>
+                                <td>{{ `${receival.grower}, ${receival.paddock}` }}</td>
+                                <td>{{ receival.seed_bin_size }} Tonnes</td>
+                                <td>{{ receival.oversize_bin_size }} Tonnes</td>
+                            </tr>
                         </table>
                     </div>
                 </template>
@@ -220,7 +220,11 @@ const storeRecord = () => {
                     <h5>{{ allocation.reallocated_buyer?.name }}</h5>
 
                     <h6>Reallocated Buyer Id</h6>
-                    <h5>{{ allocation.reallocated_buyer?.id }}</h5>
+                    <h5>
+                        <Link :href="route('users.index', {userId: allocation.reallocated_buyer_id})">
+                            {{ allocation.reallocated_buyer_id }}
+                        </Link>
+                    </h5>
                 </template>
 
                 <h6>Tonnes Reallocated</h6>

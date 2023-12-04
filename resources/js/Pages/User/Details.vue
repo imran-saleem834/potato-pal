@@ -62,22 +62,10 @@ watch(() => props.user,
     }
 );
 
-const isForm = computed(() => {
-    return props.isEdit || props.isNew;
-})
+const isForm = computed(() => props.isEdit || props.isNew)
 
-const addMorePaddocks = () => {
-    if (props.user.paddocks === undefined || props.user.paddocks === null) {
-        props.user.paddocks = [];
-    }
-
-    props.user.paddocks.push({ name: '', hectares: '' });
-    form.paddocks = props.user.paddocks;
-}
-
-const removePaddocks = (index) => {
-    props.user.paddocks = props.user.paddocks.filter((paddocks, i) => i !== index)
-}
+const addMorePaddocks = () => form.paddocks.push({ name: '', hectares: '' });
+const removePaddocks = (index) => form.paddocks = form.paddocks.filter((paddocks, i) => i !== index);
 
 const updateRecord = () => {
     form.patch(route('users.update', props.user.id), {
@@ -228,7 +216,7 @@ const storeRecord = () => {
 
             <h4>Paddocks</h4>
             <div class="user-boxes">
-                <template v-for="(paddocks, index) in user.paddocks" :key="index">
+                <template v-for="(paddocks, index) in form.paddocks" :key="index">
                     <div class="user-column-two">
                         <h6>Paddock Name</h6>
                         <h6>No of Hectares</h6>

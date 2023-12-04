@@ -22,9 +22,23 @@ class NoteRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => ['required', 'string', 'max:255'],
-            'note'  => ['nullable', 'string'],
-            'tags'  => ['nullable', 'array'],
+            'title'  => ['required', 'string', 'max:255'],
+            'note'   => ['nullable', 'string'],
+            'tags'   => ['nullable', 'array', 'max:2'],
+            'tags.*' => ['required', 'string', 'max:20'],
+        ];
+    }
+
+    /**
+     * Get custom attributes for validator errors.
+     *
+     * @return array<string, string>
+     */
+    public function attributes(): array
+    {
+        return [
+            'tags.0' => 'first tag',
+            'tags.1' => 'second tag',
         ];
     }
 }

@@ -16,15 +16,6 @@ class File extends Model
      */
     protected $fillable = [
         'title',
-        'images',
-    ];
-
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'images' => 'array',
+        'image',
     ];
 }

@@ -8,40 +8,30 @@ use Illuminate\Http\Request;
 use App\Http\Requests\FileRequest;
 use App\Helpers\NotificationHelper;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Database\Eloquent\Builder;
 
 class FileController extends Controller
 {
     /**
+     * @param Request $request
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return Inertia::render('File/Index');
-    }
-
-    /**
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function list(Request $request)
-    {
-        $keyword = $request->input('keyword', '');
-        $files   = File::query()
-            ->select('id', 'title')
-            ->when($keyword, function ($query, $keyword) {
-                return $query->where('id', 'LIKE', "%$keyword%")
-                    ->orWhere('title', 'LIKE', "%$keyword%");
+        $files = File::query()
+            ->when($request->input('search'), function (Builder $query, $search) {
+                return $query->where('id', 'LIKE', "%$search%")
+                    ->orWhere('title', 'LIKE', "%$search%");
             })
             ->latest()
-            ->get();
+            ->get()
+            ->groupBy(function ($file) {
+                return $file->created_at->format('Y-m-d');
+            });
 
-        $fileId = $request->input('fileId', $files->first()->id ?? 0);
-
-        $file = File::find($fileId);
-
-        return response()->json([
-            'files' => $files,
-            'file'  => $file,
+        return Inertia::render('File/Index', [
+            'files'   => $files,
+            'filters' => $request->only(['search']),
         ]);
     }
 
@@ -50,11 +40,14 @@ class FileController extends Controller
      */
     public function store(FileRequest $request)
     {
-        $file = File::create($request->validated());
+        $file     = $request->file('image');
+        $fileName = $file->storePublicly('files');
+
+        $file = File::create(array_merge($request->only('title'), ['image' => $fileName]));
 
         NotificationHelper::addedAction('File', $file->id);
 
-        return back();
+        return to_route('files.index');
     }
 
     /**
@@ -72,13 +65,32 @@ class FileController extends Controller
      */
     public function update(FileRequest $request, string $id)
     {
+        $fileName = null;
+        if ($request->hasFile('image')) {
+            $file     = $request->file('image');
+            $fileName = $file->storePublicly('files');
+        }
+
         $file = File::find($id);
-        $file->update($request->validated());
+        $file->update($request->only('title'));
         $file->save();
+
+        if ($file->image && $fileName) {
+            try {
+                Storage::disk()->delete($file->image);
+            } catch (\Exception $e) {
+                // Silence is golden
+            }
+        }
+
+        if ($fileName) {
+            $file->image = $fileName;
+            $file->save();
+        }
 
         NotificationHelper::updatedAction('File', $id);
 
-        return back();
+        return to_route('files.index');
     }
 
     /**
@@ -86,51 +98,20 @@ class FileController extends Controller
      */
     public function destroy(string $id)
     {
-        File::destroy($id);
+        $file = File::find($id);
 
-        NotificationHelper::deleteAction('File', $id);
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function upload(Request $request, string $id)
-    {
-        $request->validate([
-            'file' => ['required', 'mimes:jpeg,png,jpg,gif,svg,pdf', 'max:2048'],
-        ]);
-
-        $file     = $request->file('file');
-        $fileName = $file->storePublicly('files');
-
-        $file         = File::find($id);
-        $images       = $file->images ?? [];
-        $images[]     = $fileName;
-        $file->images = $images;
-        $file->save();
-
-        return back();
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function delete(Request $request, string $id)
-    {
-        $fileName = $request->input('image');
-
-        $file   = File::find($id);
-        $images = $file->images ?? [];
-
-        $pos = array_search($fileName, $images);
-        if ($pos !== false) {
-            unset($images[$pos]);
-
-            Storage::disk()->delete($fileName);
+        if ($file->image) {
+            try {
+                Storage::disk()->delete($file->image);
+            } catch (\Exception $e) {
+                // Silence is golden
+            }
         }
 
-        $file->images = array_values($images);
+        $file->delete();
 
-        $file->save();
+        NotificationHelper::deleteAction('File', $id);
+
+        return to_route('files.index');
     }
 }

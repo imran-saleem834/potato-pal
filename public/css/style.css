@@ -767,10 +767,11 @@
 }
 .files-section .files-left ul li{
      display: inline;
-     margin-right: 0px;
+     margin-right: 10px;
 }
-.files-section .files-left ul li a img{
+.files-section .files-left ul li img{
      height: 80px;
+    max-width: 300px;
 }
 .files-section .slider-files{
      max-width: 700px;
@@ -1160,7 +1161,7 @@
       .notes-modal ul li a img {
           height: 60px;
       }
-      .files-section .files-left ul li a img {
+      .files-section .files-left ul li img {
           height: 60px;
       }
       .files-section .slider-files img{

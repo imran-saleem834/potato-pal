@@ -1,41 +1,51 @@
 <script setup>
-import { Link } from '@inertiajs/vue3';
-import { ref } from "vue";
+import { router, useForm } from '@inertiajs/vue3';
+import { ref, watch } from "vue";
+import moment from 'moment';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import TopBar from '@/Components/TopBar.vue';
 import MiddleBar from '@/Components/MiddleBar.vue';
-import Details from '@/Pages/File/Details.vue';
-import LeftBar from "@/Components/LeftBar.vue";
+import Details from "@/Pages/File/Details.vue";
+import ModalHeader from "@/Components/ModalHeader.vue";
+import ModalBreadcrumb from "@/Components/ModalBreadcrumb.vue";
+import VueEasyLightbox from "vue-easy-lightbox";
 
-const files = ref([]);
-const file = ref(null);
+const props = defineProps({
+    files: Object,
+    filters: Object,
+});
+
+const search = ref(props.filters.search);
+const flatFiles = ref(Object.values(props.files).flat(2));
+const file = ref(flatFiles.value[0]);
 const activeTab = ref(null);
 const edit = ref(null);
-const isNewRecord = ref(false);
+const isNewRecord = ref(false);const visibleRef = ref(false);
+const indexRef = ref(0);
 
-const getFiles = (keyword = null) => {
-    axios.get(route('files.list'), { params: { keyword: keyword, fileId: edit.value } }).then(response => {
-        files.value = response.data.files;
-        file.value = response.data.file || {};
+watch(() => props.files,
+    (newFiles) => {
+        flatFiles.value = Object.values(newFiles).flat(2);
+        const selectedFileId = edit.value ? file.value.id : flatFiles.value[0].id;
+        file.value = flatFiles.value.find(f => f.id === selectedFileId);
 
-        if (!edit.value) {
-            setActiveTab(response.data.file?.id);
-        } else {
-            setEdit(edit.value);
-        }
-    });
-};
+        edit.value = null
+        isNewRecord.value = false
+    }
+);
 
-const getFile = (id) => {
-    axios.get(route('files.show', id)).then(response => {
-        file.value = response.data;
+watch(search, (value) => {
+    router.get(
+        route('files.index'),
+        { search: value },
+        { preserveState: true, preserveScroll: true },
+    )
+});
 
-        setActiveTab(response.data.id);
-    });
-};
+const filter = (keyword) => search.value = keyword;
 
 const setActiveTab = (id) => {
-    activeTab.value = id;
+    file.value = flatFiles.value.find(f => f.id === id)
     edit.value = null;
     isNewRecord.value = false;
 };
@@ -52,26 +62,35 @@ const setNewRecord = () => {
     activeTab.value = null;
 }
 
+const showImg = () => {
+    indexRef.value = 0;
+    visibleRef.value = true;
+};
+
+const onHide = () => visibleRef.value = false;
+
+const form = useForm({
+    title: isNewRecord ? '' : file.value.title,
+    image: '',
+});
+
 const deleteFile = (id) => {
-    axios.delete(route('files.destroy', id), {
-        onSuccess: () => {
-            getFiles();
-        },
+    edit.value = null;
+    form.delete(route('files.destroy', id), {
+        preserveState: true,
     });
 }
-
-getFiles();
 </script>
 
 <template>
     <AppLayout title="Files">
         <TopBar
             type="Files"
-            @search="getFiles"
+            :value="search"
+            @search="filter"
             @newRecord="setNewRecord"
         />
         <MiddleBar
-            v-if="file"
             type="Files"
             :title="file.title || 'New'"
             :is-edit-record-selected="!!edit"
@@ -82,87 +101,79 @@ getFiles();
         />
 
         <!-- tab-section -->
-        <div class="tab-section">
+        <div class="tab-section files-section">
             <div class="row row0">
                 <div class="col-lg-3 col-sm-6" :class="{'mobile-userlist' : $windowWidth <= 767}">
-                    <LeftBar
-                        :items="files"
-                        :active-tab="activeTab"
-                        :row-1="{title: 'Title', value: 'title'}"
-                        :row-2="{title: 'File Id', value: 'id'}"
-                        @click="getFile"
-                    />
+                    <div class="files-left">
+                        <template v-for="(images, date) in files" :key="date">
+                            <h5>{{ moment(date).format('DD, MMM YYYY') }}</h5>
+                            <ul>
+                                <li v-for="image in images" :key="image.id">
+                                    <img
+                                        style="cursor: pointer"
+                                        :src="`storage/${image.image}`"
+                                        :alt="image.title"
+                                        :data-toggle="$windowWidth <= 767 ? 'modal' : 'tab'"
+                                        :data-target="$windowWidth <= 767 ? '#user-details' : ''"
+                                        @click="() => setActiveTab(image.id)"
+                                    />
+                                </li>
+                            </ul>
+                        </template>
+                    </div>
                 </div>
                 <div class="col-lg-8 col-sm-6">
-                    <div class="tab-content" v-if="file">
-                        <div class="tab-pane active">
-                            <Details
-                                :file="file"
-                                :is-edit="!!edit"
-                                :is-new="isNewRecord"
-                                @updateRecord="getFiles"
-                                col-size="col-md-6"
-                            />
-                        </div>
+                    <div class="slider-files hidden-xs">
+                        <Details
+                            :file="file"
+                            :flat-files="flatFiles"
+                            :is-edit="!!edit"
+                            :is-new="isNewRecord"
+                            @index="(index) => file = flatFiles[index]"
+                            @update="() => {}"
+                            @create="() => {}"
+                            @showImg="showImg"
+                        />
                     </div>
                 </div>
                 <div class="clearfix"></div>
             </div>
         </div>
-        <!-- tab-section -->
 
-        <!-- Modal -->
-        <div class="modal right fade user-details" id="user-details" tabindex="-1" role="dialog"
-             aria-labelledby="myModalLabel3">
+        <div class="modal right fade user-details" id="user-details" tabindex="-1" role="dialog" aria-labelledby="myModalLabel3">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span class="fa fa-arrow-left"></span>
-                        </button>
-                        <h4 class="modal-title" id="myModalLabel3">{{ $page.props.auth.user.name }}</h4>
-                        <div class="modal-menu">
-                            <div v-if="!isNewRecord" class="btn-group">
-                                <button type="button" class="dropdown-toggle" data-toggle="dropdown"
-                                        aria-haspopup="true" aria-expanded="false">
-                                    <span class="fa fa-ellipsis-v"></span>
-                                </button>
-                                <ul class="dropdown-menu">
-                                    <li>
-                                        <a role="button" @click="deleteFile(file?.id)">
-                                            <span class="fa fa-trash-o"></span> Delete
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a role="button" @click="setEdit(file?.id)">
-                                            <span class="fa fa-edit"></span>Edit
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-body" v-if="file">
-                        <ol class="breadcrumb">
-                            <li>
-                                <Link :href="route('dashboard')" data-dismiss="modal" aria-label="Close">Menu</Link>
-                            </li>
-                            <li>
-                                <Link href="" data-dismiss="modal" aria-label="Close">files</Link>
-                            </li>
-                            <li class="active" v-if="isNewRecord">New</li>
-                            <li class="active" v-else-if="file">{{ file.title }}</li>
-                        </ol>
+                    <ModalHeader
+                        title="Files"
+                        :is-new="isNewRecord"
+                        @edit="() => setEdit(file?.id)"
+                        @delete="() => deleteFile(file?.id)"
+                    />
+                    <div class="modal-body">
+                        <ModalBreadcrumb
+                            page="Files"
+                            :title="file?.title || 'File'"
+                        />
                         <Details
                             :file="file"
+                            :flat-files="flatFiles"
                             :is-edit="!!edit"
                             :is-new="isNewRecord"
-                            @updateRecord="getFiles"
-                            col-size="col-md-12"
+                            @index="(index) => file = flatFiles[index]"
+                            @update="() => {}"
+                            @create="() => {}"
+                            @showImg="showImg"
                         />
                     </div>
                 </div>
             </div>
         </div>
+
+        <vue-easy-lightbox
+            :visible="visibleRef"
+            :imgs="[`storage/${file.image}`]"
+            :index="indexRef"
+            @hide="onHide"
+        />
     </AppLayout>
 </template>

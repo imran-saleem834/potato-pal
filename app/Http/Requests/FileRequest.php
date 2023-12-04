@@ -23,6 +23,7 @@ class FileRequest extends FormRequest
     {
         return [
             'title' => ['required', 'string', 'max:255'],
+            'image' => ['nullable', 'mimes:jpeg,png,jpg,gif,svg,pdf', 'max:2048'],
         ];
     }
 }

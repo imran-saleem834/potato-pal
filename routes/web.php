@@ -64,9 +64,6 @@ Route::middleware([
     Route::post('/notes/{id}/delete', [NoteController::class, 'delete'])->name('notes.delete');
     Route::resource('/notes', NoteController::class);
 
-    Route::get('/files/list', [FileController::class, 'list'])->name('files.list');
-    Route::post('/files/{id}/upload', [FileController::class, 'upload'])->name('files.upload');
-    Route::post('/files/{id}/delete', [FileController::class, 'delete'])->name('files.delete');
     Route::resource('/files', FileController::class);
 });
 

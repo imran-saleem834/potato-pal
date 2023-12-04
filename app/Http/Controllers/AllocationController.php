@@ -46,11 +46,11 @@ class AllocationController extends Controller
         $allocationId = $request->input('allocationId', $allocations->first()->id ?? 0);
 
         $allocation = Allocation::with([
-            'buyer' => function ($query) {
+            'buyer'            => function ($query) {
                 return $query->select('id', 'name');
             },
             'buyer.categories.category',
-            'grower' => function ($query) {
+            'grower'           => function ($query) {
                 return $query->select('id', 'name');
             },
             'reallocatedBuyer' => function ($query) {
@@ -85,11 +85,11 @@ class AllocationController extends Controller
     public function show(string $id)
     {
         $allocation = Allocation::with([
-            'buyer' => function ($query) {
+            'buyer'            => function ($query) {
                 return $query->select('id', 'name');
             },
             'buyer.categories.category',
-            'grower' => function ($query) {
+            'grower'           => function ($query) {
                 return $query->select('id', 'name');
             },
             'reallocatedBuyer' => function ($query) {
@@ -136,19 +136,77 @@ class AllocationController extends Controller
     public function getUsers()
     {
         $users = User::with([
-            'receivals' => function($query) {
-                return $query->select(['id', 'user_id', 'oversize_bin_size', 'seed_bin_size', 'created_at']);
-            },
-            'receivals.categories' => function($query) {
-                return $query->where('type', 'seed-generation');
+            'receivals' => function ($query) {
+                return $query->select([
+                    'id',
+                    'user_id',
+                    'oversize_bin_size',
+                    'seed_bin_size',
+                    'paddocks',
+                    'created_at'
+                ]);
             },
             'receivals.categories.category',
-        ])->select(['id', 'name', 'grower_name'])->get();
+        ])->select(['id', 'name', 'grower_name', 'paddocks'])->get();
         return response()->json([
             'growers' => $users->map(function ($user) {
-                return ['value' => $user->id, 'label' => $user->grower_name ? "$user->name ($user->grower_name)" : $user->name, 'receivals' => $user->receivals];
+                $receivals = [];
+                foreach ($user->receivals as $receival) {
+                    $growerId    = $grower = $paddock = $seedTypeId = $seedType = $seedVarietyId = $seedVariety = '';
+                    $seedClassId = $seedClass = $seedGenerationId = $seedGeneration = '';
+                    foreach ($receival->categories as $category) {
+                        if ($category->type === 'grower') {
+                            $growerId = $category->category->id;
+                            $grower   = $category->category->name;
+                        }
+                        if ($receival->paddocks) {
+                            $paddock = $receival->paddocks[0];
+                        }
+                        if ($category->type === 'seed-type') {
+                            $seedTypeId = $category->category->id;
+                            $seedType   = $category->category->name;
+                        }
+                        if ($category->type === 'seed-variety') {
+                            $seedVarietyId = $category->category->id;
+                            $seedVariety   = $category->category->name;
+                        }
+                        if ($category->type === 'seed-class') {
+                            $seedClassId = $category->category->id;
+                            $seedClass   = $category->category->name;
+                        }
+                        if ($category->type === 'seed-generation') {
+                            $seedGenerationId = $category->category->id;
+                            $seedGeneration   = $category->category->name;
+                        }
+                    }
+                    $key = "{$growerId}-{$seedTypeId}-{$seedVarietyId}-{$seedClassId}-{$seedGenerationId}";
+                    if (isset($receivals[$key])) {
+                        $receivals[$key]['oversize_bin_size'] = $receivals[$key]['oversize_bin_size'] + $receival->oversize_bin_size;
+                        $receivals[$key]['seed_bin_size']     = $receivals[$key]['seed_bin_size'] + $receival->seed_bin_size;
+                        continue;
+                    }
+
+                    $receivals[$key] = [
+                        'user_id'           => $receival->user_id,
+                        'created_at'        => $receival->created_at,
+                        'oversize_bin_size' => $receival->oversize_bin_size,
+                        'seed_bin_size'     => $receival->seed_bin_size,
+                        'grower'            => $grower,
+                        'paddock'           => $paddock,
+                        'seed-type'         => $seedType,
+                        'seed-variety'      => $seedVariety,
+                        'seed-class'        => $seedClass,
+                        'seed-generation'   => $seedGeneration,
+                    ];
+                }
+
+                return [
+                    'value'     => $user->id,
+                    'label'     => $user->grower_name ? "$user->name ($user->grower_name)" : $user->name,
+                    'receivals' => $receivals,
+                ];
             }),
-            'buyers' => $users->map(function ($user) {
+            'buyers'  => $users->map(function ($user) {
                 return ['value' => $user->id, 'label' => $user->name];
             }),
         ]);

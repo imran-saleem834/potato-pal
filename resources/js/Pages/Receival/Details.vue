@@ -1,6 +1,6 @@
 <script setup>
 import { computed, ref, watch } from "vue";
-import { useForm } from "@inertiajs/vue3";
+import { useForm, Link } from "@inertiajs/vue3";
 import { getDropDownOptions, getCategoriesDropDownByType, getCategoryIdsByType, getCategoriesByType } from "@/helper.js";
 import moment from 'moment';
 import Multiselect from '@vueform/multiselect';
@@ -76,6 +76,7 @@ const updatePaddock = (userId) => {
         paddockOptions.value = user.paddocks.map(paddock => {
             return `${paddock.name} (${paddock.hectares})`
         });
+        paddockOptions.value = [...paddockOptions.value, ...props.receival?.paddocks || []];
         return;
     }
     paddockOptions.value = [];
@@ -137,7 +138,7 @@ const pushForUnload = () => {
                     :searchable="true"
                     :options="getDropDownOptions(users)"
                 />
-                <h5 v-else>{{ receival.user?.name }}</h5>
+                <h5 v-else><Link :href="route('users.index', {userId: receival.user_id})">{{ receival.user?.name }}</Link></h5>
 
                 <h6>Grower Group</h6>
                 <Multiselect
