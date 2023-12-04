@@ -93,7 +93,7 @@ const storeRecord = () => {
     <template v-else>
             <div id="carousel-example-generic" class="slide" data-ride="carousel">
                 <div class="carousel-inner" role="listbox">
-                    <div v-if="file" class="item active" @click="emit('showImg')" style="cursor: zoom-in">
+                    <div v-if="Object.values(file).length > 0" class="item active" @click="emit('showImg')" style="cursor: zoom-in">
                         <img :src="`storage/${file.image}`" :alt="file.title"/>
                         <div class="">
                             <h4>{{ moment(file.created_at).format('DD, MMM YYYY hh:mm') }}</h4>

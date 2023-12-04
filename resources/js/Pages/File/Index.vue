@@ -17,7 +17,7 @@ const props = defineProps({
 
 const search = ref(props.filters.search);
 const flatFiles = ref(Object.values(props.files).flat(2));
-const file = ref(flatFiles.value[0]);
+const file = ref(flatFiles.value[0] || {});
 const activeTab = ref(null);
 const edit = ref(null);
 const isNewRecord = ref(false);const visibleRef = ref(false);
@@ -95,6 +95,11 @@ const deleteFile = (id) => {
             :title="file.title || 'New'"
             :is-edit-record-selected="!!edit"
             :is-new-record-selected="isNewRecord"
+            :access="{
+                new: true,
+                edit: Object.values(file).length > 0,
+                delete: Object.values(file).length > 0,
+            }"
             @newRecord="setNewRecord"
             @editRecord="() => setEdit(file?.id)"
             @deleteRecord="() => deleteFile(file?.id)"

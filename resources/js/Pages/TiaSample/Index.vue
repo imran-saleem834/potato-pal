@@ -81,6 +81,11 @@ getTiaSamples();
             :title="tiaSample?.receival?.user?.name || 'New'"
             :is-edit-record-selected="!!edit"
             :is-new-record-selected="isNewRecord"
+            :access="{
+                new: true,
+                edit: Object.values(tiaSample).length > 0,
+                delete: Object.values(tiaSample).length > 0,
+            }"
             @newRecord="setNewRecord"
             @editRecord="() => setEdit(tiaSample?.id)"
             @deleteRecord="() => deleteTiaSample(tiaSample?.id)"
