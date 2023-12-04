@@ -61,7 +61,7 @@ class TiaSampleRequest extends FormRequest
             'minor_skin_cracking' => ['nullable', 'boolean'],
             'skinning'            => ['nullable', 'boolean'],
             'regarding'           => ['nullable', 'boolean'],
-            'comment'             => ['nullable', 'string', 'max:255'],
+            'comment'             => ['nullable', 'string', 'max:191'],
             'status'              => ['required', 'string', 'max:20'],
         ];
 

@@ -22,7 +22,7 @@ class FileRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => ['required', 'string', 'max:255'],
+            'title' => ['required', 'string', 'max:191'],
             'image' => ['nullable', 'mimes:jpeg,png,jpg,gif,svg,pdf', 'max:2048'],
         ];
     }

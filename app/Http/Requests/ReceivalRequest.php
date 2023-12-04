@@ -37,7 +37,7 @@ class ReceivalRequest extends FormRequest
             'chc_receival_docket_no' => ['nullable', 'string', 'max:50'],
             'fungicide'              => ['nullable', 'array'],
             'driver_name'            => ['nullable', 'string', 'max:80'],
-            'comments'               => ['nullable', 'string', 'max:255'],
+            'comments'               => ['nullable', 'string', 'max:191'],
         ];
     }
 
