@@ -99,8 +99,8 @@ getUsers();
             :is-new-record-selected="isNewRecord"
             :access="{
                 new: true,
-                edit: Object.values(allocation).length > 0,
-                delete: Object.values(allocation).length > 0,
+                edit: Object.values(allocation || {}).length > 0,
+                delete: Object.values(allocation || {}).length > 0,
             }"
             @newRecord="setNewRecord"
             @editRecord="() => setEdit(allocation?.id)"
