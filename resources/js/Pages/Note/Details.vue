@@ -11,7 +11,7 @@ const props = defineProps({
     isNew: Boolean,
 });
 
-const emit = defineEmits(['updateRecord']);
+const emit = defineEmits(['update', 'create']);
 
 const form = useForm({
     title: props.note.title,
@@ -28,22 +28,24 @@ watch(() => props.note,
     }
 );
 
-const isForm = computed(() => {
-    return props.isEdit || props.isNew;
-})
+const isForm = computed(() => props.isEdit || props.isNew)
 
 const updateRecord = () => {
     form.patch(route('notes.update', props.note.id), {
+        preserveScroll: true,
+        preserveState: true,
         onSuccess: () => {
-            emit('updateRecord')
+            emit('update')
         },
     });
 }
 
 const storeRecord = () => {
     form.post(route('notes.store'), {
+        preserveScroll: true,
+        preserveState: true,
         onSuccess: () => {
-            emit('updateRecord')
+            emit('create')
         },
     });
 }
@@ -92,10 +94,10 @@ const storeRecord = () => {
 
                 <Images
                     v-if="!isNew"
-                    :images="note.images"
-                    :upload-route="route('notes.upload', note.id || 0)"
-                    :delete-route="route('notes.delete', note.id || 0)"
-                    @updateRecord="emit('updateRecord')"
+                    :images="note?.images"
+                    :upload-route="route('notes.upload', note?.id || 0)"
+                    :delete-route="route('notes.delete', note?.id || 0)"
+                    @updateRecord="emit('update')"
                 />
             </div>
         </div>

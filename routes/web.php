@@ -35,7 +35,7 @@ Route::middleware([
 
     Route::resource('/users', UserController::class)->except(['create', 'edit']);
 
-    Route::get('/options', [CategoryController::class, 'options'])->name('options');
+    Route::get('/categories/list', [CategoryController::class, 'list'])->name('categories.list');
     Route::resource('/categories', CategoryController::class);
 
     Route::get('/receivals/list', [ReceivalController::class, 'list'])->name('receivals.list');
@@ -59,7 +59,6 @@ Route::middleware([
     Route::get('/notifications/list', [NotificationController::class, 'list'])->name('notifications.list');
     Route::resource('/notifications', NotificationController::class);
 
-    Route::get('/notes/list', [NoteController::class, 'list'])->name('notes.list');
     Route::post('/notes/{id}/upload', [NoteController::class, 'upload'])->name('notes.upload');
     Route::post('/notes/{id}/delete', [NoteController::class, 'delete'])->name('notes.delete');
     Route::resource('/notes', NoteController::class);

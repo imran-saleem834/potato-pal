@@ -67,7 +67,7 @@ const deleteReceival = (id) => {
 
 const getCategories = () => {
     const type = ['grower', 'seed-type', 'seed-variety', 'seed-generation', 'seed-class', 'delivery-type', 'fungicide', 'transport'];
-    axios.get(route('categories.index'), { params: { type } }).then(response => {
+    axios.get(route('categories.list'), { params: { type } }).then(response => {
         categories.value = response.data;
         getReceivals();
     });

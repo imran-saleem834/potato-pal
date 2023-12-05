@@ -6,7 +6,7 @@
                     <ul>
                         <li><Link :href="route('dashboard')"><span class="fa fa-arrow-left"></span> Menu</Link></li>
                         <li><span class="fa fa-chevron-right"></span></li>
-                        <li><Link href="">{{ type }}</Link></li>
+                        <li><Link :href="route(route().current())">{{ type }}</Link></li>
                     </ul>
                 </div>
                 <div class="menu-right">

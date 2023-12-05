@@ -31,15 +31,18 @@ const editRecord = () => {
 
 const updateRecord = () => {
     form.patch(route('categories.update', props.category.id), {
+        preserveScroll: true,
+        preserveState: true,
         onSuccess: () => {
             edit.value = false
-            emit('updateRecord')
         },
     });
 }
 
 const storeRecord = () => {
     form.post(route('categories.store'), {
+        preserveScroll: true,
+        preserveState: true,
         onSuccess: () => {
             emit('updateRecord')
         },
@@ -47,9 +50,8 @@ const storeRecord = () => {
 }
 const deleteRecord = () => {
     form.delete(route('categories.destroy', props.category.id), {
-        onSuccess: () => {
-            emit('updateRecord')
-        },
+        preserveScroll: true,
+        preserveState: true,
     });
 }
 </script>

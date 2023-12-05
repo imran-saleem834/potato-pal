@@ -83,6 +83,9 @@ const getNotificationActionColor = (action) => {
                         </div>
                     </div>
                 </div>
+                <div class="col-sm-12" v-if="notifications.length <= 0">
+                    <p class="text-center" style="margin-top: calc(50vh - 120px);">No Records Found</p>
+                </div>
                 <div class="clearfix"></div>
             </div>
         </div>

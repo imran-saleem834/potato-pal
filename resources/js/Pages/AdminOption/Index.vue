@@ -1,19 +1,22 @@
 <script setup>
-import { Link } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import TopBar from '@/Components/TopBar.vue';
 import MiddleBar from '@/Components/MiddleBar.vue';
 import Details from '@/Pages/AdminOption/Details.vue';
+import ModalHeader from "@/Components/ModalHeader.vue";
+import ModalBreadcrumb from "@/Components/ModalBreadcrumb.vue";
+import { router } from "@inertiajs/vue3";
 
 const props = defineProps({
+    categories: Array,
     optionTypes: Array,
+    filters: Object
 });
 
-const categories = ref(null);
-const user = ref(null);
 const activeTab = ref(null);
 const isNewRecord = ref(false);
+const search = ref(props.filters.search);
 
 const setActiveTab = (id) => {
     activeTab.value = id;
@@ -22,22 +25,32 @@ const setActiveTab = (id) => {
 
 const setNewRecord = () => {
     isNewRecord.value = true;
-    user.value = {};
 }
 
-const getCategories = (type, keyword) => {
-    axios.get(route('categories.index'), { params: { type: [type], keyword: keyword } }).then(response => {
-        categories.value = response.data;
-
-        setActiveTab(type);
-    });
+const changeTab = (type) => {
+    setActiveTab(type);
+    router.get(
+        route('categories.index'),
+        { search: search.value, type: activeTab.value },
+        { preserveState: true, preserveScroll: true },
+    )
 }
+
+watch(search, (value) => {
+    router.get(
+        route('categories.index'),
+        { search: value, type: activeTab.value },
+        { preserveState: true, preserveScroll: true },
+    )
+});
+
+const filter = (keyword) => search.value = keyword;
 
 const title = computed(() => {
     return props.optionTypes.find(option => option.slug === activeTab.value)?.label;
 })
 
-getCategories('seed-class');
+setActiveTab(props.filters.type);
 </script>
 
 <template>
@@ -45,7 +58,8 @@ getCategories('seed-class');
         <TopBar
             v-if="activeTab"
             :type="title"
-            @search="(keyword) => getCategories(activeTab, keyword)"
+            :value="search"
+            @search="filter"
             @newRecord="setNewRecord"
         />
         <MiddleBar
@@ -77,7 +91,7 @@ getCategories('seed-class');
                                 role="button"
                                 :data-toggle="$windowWidth <= 767 ? 'modal' : 'tab'"
                                 :data-target="$windowWidth <= 767 ? '#user-details' : ''"
-                                @click="getCategories(optionType.slug)"
+                                @click="changeTab(optionType.slug)"
                             >
                                 <div class="user-table">
                                     <table class="table">
@@ -102,7 +116,7 @@ getCategories('seed-class');
                                         :category="{}"
                                         :type="activeTab"
                                         :is-new="true"
-                                        @updateRecord="() => getCategories(activeTab)"
+                                        @updateRecord="() => isNewRecord = false"
                                     />
                                 </div>
                                 <div v-for="category in categories" :key="category.id" class="col-sm-6 col-md-4">
@@ -110,8 +124,11 @@ getCategories('seed-class');
                                         :category="category"
                                         :type="activeTab"
                                         :is-new="false"
-                                        @updateRecord="() => getCategories(activeTab)"
+                                        @updateRecord="() => isNewRecord = false"
                                     />
+                                </div>
+                                <div class="col-sm-12" v-if="categories.length <= 0 && !isNewRecord">
+                                    <p class="text-center" style="margin-top: calc(50vh - 120px);">No Records Found</p>
                                 </div>
                             </div>
                         </div>
@@ -127,28 +144,23 @@ getCategories('seed-class');
              aria-labelledby="myModalLabel3">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span class="fa fa-arrow-left"></span>
-                        </button>
-                        <h4 class="modal-title" id="myModalLabel3">{{ title }}</h4>
-                    </div>
+                    <ModalHeader
+                        title="Admin Options"
+                        :is-new="true"
+                        @edit="() => {}"
+                        @delete="() => {}"
+                    />
                     <div class="modal-body">
-                        <ol class="breadcrumb">
-                            <li>
-                                <Link :href="route('dashboard')" data-dismiss="modal" aria-label="Close">Menu</Link>
-                            </li>
-                            <li>
-                                <Link href="" data-dismiss="modal" aria-label="Close">Admin Options</Link>
-                            </li>
-                            <li class="active">{{ title }}</li>
-                        </ol>
+                        <ModalBreadcrumb
+                            page="Admin Options"
+                            :title="title"
+                        />
                         <div v-if="isNewRecord">
                             <Details
                                 :category="{}"
                                 :type="activeTab"
                                 :is-new="true"
-                                @updateRecord="() => getCategories(activeTab)"
+                                @updateRecord="() => isNewRecord = false"
                             />
                         </div>
                         <div v-for="category in categories" :key="category.id">
@@ -156,8 +168,11 @@ getCategories('seed-class');
                                 :category="category"
                                 :type="activeTab"
                                 :is-new="false"
-                                @updateRecord="() => getCategories(activeTab)"
+                                @updateRecord="() => isNewRecord = false"
                             />
+                        </div>
+                        <div class="col-sm-12" v-if="categories.length <= 0 && !isNewRecord">
+                            <p class="text-center" style="margin-top: calc(50vh - 120px);">No Records Found</p>
                         </div>
                     </div>
                 </div>

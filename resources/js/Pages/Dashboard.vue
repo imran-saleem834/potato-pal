@@ -15,7 +15,7 @@ const menus = [
     { route: '', image: 'menu10.png', label: 'Reports' },
     { route: '', image: 'menu11.png', label: 'Cutting' },
     { route: '', image: 'menu12.png', label: 'Weighbridge' },
-    { route: route('options'), image: 'menu13.png', label: 'Admin Options' },
+    { route: route('categories.index'), image: 'menu13.png', label: 'Admin Options' },
     { route: route('notifications.index'), image: 'menu14.png', label: 'Notifications' },
     { route: route('notes.index'), image: 'menu15.png', label: 'Notes' },
     { route: route('files.index'), image: 'menu16.png', label: 'Files' },
@@ -24,7 +24,7 @@ const menus = [
 </script>
 
 <template>
-    <Head title="Dashboard"></Head>
+    <Head><title>Dashboard</title></Head>
 
     <div class="admin-access">
         <div class="container">

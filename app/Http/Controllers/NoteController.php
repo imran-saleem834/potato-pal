@@ -8,31 +8,23 @@ use Illuminate\Http\Request;
 use App\Http\Requests\NoteRequest;
 use App\Helpers\NotificationHelper;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Database\Eloquent\Builder;
 
 class NoteController extends Controller
 {
     /**
      * Display a listing of the resource.
-     */
-    public function index()
-    {
-        return Inertia::render('Note/Index');
-    }
-
-    /**
      * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
      */
-    public function list(Request $request)
+    public function index(Request $request)
     {
-        $keyword = $request->input('keyword', '');
-        $notes   = Note::query()
+        $notes = Note::query()
             ->select('id', 'title', 'tags', 'created_at')
-            ->when($keyword, function ($query, $keyword) {
-                return $query->where('id', 'LIKE', "%$keyword%")
-                    ->orWhere('title', 'LIKE', "%$keyword%")
-                    ->orWhere('note', 'LIKE', "%$keyword%")
-                    ->orWhere('tags', 'LIKE', "%$keyword%");
+            ->when($request->input('search'), function (Builder $query, $search) {
+                return $query->where('id', 'LIKE', "%$search%")
+                    ->orWhere('title', 'LIKE', "%$search%")
+                    ->orWhere('note', 'LIKE', "%$search%")
+                    ->orWhere('tags', 'LIKE', "%$search%");
             })
             ->latest()
             ->get();
@@ -41,9 +33,10 @@ class NoteController extends Controller
 
         $note = Note::find($noteId);
 
-        return response()->json([
-            'notes' => $notes,
-            'note'  => $note,
+        return Inertia::render('Note/Index', [
+            'notes'   => $notes,
+            'single'  => $note,
+            'filters' => $request->only(['search']),
         ]);
     }
 
@@ -56,7 +49,7 @@ class NoteController extends Controller
 
         NotificationHelper::addedAction('Note', $note->id);
 
-        return back();
+        return to_route('notes.index');
     }
 
     /**
@@ -80,7 +73,7 @@ class NoteController extends Controller
 
         NotificationHelper::updatedAction('Note', $id);
 
-        return back();
+        return to_route('notes.index');
     }
 
     /**
@@ -91,6 +84,8 @@ class NoteController extends Controller
         Note::destroy($id);
 
         NotificationHelper::deleteAction('Note', $id);
+
+        return to_route('notes.index');
     }
 
     /**

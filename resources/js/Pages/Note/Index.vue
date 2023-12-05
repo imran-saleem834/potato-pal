@@ -1,30 +1,42 @@
 <script setup>
-import { Link } from '@inertiajs/vue3';
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import AppLayout from '@/Layouts/AppLayout.vue';
 import TopBar from '@/Components/TopBar.vue';
 import MiddleBar from '@/Components/MiddleBar.vue';
 import Details from '@/Pages/Note/Details.vue';
 import LeftBar from "@/Pages/Note/LeftBar.vue";
+import ModalHeader from "@/Components/ModalHeader.vue";
+import ModalBreadcrumb from "@/Components/ModalBreadcrumb.vue";
+import { router, useForm } from "@inertiajs/vue3";
 
-const notes = ref([]);
-const note = ref(null);
+const props = defineProps({
+    notes: Object,
+    single: Object,
+    filters: Object,
+});
+
+const note = ref(props.single || {});
 const activeTab = ref(null);
 const edit = ref(null);
 const isNewRecord = ref(false);
+const search = ref(props.filters.search);
 
-const getNotes = (keyword = null) => {
-    axios.get(route('notes.list'), { params: { keyword: keyword, noteId: edit.value } }).then(response => {
-        notes.value = response.data.notes;
-        note.value = response.data.note || {};
+watch(() => props?.single,
+    (single) => {
+        console.log('watcher', note.value, single, single || {})
+        note.value = single || {};
+    }
+);
 
-        if (!edit.value) {
-            setActiveTab(response.data.note?.id);
-        } else {
-            setEdit(edit.value);
-        }
-    });
-};
+watch(search, (value) => {
+    router.get(
+        route('notes.index'),
+        { search: value },
+        { preserveState: true, preserveScroll: true },
+    )
+});
+
+const filter = (keyword) => search.value = keyword;
 
 const getNote = (id) => {
     axios.get(route('notes.show', id)).then(response => {
@@ -53,27 +65,29 @@ const setNewRecord = () => {
 }
 
 const deleteNote = (id) => {
-    axios.delete(route('notes.destroy', id), {
+    const form = useForm({});
+    form.delete(route('notes.destroy', id), {
+        preserveState: true,
         onSuccess: () => {
-            getNotes();
+            setActiveTab(note.value?.id);
         },
     });
 }
 
-getNotes();
+setActiveTab(note.value?.id);
 </script>
 
 <template>
     <AppLayout title="Notes">
         <TopBar
             type="Notes"
-            @search="getNotes"
+            :value="search"
+            @search="filter"
             @newRecord="setNewRecord"
         />
         <MiddleBar
-            v-if="note"
             type="Notes"
-            :title="note.title || 'New'"
+            :title="note?.title || 'New'"
             :is-edit-record-selected="!!edit"
             :is-new-record-selected="isNewRecord"
             :access="{
@@ -99,15 +113,19 @@ getNotes();
                     />
                 </div>
                 <div class="col-lg-8 col-sm-6">
-                    <div class="tab-content" v-if="note">
+                    <div class="tab-content" v-if="Object.values(note).length > 0 || isNewRecord">
                         <div class="tab-pane active">
                             <Details
                                 :note="note"
                                 :is-edit="!!edit"
                                 :is-new="isNewRecord"
-                                @updateRecord="getNotes"
+                                @update="() => getNote(activeTab)"
+                                @create="() => setActiveTab(note?.id)"
                             />
                         </div>
+                    </div>
+                    <div class="col-sm-12" v-if="Object.values(note).length <= 0 && !isNewRecord">
+                        <p class="text-center" style="margin-top: calc(50vh - 120px);">No Records Found</p>
                     </div>
                 </div>
                 <div class="clearfix"></div>
@@ -116,76 +134,27 @@ getNotes();
         <!-- tab-section -->
 
         <!-- Modal -->
-        <div class="modal right fade" id="myModal2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel2">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span class="fa fa-arrow-left"></span>
-                        </button>
-                        <h4 class="modal-title" id="myModalLabel2">Notes</h4>
-                    </div>
-                    <div class="modal-body">
-                        <ul>
-                            <li><a href="">Unique ID <span class="fa fa-angle-right"></span> </a></li>
-                            <li><a href="">Name <span class="fa fa-angle-right"></span> </a></li>
-                            <li><a href="">Email <span class="fa fa-angle-right"></span> </a></li>
-                            <li><a href="">Username <span class="fa fa-angle-right"></span> </a></li>
-                            <li><a href="">User Access <span class="fa fa-angle-right"></span> </a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- modal -->
-
-        <!-- Modal -->
         <div class="modal right fade user-details" id="user-details" tabindex="-1" role="dialog"
              aria-labelledby="myModalLabel3">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span class="fa fa-arrow-left"></span>
-                        </button>
-                        <h4 class="modal-title" id="myModalLabel3">Notes</h4>
-                        <div class="modal-menu">
-                            <div v-if="!isNewRecord" class="btn-group">
-                                <button type="button" class="dropdown-toggle" data-toggle="dropdown"
-                                        aria-haspopup="true" aria-expanded="false">
-                                    <span class="fa fa-ellipsis-v"></span>
-                                </button>
-                                <ul class="dropdown-menu">
-                                    <li>
-                                        <a role="button" @click="deleteNote(note?.id)">
-                                            <span class="fa fa-trash-o"></span> Delete
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a role="button" @click="setEdit(note?.id)">
-                                            <span class="fa fa-edit"></span>Edit
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-body" v-if="note">
-                        <ol class="breadcrumb">
-                            <li>
-                                <Link :href="route('dashboard')" data-dismiss="modal" aria-label="Close">Menu</Link>
-                            </li>
-                            <li>
-                                <Link href="" data-dismiss="modal" aria-label="Close">Notes</Link>
-                            </li>
-                            <li class="active" v-if="isNewRecord">New</li>
-                            <li class="active" v-else-if="note">{{ note.title }}</li>
-                        </ol>
+                    <ModalHeader
+                        title="Notes"
+                        :is-new="isNewRecord"
+                        @edit="() => setEdit(note?.id)"
+                        @delete="() => deleteNote(note?.id)"
+                    />
+                    <div class="modal-body">
+                        <ModalBreadcrumb
+                            page="Notes"
+                            :title="note?.title || 'New'"
+                        />
                         <Details
                             :note="note"
                             :is-edit="!!edit"
                             :is-new="isNewRecord"
-                            @updateRecord="getNotes"
+                            @update="() => getNote(activeTab)"
+                            @create="() => setActiveTab(note?.id)"
                         />
                     </div>
                 </div>

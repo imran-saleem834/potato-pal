@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Models\CategoriesRelation;
 use App\Helpers\NotificationHelper;
 use App\Http\Requests\CategoryRequest;
+use Illuminate\Database\Eloquent\Builder;
 
 class CategoryController extends Controller
 {
@@ -32,24 +33,26 @@ class CategoryController extends Controller
      */
     public function index(Request $request)
     {
-        $keyword    = $request->input('keyword');
-        $categories = Category::whereIn('type', $request->input('type'))
-            ->when($keyword, function ($query, $keyword) {
-                return $query->where('name', 'LIKE', "%$keyword%");
+        $type       = $request->input('type', $this->optionTypes[0]['slug']);
+        $categories = Category::where('type', $type)
+            ->when($request->input('search'), function (Builder $query, $search) {
+                return $query->where('name', 'LIKE', "%$search%");
             })
             ->get();
 
-        return response()->json($categories);
+        return Inertia::render('AdminOption/Index', [
+            'optionTypes' => $this->optionTypes,
+            'categories'  => $categories,
+            'filters'     => array_merge($request->only(['search']), ['type' => $type]),
+        ]);
     }
 
     /**
      * Display a listing of the resource.
      */
-    public function options()
+    public function list(Request $request)
     {
-        return Inertia::render('AdminOption/Index', [
-            'optionTypes' => $this->optionTypes
-        ]);
+        return response()->json(Category::whereIn('type', $request->input('type'))->get());
     }
 
     /**
@@ -66,7 +69,7 @@ class CategoryController extends Controller
 
         NotificationHelper::addedAction($optionType['label'], $category->id);
 
-        return back();
+        return to_route('categories.index', ['type' => $type]);
     }
 
     /**
@@ -83,7 +86,7 @@ class CategoryController extends Controller
 
         NotificationHelper::updatedAction($optionType['label'], $id);
 
-        return back();
+        return to_route('categories.index', ['type' => $type]);
     }
 
     /**
@@ -100,5 +103,7 @@ class CategoryController extends Controller
         }, ['label' => $type]);
 
         NotificationHelper::deleteAction($optionType['label'], $id);
+
+        return to_route('categories.index', ['type' => $type]);
     }
 }
