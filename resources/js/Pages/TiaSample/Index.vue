@@ -78,7 +78,7 @@ getTiaSamples();
         <MiddleBar
             v-if="tiaSample"
             type="Tia Sample"
-            :title="tiaSample?.receival?.user?.name || 'New'"
+            :title="tiaSample?.receival?.grower?.name || 'New'"
             :is-edit-record-selected="!!edit"
             :is-new-record-selected="isNewRecord"
             :access="{
@@ -98,7 +98,7 @@ getTiaSamples();
                     <LeftBar
                         :items="tiaSamples"
                         :active-tab="activeTab"
-                        :row-1="{title: 'Grower\'s Name', value: 'receival.user.name'}"
+                        :row-1="{title: 'Grower\'s Name', value: 'receival.grower.name'}"
                         :row-2="{title: 'Tia Sample Id', value: 'id'}"
                         @click="getTiaSample"
                     />
@@ -186,7 +186,7 @@ getTiaSamples();
                                 <Link href="" data-dismiss="modal" aria-label="Close">Tia Sample</Link>
                             </li>
                             <li class="active" v-if="isNewRecord">New</li>
-                            <li class="active" v-else-if="tiaSample">{{ tiaSample?.receival?.user?.name }}</li>
+                            <li class="active" v-else-if="tiaSample">{{ tiaSample?.receival?.grower?.name }}</li>
                         </ol>
                         <Details
                             :tia-sample="tiaSample"

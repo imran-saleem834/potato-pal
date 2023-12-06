@@ -71,7 +71,7 @@ const storeRecord = () => {
         <div v-if="!isNew" :class="colSize">
             <div class="user-boxes">
                 <h6>Name</h6>
-                <h5>{{ unload?.receival?.user?.name }}</h5>
+                <h5>{{ unload?.receival?.grower?.name }}</h5>
 
                 <h6>Unloading Id</h6>
                 <h5>{{ unload.id }}</h5>

@@ -20,7 +20,7 @@ const getObjectProperty = (obj, key) => {
     let result = obj;
 
     for (const k of keys) {
-        if (result.hasOwnProperty(k)) {
+        if (result && result.hasOwnProperty(k)) {
             result = result[k];
         } else {
             // Property not found
@@ -62,6 +62,11 @@ const getObjectProperty = (obj, key) => {
                     <span class="fa fa-angle-right angle-right"></span>
                 </div>
             </a>
+        </li>
+        <li
+            v-if="items.length <= 0"
+            style="box-shadow: none; text-align: center; margin-top: calc(50vh - 120px);"
+        >No Records Found
         </li>
     </ul>
 </template>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Inertia\Inertia;
 use Illuminate\Http\Request;
+use App\Helpers\ReceivalHelper;
 use App\Helpers\CategoriesHelper;
 use App\Helpers\NotificationHelper;
 use App\Http\Requests\ReceivalRequest;
@@ -31,11 +32,11 @@ class ReceivalController extends Controller
         $keyword   = $request->input('keyword', '');
         $receivals = Receival::query()
             ->with([
-                'user' => function ($query) {
+                'grower' => function ($query) {
                     return $query->select('id', 'name');
                 }
             ])
-            ->select('id', 'user_id')
+            ->select('id', 'grower_id')
             ->when($keyword, function ($query, $keyword) {
                 return $query->where('id', 'LIKE', "%$keyword%")
                     ->orWhere('paddocks', 'LIKE', "%$keyword%")
@@ -57,7 +58,7 @@ class ReceivalController extends Controller
             'tiaSample' => function ($query) {
                 return $query->select('id', 'receival_id');
             },
-            'user'      => function ($query) {
+            'grower'    => function ($query) {
                 return $query->select('id', 'name');
             },
         ])->find($receivalId);
@@ -89,6 +90,11 @@ class ReceivalController extends Controller
         ]);
         CategoriesHelper::createRelationOfTypes($inputs, $receival->id, Receival::class);
 
+        $receival->unique_key = ReceivalHelper::getUniqueKey($receival);
+        $receival->save();
+
+        ReceivalHelper::calculateRemainingReceivals($receival->grower_id);
+
         NotificationHelper::addedAction('Receival', $receival->id);
 
         return back();
@@ -107,7 +113,7 @@ class ReceivalController extends Controller
             'tiaSample' => function ($query) {
                 return $query->select('id', 'receival_id');
             },
-            'user'      => function ($query) {
+            'grower'    => function ($query) {
                 return $query->select('id', 'name');
             },
         ])->find($id);
@@ -137,6 +143,11 @@ class ReceivalController extends Controller
             'transport'
         ]);
         CategoriesHelper::createRelationOfTypes($inputs, $receival->id, Receival::class);
+
+        $receival->unique_key = ReceivalHelper::getUniqueKey($receival);
+        $receival->save();
+
+        ReceivalHelper::calculateRemainingReceivals($receival->grower_id);
 
         NotificationHelper::updatedAction('Receival', $id);
 

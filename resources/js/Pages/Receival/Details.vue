@@ -22,7 +22,7 @@ const props = defineProps({
 const emit = defineEmits(['updateRecord']);
 
 const form = useForm({
-    user_id: props.receival.user_id,
+    grower_id: props.receival.grower_id,
     grower: getCategoryIdsByType(props.receival.categories, 'grower'),
     paddocks: props.receival.paddocks,
     seed_type: getCategoryIdsByType(props.receival.categories, 'seed-type'),
@@ -43,7 +43,7 @@ const form = useForm({
 watch(() => props.receival,
     (receival) => {
         form.clearErrors();
-        form.user_id = receival.user_id
+        form.grower_id = receival.grower_id
         form.grower = getCategoryIdsByType(receival.categories, 'grower')
         form.paddocks = receival.paddocks
         form.seed_type = getCategoryIdsByType(receival.categories, 'seed-type')
@@ -60,19 +60,19 @@ watch(() => props.receival,
         form.driver_name = receival.driver_name
         form.comments = receival.comments
 
-        updatePaddock(receival.user_id);
+        updatePaddock(receival.grower_id);
     }
 );
 
-watch(() => form.user_id,
-    (userId) => {
-        updatePaddock(userId);
+watch(() => form.grower_id,
+    (growerId) => {
+        updatePaddock(growerId);
     }
 );
 
-const updatePaddock = (userId) => {
-    if (userId) {
-        const user = props.users.find(user => user.id === userId);
+const updatePaddock = (growerId) => {
+    if (growerId) {
+        const user = props.users.find(user => user.id === growerId);
         paddockOptions.value = user.paddocks.map(paddock => {
             return `${paddock.name} (${paddock.hectares})`
         });
@@ -81,6 +81,8 @@ const updatePaddock = (userId) => {
     }
     paddockOptions.value = [];
 }
+
+updatePaddock(props.receival.grower_id);
 
 const isForm = computed(() => {
     return props.isEdit || props.isNew;
@@ -132,13 +134,13 @@ const pushForUnload = () => {
                 <h6>Name</h6>
                 <Multiselect
                     v-if="isForm"
-                    v-model="form.user_id"
+                    v-model="form.grower_id"
                     mode="single"
                     placeholder="Choose a user"
                     :searchable="true"
                     :options="getDropDownOptions(users)"
                 />
-                <h5 v-else><Link :href="route('users.index', {userId: receival.user_id})">{{ receival.user?.name }}</Link></h5>
+                <h5 v-else><Link :href="route('users.index', {userId: receival.grower_id})">{{ receival.grower?.name }}</Link></h5>
 
                 <h6>Grower Group</h6>
                 <Multiselect

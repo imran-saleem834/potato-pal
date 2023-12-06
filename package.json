@@ -20,7 +20,10 @@
     },
     "dependencies": {
         "@vueform/multiselect": "^2.6.6",
+        "datatables.net-dt": "^1.13.8",
+        "datatables.net-vue3": "^2.1.3",
         "moment": "^2.29.4",
+        "vue-easy-lightbox": "^1.16.0",
         "vue-window-size": "^2.0.0"
     }
 }

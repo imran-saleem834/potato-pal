@@ -18,14 +18,14 @@ class TiaSampleController extends Controller
     {
         $receivals = Receival::query()
             ->with([
-                'user' => function ($query) {
+                'grower' => function ($query) {
                     return $query->select(['id', 'name']);
                 }
             ])
-            ->select(['id', 'user_id'])
+            ->select(['id', 'grower_id'])
             ->get()
             ->map(function ($receival) {
-                return ['value' => $receival->id, 'label' => "ReceivalId:{$receival->id} {$receival->user->name}"];
+                return ['value' => $receival->id, 'label' => "ReceivalId:{$receival->id} {$receival->grower->name}"];
             });
 
         return Inertia::render('TiaSample/Index', [
@@ -43,9 +43,9 @@ class TiaSampleController extends Controller
         $tiaSamples = TiaSample::query()
             ->with([
                 'receival'      => function ($query) {
-                    return $query->select('id', 'user_id');
+                    return $query->select('id', 'grower_id');
                 },
-                'receival.user' => function ($query) {
+                'receival.grower' => function ($query) {
                     return $query->select('id', 'name');
                 }
             ])
@@ -65,7 +65,7 @@ class TiaSampleController extends Controller
 
         $tiaSampleId = $request->input('tiaSampleId', $tiaSamples->first()->id ?? 0);
 
-        $tiaSample = TiaSample::with(['receival.user', 'receival.categories.category'])->find($tiaSampleId);
+        $tiaSample = TiaSample::with(['receival.grower', 'receival.categories.category'])->find($tiaSampleId);
 
         return response()->json([
             'tiaSamples' => $tiaSamples,
@@ -90,7 +90,7 @@ class TiaSampleController extends Controller
      */
     public function show(string $id)
     {
-        $tiaSample = TiaSample::with(['receival.user', 'receival.categories.category'])->find($id);
+        $tiaSample = TiaSample::with(['receival.grower', 'receival.categories.category'])->find($id);
 
         return response()->json($tiaSample);
     }

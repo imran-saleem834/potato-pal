@@ -78,7 +78,7 @@ getUnloads();
         <MiddleBar
             v-if="unload"
             type="Unloading"
-            :title="unload?.receival?.user?.name || 'New'"
+            :title="unload?.receival?.grower?.name || 'New'"
             :is-edit-record-selected="!!edit"
             :is-new-record-selected="isNewRecord"
             @newRecord="setNewRecord"
@@ -93,7 +93,7 @@ getUnloads();
                     <LeftBar
                         :items="unloads"
                         :active-tab="activeTab"
-                        :row-1="{title: 'Grower\'s Name', value: 'receival.user.name'}"
+                        :row-1="{title: 'Grower\'s Name', value: 'receival.grower.name'}"
                         :row-2="{title: 'Unloading Id', value: 'id'}"
                         @click="getUnload"
                     />
@@ -181,7 +181,7 @@ getUnloads();
                                 <Link href="" data-dismiss="modal" aria-label="Close">Unloading</Link>
                             </li>
                             <li class="active" v-if="isNewRecord">New</li>
-                            <li class="active" v-else-if="unload">{{ unload?.receival?.user?.name }}</li>
+                            <li class="active" v-else-if="unload">{{ unload?.receival?.grower?.name }}</li>
                         </ol>
                         <Details
                             :unload="unload"

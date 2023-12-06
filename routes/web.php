@@ -53,7 +53,6 @@ Route::middleware([
     Route::post('/tia-samples/{id}/delete', [TiaSampleController::class, 'delete'])->name('tia-samples.delete');
     Route::resource('/tia-samples', TiaSampleController::class);
 
-    Route::get('/allocations/users', [AllocationController::class, 'getUsers'])->name('allocations.users');
     Route::resource('/allocations', AllocationController::class)->except(['create', 'edit']);
 
     Route::get('/notifications/list', [NotificationController::class, 'list'])->name('notifications.list');

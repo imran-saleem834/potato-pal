@@ -261,7 +261,7 @@ const storeRecord = () => {
                 </template>
                 <template v-else>
                     <h6>Grower Name</h6>
-                    <h5>{{ tiaSample?.receival?.user?.name }}</h5>
+                    <h5>{{ tiaSample?.receival?.grower?.name }}</h5>
 
                     <h6>Tia Sample Id</h6>
                     <h5>{{ tiaSample.id }}</h5>

@@ -15,9 +15,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('buyer_id');
             $table->foreignId('grower_id')->nullable();
+            $table->string('unique_key', 80)->nullable();
+            $table->string('allocated_type', 20)->nullable();
             $table->float('allocated_bins')->nullable();
             $table->float('allocated_tonnes')->nullable();
-            $table->float('tonnes_available_receivals')->nullable();
             $table->float('bins_before_cutting')->nullable();
             $table->float('tonnes_before_cutting')->nullable();
             $table->dateTime('cutting_date')->nullable();

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ReceivalHelper;
 use App\Models\Receival;
 use App\Models\User;
 use Inertia\Inertia;
@@ -28,9 +29,11 @@ class AllocationController extends Controller
             ->when($request->input('search'), function (Builder $query, $search) {
                 return $query->where('id', 'LIKE', "%$search%")
                     ->orWhere('buyer_id', 'LIKE', "%$search%")
+                    ->orWhere('grower_id', 'LIKE', "%$search%")
+                    ->orWhere('unique_key', 'LIKE', "%$search%")
+                    ->orWhere('allocated_type', 'LIKE', "%$search%")
                     ->orWhere('allocated_bins', 'LIKE', "%$search%")
                     ->orWhere('allocated_tonnes', 'LIKE', "%$search%")
-                    ->orWhere('tonnes_available_receivals', 'LIKE', "%$search%")
                     ->orWhere('bins_before_cutting', 'LIKE', "%$search%")
                     ->orWhere('tonnes_before_cutting', 'LIKE', "%$search%")
                     ->orWhere('cutting_date', 'LIKE', "%$search%")
@@ -58,9 +61,47 @@ class AllocationController extends Controller
             },
         ])->find($allocationId);
 
+        $users = User::with([
+            'remainingReceivals',
+            'receivals.categories.category',
+        ])->select(['id', 'name', 'grower_name', 'paddocks'])->get();
+
+        $growers = $users->map(function ($user) {
+            $user->remainingReceivals = $user->remainingReceivals->map(function ($remainingReceival) {
+
+                $receival = Receival::with('categories')->find($remainingReceival->receival_id[0]);
+
+                [
+                    $paddock,
+                    $growerGroup,
+                    $seedType,
+                    $seedVariety,
+                    $seedClass,
+                    $seedGeneration
+                ] = ReceivalHelper::getCategoryNames($receival);
+
+                $remainingReceival->grower_group    = $growerGroup;
+                $remainingReceival->paddock         = $paddock;
+                $remainingReceival->seed_type       = $seedType;
+                $remainingReceival->seed_variety    = $seedVariety;
+                $remainingReceival->seed_class      = $seedClass;
+                $remainingReceival->seed_generation = $seedGeneration;
+
+                return $remainingReceival;
+            });
+
+            return [
+                'value'     => $user->id,
+                'label'     => $user->grower_name ? "$user->name ($user->grower_name)" : $user->name,
+                'receivals' => $user->remainingReceivals,
+            ];
+        });
+
         return Inertia::render('Allocation/Index', [
             'allocations' => $allocations,
             'single'      => $allocation,
+            'growers'     => $growers,
+            'buyers'      => $users->map(fn($user) => ['value' => $user->id, 'label' => $user->name]),
             'filters'     => $request->only(['search']),
         ]);
     }
@@ -70,11 +111,11 @@ class AllocationController extends Controller
      */
     public function store(AllocationRequest $request)
     {
-        $inputs = $request->validated();
+        $allocation = Allocation::create($request->validated());
 
-        $user = Allocation::create($inputs);
+        ReceivalHelper::calculateRemainingReceivals($allocation->grower_id);
 
-        NotificationHelper::addedAction('Allocation', $user->id);
+        NotificationHelper::addedAction('Allocation', $allocation->id);
 
         return to_route('allocations.index');
     }
@@ -105,13 +146,11 @@ class AllocationController extends Controller
      */
     public function update(AllocationRequest $request, string $id)
     {
-        $inputs = $request->validated();
-
-        info(print_r($inputs, true));
-
         $allocation = Allocation::find($id);
-        $allocation->update($inputs);
+        $allocation->update($request->validated());
         $allocation->save();
+
+        ReceivalHelper::calculateRemainingReceivals($allocation->grower_id);
 
         NotificationHelper::updatedAction('Allocation', $id);
 
@@ -128,87 +167,5 @@ class AllocationController extends Controller
         NotificationHelper::deleteAction('Allocation', $id);
 
         return to_route('allocations.index');
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function getUsers()
-    {
-        $users = User::with([
-            'receivals' => function ($query) {
-                return $query->select([
-                    'id',
-                    'user_id',
-                    'oversize_bin_size',
-                    'seed_bin_size',
-                    'paddocks',
-                    'created_at'
-                ]);
-            },
-            'receivals.categories.category',
-        ])->select(['id', 'name', 'grower_name', 'paddocks'])->get();
-        return response()->json([
-            'growers' => $users->map(function ($user) {
-                $receivals = [];
-                foreach ($user->receivals as $receival) {
-                    $growerId    = $grower = $paddock = $seedTypeId = $seedType = $seedVarietyId = $seedVariety = '';
-                    $seedClassId = $seedClass = $seedGenerationId = $seedGeneration = '';
-                    foreach ($receival->categories as $category) {
-                        if ($category->type === 'grower') {
-                            $growerId = $category->category->id;
-                            $grower   = $category->category->name;
-                        }
-                        if ($receival->paddocks) {
-                            $paddock = $receival->paddocks[0];
-                        }
-                        if ($category->type === 'seed-type') {
-                            $seedTypeId = $category->category->id;
-                            $seedType   = $category->category->name;
-                        }
-                        if ($category->type === 'seed-variety') {
-                            $seedVarietyId = $category->category->id;
-                            $seedVariety   = $category->category->name;
-                        }
-                        if ($category->type === 'seed-class') {
-                            $seedClassId = $category->category->id;
-                            $seedClass   = $category->category->name;
-                        }
-                        if ($category->type === 'seed-generation') {
-                            $seedGenerationId = $category->category->id;
-                            $seedGeneration   = $category->category->name;
-                        }
-                    }
-                    $key = "{$growerId}-{$seedTypeId}-{$seedVarietyId}-{$seedClassId}-{$seedGenerationId}";
-                    if (isset($receivals[$key])) {
-                        $receivals[$key]['oversize_bin_size'] = $receivals[$key]['oversize_bin_size'] + $receival->oversize_bin_size;
-                        $receivals[$key]['seed_bin_size']     = $receivals[$key]['seed_bin_size'] + $receival->seed_bin_size;
-                        continue;
-                    }
-
-                    $receivals[$key] = [
-                        'user_id'           => $receival->user_id,
-                        'created_at'        => $receival->created_at,
-                        'oversize_bin_size' => $receival->oversize_bin_size,
-                        'seed_bin_size'     => $receival->seed_bin_size,
-                        'grower'            => $grower,
-                        'paddock'           => $paddock,
-                        'seed-type'         => $seedType,
-                        'seed-variety'      => $seedVariety,
-                        'seed-class'        => $seedClass,
-                        'seed-generation'   => $seedGeneration,
-                    ];
-                }
-
-                return [
-                    'value'     => $user->id,
-                    'label'     => $user->grower_name ? "$user->name ($user->grower_name)" : $user->name,
-                    'receivals' => $receivals,
-                ];
-            }),
-            'buyers'  => $users->map(function ($user) {
-                return ['value' => $user->id, 'label' => $user->name];
-            }),
-        ]);
     }
 }

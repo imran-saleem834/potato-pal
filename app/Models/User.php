@@ -90,6 +90,11 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function receivals(): HasMany
     {
-        return $this->hasMany(Receival::class);
+        return $this->hasMany(Receival::class, 'grower_id');
+    }
+
+    public function remainingReceivals(): HasMany
+    {
+        return $this->hasMany(RemainingReceival::class, 'grower_id');
     }
 }

@@ -22,13 +22,13 @@ class ReceivalRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id'                => ['required', 'exists:users,id'],
-            'grower'                 => ['nullable', 'array'],
-            'paddocks'               => ['nullable', 'array'],
-            'seed_variety'           => ['nullable', 'array'],
-            'seed_generation'        => ['nullable', 'array'],
-            'seed_class'             => ['nullable', 'array'],
-            'seed_type'              => ['nullable', 'array'],
+            'grower_id'              => ['required', 'exists:users,id'],
+            'grower'                 => ['nullable', 'array', 'max:1'],
+            'paddocks'               => ['nullable', 'array', 'max:1'],
+            'seed_variety'           => ['nullable', 'array', 'max:1'],
+            'seed_generation'        => ['nullable', 'array', 'max:1'],
+            'seed_class'             => ['nullable', 'array', 'max:1'],
+            'seed_type'              => ['nullable', 'array', 'max:1'],
             'oversize_bin_size'      => ['nullable', 'numeric', 'max:2'],
             'seed_bin_size'          => ['nullable', 'numeric', 'max:2'],
             'transport'              => ['nullable', 'array'],
@@ -49,8 +49,8 @@ class ReceivalRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'user_id' => 'grower',
-            'grower'  => 'grower group',
+            'grower_id' => 'grower',
+            'grower'    => 'grower group',
         ];
     }
 }

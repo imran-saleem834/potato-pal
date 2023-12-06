@@ -139,7 +139,7 @@ setActiveTab(user.value.id);
                     <div class="modal-body" v-if="user">
                         <ModalBreadcrumb
                             page="Users"
-                            :title="user?.name || 'Users'"
+                            :title="user?.name || 'New'"
                         />
                         <Details
                             :user="user"

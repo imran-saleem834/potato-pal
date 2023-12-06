@@ -17,14 +17,14 @@ class UnloadingController extends Controller
     {
         $receivals = Receival::query()
             ->with([
-                'user' => function ($query) {
+                'grower' => function ($query) {
                     return $query->select(['id', 'name']);
                 }
             ])
-            ->select(['id', 'user_id'])
+            ->select(['id', 'grower_id'])
             ->get()
             ->map(function ($receival) {
-                return ['value' => $receival->id, 'label' => "ReceivalId:{$receival->id} {$receival->user->name}"];
+                return ['value' => $receival->id, 'label' => "ReceivalId:{$receival->id} {$receival->grower->name}"];
             });
 
         return Inertia::render('Unload/Index', [
@@ -42,9 +42,9 @@ class UnloadingController extends Controller
         $unloads = Unload::query()
             ->with([
                 'receival'      => function ($query) {
-                    return $query->select('id', 'user_id');
+                    return $query->select('id', 'grower_id');
                 },
-                'receival.user' => function ($query) {
+                'receival.grower' => function ($query) {
                     return $query->select('id', 'name');
                 }
             ])
@@ -62,7 +62,7 @@ class UnloadingController extends Controller
 
         $unloadId = $request->input('unloadId', $unloads->first()->id ?? 0);
 
-        $unload = Unload::with(['receival.user', 'receival.categories.category'])->find($unloadId);
+        $unload = Unload::with(['receival.grower', 'receival.categories.category'])->find($unloadId);
 
         return response()->json([
             'unloads' => $unloads,
@@ -87,7 +87,7 @@ class UnloadingController extends Controller
      */
     public function show(string $id)
     {
-        $unload = Unload::with(['receival.user'])->find($id);
+        $unload = Unload::with(['receival.grower'])->find($id);
 
         return response()->json($unload);
     }

@@ -85,6 +85,11 @@ const clearPhotoFileInput = () => {
             <i class="fa fa-close" @click="deletePhoto(image)"></i>
         </li>
     </ul>
+    <li
+        v-if="!images || images.length <= 0"
+        style="text-align: center; list-style: none; margin-bottom: 50px;"
+    >No Records Found
+    </li>
     <vue-easy-lightbox
         :visible="visibleRef"
         :imgs="images?.map(img => `storage/${img}`)"

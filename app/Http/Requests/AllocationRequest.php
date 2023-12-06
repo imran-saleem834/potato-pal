@@ -24,6 +24,8 @@ class AllocationRequest extends FormRequest
         return [
             'buyer_id'                   => ['required', 'numeric', 'exists:users,id'],
             'grower_id'                  => ['nullable', 'numeric', 'exists:users,id'],
+            'unique_key'                 => ['required', 'string'],
+            'allocated_type'             => ['nullable', 'string'],
             'allocated_bins'             => ['nullable', 'numeric'],
             'allocated_tonnes'           => ['nullable', 'numeric'],
             'tonnes_available_receivals' => ['nullable', 'numeric'],

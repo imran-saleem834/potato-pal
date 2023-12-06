@@ -1,18 +1,19 @@
 <script setup>
-import { Link } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import TopBar from '@/Components/TopBar.vue';
 import MiddleBar from '@/Components/MiddleBar.vue';
 import Details from '@/Pages/Receival/Details.vue';
 import LeftBar from "@/Components/LeftBar.vue";
+import ModalHeader from "@/Components/ModalHeader.vue";
+import ModalBreadcrumb from "@/Components/ModalBreadcrumb.vue";
 
 const props = defineProps({
     users: Array,
 });
 
 const receivals = ref([]);
-const receival = ref(null);
+const receival = ref({});
 const activeTab = ref(null);
 const edit = ref(null);
 const isNewRecord = ref(false);
@@ -86,7 +87,7 @@ getCategories();
         <MiddleBar
             v-if="receival"
             type="Receivals"
-            :title="receival.user?.name || 'New'"
+            :title="receival.grower?.name || 'New'"
             :is-edit-record-selected="!!edit"
             :is-new-record-selected="isNewRecord"
             :access="{
@@ -106,13 +107,13 @@ getCategories();
                     <LeftBar
                         :items="receivals"
                         :active-tab="activeTab"
-                        :row-1="{title: 'Grower\'s Name', value: 'user.name'}"
+                        :row-1="{title: 'Grower\'s Name', value: 'grower.name'}"
                         :row-2="{title: 'Receival Id', value: 'id'}"
                         @click="getReceival"
                     />
                 </div>
                 <div class="col-lg-8 col-sm-6">
-                    <div class="tab-content" v-if="receival">
+                    <div class="tab-content" v-if="Object.values(receival).length > 0 || isNewRecord">
                         <div class="tab-pane active">
                             <Details
                                 :receival="receival"
@@ -125,6 +126,9 @@ getCategories();
                             />
                         </div>
                     </div>
+                    <div class="col-sm-12" v-if="Object.values(receival).length <= 0 && !isNewRecord">
+                        <p class="text-center" style="margin-top: calc(50vh - 120px);">No Records Found</p>
+                    </div>
                 </div>
                 <div class="clearfix"></div>
             </div>
@@ -132,71 +136,21 @@ getCategories();
         <!-- tab-section -->
 
         <!-- Modal -->
-        <div class="modal right fade" id="myModal2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel2">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span class="fa fa-arrow-left"></span>
-                        </button>
-                        <h4 class="modal-title" id="myModalLabel2">Users</h4>
-                    </div>
-                    <div class="modal-body">
-                        <ul>
-                            <li><a href="">Unique ID <span class="fa fa-angle-right"></span> </a></li>
-                            <li><a href="">Name <span class="fa fa-angle-right"></span> </a></li>
-                            <li><a href="">Email <span class="fa fa-angle-right"></span> </a></li>
-                            <li><a href="">Username <span class="fa fa-angle-right"></span> </a></li>
-                            <li><a href="">User Access <span class="fa fa-angle-right"></span> </a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- modal -->
-
-        <!-- Modal -->
         <div class="modal right fade user-details" id="user-details" tabindex="-1" role="dialog"
              aria-labelledby="myModalLabel3">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span class="fa fa-arrow-left"></span>
-                        </button>
-                        <h4 class="modal-title" id="myModalLabel3">{{ $page.props.auth.user.name }}</h4>
-                        <div class="modal-menu">
-                            <div v-if="!isNewRecord" class="btn-group">
-                                <button type="button" class="dropdown-toggle" data-toggle="dropdown"
-                                        aria-haspopup="true" aria-expanded="false">
-                                    <span class="fa fa-ellipsis-v"></span>
-                                </button>
-                                <ul class="dropdown-menu">
-                                    <li>
-                                        <a role="button" @click="deleteReceival(receival?.id)">
-                                            <span class="fa fa-trash-o"></span> Delete
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a role="button" @click="setEdit(receival?.id)">
-                                            <span class="fa fa-edit"></span>Edit
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
+                    <ModalHeader
+                        title="Receivals"
+                        :is-new="isNewRecord"
+                        @edit="() => setEdit(receival?.id)"
+                        @delete="() => deleteReceival(receival?.id)"
+                    />
                     <div class="modal-body" v-if="receival">
-                        <ol class="breadcrumb">
-                            <li>
-                                <Link :href="route('dashboard')" data-dismiss="modal" aria-label="Close">Menu</Link>
-                            </li>
-                            <li>
-                                <Link href="" data-dismiss="modal" aria-label="Close">Receivals</Link>
-                            </li>
-                            <li class="active" v-if="isNewRecord">New</li>
-                            <li class="active" v-else-if="receival">{{ receival.user?.name }}</li>
-                        </ol>
+                        <ModalBreadcrumb
+                            page="Receivals"
+                            :title="receival?.grower?.name || 'New'"
+                        />
                         <Details
                             :receival="receival"
                             :is-edit="!!edit"

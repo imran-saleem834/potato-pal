@@ -17,9 +17,10 @@ class Allocation extends Model
     protected $fillable = [
         'buyer_id',
         'grower_id',
+        'unique_key',
+        'allocated_type',
         'allocated_bins',
         'allocated_tonnes',
-        'tonnes_available_receivals',
         'bins_before_cutting',
         'tonnes_before_cutting',
         'cutting_date',

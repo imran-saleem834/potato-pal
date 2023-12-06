@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Receival extends Model
@@ -16,7 +16,8 @@ class Receival extends Model
      * @var array<string>
      */
     protected $fillable = [
-        'user_id',
+        'grower_id',
+        'unique_key',
         'paddocks',
         'oversize_bin_size',
         'seed_bin_size',
@@ -37,9 +38,9 @@ class Receival extends Model
         'images'   => 'array',
     ];
 
-    public function user()
+    public function grower()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'grower_id');
     }
 
     public function unload()

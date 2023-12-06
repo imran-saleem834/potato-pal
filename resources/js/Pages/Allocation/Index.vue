@@ -12,6 +12,8 @@ import ModalBreadcrumb from "@/Components/ModalBreadcrumb.vue";
 const props = defineProps({
     allocations: Object,
     single: Object,
+    growers: Object,
+    buyers: Object,
     filters: Object,
 });
 
@@ -20,7 +22,7 @@ const activeTab = ref(null);
 const edit = ref(null);
 const isNewRecord = ref(false);
 const search = ref(props.filters.search);
-const users = ref([]);
+// const users = ref([]);
 
 watch(search, (value) => {
     router.get(
@@ -75,13 +77,13 @@ const onCreatedRecord = () => {
 
 setActiveTab(allocation?.value?.id);
 
-const getUsers = () => {
-    axios.get(route('allocations.users')).then(response => {
-        users.value = response.data;
-    });
-}
+// const getUsers = () => {
+//     axios.get(route('allocations.users')).then(response => {
+//         users.value = response.data;
+//     });
+// }
 
-getUsers();
+// getUsers();
 </script>
 
 <template>
@@ -126,7 +128,8 @@ getUsers();
                                 :allocation="allocation"
                                 :is-edit="!!edit"
                                 :is-new="isNewRecord"
-                                :users="users"
+                                :growers="growers"
+                                :buyers="buyers"
                                 @update="() => getAllocation(edit)"
                                 @create="onCreatedRecord"
                                 col-size="col-md-6"
@@ -158,7 +161,8 @@ getUsers();
                             :allocation="allocation"
                             :is-edit="!!edit"
                             :is-new="isNewRecord"
-                            :users="users"
+                            :growers="growers"
+                            :buyers="buyers"
                             @update="() => getAllocation(edit)"
                             @create="onCreatedRecord"
                             col-size="col-md-12"
