@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('unloads', function (Blueprint $table) {
             $table->id();
             $table->foreignId('receival_id');
-            $table->integer('total_seed_bins')->default(0);
-            $table->string('weight_seed_bins', 50)->nullable();
-            $table->integer('total_oversize_bins')->default(0);
-            $table->string('weight_oversize_bins', 50)->nullable();
+            $table->float('total_seed_bins')->nullable();
+            $table->float('weight_seed_bins')->nullable();
+            $table->float('total_oversize_bins')->nullable();
+            $table->float('weight_oversize_bins')->nullable();
             $table->string('status', 20)->default('pending');
             $table->timestamps();
         });

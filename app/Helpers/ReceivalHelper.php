@@ -11,7 +11,7 @@ class ReceivalHelper
     public static function getUniqueKey(Receival $receival): string
     {
         $growerGroupId = $seedTypeId = $seedVarietyId = $seedClassId = $seedGenerationId = '';
-        $paddock = $receival->paddocks[0] ?? '';
+        $paddock       = $receival->paddocks[0] ?? '';
         foreach ($receival->categories as $category) {
             if ($category->type === 'grower') {
                 $growerGroupId = $category->category->id;
@@ -60,11 +60,17 @@ class ReceivalHelper
 
     public static function calculateRemainingReceivals(int $growerId)
     {
-        $receivals = Receival::where('grower_id', $growerId)->get();
+        $receivals = Receival::with(['unload'])->where('grower_id', $growerId)->get();
 
-        RemainingReceival::where('grower_id', $growerId)->update(['oversize_bin_size' => 0, 'seed_bin_size' => 0]);
+        RemainingReceival::where('grower_id', $growerId)->update([
+            'weight_oversize_bins' => 0,
+            'weight_seed_bins'     => 0
+        ]);
 
         foreach ($receivals as $receival) {
+            if (!$receival->unload) {
+                continue;
+            }
 
             $remainingReceival = RemainingReceival::firstOrCreate([
                 'grower_id'  => $receival->grower_id,
@@ -74,19 +80,26 @@ class ReceivalHelper
             $receivalIds   = $remainingReceival->receival_id ?? [];
             $receivalIds[] = $receival->id;
 
-            $remainingReceival->receival_id       = array_values(array_unique($receivalIds));
-            $remainingReceival->oversize_bin_size += $receival->oversize_bin_size;
-            $remainingReceival->seed_bin_size     += $receival->seed_bin_size;
+            $remainingReceival->receival_id          = array_values(array_unique($receivalIds));
+            $remainingReceival->weight_oversize_bins += $receival->unload->weight_oversize_bins;
+            $remainingReceival->weight_seed_bins     += $receival->unload->weight_seed_bins;
 
             $remainingReceival->save();
         }
 
         foreach ($receivals->keyBy('unique_key') as $receival) {
+            if (!$receival->unload) {
+                continue;
+            }
 
-            $remainingReceival = RemainingReceival::firstOrCreate([
-                'grower_id'  => $receival->grower_id,
-                'unique_key' => $receival->unique_key,
-            ]);
+            $remainingReceival = RemainingReceival::query()
+                ->where('grower_id', $receival->grower_id)
+                ->where('unique_key', $receival->unique_key)
+                ->first();
+
+            if (!$remainingReceival) {
+                continue;
+            }
 
             $allocations = Allocation::query()
                 ->where('grower_id', $receival->grower_id)
@@ -95,9 +108,9 @@ class ReceivalHelper
 
             foreach ($allocations as $allocation) {
                 if ($allocation->allocated_type === 'seed') {
-                    $remainingReceival->seed_bin_size -= $allocation->allocated_tonnes;
+                    $remainingReceival->weight_seed_bins -= $allocation->allocated_tonnes;
                 } else if ($allocation->allocated_type === 'oversize') {
-                    $remainingReceival->oversize_bin_size -= $allocation->allocated_tonnes;
+                    $remainingReceival->weight_oversize_bins -= $allocation->allocated_tonnes;
                 }
             }
 

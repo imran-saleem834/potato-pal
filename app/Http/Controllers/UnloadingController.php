@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Database\Eloquent\Builder;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Models\{Unload, Receival};
 use App\Helpers\NotificationHelper;
 use App\Http\Requests\UnloadRequest;
+use Illuminate\Database\Eloquent\Builder;
 
 class UnloadingController extends Controller
 {
@@ -40,7 +40,7 @@ class UnloadingController extends Controller
 
         $unloadId = $request->input('unloadId', $unloads->first()->id ?? 0);
 
-        $unload = Unload::with(['receival.grower', 'receival.categories.category'])->find($unloadId);
+        $unload = Unload::with(['receival.grower', 'receival.tiaSample', 'receival.categories.category'])->find($unloadId);
 
         $receivals = Receival::query()
             ->with([
@@ -79,7 +79,7 @@ class UnloadingController extends Controller
      */
     public function show(string $id)
     {
-        $unload = Unload::with(['receival.grower'])->find($id);
+        $unload = Unload::with(['receival.grower', 'receival.tiaSample', 'receival.categories.category'])->find($id);
 
         return response()->json($unload);
     }

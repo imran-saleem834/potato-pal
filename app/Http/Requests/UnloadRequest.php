@@ -25,9 +25,9 @@ class UnloadRequest extends FormRequest
         $rules = [
             'receival_id'          => ['required', 'exists:receivals,id', 'unique:unloads,receival_id'],
             'total_seed_bins'      => ['nullable', 'numeric'],
-            'weight_seed_bins'     => ['nullable', 'string', 'max:50'],
+            'weight_seed_bins'     => ['nullable', 'numeric'],
             'total_oversize_bins'  => ['nullable', 'numeric'],
-            'weight_oversize_bins' => ['nullable', 'string', 'max:50'],
+            'weight_oversize_bins' => ['nullable', 'numeric'],
             'status'               => ['required', 'string', 'max:20'],
         ];
 

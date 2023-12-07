@@ -263,9 +263,9 @@ const storeRecord = () => {
             :options="receivals"
           />
           <div :class="{'has-error' : form.errors.receival_id}">
-                        <span v-show="form.errors.receival_id" class="help-block text-left">
-                            {{ form.errors.receival_id }}
-                        </span>
+            <span v-show="form.errors.receival_id" class="help-block text-left">
+              {{ form.errors.receival_id }}
+            </span>
           </div>
         </template>
         <template v-else>

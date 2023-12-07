@@ -90,6 +90,10 @@ class AllocationController extends Controller
                 return $remainingReceival;
             });
 
+            $user->remainingReceivals = $user->remainingReceivals->sortBy(function ($remainingReceival) {
+                return max($remainingReceival->receival_id);
+            })->values();
+
             return [
                 'value'     => $user->id,
                 'label'     => $user->grower_name ? "$user->name ($user->grower_name)" : $user->name,

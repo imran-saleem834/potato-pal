@@ -191,18 +191,15 @@ const storeRecord = () => {
             <thead>
             <tr>
               <th>Selected receival</th>
-              <th>Seed Bin Size</th>
-              <th>Oversize Bin Size</th>
+              <th>Seed Weight</th>
+              <th>Oversize Weight</th>
             </tr>
             </thead>
             <tbody>
             <tr>
-              <td>{{
-                  `${selectReceival.seed_type}, ${selectReceival.seed_variety}, ${selectReceival.seed_class}, ${selectReceival.seed_generation}, ${selectReceival.grower_group}, ${selectReceival.paddock}`
-                }}
-              </td>
-              <td>{{ selectReceival.seed_bin_size }} Tonnes</td>
-              <td>{{ selectReceival.oversize_bin_size }} Tonnes</td>
+              <td>{{ `${selectReceival.grower_group}, ${selectReceival.paddock}` }}</td>
+              <td>{{ selectReceival.weight_seed_bins }} Tonnes</td>
+              <td>{{ selectReceival.weight_oversize_bins }} Tonnes</td>
             </tr>
             </tbody>
           </table>
@@ -298,7 +295,7 @@ const storeRecord = () => {
   </div>
 
   <div class="modal fade" id="receivals" tabindex="-1" role="dialog" aria-labelledby="myModalLabel4">
-    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog modal-lg" role="document" style="width: 90%;">
       <div class="modal-content">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -312,28 +309,33 @@ const storeRecord = () => {
               <DataTable class="table">
                 <thead>
                 <tr>
-                  <th>Seed Type, Variety, Class, Generation</th>
-                  <th>Grower, Paddock</th>
-                  <th>Seed Bin Size</th>
-                  <th>Oversize Bin Size</th>
+                  <th>Seed Type</th>
+                  <th>Seed Variety</th>
+                  <th>Seed Class</th>
+                  <th>Seed Generation</th>
+                  <th>Grower</th>
+                  <th>Paddock</th>
+                  <th>Seed Weight</th>
+                  <th>Oversize Weight</th>
                 </tr>
                 </thead>
                 <tbody>
                 <template v-for="receival in grower?.receivals" :key="receival.id">
                   <tr
-                    v-if="receival.seed_bin_size > 0 || receival.oversize_bin_size > 0"
+                    v-if="receival.weight_seed_bins > 0 || receival.weight_oversize_bins > 0"
                     @click="() => onSelectReceival(receival)"
                     style="cursor: pointer"
                     data-dismiss="modal"
                     aria-label="Close"
                   >
-                    <td>{{
-                        `${receival.seed_type}, ${receival.seed_variety}, ${receival.seed_class}, ${receival.seed_generation}`
-                      }}
-                    </td>
-                    <td>{{ `${receival.grower_group}, ${receival.paddock}` }}</td>
-                    <td>{{ receival.seed_bin_size }} Tonnes</td>
-                    <td>{{ receival.oversize_bin_size }} Tonnes</td>
+                    <td>{{ receival.seed_type }}</td>
+                    <td>{{ receival.seed_variety }}</td>
+                    <td>{{ receival.seed_class }}</td>
+                    <td>{{ receival.seed_generation }}</td>
+                    <td>{{ receival.grower_group }}</td>
+                    <td>{{ receival.paddock }}</td>
+                    <td>{{ receival.weight_seed_bins }} Tonnes</td>
+                    <td>{{ receival.weight_oversize_bins }} Tonnes</td>
                   </tr>
                 </template>
                 </tbody>

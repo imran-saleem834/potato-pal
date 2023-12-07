@@ -116,12 +116,16 @@ const storeRecord = () => {
       <div class="user-boxes">
         <h6>TIA Sampled</h6>
         <ul>
-          <li><a role="button" class="btn-pending">Pending</a></li>
+          <li>
+            <a role="button" :class="{'btn-pending' : (unload.receival?.tia_sample?.status || 'pending') === 'pending'}">
+              {{ toCamelCase(unload.receival?.tia_sample?.status || 'pending') }}
+            </a>
+          </li>
         </ul>
 
         <h6>Fungicide</h6>
-        <ul v-if="getCategoriesByType(unload?.receival?.categories, 'fungicide').length">
-          <li v-for="category in getCategoriesByType(unload?.receival?.categories, 'fungicide')"
+        <ul v-if="getCategoriesByType(unload.receival?.categories, 'fungicide').length">
+          <li v-for="category in getCategoriesByType(unload.receival?.categories, 'fungicide')"
               :key="category.id">
             <a>{{ category.category?.name }}</a>
           </li>

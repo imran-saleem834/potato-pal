@@ -576,7 +576,7 @@
    }
    .tab-section  .user-boxes ul li{
      margin-right: 10px;
-     display: inline;
+     display: inline-flex;
    }
    .tab-section  .user-boxes ul li a{
      background: #F2F2F2;
@@ -589,6 +589,7 @@
    }
    .tab-section .notes-list ul li{
      margin-right: 10px;
+       margin-top: 20px;
      display: inline-block;
      position: relative;
        padding: 0;
