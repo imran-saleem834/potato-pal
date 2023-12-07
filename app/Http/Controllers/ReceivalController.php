@@ -9,27 +9,17 @@ use App\Helpers\CategoriesHelper;
 use App\Helpers\NotificationHelper;
 use App\Http\Requests\ReceivalRequest;
 use Illuminate\Support\Facades\Storage;
-use App\Models\{User, Unload, Receival, TiaSample};
+use Illuminate\Database\Eloquent\Builder;
+use App\Models\{Category, User, Unload, Receival, TiaSample};
 
 class ReceivalController extends Controller
 {
     /**
      * Display a listing of the resource.
-     */
-    public function index()
-    {
-        return Inertia::render('Receival/Index', [
-            'users' => User::select(['id', 'name', 'paddocks'])->get()->toArray()
-        ]);
-    }
-
-    /**
      * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
      */
-    public function list(Request $request)
+    public function index(Request $request)
     {
-        $keyword   = $request->input('keyword', '');
         $receivals = Receival::query()
             ->with([
                 'grower' => function ($query) {
@@ -37,13 +27,13 @@ class ReceivalController extends Controller
                 }
             ])
             ->select('id', 'grower_id')
-            ->when($keyword, function ($query, $keyword) {
-                return $query->where('id', 'LIKE', "%$keyword%")
-                    ->orWhere('paddocks', 'LIKE', "%$keyword%")
-                    ->orWhere('grower_docket_no', 'LIKE', "%$keyword%")
-                    ->orWhere('chc_receival_docket_no', 'LIKE', "%$keyword%")
-                    ->orWhere('driver_name', 'LIKE', "%$keyword%")
-                    ->orWhere('comments', 'LIKE', "%$keyword%");
+            ->when($request->input('search'), function (Builder $query, $search) {
+                return $query->where('id', 'LIKE', "%$search%")
+                    ->orWhere('paddocks', 'LIKE', "%$search%")
+                    ->orWhere('grower_docket_no', 'LIKE', "%$search%")
+                    ->orWhere('chc_receival_docket_no', 'LIKE', "%$search%")
+                    ->orWhere('driver_name', 'LIKE', "%$search%")
+                    ->orWhere('comments', 'LIKE', "%$search%");
             })
             ->latest()
             ->get();
@@ -53,19 +43,34 @@ class ReceivalController extends Controller
         $receival = Receival::with([
             'categories.category',
             'unload'    => function ($query) {
-                return $query->select('id', 'receival_id');
+                return $query->select('id', 'receival_id', 'status');
             },
             'tiaSample' => function ($query) {
-                return $query->select('id', 'receival_id');
+                return $query->select('id', 'receival_id', 'status');
             },
             'grower'    => function ($query) {
                 return $query->select('id', 'name');
             },
         ])->find($receivalId);
 
-        return response()->json([
-            'receivals' => $receivals,
-            'receival'  => $receival,
+        $types      = [
+            'grower',
+            'seed-type',
+            'seed-variety',
+            'seed-generation',
+            'seed-class',
+            'delivery-type',
+            'fungicide',
+            'transport'
+        ];
+        $categories = Category::whereIn('type', $types)->get();
+
+        return Inertia::render('Receival/Index', [
+            'receivals'  => $receivals,
+            'single'     => $receival,
+            'users'      => User::select(['id', 'name', 'paddocks'])->get()->toArray(),
+            'categories' => $categories,
+            'filters'    => $request->only(['search']),
         ]);
     }
 
@@ -97,7 +102,7 @@ class ReceivalController extends Controller
 
         NotificationHelper::addedAction('Receival', $receival->id);
 
-        return back();
+        return to_route('receivals.index');
     }
 
     /**
@@ -108,10 +113,10 @@ class ReceivalController extends Controller
         $receival = Receival::with([
             'categories.category',
             'unload'    => function ($query) {
-                return $query->select('id', 'receival_id');
+                return $query->select('id', 'receival_id', 'status');
             },
             'tiaSample' => function ($query) {
-                return $query->select('id', 'receival_id');
+                return $query->select('id', 'receival_id', 'status');
             },
             'grower'    => function ($query) {
                 return $query->select('id', 'name');
@@ -151,7 +156,7 @@ class ReceivalController extends Controller
 
         NotificationHelper::updatedAction('Receival', $id);
 
-        return back();
+        return to_route('receivals.index');
     }
 
     /**
@@ -163,6 +168,8 @@ class ReceivalController extends Controller
         Receival::destroy($id);
 
         NotificationHelper::deleteAction('Receival', $id);
+
+        return to_route('receivals.index');
     }
 
     /**
@@ -171,6 +178,8 @@ class ReceivalController extends Controller
     public function pushForUnload(string $id)
     {
         Unload::firstOrCreate(['receival_id' => $id]);
+
+        return to_route('receivals.index');
     }
 
     /**
@@ -179,6 +188,8 @@ class ReceivalController extends Controller
     public function pushForTiaSample(string $id)
     {
         TiaSample::firstOrCreate(['receival_id' => $id]);
+
+        return to_route('receivals.index');
     }
 
     /**

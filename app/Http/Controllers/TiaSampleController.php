@@ -8,14 +8,42 @@ use App\Helpers\NotificationHelper;
 use App\Models\{Receival, TiaSample};
 use App\Http\Requests\TiaSampleRequest;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Database\Eloquent\Builder;
 
 class TiaSampleController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
+        $tiaSamples = TiaSample::query()
+            ->with([
+                'receival'        => function ($query) {
+                    return $query->select('id', 'grower_id');
+                },
+                'receival.grower' => function ($query) {
+                    return $query->select('id', 'name');
+                }
+            ])
+            ->select('id', 'receival_id')
+            ->when($request->input('search'), function (Builder $query, $search) {
+                return $query->where('id', 'LIKE', "%$search%")
+                    ->orWhere('receival_id', 'LIKE', "%$search%")
+                    ->orWhere('processor', 'LIKE', "%$search%")
+                    ->orWhere('inspection_no', 'LIKE', "%$search%")
+                    ->orWhere('inspection_date', 'LIKE', "%$search%")
+                    ->orWhere('cool_store', 'LIKE', "%$search%")
+                    ->orWhere('size', 'LIKE', "%$search%")
+                    ->orWhere('status', 'LIKE', "%$search%");
+            })
+            ->latest()
+            ->get();
+
+        $tiaSampleId = $request->input('tiaSampleId', $tiaSamples->first()->id ?? 0);
+
+        $tiaSample = TiaSample::with(['receival.grower', 'receival.categories.category'])->find($tiaSampleId);
+
         $receivals = Receival::query()
             ->with([
                 'grower' => function ($query) {
@@ -29,47 +57,10 @@ class TiaSampleController extends Controller
             });
 
         return Inertia::render('TiaSample/Index', [
-            'receivals' => $receivals
-        ]);
-    }
-
-    /**
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function list(Request $request)
-    {
-        $keyword    = $request->input('keyword', '');
-        $tiaSamples = TiaSample::query()
-            ->with([
-                'receival'      => function ($query) {
-                    return $query->select('id', 'grower_id');
-                },
-                'receival.grower' => function ($query) {
-                    return $query->select('id', 'name');
-                }
-            ])
-            ->select('id', 'receival_id')
-            ->when($keyword, function ($query, $keyword) {
-                return $query->where('id', 'LIKE', "%$keyword%")
-                    ->orWhere('receival_id', 'LIKE', "%$keyword%")
-                    ->orWhere('processor', 'LIKE', "%$keyword%")
-                    ->orWhere('inspection_no', 'LIKE', "%$keyword%")
-                    ->orWhere('inspection_date', 'LIKE', "%$keyword%")
-                    ->orWhere('cool_store', 'LIKE', "%$keyword%")
-                    ->orWhere('size', 'LIKE', "%$keyword%")
-                    ->orWhere('status', 'LIKE', "%$keyword%");
-            })
-            ->latest()
-            ->get();
-
-        $tiaSampleId = $request->input('tiaSampleId', $tiaSamples->first()->id ?? 0);
-
-        $tiaSample = TiaSample::with(['receival.grower', 'receival.categories.category'])->find($tiaSampleId);
-
-        return response()->json([
             'tiaSamples' => $tiaSamples,
-            'tiaSample'  => $tiaSample,
+            'single'     => $tiaSample,
+            'receivals'  => $receivals,
+            'filters'    => $request->only(['search']),
         ]);
     }
 
@@ -82,7 +73,7 @@ class TiaSampleController extends Controller
 
         NotificationHelper::addedAction('Tia Sample', $tiaSample->id);
 
-        return back();
+        return to_route('tia-samples.index');
     }
 
     /**
@@ -106,7 +97,7 @@ class TiaSampleController extends Controller
 
         NotificationHelper::updatedAction('Tia Sample', $id);
 
-        return back();
+        return to_route('tia-samples.index');
     }
 
     /**
@@ -117,6 +108,8 @@ class TiaSampleController extends Controller
         TiaSample::destroy($id);
 
         NotificationHelper::deleteAction('Tia Sample', $id);
+
+        return to_route('tia-samples.index');
     }
 
     /**

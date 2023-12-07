@@ -48,14 +48,6 @@ class CategoryController extends Controller
     }
 
     /**
-     * Display a listing of the resource.
-     */
-    public function list(Request $request)
-    {
-        return response()->json(Category::whereIn('type', $request->input('type'))->get());
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
     public function store(CategoryRequest $request)

@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Laravel\Fortify\Rules\Password;
 
 class FileRequest extends FormRequest
 {
@@ -21,9 +22,15 @@ class FileRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        $rules = [
             'title' => ['required', 'string', 'max:191'],
             'image' => ['nullable', 'mimes:jpeg,png,jpg,gif,svg,pdf', 'max:2048'],
         ];
+
+        if ($this->isMethod('POST')) {
+            $rules['image'] = ['required', 'mimes:jpeg,png,jpg,gif,svg,pdf', 'max:2048'];
+        }
+
+        return $rules;
     }
 }

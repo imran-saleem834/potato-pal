@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Database\Eloquent\Builder;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Models\{Unload, Receival};
@@ -13,8 +14,34 @@ class UnloadingController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
+        $unloads = Unload::query()
+            ->with([
+                'receival'        => function ($query) {
+                    return $query->select('id', 'grower_id');
+                },
+                'receival.grower' => function ($query) {
+                    return $query->select('id', 'name');
+                }
+            ])
+            ->select('id', 'receival_id')
+            ->when($request->input('search'), function (Builder $query, $search) {
+                return $query->where('id', 'LIKE', "%$search%")
+                    ->orWhere('receival_id', 'LIKE', "%$search%")
+                    ->orWhere('status', 'LIKE', "%$search%")
+                    ->orWhere('total_seed_bins', 'LIKE', "%$search%")
+                    ->orWhere('weight_seed_bins', 'LIKE', "%$search%")
+                    ->orWhere('total_oversize_bins', 'LIKE', "%$search%")
+                    ->orWhere('weight_oversize_bins', 'LIKE', "%$search%");
+            })
+            ->latest()
+            ->get();
+
+        $unloadId = $request->input('unloadId', $unloads->first()->id ?? 0);
+
+        $unload = Unload::with(['receival.grower', 'receival.categories.category'])->find($unloadId);
+
         $receivals = Receival::query()
             ->with([
                 'grower' => function ($query) {
@@ -28,45 +55,10 @@ class UnloadingController extends Controller
             });
 
         return Inertia::render('Unload/Index', [
-            'receivals' => $receivals
-        ]);
-    }
-
-    /**
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function list(Request $request)
-    {
-        $keyword = $request->input('keyword', '');
-        $unloads = Unload::query()
-            ->with([
-                'receival'      => function ($query) {
-                    return $query->select('id', 'grower_id');
-                },
-                'receival.grower' => function ($query) {
-                    return $query->select('id', 'name');
-                }
-            ])
-            ->select('id', 'receival_id')
-            ->when($keyword, function ($query, $keyword) {
-                return $query->where('id', 'LIKE', "%$keyword%")
-                    ->orWhere('receival_id', 'LIKE', "%$keyword%")
-                    ->orWhere('total_seed_bins', 'LIKE', "%$keyword%")
-                    ->orWhere('weight_seed_bins', 'LIKE', "%$keyword%")
-                    ->orWhere('total_oversize_bins', 'LIKE', "%$keyword%")
-                    ->orWhere('weight_oversize_bins', 'LIKE', "%$keyword%");
-            })
-            ->latest()
-            ->get();
-
-        $unloadId = $request->input('unloadId', $unloads->first()->id ?? 0);
-
-        $unload = Unload::with(['receival.grower', 'receival.categories.category'])->find($unloadId);
-
-        return response()->json([
-            'unloads' => $unloads,
-            'unload'  => $unload,
+            'unloads'   => $unloads,
+            'single'    => $unload,
+            'receivals' => $receivals,
+            'filters'   => $request->only(['search']),
         ]);
     }
 
@@ -79,7 +71,7 @@ class UnloadingController extends Controller
 
         NotificationHelper::addedAction('Unload', $unload->id);
 
-        return back();
+        return to_route('unloading.index');
     }
 
     /**
@@ -103,7 +95,7 @@ class UnloadingController extends Controller
 
         NotificationHelper::updatedAction('Unload', $id);
 
-        return back();
+        return to_route('unloading.index');
     }
 
     /**
@@ -114,5 +106,7 @@ class UnloadingController extends Controller
         Unload::destroy($id);
 
         NotificationHelper::deleteAction('Unload', $id);
+
+        return to_route('unloading.index');
     }
 }

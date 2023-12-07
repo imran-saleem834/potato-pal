@@ -10,6 +10,7 @@ class ReceivalHelper
 {
     public static function getUniqueKey(Receival $receival): string
     {
+        $growerGroupId = $seedTypeId = $seedVarietyId = $seedClassId = $seedGenerationId = '';
         $paddock = $receival->paddocks[0] ?? '';
         foreach ($receival->categories as $category) {
             if ($category->type === 'grower') {
@@ -35,7 +36,7 @@ class ReceivalHelper
     public static function getCategoryNames(Receival $receival): array
     {
         $growerGroup = $seedType = $seedVariety = $seedClass = $seedGeneration = '';
-        $paddock     = $receival->paddocks[0];
+        $paddock     = $receival->paddocks[0] ?? '';
         foreach ($receival->categories as $category) {
             if ($category->type === 'grower') {
                 $growerGroup = $category->category->name;

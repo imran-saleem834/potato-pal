@@ -28,23 +28,4 @@ class NotificationController extends Controller
             'filters'       => $request->only(['search']),
         ]);
     }
-
-    /**
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function list(Request $request)
-    {
-        $keyword       = $request->input('keyword', '');
-        $notifications = Notification::query()
-            ->when($keyword, function ($query, $keyword) {
-                return $query->where('id', 'LIKE', "%$keyword%")
-                    ->orWhere('action', 'LIKE', "%$keyword%")
-                    ->orWhere('notification', 'LIKE', "%$keyword%");
-            })
-            ->latest()
-            ->get();
-
-        return response()->json($notifications);
-    }
 }

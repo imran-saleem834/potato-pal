@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Category;
 use Inertia\Inertia;
 use App\Models\User;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Helpers\CategoriesHelper;
 use App\Http\Requests\UserRequest;
@@ -14,7 +14,6 @@ use Illuminate\Database\Eloquent\Builder;
 class UserController extends Controller
 {
     /**
-     * @param Request $request
      * Display a listing of the resource.
      */
     public function index(Request $request)
