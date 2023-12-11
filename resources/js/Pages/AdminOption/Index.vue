@@ -54,7 +54,7 @@ setActiveTab(props.filters.type);
 </script>
 
 <template>
-  <AppLayout title="Admin Options">
+  <AppLayout :title="`Admin ${title} Options`">
     <TopBar
       v-if="activeTab"
       :type="title"

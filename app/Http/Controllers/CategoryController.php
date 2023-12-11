@@ -25,6 +25,7 @@ class CategoryController extends Controller
         ['slug' => 'grower', 'label' => 'Grower Group Type'],
         ['slug' => 'seed-type', 'label' => 'Seed Type'],
         ['slug' => 'seed-variety', 'label' => 'Seed Variety'],
+        ['slug' => 'cool-store', 'label' => 'Cool Store'],
         ['slug' => 'transport', 'label' => 'Transport Co.'],
     ];
 

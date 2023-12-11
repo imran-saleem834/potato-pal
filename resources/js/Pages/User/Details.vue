@@ -14,7 +14,6 @@ const UserAccess = [
   { value: 'buyer', label: 'Buyer' },
   { value: 'transport-companies', label: 'Transport Companies' },
   { value: 'tia-sampling', label: 'TIA Sampling' },
-  { value: 'cool-store-access', label: 'CoolStore Access' },
 ];
 
 const props = defineProps({
@@ -33,6 +32,7 @@ const form = useForm({
   username: props.user.username,
   phone: props.user.phone,
   role: props.user.role,
+  cool_store: getCategoryIdsByType(props.user.categories, 'cool-store'),
   grower: getCategoryIdsByType(props.user.categories, 'grower'),
   grower_name: props.user.grower_name,
   grower_tags: props.user.grower_tags,
@@ -53,6 +53,7 @@ watch(() => props.user,
     form.role = user.role
     form.password = ''
     form.password_confirmation = ''
+    form.cool_store = getCategoryIdsByType(user.categories, 'cool-store')
     form.grower = getCategoryIdsByType(user.categories, 'grower')
     form.grower_name = user.grower_name
     form.grower_tags = user.grower_tags
@@ -143,6 +144,25 @@ const storeRecord = () => {
         <ul v-else-if="user.role">
           <li v-for="role in user.role" :key="role">
             <a>{{ UserAccess.find(access => access.value === role)?.label }}</a>
+          </li>
+        </ul>
+        <h5 v-else>-</h5>
+
+        <h6>Cool Store</h6>
+        <Multiselect
+          v-if="isForm"
+          v-model="form.cool_store"
+          mode="tags"
+          placeholder="Choose a cool store"
+          :searchable="true"
+          :create-option="true"
+          :options="getCategoriesDropDownByType(categories, 'cool-store')"
+        />
+        <ul v-else-if="getCategoryIdsByType(user.categories, 'cool-store').length">
+          <li v-for="group in getCategoryIdsByType(user.categories, 'cool-store')" :key="group">
+            <a>{{
+                getCategoriesDropDownByType(categories, 'cool-store').find(g => parseInt(g.value) === parseInt(group))?.label || group
+              }}</a>
           </li>
         </ul>
         <h5 v-else>-</h5>

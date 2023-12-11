@@ -29,6 +29,7 @@ class UserRequest extends FormRequest
             'username'            => ['required', 'string', 'max:50', 'unique:users'],
             'phone'               => ['required', 'string', 'max:20'],
             'role'                => ['nullable', 'array'],
+            'cool_store'          => ['nullable', 'array'],
             'grower'              => ['nullable', 'array'],
             'grower_name'         => ['nullable', 'string', 'max:50'],
             'grower_tags'         => ['nullable', 'array'],

@@ -38,7 +38,7 @@ class UserController extends Controller
 
         $user = User::with(['categories'])->find($userId);
 
-        $categories = Category::whereIn('type', ['buyer', 'grower'])->get();
+        $categories = Category::whereIn('type', ['buyer', 'grower', 'cool-store'])->get();
 
         return Inertia::render('User/Index', [
             'users'      => $users,
@@ -57,7 +57,8 @@ class UserController extends Controller
 
         $user = User::create($inputs);
 
-        CategoriesHelper::createRelationOfTypes($request->only(['buyer', 'grower']), $user->id, User::class);
+        $categories = $request->only(['buyer', 'grower', 'cool_store']);
+        CategoriesHelper::createRelationOfTypes($categories, $user->id, User::class);
 
         NotificationHelper::addedAction('User', $user->id);
 
@@ -85,7 +86,8 @@ class UserController extends Controller
         $user->update($inputs);
         $user->save();
 
-        CategoriesHelper::createRelationOfTypes($request->only(['buyer', 'grower']), $user->id, User::class);
+        $categories = $request->only(['buyer', 'grower', 'cool_store']);
+        CategoriesHelper::createRelationOfTypes($categories, $user->id, User::class);
 
         NotificationHelper::updatedAction('User', $id);
 

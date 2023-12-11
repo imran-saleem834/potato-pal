@@ -100,7 +100,7 @@ setActiveTab(tiaSample.value?.id);
     />
 
     <!-- tab-section -->
-    <div class="tab-section">
+    <div class="tab-section tia-sample-tab-section">
       <div class="row row0">
         <div class="col-lg-3 col-sm-6" :class="{'mobile-userlist' : $windowWidth <= 767}">
           <LeftBar
@@ -111,7 +111,7 @@ setActiveTab(tiaSample.value?.id);
             @click="getTiaSample"
           />
         </div>
-        <div class="col-lg-8 col-sm-6">
+        <div class="col-lg-9 col-sm-6">
           <div class="tab-content" v-if="Object.values(tiaSample).length > 0 || isNewRecord">
             <div class="tab-pane active">
               <Details
