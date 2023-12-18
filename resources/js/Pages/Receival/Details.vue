@@ -13,6 +13,7 @@ import {
   getCategoryIdsByType,
   getCategoriesByType
 } from "@/helper.js";
+import { binSizes, getBinSizesValue } from "@/tonnes.js";
 
 const paddockOptions = ref([]);
 
@@ -32,8 +33,7 @@ const form = useForm({
   grower: getCategoryIdsByType(props.receival.categories, 'grower'),
   paddocks: props.receival.paddocks,
   seed_type: getCategoryIdsByType(props.receival.categories, 'seed-type'),
-  oversize_bin_size: props.receival.oversize_bin_size,
-  seed_bin_size: props.receival.seed_bin_size,
+  bin_size: props.receival.bin_size,
   seed_variety: getCategoryIdsByType(props.receival.categories, 'seed-variety'),
   seed_generation: getCategoryIdsByType(props.receival.categories, 'seed-generation'),
   seed_class: getCategoryIdsByType(props.receival.categories, 'seed-class'),
@@ -53,8 +53,7 @@ watch(() => props.receival,
     form.grower = getCategoryIdsByType(receival.categories, 'grower')
     form.paddocks = receival.paddocks
     form.seed_type = getCategoryIdsByType(receival.categories, 'seed-type')
-    form.oversize_bin_size = receival.oversize_bin_size
-    form.seed_bin_size = receival.seed_bin_size
+    form.bin_size = receival.bin_size
     form.seed_variety = getCategoryIdsByType(receival.categories, 'seed-variety')
     form.seed_generation = getCategoryIdsByType(receival.categories, 'seed-generation')
     form.seed_class = getCategoryIdsByType(receival.categories, 'seed-class')
@@ -91,6 +90,32 @@ const updatePaddock = (growerId) => {
 updatePaddock(props.receival.grower_id);
 
 const isForm = computed(() => props.isEdit || props.isNew)
+const isRequireFieldsEmpty = computed(() => {
+  const growerGroup = getCategoryIdsByType(props.receival.categories, 'grower');
+  if (growerGroup.length <= 0) {
+    return true;
+  }
+  if (props.receival.paddocks.length <= 0) {
+    return true;
+  }
+  const seedType = getCategoryIdsByType(props.receival.categories, 'seed-type');
+  if (seedType.length <= 0) {
+    return true;
+  }
+  const seedVariety = getCategoryIdsByType(props.receival.categories, 'seed-variety');
+  if (seedVariety.length <= 0) {
+    return true;
+  }
+  const seedClass = getCategoryIdsByType(props.receival.categories, 'seed-class');
+  if (seedClass.length <= 0) {
+    return true;
+  }
+  const seedGeneration = getCategoryIdsByType(props.receival.categories, 'seed-generation');
+  if (seedGeneration.length <= 0) {
+    return true;
+  }
+  return !props.receival.bin_size;
+});
 
 const updateRecord = () => {
   form.patch(route('receivals.update', props.receival.id), {
@@ -131,6 +156,11 @@ const pushForUnload = () => {
 
 <template>
   <div class="row">
+    <div v-if="isRequireFieldsEmpty" class="col-md-12">
+      <div class="alert alert-warning" role="alert">
+        Require these fields (Grower Group, Paddocks, Seed Type, Seed Variety, Seed Class, Seed Generation, Bin Size) to list in the allocations
+      </div>
+    </div>
     <div v-if="isEdit || isNew" class="col-md-12">
       <div class="flex-end create-update-btn">
         <a v-if="isEdit" role="button" @click="updateRecord" class="btn btn-red">Update</a>
@@ -156,6 +186,9 @@ const pushForUnload = () => {
         <h5 v-else>-</h5>
 
         <h6>Grower Group</h6>
+        <div v-if="form.errors.grower" class="has-error">
+          <span class="help-block text-left">{{ form.errors.grower }}</span>
+        </div>
         <Multiselect
           v-if="isForm"
           v-model="form.grower"
@@ -176,6 +209,9 @@ const pushForUnload = () => {
         <h5 v-if="!isForm">{{ moment(receival.created_at).format('DD/MM/YYYY hh:mm A') }}</h5>
 
         <h6>Paddock</h6>
+        <div v-if="form.errors.paddocks" class="has-error">
+          <span class="help-block text-left">{{ form.errors.paddocks }}</span>
+        </div>
         <Multiselect
           v-if="isForm"
           v-model="form.paddocks"
@@ -196,6 +232,9 @@ const pushForUnload = () => {
       <h4>Seed Information</h4>
       <div class="user-boxes">
         <h6>Seed Variety</h6>
+        <div v-if="form.errors.seed_variety" class="has-error">
+          <span class="help-block text-left">{{ form.errors.seed_variety }}</span>
+        </div>
         <Multiselect
           v-if="isForm"
           v-model="form.seed_variety"
@@ -213,6 +252,9 @@ const pushForUnload = () => {
         <h5 v-else>-</h5>
 
         <h6>Seed Generation</h6>
+        <div v-if="form.errors.seed_generation" class="has-error">
+          <span class="help-block text-left">{{ form.errors.seed_generation }}</span>
+        </div>
         <Multiselect
           v-if="isForm"
           v-model="form.seed_generation"
@@ -231,6 +273,9 @@ const pushForUnload = () => {
         <h5 v-else>-</h5>
 
         <h6>Seed Class</h6>
+        <div v-if="form.errors.seed_class" class="has-error">
+          <span class="help-block text-left">{{ form.errors.seed_class }}</span>
+        </div>
         <Multiselect
           v-if="isForm"
           v-model="form.seed_class"
@@ -288,24 +333,27 @@ const pushForUnload = () => {
           <ul>
             <li>
               <a
-                v-if="receival.unload"
+                v-if="receival.status"
                 role="button"
-                :class="{'btn-pending' : receival.unload?.status === 'pending'}"
-              >{{ toCamelCase(receival.unload.status) }}</a>
+                :class="{'btn-pending' : receival.status === 'pending'}"
+              >{{ toCamelCase(receival.status) }}</a>
               <a v-else role="button" class="black-btn" @click="pushForUnload">Push for Unload</a>
             </li>
           </ul>
 
           <h6>Unloading ID</h6>
-          <h5 v-if="receival.unload">
-            <Link :href="route('unloading.index', { unloadId: receival.unload.id })">
-              {{ receival.unload.id }}
+          <h5 v-if="receival.status">
+            <Link :href="route('unloading.index', { unloadId: receival.id })">
+              {{ receival.id }}
             </Link>
           </h5>
           <h5 v-else>-</h5>
         </div>
 
         <h6>Seed Type</h6>
+        <div v-if="form.errors.seed_type" class="has-error">
+            <span class="help-block text-left">{{ form.errors.seed_type }}</span>
+        </div>
         <Multiselect
           v-if="isForm"
           v-model="form.seed_type"
@@ -322,40 +370,26 @@ const pushForUnload = () => {
         </ul>
         <h5 v-else>-</h5>
 
-        <h6>Oversize Bin Size</h6>
+        <h6>Bin Size</h6>
         <UlLiButton
           v-if="isForm"
-          :value="form.oversize_bin_size"
-          :error="form.errors.oversize_bin_size"
-          :items="[
-                        {key: 1, value: 'One Tone'},
-                        {key: 2, value: 'Two Tone'},
-                    ]"
-          @click="(key) => form.oversize_bin_size = key"
+          :value="form.bin_size"
+          :error="form.errors.bin_size"
+          :items="binSizes"
+          @click="(key) => form.bin_size = key"
         />
-        <h5 v-else-if="receival.oversize_bin_size">
-          {{ receival.oversize_bin_size === 1 ? 'One Tone' : 'Two Tone' }}
-        </h5>
-        <h5 v-else>-</h5>
-
-        <h6>Seed Bin Size</h6>
-        <UlLiButton
-          v-if="isForm"
-          :error="form.errors.seed_bin_size"
-          :value="form.seed_bin_size"
-          :items="[
-                        {key: 1, value: 'One Tone'},
-                        {key: 2, value: 'Two Tone'},
-                    ]"
-          @click="(key) => form.seed_bin_size = key"
-        />
-        <h5 v-else-if="receival.seed_bin_size">{{ receival.seed_bin_size === 1 ? 'One Tone' : 'Two Tone' }}</h5>
+        <ul v-else-if="receival.bin_size">
+          <li><a>{{ getBinSizesValue(receival.bin_size) }}</a></li>
+        </ul>
         <h5 v-else>-</h5>
       </div>
 
       <h4>Other Information</h4>
       <div class="user-boxes">
         <h6>Transport Co.</h6>
+        <div v-if="form.errors.transport" class="has-error">
+          <span class="help-block text-left">{{ form.errors.transport }}</span>
+        </div>
         <Multiselect
           v-if="isForm"
           v-model="form.transport"

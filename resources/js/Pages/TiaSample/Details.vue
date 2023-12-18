@@ -7,6 +7,7 @@ import Multiselect from '@vueform/multiselect';
 import TextInput from "@/Components/TextInput.vue";
 import Images from "@/Components/Images.vue";
 import UlLiButton from "@/Components/UlLiButton.vue";
+import { binSizes, getBinSizesValue } from "@/tonnes.js";
 
 const props = defineProps({
   tiaSample: Object,
@@ -356,15 +357,10 @@ const storeRecord = () => {
           v-if="isForm"
           :value="form.processor"
           :error="form.errors.processor"
-          :items="[
-            {key: 1, value: 'One Tone'},
-            {key: 2, value: 'Two Tone'},
-          ]"
+          :items="binSizes"
           @click="(key) => form.processor = key"
         />
-        <h5 v-else-if="tiaSample.processor">
-          {{ tiaSample.processor === 1 ? 'One Tone' : 'Two Tone' }}
-        </h5>
+        <h5 v-else-if="tiaSample.processor">{{ getBinSizesValue(tiaSample.processor) }}</h5>
         <h5 v-else>-</h5>
 
         <h6>Inspection No</h6>

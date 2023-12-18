@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ReceivalRequest extends FormRequest
@@ -29,9 +30,8 @@ class ReceivalRequest extends FormRequest
             'seed_generation'        => ['nullable', 'array', 'max:1'],
             'seed_class'             => ['nullable', 'array', 'max:1'],
             'seed_type'              => ['nullable', 'array', 'max:1'],
-            'oversize_bin_size'      => ['nullable', 'numeric', 'max:2'],
-            'seed_bin_size'          => ['nullable', 'numeric', 'max:2'],
-            'transport'              => ['nullable', 'array'],
+            'bin_size'               => ['nullable', 'numeric', Rule::in([0.5, 1, 2]),],
+            'transport'              => ['nullable', 'array', 'max:1'],
             'delivery_type'          => ['nullable', 'array'],
             'grower_docket_no'       => ['nullable', 'string', 'max:50'],
             'chc_receival_docket_no' => ['nullable', 'string', 'max:50'],

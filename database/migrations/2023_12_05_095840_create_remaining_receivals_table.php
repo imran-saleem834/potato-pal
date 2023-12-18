@@ -16,8 +16,8 @@ return new class extends Migration
             $table->foreignId('grower_id');
             $table->string('unique_key', 80)->nullable();
             $table->text('receival_id')->nullable();
-            $table->float('weight_oversize_bins')->default(0);
-            $table->float('weight_seed_bins')->default(0);
+            $table->float('no_of_bins')->default(0);
+            $table->float('weight')->default(0);
             $table->timestamps();
         });
     }

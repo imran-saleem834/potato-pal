@@ -18,8 +18,8 @@ class RemainingReceival extends Model
         'grower_id',
         'unique_key',
         'receival_id',
-        'weight_oversize_bins',
-        'weight_seed_bins'
+        'no_of_bins',
+        'weight'
     ];
 
     /**

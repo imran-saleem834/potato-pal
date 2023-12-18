@@ -573,7 +573,7 @@
    .tab-section  .user-boxes ul{
      list-style-type: none;
      padding-left: 0;
-     padding-top: 10px;
+     margin-bottom: 0;
    }
    .tab-section  .user-boxes ul li{
      margin-right: 10px;
@@ -585,7 +585,7 @@
      border-radius: 4px;
      padding: 9px 18px;
      text-decoration: none;
-     margin-bottom: 15px;
+     margin-bottom: 10px;
      font-family: 'Montserrat-Medium';
    }
    .tab-section .notes-list ul li{

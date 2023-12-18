@@ -10,7 +10,7 @@ use App\Helpers\NotificationHelper;
 use App\Http\Requests\ReceivalRequest;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Builder;
-use App\Models\{Category, User, Unload, Receival, TiaSample};
+use App\Models\{Category, User, Receival, TiaSample};
 
 class ReceivalController extends Controller
 {
@@ -28,12 +28,9 @@ class ReceivalController extends Controller
             ])
             ->select('id', 'grower_id')
             ->when($request->input('search'), function (Builder $query, $search) {
-                return $query->where('id', 'LIKE', "%$search%")
-                    ->orWhere('paddocks', 'LIKE', "%$search%")
-                    ->orWhere('grower_docket_no', 'LIKE', "%$search%")
-                    ->orWhere('chc_receival_docket_no', 'LIKE', "%$search%")
-                    ->orWhere('driver_name', 'LIKE', "%$search%")
-                    ->orWhere('comments', 'LIKE', "%$search%");
+                return $query->where(function (Builder $subQuery) use ($search) {
+                    return $subQuery->search($search);
+                });
             })
             ->latest()
             ->get();
@@ -42,9 +39,6 @@ class ReceivalController extends Controller
 
         $receival = Receival::with([
             'categories.category',
-            'unload'    => function ($query) {
-                return $query->select('id', 'receival_id', 'status');
-            },
             'tiaSample' => function ($query) {
                 return $query->select('id', 'receival_id', 'status');
             },
@@ -112,9 +106,6 @@ class ReceivalController extends Controller
     {
         $receival = Receival::with([
             'categories.category',
-            'unload'    => function ($query) {
-                return $query->select('id', 'receival_id', 'status');
-            },
             'tiaSample' => function ($query) {
                 return $query->select('id', 'receival_id', 'status');
             },
@@ -165,7 +156,12 @@ class ReceivalController extends Controller
     public function destroy(string $id)
     {
         CategoriesHelper::deleteCategoryRealtions($id, Receival::class);
-        Receival::destroy($id);
+
+        $receival = Receival::find($id);
+        $growerId = $receival->grower_id;
+        $receival->delete();
+
+        ReceivalHelper::calculateRemainingReceivals($growerId);
 
         NotificationHelper::deleteAction('Receival', $id);
 
@@ -177,7 +173,9 @@ class ReceivalController extends Controller
      */
     public function pushForUnload(string $id)
     {
-        Unload::firstOrCreate(['receival_id' => $id]);
+        $receival         = Receival::find($id);
+        $receival->status = 'pending';
+        $receival->save();
 
         return to_route('receivals.index');
     }

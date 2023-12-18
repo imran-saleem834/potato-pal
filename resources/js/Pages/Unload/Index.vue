@@ -83,18 +83,21 @@ setActiveTab(unload.value?.id);
       type="Unloading"
       :value="search"
       @search="filter"
+      :access="{
+        new: false,
+      }"
       @newRecord="setNewRecord"
     />
     <MiddleBar
       type="Unloading"
-      :title="unload?.receival?.grower?.name || 'New'"
+      :title="unload?.grower?.name || 'New'"
       :is-edit-record-selected="!!edit"
       :is-new-record-selected="isNewRecord"
       :access="{
-                new: true,
-                edit: Object.values(unload).length > 0,
-                delete: Object.values(unload).length > 0,
-            }"
+        new: false,
+        edit: Object.values(unload).length > 0,
+        delete: Object.values(unload).length > 0,
+      }"
       @newRecord="setNewRecord"
       @editRecord="() => setEdit(unload?.id)"
       @deleteRecord="() => deleteUnload(unload?.id)"
@@ -107,7 +110,7 @@ setActiveTab(unload.value?.id);
           <LeftBar
             :items="unloads"
             :active-tab="activeTab"
-            :row-1="{title: 'Grower\'s Name', value: 'receival.grower.name'}"
+            :row-1="{title: 'Grower\'s Name', value: 'grower.name'}"
             :row-2="{title: 'Unloading Id', value: 'id'}"
             @click="getUnload"
           />
@@ -119,7 +122,6 @@ setActiveTab(unload.value?.id);
                 :unload="unload"
                 :is-edit="!!edit"
                 :is-new="isNewRecord"
-                :receivals="receivals"
                 @update="() => getUnload(activeTab)"
                 @create="() => setActiveTab(unload?.id)"
                 col-size="col-md-6"
@@ -149,13 +151,12 @@ setActiveTab(unload.value?.id);
           <div class="modal-body" v-if="unload">
             <ModalBreadcrumb
               page="Unloading"
-              :title="unload?.receival?.grower?.name || 'New'"
+              :title="unload?.grower?.name || 'New'"
             />
             <Details
               :unload="unload"
               :is-edit="!!edit"
               :is-new="isNewRecord"
-              :receivals="receivals"
               @update="() => getUnload(activeTab)"
               @create="() => setActiveTab(unload?.id)"
               col-size="col-md-12"

@@ -18,8 +18,8 @@ const props = defineProps({
 </script>
 
 <template>
-    <div :class="{'has-error' : error}">
-        <span v-show="error" class="help-block text-left">{{ error }}</span>
+    <div v-if="error" class="has-error">
+        <span class="help-block text-left">{{ error }}</span>
     </div>
     <ul>
         <li v-for="item in items" :key="item">

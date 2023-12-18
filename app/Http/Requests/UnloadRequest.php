@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UnloadRequest extends FormRequest
@@ -22,35 +21,10 @@ class UnloadRequest extends FormRequest
      */
     public function rules(): array
     {
-        $rules = [
-            'receival_id'          => ['required', 'exists:receivals,id', 'unique:unloads,receival_id'],
-            'total_seed_bins'      => ['nullable', 'numeric'],
-            'weight_seed_bins'     => ['nullable', 'numeric'],
-            'total_oversize_bins'  => ['nullable', 'numeric'],
-            'weight_oversize_bins' => ['nullable', 'numeric'],
-            'status'               => ['required', 'string', 'max:20'],
-        ];
-
-        if ($this->isMethod('PATCH')) {
-            $rules['receival_id'] = [
-                'required',
-                'exists:receivals,id',
-                Rule::unique('unloads')->ignore($this->route('unloading'))
-            ];
-        }
-
-        return $rules;
-    }
-
-    /**
-     * Get custom attributes for validator errors.
-     *
-     * @return array<string, string>
-     */
-    public function attributes(): array
-    {
         return [
-            'receival_id' => 'receival',
+            'no_of_bins' => ['nullable', 'numeric'],
+            'weight'     => ['nullable', 'numeric'],
+            'status'     => ['required', 'string', 'max:20'],
         ];
     }
 }
