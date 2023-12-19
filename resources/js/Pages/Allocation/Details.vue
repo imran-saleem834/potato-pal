@@ -2,7 +2,7 @@
 import { computed, ref, watch } from "vue";
 import { useForm, Link } from "@inertiajs/vue3";
 import moment from 'moment';
-import { getCategoriesByType } from "@/helper.js";
+import { getCategoriesByType, getCategoryIdsByType } from "@/helper.js";
 import Multiselect from '@vueform/multiselect'
 import TextInput from "@/Components/TextInput.vue";
 import UlLiButton from "@/Components/UlLiButton.vue";
@@ -12,34 +12,36 @@ import DataTablesCore from 'datatables.net';
 DataTable.use(DataTablesCore);
 
 const props = defineProps({
-  allocation: Object,
-  colSize: String,
-  isEdit: Boolean,
-  isNew: Boolean,
+  allocation: {
+    type: Object,
+    default: {}
+  },
+  isNew: {
+    type: Boolean,
+    default: false,
+  },
   growers: Object,
   buyers: Object,
 });
 
-const emit = defineEmits(['update', 'create']);
+const emit = defineEmits(['update', 'create', 'isEditing']);
 
 const selectReceival = ref({});
+const isEdit = ref(false);
 
 const form = useForm({
   buyer_id: props.allocation.buyer_id,
   grower_id: props.allocation.grower_id,
   unique_key: props.allocation.unique_key,
-  allocated_type: props.allocation.allocated_type,
-  allocated_bins: props.allocation.allocated_bins,
-  allocated_tonnes: props.allocation.allocated_tonnes,
-  tonnes_available_receivals: props.allocation.tonnes_available_receivals,
-  bins_before_cutting: props.allocation.bins_before_cutting,
-  tonnes_before_cutting: props.allocation.tonnes_before_cutting,
-  cutting_date: props.allocation.cutting_date,
-  bins_after_cutting: props.allocation.bins_after_cutting,
-  tonnes_after_cutting: props.allocation.tonnes_after_cutting,
-  reallocated_buyer_id: props.allocation.reallocated_buyer_id,
-  tonnes_reallocated: props.allocation.tonnes_reallocated,
-  bins_reallocated: props.allocation.bins_reallocated,
+  no_of_bins: props.allocation.no_of_bins,
+  weight: props.allocation.weight,
+  bin_size: props.allocation.bin_size,
+  paddock: props.allocation.paddock,
+  grower: getCategoryIdsByType(props.allocation.categories, 'grower'),
+  seed_type: getCategoryIdsByType(props.allocation.categories, 'seed-type'),
+  seed_variety: getCategoryIdsByType(props.allocation.categories, 'seed-variety'),
+  seed_generation: getCategoryIdsByType(props.allocation.categories, 'seed-generation'),
+  seed_class: getCategoryIdsByType(props.allocation.categories, 'seed-class'),
 });
 
 watch(() => props.allocation,
@@ -48,18 +50,15 @@ watch(() => props.allocation,
     form.buyer_id = allocation.buyer_id
     form.grower_id = allocation.grower_id
     form.unique_key = allocation.unique_key
-    form.allocated_type = allocation.allocated_type
-    form.allocated_bins = allocation.allocated_bins
-    form.allocated_tonnes = allocation.allocated_tonnes
-    form.tonnes_available_receivals = allocation.tonnes_available_receivals
-    form.bins_before_cutting = allocation.bins_before_cutting
-    form.tonnes_before_cutting = allocation.tonnes_before_cutting
-    form.cutting_date = allocation.cutting_date
-    form.bins_after_cutting = allocation.bins_after_cutting
-    form.tonnes_after_cutting = allocation.tonnes_after_cutting
-    form.reallocated_buyer_id = allocation.reallocated_buyer_id
-    form.tonnes_reallocated = allocation.tonnes_reallocated
-    form.bins_reallocated = allocation.bins_reallocated
+    form.no_of_bins = allocation.no_of_bins
+    form.weight = allocation.weight
+    form.bin_size = allocation.bin_size
+    form.paddock = allocation.paddock
+    form.grower = getCategoryIdsByType(allocation.categories, 'grower')
+    form.seed_type = getCategoryIdsByType(allocation.categories, 'seed-type')
+    form.seed_variety = getCategoryIdsByType(allocation.categories, 'seed-variety')
+    form.seed_generation = getCategoryIdsByType(allocation.categories, 'seed-generation')
+    form.seed_class = getCategoryIdsByType(allocation.categories, 'seed-class')
 
     if (allocation.unique_key) {
       selectReceivalOnEdit(allocation);
@@ -79,21 +78,32 @@ selectReceivalOnEdit(props.allocation);
 const onSelectReceival = (receival) => {
   selectReceival.value = receival
   form.unique_key = receival.unique_key
-  form.allocated_type = null
-  form.allocated_bins = null
-  form.allocated_tonnes = null
+  form.no_of_bins = null
+  form.weight = null
+  form.bin_size = receival.bin_size
+  form.paddock = receival.paddock
+  form.grower = getCategoryIdsByType(receival.categories, 'grower')
+  form.seed_type = getCategoryIdsByType(receival.categories, 'seed-type')
+  form.seed_variety = getCategoryIdsByType(receival.categories, 'seed-variety')
+  form.seed_generation = getCategoryIdsByType(receival.categories, 'seed-generation')
+  form.seed_class = getCategoryIdsByType(receival.categories, 'seed-class')
 }
 
 const isForm = computed(() => {
-  return props.isEdit || props.isNew;
+  return isEdit.value || props.isNew;
 })
+
+const setIsEdit = () => {
+  isEdit.value = true
+  emit('isEditing', props.allocation.id)
+}
 
 const updateRecord = () => {
   form.patch(route('allocations.update', props.allocation.id), {
     preserveScroll: true,
     preserveState: true,
     onSuccess: () => {
-      emit('update')
+      isEdit.value = false;
     },
   });
 }
@@ -107,189 +117,172 @@ const storeRecord = () => {
     },
   });
 }
+
+const deleteAllocation = () => {
+  const form = useForm({});
+  form.delete(route('allocations.destroy', props.allocation.id), {
+    preserveScroll: true,
+    preserveState: true,
+    onSuccess: () => {
+    },
+  });
+}
 </script>
 
 <template>
   <div class="row">
-    <div v-if="isEdit || isNew" class="col-md-12">
+    <div v-if="isNew" class="col-md-12">
       <div class="flex-end create-update-btn">
-        <a v-if="isEdit" role="button" @click="updateRecord" class="btn btn-red">Update</a>
-        <a v-if="isNew" role="button" @click="storeRecord" class="btn btn-red">Create</a>
+        <a role="button" @click="storeRecord" class="btn btn-red">Create</a>
       </div>
     </div>
-    <div :class="colSize">
-      <div class="user-boxes">
+    <div class="col-md-12">
+      <div v-if="isNew" class="user-boxes">
         <h6>Buyer Name</h6>
-        <template v-if="isForm">
-          <Multiselect
-            v-model="form.buyer_id"
-            mode="single"
-            placeholder="Choose a buyer"
-            :searchable="true"
-            :options="buyers"
-          />
-          <div :class="{'has-error' : form.errors.buyer_id}">
-            <span v-show="form.errors.buyer_id" class="help-block text-left">
-              {{ form.errors.buyer_id }}
-            </span>
-          </div>
-        </template>
-        <template v-else>
-          <h5>{{ allocation.buyer?.name }}</h5>
-
-          <h6>Buyer Group</h6>
-          <ul v-if="getCategoriesByType(allocation.buyer?.categories, 'buyer')">
-            <li v-for="category in getCategoriesByType(allocation.buyer?.categories, 'buyer')" :key="category.id">
-              <a>{{ category.category.name }}</a>
-            </li>
-          </ul>
-
-          <h6>Buyer Id</h6>
-          <h5>
-            <Link :href="route('users.index', {userId: allocation.buyer_id})">{{ allocation.buyer_id }}</Link>
-          </h5>
-        </template>
-      </div>
-
-      <h4>Allocations Details</h4>
-      <div class="user-boxes">
-        <h6>Grower Name</h6>
-        <template v-if="isForm">
-          <Multiselect
-            v-model="form.grower_id"
-            mode="single"
-            placeholder="Choose a grower"
-            :searchable="true"
-            :options="growers"
-          />
-          <div :class="{'has-error' : form.errors.grower_id}">
-            <span v-show="form.errors.grower_id" class="help-block text-left">
-              {{ form.errors.grower_id }}
-            </span>
-          </div>
-        </template>
-        <template v-else>
-          <h5>{{ allocation.grower?.name }}</h5>
-
-          <h6>Grower Id</h6>
-          <h5>
-            <Link :href="route('users.index', {userId: allocation.grower_id})">{{ allocation.grower_id }}</Link>
-          </h5>
-        </template>
-
-        <button
-          v-if="isForm"
-          class="btn-red"
-          data-toggle="modal"
-          data-target="#receivals"
-          style="margin-top: 10px;"
-        >Select Receival
-        </button>
-
-        <div v-if="Object.values(selectReceival).length && isForm" class="user-table" style="margin: 20px 0;">
-          <table class="table">
-            <thead>
-            <tr>
-              <th>Selected receival</th>
-              <th>Seed Weight</th>
-              <th>Oversize Weight</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-              <td>{{ `${selectReceival.grower_group}, ${selectReceival.paddock}` }}</td>
-              <td>{{ selectReceival.weight_seed_bins }} Tonnes</td>
-              <td>{{ selectReceival.weight_oversize_bins }} Tonnes</td>
-            </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <h6>Allocated Type</h6>
-        <UlLiButton
-          v-if="isForm"
-          :value="form.allocated_type"
-          :error="form.errors.allocated_type"
-          :items="[
-            {key: 'seed', value: 'Seed'},
-            {key: 'oversize', value: 'Oversize'},
-          ]"
-          @click="(key) => form.allocated_type = key"
+        <Multiselect
+          v-model="form.buyer_id"
+          mode="single"
+          placeholder="Choose a buyer"
+          :searchable="true"
+          :options="buyers"
         />
-        <h5 v-else-if="form.allocated_type">{{ form.allocated_type === 'seed' ? 'Seed' : 'Oversize' }}</h5>
-        <h5 v-else>-</h5>
-
-        <h6>Allocated Bins</h6>
-        <TextInput v-if="isForm" v-model="form.allocated_bins" :error="form.errors.allocated_bins" type="text"/>
-        <h5 v-else>{{ allocation.allocated_bins }}</h5>
-
-        <h6>Allocated Tonnes</h6>
-        <TextInput v-if="isForm" v-model="form.allocated_tonnes" :error="form.errors.allocated_tonnes" type="text"/>
-        <h5 v-else>{{ allocation.allocated_tonnes }} Tonnes</h5>
-      </div>
-    </div>
-    <div :class="colSize">
-      <h4>Cutting Details</h4>
-      <div class="user-boxes">
-        <h6>Bins Before Cutting</h6>
-        <TextInput v-if="isForm" v-model="form.bins_before_cutting" :error="form.errors.bins_before_cutting"
-                   type="text"/>
-        <h5 v-else>{{ allocation.bins_before_cutting }}</h5>
-
-        <h6>Tonnes Before Cutting</h6>
-        <TextInput v-if="isForm" v-model="form.tonnes_before_cutting" :error="form.errors.tonnes_before_cutting"
-                   type="text"/>
-        <h5 v-else>{{ allocation.tonnes_before_cutting }} Tonnes</h5>
-
-        <h6>Cutting Date</h6>
-        <TextInput v-if="isForm" v-model="form.cutting_date" :error="form.errors.cutting_date" type="datetime-local"/>
-        <h5 v-else>{{ moment(allocation.cutting_date).format('DD/MM/YYYY hh:mm A') }}</h5>
+        <div v-if="form.errors.buyer_id" class="has-error">
+          <span class="help-block text-left">{{ form.errors.buyer_id }}</span>
+        </div>
       </div>
 
-      <h4>Reallocated Details</h4>
+      <h4 v-if="isNew">Allocations Details</h4>
       <div class="user-boxes">
-        <h6>Bins After Cutting</h6>
-        <TextInput v-if="isForm" v-model="form.bins_after_cutting" :error="form.errors.bins_after_cutting" type="text"/>
-        <h5 v-else>{{ allocation.bins_after_cutting }}</h5>
-
-        <h6>Tonnes After Cutting</h6>
-        <TextInput v-if="isForm" v-model="form.tonnes_after_cutting" :error="form.errors.tonnes_after_cutting"
-                   type="text"/>
-        <h5 v-else>{{ allocation.tonnes_after_cutting }} Tonnes</h5>
-
-        <h6>Reallocated Buyer Name</h6>
         <template v-if="isForm">
-          <Multiselect
-            v-model="form.reallocated_buyer_id"
-            mode="single"
-            placeholder="Choose a reallocated buyer"
-            :searchable="true"
-            :options="buyers"
-          />
-          <div :class="{'has-error' : form.errors.reallocated_buyer_id}">
-                        <span v-show="form.errors.reallocated_buyer_id" class="help-block text-left">
-                            {{ form.errors.reallocated_buyer_id }}
-                        </span>
+          <div class="row">
+            <div class="col-sm-10">
+              <h6>Grower Name</h6>
+              <Multiselect
+                v-model="form.grower_id"
+                mode="single"
+                placeholder="Choose a grower"
+                :searchable="true"
+                :options="growers"
+              />
+              <div v-if="form.errors.grower_id" class="has-error">
+                <span class="help-block text-left">{{ form.errors.grower_id }}</span>
+              </div>
+              <div v-if="form.errors.unique_key" class="has-error">
+                <span class="help-block text-left">{{ form.errors.unique_key }}</span>
+              </div>
+            </div>
+            <div class="col-sm-2">
+              <h6>&nbsp;</h6>
+              <button
+                class="btn-red"
+                data-toggle="modal"
+                data-target="#receivals"
+              >Select Receival
+              </button>
+            </div>
+          </div>
+
+          <div v-if="Object.values(selectReceival).length" class="user-table" style="margin: 20px 0;">
+            <table class="table">
+              <thead>
+              <tr>
+                <th>Seed Type</th>
+                <th>Bin Size</th>
+                <th>No of Bins Available</th>
+                <th>Weight in Tonnes</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr>
+                <td>{{ selectReceival.seed_type }}</td>
+                <td>{{ selectReceival.bin_size }} Tonnes</td>
+                <td>{{ selectReceival.no_of_bins }}</td>
+                <td>{{ selectReceival.weight }} Tonnes</td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="row">
+            <div class="col-sm-6">
+              <h6>Allocated No of Bins</h6>
+              <TextInput v-model="form.no_of_bins" :error="form.errors.no_of_bins" type="text"/>
+            </div>
+            <div class="col-sm-6">
+              <h6>Allocated Tonnes</h6>
+              <TextInput v-model="form.weight" :error="form.errors.weight" type="text"/>
+            </div>
+          </div>
+          <div v-if="isEdit" class="row">
+            <div class="col-sm-12 text-right">
+              <a role="button" @click="updateRecord" class="btn btn-red">Update</a>
+            </div>
           </div>
         </template>
         <template v-else>
-          <h5>{{ allocation.reallocated_buyer?.name }}</h5>
-
-          <h6>Reallocated Buyer Id</h6>
-          <h5>
-            <Link :href="route('users.index', {userId: allocation.reallocated_buyer_id})">
-              {{ allocation.reallocated_buyer_id }}
-            </Link>
-          </h5>
+          <div class="row">
+            <div class="col-sm-3">
+              <h6>Grower Name</h6>
+              <h5>
+                <Link :href="route('users.index', {userId: allocation.grower_id})">{{ allocation.grower?.name }}</Link>
+              </h5>
+            </div>
+            <div class="col-sm-3">
+              <h6>Seed Type</h6>
+              <template v-for="category in getCategoriesByType(allocation.categories, 'seed-type')" :key="category.id">
+                <h5>{{ category.category.name }}</h5>
+              </template>
+            </div>
+            <div class="col-sm-6 text-right">
+              <a role="button" @click="setIsEdit" class="btn btn-red">Edit</a>
+              <a role="button" @click="deleteAllocation" class="btn btn-red">Delete</a>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-sm-3">
+              <h6>Size of Bin</h6>
+              <h5>{{ allocation.bin_size }} Tonnes</h5>
+            </div>
+            <div class="col-sm-3">
+              <h6>Allocated No of Bins</h6>
+              <h5>{{ allocation.no_of_bins }}</h5>
+            </div>
+            <div class="col-sm-3">
+              <h6>Allocated Tonnes</h6>
+              <h5>{{ allocation.weight }} Tonnes</h5>
+            </div>
+            <div class="col-sm-3">
+              <h6>Grower Group</h6>
+              <template v-for="category in getCategoriesByType(allocation.categories, 'grower')" :key="category.id">
+                <h5>{{ category.category.name }}</h5>
+              </template>
+            </div>
+            <div class="col-sm-3">
+              <h6>Seed Variety</h6>
+              <template v-for="category in getCategoriesByType(allocation.categories, 'seed-variety')"
+                        :key="category.id">
+                <h5>{{ category.category.name }}</h5>
+              </template>
+            </div>
+            <div class="col-sm-3">
+              <h6>Seed Generation</h6>
+              <template v-for="category in getCategoriesByType(allocation.categories, 'seed-generation')"
+                        :key="category.id">
+                <h5>{{ category.category.name }}</h5>
+              </template>
+            </div>
+            <div class="col-sm-3">
+              <h6>Seed Class</h6>
+              <template v-for="category in getCategoriesByType(allocation.categories, 'seed-class')" :key="category.id">
+                <h5>{{ category.category.name }}</h5>
+              </template>
+            </div>
+            <div class="col-sm-3">
+              <h6>Paddock</h6>
+              <h5>{{ allocation.paddock }}</h5>
+            </div>
+          </div>
         </template>
-
-        <h6>Tonnes Reallocated</h6>
-        <TextInput v-if="isForm" v-model="form.tonnes_reallocated" :error="form.errors.tonnes_reallocated" type="text"/>
-        <h5 v-else>{{ allocation.tonnes_reallocated }}</h5>
-
-        <h6>Bins Reallocated</h6>
-        <TextInput v-if="isForm" v-model="form.bins_reallocated" :error="form.errors.bins_reallocated" type="text"/>
-        <h5 v-else>{{ allocation.bins_reallocated }}</h5>
       </div>
     </div>
   </div>
@@ -313,16 +306,17 @@ const storeRecord = () => {
                   <th>Seed Variety</th>
                   <th>Seed Class</th>
                   <th>Seed Generation</th>
-                  <th>Grower</th>
+                  <th>Grower Group</th>
                   <th>Paddock</th>
-                  <th>Seed Weight</th>
-                  <th>Oversize Weight</th>
+                  <th>Bin Size</th>
+                  <th>No Of Bins</th>
+                  <th>Weight</th>
                 </tr>
                 </thead>
                 <tbody>
                 <template v-for="receival in grower?.receivals" :key="receival.id">
                   <tr
-                    v-if="receival.weight_seed_bins > 0 || receival.weight_oversize_bins > 0"
+                    v-if="receival.no_of_bins > 0 || receival.weight > 0"
                     @click="() => onSelectReceival(receival)"
                     style="cursor: pointer"
                     data-dismiss="modal"
@@ -334,8 +328,9 @@ const storeRecord = () => {
                     <td>{{ receival.seed_generation }}</td>
                     <td>{{ receival.grower_group }}</td>
                     <td>{{ receival.paddock }}</td>
-                    <td>{{ receival.weight_seed_bins }} Tonnes</td>
-                    <td>{{ receival.weight_oversize_bins }} Tonnes</td>
+                    <td>{{ receival.bin_size }} Tonnes</td>
+                    <td>{{ receival.no_of_bins }}</td>
+                    <td>{{ receival.weight }} Tonnes</td>
                   </tr>
                 </template>
                 </tbody>

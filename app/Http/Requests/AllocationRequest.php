@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class AllocationRequest extends FormRequest
@@ -21,23 +22,25 @@ class AllocationRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            'buyer_id'                   => ['required', 'numeric', 'exists:users,id'],
-            'grower_id'                  => ['nullable', 'numeric', 'exists:users,id'],
-            'unique_key'                 => ['required', 'string'],
-            'allocated_type'             => ['nullable', 'string'],
-            'allocated_bins'             => ['nullable', 'numeric'],
-            'allocated_tonnes'           => ['nullable', 'numeric'],
-            'tonnes_available_receivals' => ['nullable', 'numeric'],
-            'bins_before_cutting'        => ['nullable', 'numeric'],
-            'tonnes_before_cutting'      => ['nullable', 'numeric'],
-            'cutting_date'               => ['nullable', 'date'],
-            'bins_after_cutting'         => ['nullable', 'numeric'],
-            'tonnes_after_cutting'       => ['nullable', 'numeric'],
-            'reallocated_buyer_id'       => ['nullable', 'numeric', 'exists:users,id'],
-            'tonnes_reallocated'         => ['nullable', 'numeric'],
-            'bins_reallocated'           => ['nullable', 'numeric'],
+        $rules = [
+            'grower_id'       => ['required', 'numeric', 'exists:users,id'],
+            'unique_key'      => ['required', 'string'],
+            'no_of_bins'      => ['required', 'numeric'],
+            'weight'          => ['required', 'numeric'],
+            'bin_size'        => ['required', 'numeric', Rule::in([0.5, 1, 2])],
+            'paddock'         => ['required', 'string'],
+            'grower'          => ['required', 'array', 'max:1'],
+            'seed_variety'    => ['required', 'array', 'max:1'],
+            'seed_generation' => ['required', 'array', 'max:1'],
+            'seed_class'      => ['required', 'array', 'max:1'],
+            'seed_type'       => ['required', 'array', 'max:1'],
         ];
+
+        if ($this->isMethod('POST')) {
+            $rules['buyer_id'] = ['required', 'numeric', 'exists:users,id'];
+        }
+
+        return $rules;
     }
 
     /**
@@ -48,9 +51,10 @@ class AllocationRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'buyer_id'             => 'buyer',
-            'grower_id'            => 'grower',
-            'reallocated_buyer_id' => 'reallocated buyer',
+            'buyer_id' => 'buyer',
+            'unique_key' => 'receival',
+            //            'grower_id'            => 'grower',
+            //            'reallocated_buyer_id' => 'reallocated buyer',
         ];
     }
 }

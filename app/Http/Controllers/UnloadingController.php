@@ -18,11 +18,7 @@ class UnloadingController extends Controller
     public function index(Request $request)
     {
         $unloads = Receival::query()
-            ->with([
-                'grower' => function ($query) {
-                    return $query->select('id', 'name');
-                }
-            ])
+            ->with(['grower' => fn($query) => $query->select('id', 'name')])
             ->select('id', 'grower_id')
             ->when($request->input('search'), function (Builder $query, $search) {
                 return $query->where(function (Builder $subQuery) use ($search) {

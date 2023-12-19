@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers\CategoriesHelper;
 use App\Helpers\ReceivalHelper;
 use App\Models\Receival;
 use App\Models\User;
@@ -13,7 +12,7 @@ use App\Helpers\NotificationHelper;
 use App\Http\Requests\AllocationRequest;
 use Illuminate\Database\Eloquent\Builder;
 
-class AllocationController extends Controller
+class CuttingController extends Controller
 {
     /**
      * @param Request $request
@@ -29,9 +28,15 @@ class AllocationController extends Controller
                     ->orWhere('grower_id', 'LIKE', "%$search%")
                     ->orWhere('unique_key', 'LIKE', "%$search%")
                     ->orWhere('no_of_bins', 'LIKE', "%$search%")
-                    ->orWhere('weight', 'LIKE', "%$search%")
-                    ->orWhere('bin_size', 'LIKE', "%$search%")
-                    ->orWhere('paddock', 'LIKE', "%$search%");
+                    ->orWhere('weight', 'LIKE', "%$search%");
+                //                    ->orWhere('bins_before_cutting', 'LIKE', "%$search%")
+                //                    ->orWhere('tonnes_before_cutting', 'LIKE', "%$search%")
+                //                    ->orWhere('cutting_date', 'LIKE', "%$search%")
+                //                    ->orWhere('bins_after_cutting', 'LIKE', "%$search%")
+                //                    ->orWhere('tonnes_after_cutting', 'LIKE', "%$search%")
+                //                    ->orWhere('reallocated_buyer_id', 'LIKE', "%$search%")
+                //                    ->orWhere('tonnes_reallocated', 'LIKE', "%$search%")
+                //                    ->orWhere('bins_reallocated', 'LIKE', "%$search%");
             })
             ->latest()
             ->groupBy('buyer_id')
@@ -41,27 +46,13 @@ class AllocationController extends Controller
                 return $allocation;
             });
 
-        $firstBuyerId = $allocationBuyers->first()->buyer_id ?? '';
-        $inputBuyerId = $request->input('buyerId', $firstBuyerId);
-        info($firstBuyerId);
-        info($inputBuyerId);
-        info('----');
-        
+        $buyerId = $request->input('buyerId', $allocationBuyers->first()->buyer_id ?? '');
+
         $allocations = Allocation::with([
-            'categories.category',
             'buyer'  => fn($query) => $query->select('id', 'name'),
             'buyer.categories.category',
             'grower' => fn($query) => $query->select('id', 'name'),
-        ])->where('buyer_id', $inputBuyerId)->get();
-
-        if ($allocations->isEmpty() && ((int)$inputBuyerId) !== ((int)$firstBuyerId)) {
-            $allocations = Allocation::with([
-                'categories.category',
-                'buyer'  => fn($query) => $query->select('id', 'name'),
-                'buyer.categories.category',
-                'grower' => fn($query) => $query->select('id', 'name'),
-            ])->where('buyer_id', $firstBuyerId)->get();
-        }
+        ])->where('buyer_id', $buyerId)->get();
 
         $users = User::with([
             'remainingReceivals',
@@ -71,7 +62,7 @@ class AllocationController extends Controller
         $growers = $users->map(function ($user) {
             $user->remainingReceivals = $user->remainingReceivals->map(function ($remainingReceival) {
 
-                $receival = Receival::with(['categories.category'])->find($remainingReceival->receival_id[0]);
+                $receival = Receival::with('categories')->find($remainingReceival->receival_id[0]);
 
                 [
                     $binSize,
@@ -90,7 +81,6 @@ class AllocationController extends Controller
                 $remainingReceival->seed_variety    = $seedVariety;
                 $remainingReceival->seed_class      = $seedClass;
                 $remainingReceival->seed_generation = $seedGeneration;
-                $remainingReceival->categories      = $receival->categories;
 
                 return $remainingReceival;
             });
@@ -122,15 +112,6 @@ class AllocationController extends Controller
     {
         $allocation = Allocation::create($request->validated());
 
-        $inputs = $request->only([
-            'grower',
-            'seed_type',
-            'seed_variety',
-            'seed_generation',
-            'seed_class',
-        ]);
-        CategoriesHelper::createRelationOfTypes($inputs, $allocation->id, Allocation::class);
-
         ReceivalHelper::calculateRemainingReceivals($allocation->grower_id);
 
         NotificationHelper::addedAction('Allocation', $allocation->id);
@@ -144,7 +125,6 @@ class AllocationController extends Controller
     public function show(string $id)
     {
         $allocations = Allocation::with([
-            'categories.category',
             'buyer'  => fn($query) => $query->select('id', 'name'),
             'buyer.categories.category',
             'grower' => fn($query) => $query->select('id', 'name'),
@@ -159,24 +139,14 @@ class AllocationController extends Controller
     public function update(AllocationRequest $request, string $id)
     {
         $allocation = Allocation::find($id);
-        $buyerId    = $allocation->buyer_id;
         $allocation->update($request->validated());
         $allocation->save();
-
-        $inputs = $request->only([
-            'grower',
-            'seed_type',
-            'seed_variety',
-            'seed_generation',
-            'seed_class',
-        ]);
-        CategoriesHelper::createRelationOfTypes($inputs, $allocation->id, Allocation::class);
 
         ReceivalHelper::calculateRemainingReceivals($allocation->grower_id);
 
         NotificationHelper::updatedAction('Allocation', $id);
 
-        return to_route('allocations.index', ['buyerId' => $buyerId]);
+        return to_route('allocations.index');
     }
 
     /**
@@ -184,17 +154,10 @@ class AllocationController extends Controller
      */
     public function destroy(string $id)
     {
-        CategoriesHelper::deleteCategoryRealtions($id, Allocation::class);
-
-        $allocation = Allocation::find($id);
-        $buyerId    = $allocation->buyer_id;
-        $growerId   = $allocation->grower_id;
-        $allocation->delete();
-
-        ReceivalHelper::calculateRemainingReceivals($growerId);
+        Allocation::destroy($id);
 
         NotificationHelper::deleteAction('Allocation', $id);
 
-        return to_route('allocations.index', ['buyerId' => $buyerId]);
+        return to_route('allocations.index');
     }
 }

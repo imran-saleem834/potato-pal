@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Allocation extends Model
 {
@@ -18,17 +19,10 @@ class Allocation extends Model
         'buyer_id',
         'grower_id',
         'unique_key',
-        'allocated_type',
-        'allocated_bins',
-        'allocated_tonnes',
-        'bins_before_cutting',
-        'tonnes_before_cutting',
-        'cutting_date',
-        'bins_after_cutting',
-        'tonnes_after_cutting',
-        'reallocated_buyer_id',
-        'tonnes_reallocated',
-        'bins_reallocated',
+        'no_of_bins',
+        'weight',
+        'bin_size',
+        'paddock',
     ];
 
     public function buyer()
@@ -41,13 +35,8 @@ class Allocation extends Model
         return $this->belongsTo(User::class, 'grower_id');
     }
 
-    public function reallocatedBuyer()
+    public function categories(): MorphMany
     {
-        return $this->belongsTo(User::class, 'reallocated_buyer_id');
-    }
-
-    public function setCuttingDateAttribute($date)
-    {
-        $this->attributes['cutting_date'] = str_replace('T', ' ', $date);
+        return $this->morphMany(CategoriesRelation::class, 'categorizable');
     }
 }

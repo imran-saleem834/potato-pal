@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -16,17 +15,10 @@ return new class extends Migration
             $table->foreignId('buyer_id');
             $table->foreignId('grower_id')->nullable();
             $table->string('unique_key', 80)->nullable();
-            $table->string('allocated_type', 20)->nullable();
-            $table->float('allocated_bins')->nullable();
-            $table->float('allocated_tonnes')->nullable();
-            $table->float('bins_before_cutting')->nullable();
-            $table->float('tonnes_before_cutting')->nullable();
-            $table->dateTime('cutting_date')->nullable();
-            $table->float('bins_after_cutting')->nullable();
-            $table->float('tonnes_after_cutting')->nullable();
-            $table->foreignId('reallocated_buyer_id')->nullable();
-            $table->float('tonnes_reallocated')->nullable();
-            $table->float('bins_reallocated')->nullable();
+            $table->float('no_of_bins')->nullable();
+            $table->float('weight')->nullable();
+            $table->float('bin_size')->nullable();
+            $table->string('paddock', 100)->nullable();
             $table->timestamps();
         });
     }
