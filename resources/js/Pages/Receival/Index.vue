@@ -92,10 +92,10 @@ setActiveTab(receival.value?.id);
       :is-edit-record-selected="!!edit"
       :is-new-record-selected="isNewRecord"
       :access="{
-                new: true,
-                edit: Object.values(receival).length > 0,
-                delete: Object.values(receival).length > 0,
-            }"
+        new: true,
+        edit: Object.values(receival).length > 0,
+        delete: Object.values(receival).length > 0,
+      }"
       @newRecord="setNewRecord"
       @editRecord="() => setEdit(receival?.id)"
       @deleteRecord="() => deleteReceival(receival?.id)"

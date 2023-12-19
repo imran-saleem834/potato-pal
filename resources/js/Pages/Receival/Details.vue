@@ -78,7 +78,7 @@ watch(() => form.grower_id,
 const updatePaddock = (growerId) => {
   if (growerId) {
     const user = props.users.find(user => user.id === growerId);
-    paddockOptions.value = user.paddocks.map(paddock => {
+    paddockOptions.value = (user.paddocks || []).map(paddock => {
       return `${paddock.name} (${paddock.hectares})`
     });
     paddockOptions.value = [...paddockOptions.value, ...props.receival?.paddocks || []];
