@@ -23,6 +23,7 @@ class Allocation extends Model
         'weight',
         'bin_size',
         'paddock',
+        'comment',
     ];
 
     public function buyer()

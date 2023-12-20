@@ -19,6 +19,7 @@ return new class extends Migration {
             $table->float('weight')->nullable();
             $table->float('bin_size')->nullable();
             $table->string('paddock', 100)->nullable();
+            $table->string('comment', 255)->nullable();
             $table->timestamps();
         });
     }

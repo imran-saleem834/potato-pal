@@ -22,13 +22,18 @@ class AllocationRequest extends FormRequest
      */
     public function rules(): array
     {
+        $receival = $this->get('select_receival');
+        $noOfBins = $receival['no_of_bins'] ?? 0;
+        $weight   = $receival['weight'] ?? 0;
+
         $rules = [
             'grower_id'       => ['required', 'numeric', 'exists:users,id'],
             'unique_key'      => ['required', 'string'],
-            'no_of_bins'      => ['required', 'numeric'],
-            'weight'          => ['required', 'numeric'],
+            'no_of_bins'      => ['required', 'numeric', 'gt:0', "max:$noOfBins"],
+            'weight'          => ['required', 'numeric', 'gt:0', "max:$weight"],
             'bin_size'        => ['required', 'numeric', Rule::in([0.5, 1, 2])],
             'paddock'         => ['required', 'string'],
+            'comment'         => ['required', 'string', 'max:255'],
             'grower'          => ['required', 'array', 'max:1'],
             'seed_variety'    => ['required', 'array', 'max:1'],
             'seed_generation' => ['required', 'array', 'max:1'],
@@ -51,7 +56,7 @@ class AllocationRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'buyer_id' => 'buyer',
+            'buyer_id'   => 'buyer',
             'unique_key' => 'receival',
             //            'grower_id'            => 'grower',
             //            'reallocated_buyer_id' => 'reallocated buyer',

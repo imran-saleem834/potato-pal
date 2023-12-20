@@ -43,9 +43,6 @@ class AllocationController extends Controller
 
         $firstBuyerId = $allocationBuyers->first()->buyer_id ?? '';
         $inputBuyerId = $request->input('buyerId', $firstBuyerId);
-        info($firstBuyerId);
-        info($inputBuyerId);
-        info('----');
         
         $allocations = Allocation::with([
             'categories.category',

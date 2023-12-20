@@ -15,18 +15,26 @@ const props = defineProps({
   single: Object,
   growers: Object,
   buyers: Object,
+  errors: Object,
   filters: Object,
 });
 
 const allocations = ref(props.single || []);
 const activeTab = ref(null);
-const edit = ref(null);
 const isNewRecord = ref(false);
+const isNewItemRecord = ref(false);
 const search = ref(props.filters.search);
 const searchAllocations = ref('');
 
 watch(() => props?.single,
   (single) => {
+    console.log('single updated', single);
+    console.log(Object.values(props.errors));
+    if (Object.values(props.errors).length > 0) {
+      console.log('got error', Object.values(props.errors));
+      return;
+    }
+    console.log('i am here for some reasons');
     allocations.value = single || [];
     setActiveTab(allocations.value[0]?.buyer_id);
   }
@@ -40,10 +48,6 @@ watch(search, (value) => {
   )
 });
 
-const isEditing = (value) => {
-  edit.value = value
-}
-
 const filter = (keyword) => search.value = keyword;
 
 const getAllocations = (id) => {
@@ -56,24 +60,28 @@ const getAllocations = (id) => {
 
 const setActiveTab = (id) => {
   activeTab.value = id;
-  edit.value = null;
   isNewRecord.value = false;
+  isNewItemRecord.value = false;
   // const newUrl = window.location.href.split('?')[0];
   // history.pushState({}, null, newUrl);
 };
 
 const setNewRecord = () => {
   isNewRecord.value = true;
-  edit.value = null;
   allocations.value = [];
   activeTab.value = null;
+}
+
+const createdItem = (buyerId) => {
+  getAllocations(buyerId);
+  isNewItemRecord.value = false;
 }
 
 const filterRecord = computed(() => {
   if (searchAllocations.value === '') {
     return allocations.value;
   }
-  
+
   const keyword = searchAllocations.value.toLowerCase();
   return allocations.value.filter(allocation => {
     if (allocation.paddock.toLowerCase().includes(keyword)) {
@@ -91,8 +99,8 @@ const filterRecord = computed(() => {
     if (`${allocation.weight} Tonnes`.toLowerCase().includes(keyword)) {
       return true;
     }
-    for(let i = 0; i < allocation.categories.length; i++) {
-      if (allocation.categories[i].category.name.toLowerCase().includes(keyword)){
+    for (let i = 0; i < allocation.categories.length; i++) {
+      if (allocation.categories[i].category.name.toLowerCase().includes(keyword)) {
         return true;
       }
     }
@@ -114,7 +122,6 @@ setActiveTab(allocations.value[0]?.buyer_id);
     <MiddleBar
       type="Allocations"
       :title="allocations[0]?.buyer?.name || 'New'"
-      :is-edit-record-selected="!!edit"
       :is-new-record-selected="isNewRecord"
       :access="{
           new: true,
@@ -145,7 +152,6 @@ setActiveTab(allocations.value[0]?.buyer_id);
               :is-new="true"
               :growers="growers"
               :buyers="buyers"
-              @isEditing="isEditing"
               @update="() => {}"
               @create="() => getAllocations(allocationBuyers[0]?.buyer_id)"
             />
@@ -190,15 +196,23 @@ setActiveTab(allocations.value[0]?.buyer_id);
                   </div>
                 </div>
                 <div class="col-sm-4 text-right">
-                  <a role="button" class="btn btn-red">Add new allocation</a>
+                  <a role="button" class="btn btn-red" @click="() => isNewItemRecord = true">Add new allocation</a>
                 </div>
               </div>
+              <Details
+                v-if="isNewItemRecord"
+                :allocation="{ buyer_id: allocations[0]?.buyer_id }"
+                :is-new-item="true"
+                :growers="growers"
+                :buyers="buyers"
+                @update="() => {}"
+                @create="() => createdItem(allocations[0]?.buyer_id)"
+              />
               <template v-for="allocation in filterRecord" :key="allocation.id">
                 <Details
                   :allocation="allocation"
                   :growers="growers"
                   :buyers="buyers"
-                  @isEditing="isEditing"
                   @update="() => {}"
                   @create="() => {}"
                 />

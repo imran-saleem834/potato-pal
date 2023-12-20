@@ -126,6 +126,19 @@
     margin-bottom: -3rem;
 }
 
+.tab-section .allocation-boxes {
+    padding: 15px 20px;
+    margin-bottom: 10px;
+}
+
+.tab-section .allocation-boxes h5 {
+    margin-bottom: 10px;
+}
+
+.allocation-boxes .btn-red:not(.btn-select-receival) {
+    padding: 4px 16px;
+}
+
 @media only screen and (max-width: 991px) {
     .create-update-btn {
         margin-bottom: 1rem;
