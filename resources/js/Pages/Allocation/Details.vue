@@ -49,7 +49,6 @@ const form = useForm({
 
 watch(() => props.allocation,
   (allocation) => {
-    console.log('allocation updated', allocation);
     form.clearErrors();
     form.buyer_id = allocation.buyer_id
     form.grower_id = allocation.grower_id

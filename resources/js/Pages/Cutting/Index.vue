@@ -4,37 +4,38 @@ import { computed, ref, watch } from 'vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import TopBar from '@/Components/TopBar.vue';
 import MiddleBar from '@/Components/MiddleBar.vue';
-import Details from '@/Pages/Allocation/Details.vue';
+import Details from '@/Pages/Cutting/Details.vue';
 import LeftBar from "@/Components/LeftBar.vue";
 import ModalHeader from "@/Components/ModalHeader.vue";
 import ModalBreadcrumb from "@/Components/ModalBreadcrumb.vue";
 import { getCategoriesByType } from "@/helper.js";
 
 const props = defineProps({
-  allocationBuyers: Object,
+  cuttingBuyers: Object,
   single: Object,
-  growers: Object,
+  allocations: Object,
+  categories: Object,
   buyers: Object,
   filters: Object,
 });
 
-const allocations = ref(props.single || []);
+const cuttings = ref(props.single || []);
 const activeTab = ref(null);
 const isNewRecord = ref(false);
 const isNewItemRecord = ref(false);
 const search = ref(props.filters.search);
-const searchAllocations = ref('');
+const searchCuttings = ref('');
 
 watch(() => props?.single,
   (single) => {
-    allocations.value = single || [];
-    setActiveTab(allocations.value[0]?.buyer_id);
+    cuttings.value = single || [];
+    setActiveTab(cuttings.value[0]?.buyer_id);
   }
 );
 
 watch(search, (value) => {
   router.get(
-    route('allocations.index'),
+    route('cuttings.index'),
     { search: value },
     { preserveState: true, preserveScroll: true },
   )
@@ -42,9 +43,9 @@ watch(search, (value) => {
 
 const filter = (keyword) => search.value = keyword;
 
-const getAllocations = (id) => {
-  axios.get(route('allocations.show', id)).then(response => {
-    allocations.value = response.data;
+const getCuttings = (id) => {
+  axios.get(route('cuttings.show', id)).then(response => {
+    cuttings.value = response.data;
 
     setActiveTab(response.data[0]?.buyer_id);
   });
@@ -60,60 +61,72 @@ const setActiveTab = (id) => {
 
 const setNewRecord = () => {
   isNewRecord.value = true;
-  allocations.value = [];
+  cuttings.value = [];
   activeTab.value = null;
 }
 
 const createdItem = (buyerId) => {
-  getAllocations(buyerId);
+  getCuttings(buyerId);
   isNewItemRecord.value = false;
 }
 
 const filterRecord = computed(() => {
-  if (searchAllocations.value === '') {
-    return allocations.value;
+  if (searchCuttings.value === '') {
+    return cuttings.value;
   }
 
-  const keyword = searchAllocations.value.toLowerCase();
-  return allocations.value.filter(allocation => {
-    if (allocation.paddock.toLowerCase().includes(keyword)) {
+  const keyword = searchCuttings.value.toLowerCase();
+  return cuttings.value.filter(cutting => {
+    if (`${cutting.cut_date}`.toLowerCase().includes(keyword)) {
       return true;
     }
-    if (allocation.grower?.name.toLowerCase().includes(keyword)) {
+    if (`${cutting.cut_by}`.toLowerCase().includes(keyword)) {
       return true;
     }
-    if (`${allocation.bin_size} Tonnes`.toLowerCase().includes(keyword)) {
+    if (`${cutting.comment}`.toLowerCase().includes(keyword)) {
       return true;
     }
-    if (`${allocation.no_of_bins}`.toLowerCase().includes(keyword)) {
-      return true;
-    }
-    if (`${allocation.weight} Tonnes`.toLowerCase().includes(keyword)) {
-      return true;
-    }
-    for (let i = 0; i < allocation.categories.length; i++) {
-      if (allocation.categories[i].category.name.toLowerCase().includes(keyword)) {
+    for (let i = 0; i < cutting.cutting_allocations.length; i++) {
+      if (`${cutting.cutting_allocations[i].allocation.bin_size} Tonnes`.toLowerCase().includes(keyword)) {
         return true;
+      }
+
+      if (`${cutting.cutting_allocations[i].allocation.weight_after_cutting} Tonnes`.toLowerCase().includes(keyword)) {
+        return true;
+      }
+
+      if (`${cutting.cutting_allocations[i].allocation.no_of_bins_after_cutting}`.toLowerCase().includes(keyword)) {
+        return true;
+      }
+
+      if (`${cutting.cutting_allocations[i].allocation.paddock}`.toLowerCase().includes(keyword)) {
+        return true;
+      }
+
+      for (let j = 0; j < cutting.cutting_allocations[i].allocation.categories.length; j++) {
+        if (cutting.cutting_allocations[i].allocation.categories[j].category.name.toLowerCase().includes(keyword)) {
+          return true;
+        }
       }
     }
     return false;
   });
 });
 
-setActiveTab(allocations.value[0]?.buyer_id);
+setActiveTab(cuttings.value[0]?.buyer_id);
 </script>
 
 <template>
-  <AppLayout title="Allocations">
+  <AppLayout title="Cuttings">
     <TopBar
-      type="Allocations"
+      type="Cuttings"
       :value="search"
       @search="filter"
       @newRecord="setNewRecord"
     />
     <MiddleBar
-      type="Allocations"
-      :title="allocations[0]?.buyer?.name || 'New'"
+      type="Cuttings"
+      :title="cuttings[0]?.buyer?.name || 'New'"
       :is-new-record-selected="isNewRecord"
       :access="{
           new: true,
@@ -130,34 +143,35 @@ setActiveTab(allocations.value[0]?.buyer_id);
       <div class="row row0">
         <div class="col-lg-3 col-sm-6" :class="{'mobile-userlist' : $windowWidth <= 767}">
           <LeftBar
-            :items="allocationBuyers"
+            :items="cuttingBuyers"
             :active-tab="activeTab"
             :row-1="{title: 'Buyer Name', value: 'buyer.name'}"
             :row-2="{title: 'Buyer Id', value: 'id'}"
-            @click="getAllocations"
+            @click="getCuttings"
           />
         </div>
         <div class="col-lg-8 col-sm-6">
-          <div class="tab-content" v-if="allocations.length > 0 || isNewRecord">
+          <div class="tab-content" v-if="cuttings.length > 0 || isNewRecord">
             <Details
               v-if="isNewRecord"
               :is-new="true"
-              :growers="growers"
+              :allocations="allocations"
+              :categories="categories"
               :buyers="buyers"
               @update="() => {}"
-              @create="() => getAllocations(allocationBuyers[0]?.buyer_id)"
+              @create="() => getCuttings(cuttingBuyers[0]?.buyer_id)"
             />
             <template v-else>
               <div class="user-boxes">
                 <div class="row">
                   <div class="col-sm-4">
                     <h6>Buyer Name</h6>
-                    <h5>{{ allocations[0]?.buyer?.name }}</h5>
+                    <h5>{{ cuttings[0]?.buyer?.name }}</h5>
                   </div>
                   <div class="col-sm-4">
                     <h6>Buyer Group</h6>
-                    <ul v-if="getCategoriesByType(allocations[0]?.buyer?.categories, 'buyer').length > 0">
-                      <li v-for="category in getCategoriesByType(allocations[0]?.buyer?.categories, 'buyer')"
+                    <ul v-if="getCategoriesByType(cuttings[0]?.buyer?.categories, 'buyer').length > 0">
+                      <li v-for="category in getCategoriesByType(cuttings[0]?.buyer?.categories, 'buyer')"
                           :key="category.id">
                         <a>{{ category.category.name }}</a>
                       </li>
@@ -166,8 +180,8 @@ setActiveTab(allocations.value[0]?.buyer_id);
                   <div class="col-sm-4">
                     <h6>Buyer Id</h6>
                     <h5>
-                      <Link :href="route('users.index', {userId: allocations[0]?.buyer_id})">
-                        {{ allocations[0]?.buyer_id }}
+                      <Link :href="route('users.index', {userId: cuttings[0]?.buyer_id})">
+                        {{ cuttings[0]?.buyer_id }}
                       </Link>
                     </h5>
                   </div>
@@ -175,12 +189,12 @@ setActiveTab(allocations.value[0]?.buyer_id);
               </div>
               <div class="row">
                 <div class="col-sm-4">
-                  <h4>Allocations Details</h4>
+                  <h4>Cutting Details</h4>
                 </div>
                 <div class="col-sm-4">
                   <div class="form-group has-feedback">
                     <input
-                      v-model="searchAllocations"
+                      v-model="searchCuttings"
                       type="text"
                       class="form-control customInput"
                       placeholder="Search..."
@@ -188,22 +202,24 @@ setActiveTab(allocations.value[0]?.buyer_id);
                   </div>
                 </div>
                 <div class="col-sm-4 text-right">
-                  <a role="button" class="btn btn-red" @click="() => isNewItemRecord = true">Add new allocation</a>
+                  <a role="button" class="btn btn-red" @click="() => isNewItemRecord = true">Add new cutting</a>
                 </div>
               </div>
               <Details
                 v-if="isNewItemRecord"
-                :allocation="{ buyer_id: allocations[0]?.buyer_id }"
+                :cutting="{ buyer_id: cuttings[0]?.buyer_id }"
                 :is-new-item="true"
-                :growers="growers"
+                :allocations="allocations"
+                :categories="categories"
                 :buyers="buyers"
                 @update="() => {}"
-                @create="() => createdItem(allocations[0]?.buyer_id)"
+                @create="() => createdItem(cuttings[0]?.buyer_id)"
               />
-              <template v-for="allocation in filterRecord" :key="allocation.id">
+              <template v-for="cutting in filterRecord" :key="cutting.id">
                 <Details
-                  :allocation="allocation"
-                  :growers="growers"
+                  :cutting="cutting"
+                  :allocations="allocations"
+                  :categories="categories"
                   :buyers="buyers"
                   @update="() => {}"
                   @create="() => {}"
@@ -214,7 +230,7 @@ setActiveTab(allocations.value[0]?.buyer_id);
               </div>
             </template>
           </div>
-          <div class="col-sm-12" v-if="allocations.length <= 0 && !isNewRecord">
+          <div class="col-sm-12" v-if="cuttings.length <= 0 && !isNewRecord">
             <p class="text-center" style="margin-top: calc(50vh - 120px);">No Records Found</p>
           </div>
         </div>
@@ -229,7 +245,7 @@ setActiveTab(allocations.value[0]?.buyer_id);
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <ModalHeader
-            title="Allocations"
+            title="Cuttings"
             :access="{
               new: isNewRecord,
               edit: false,
@@ -240,29 +256,30 @@ setActiveTab(allocations.value[0]?.buyer_id);
           />
           <div class="modal-body">
             <ModalBreadcrumb
-              page="Allocations"
-              :title="allocations[0]?.buyer?.name || 'New'"
+              page="Cuttings"
+              :title="cuttings[0]?.buyer?.name || 'New'"
             />
-            <div v-if="allocations.length > 0 || isNewRecord">
+            <div v-if="cuttings.length > 0 || isNewRecord">
               <Details
                 v-if="isNewRecord"
                 :is-new="true"
-                :growers="growers"
+                :allocations="allocations"
+                :categories="categories"
                 :buyers="buyers"
                 @update="() => {}"
-                @create="() => getAllocations(allocationBuyers[0]?.buyer_id)"
+                @create="() => getCuttings(cuttingBuyers[0]?.buyer_id)"
               />
               <template v-else>
                 <div class="user-boxes">
                   <div class="row">
                     <div class="col-sm-4">
                       <h6>Buyer Name</h6>
-                      <h5>{{ allocations[0]?.buyer?.name }}</h5>
+                      <h5>{{ cuttings[0]?.buyer?.name }}</h5>
                     </div>
                     <div class="col-sm-4">
                       <h6>Buyer Group</h6>
-                      <ul v-if="getCategoriesByType(allocations[0]?.buyer?.categories, 'buyer').length > 0">
-                        <li v-for="category in getCategoriesByType(allocations[0]?.buyer?.categories, 'buyer')"
+                      <ul v-if="getCategoriesByType(cuttings[0]?.buyer?.categories, 'buyer').length > 0">
+                        <li v-for="category in getCategoriesByType(cuttings[0]?.buyer?.categories, 'buyer')"
                             :key="category.id">
                           <a>{{ category.category.name }}</a>
                         </li>
@@ -271,8 +288,8 @@ setActiveTab(allocations.value[0]?.buyer_id);
                     <div class="col-sm-4">
                       <h6>Buyer Id</h6>
                       <h5>
-                        <Link :href="route('users.index', {userId: allocations[0]?.buyer_id})">
-                          {{ allocations[0]?.buyer_id }}
+                        <Link :href="route('users.index', {userId: cuttings[0]?.buyer_id})">
+                          {{ cuttings[0]?.buyer_id }}
                         </Link>
                       </h5>
                     </div>
@@ -280,12 +297,12 @@ setActiveTab(allocations.value[0]?.buyer_id);
                 </div>
                 <div class="row">
                   <div class="col-sm-4">
-                    <h4>Allocations Details</h4>
+                    <h4>Cutting Details</h4>
                   </div>
                   <div class="col-sm-4">
                     <div class="form-group has-feedback">
                       <input
-                        v-model="searchAllocations"
+                        v-model="searchCuttings"
                         type="text"
                         class="form-control customInput"
                         placeholder="Search..."
@@ -293,22 +310,24 @@ setActiveTab(allocations.value[0]?.buyer_id);
                     </div>
                   </div>
                   <div class="col-sm-4 text-right">
-                    <a role="button" class="btn btn-red" @click="() => isNewItemRecord = true">Add new allocation</a>
+                    <a role="button" class="btn btn-red" @click="() => isNewItemRecord = true">Add new cutting</a>
                   </div>
                 </div>
                 <Details
                   v-if="isNewItemRecord"
-                  :allocation="{ buyer_id: allocations[0]?.buyer_id }"
+                  :cutting="{ buyer_id: cuttings[0]?.buyer_id }"
                   :is-new-item="true"
-                  :growers="growers"
+                  :allocations="allocations"
+                  :categories="categories"
                   :buyers="buyers"
                   @update="() => {}"
-                  @create="() => createdItem(allocations[0]?.buyer_id)"
+                  @create="() => createdItem(cuttings[0]?.buyer_id)"
                 />
-                <template v-for="allocation in filterRecord" :key="allocation.id">
+                <template v-for="cutting in filterRecord" :key="cutting.id">
                   <Details
-                    :allocation="allocation"
-                    :growers="growers"
+                    :cutting="cutting"
+                    :allocations="allocations"
+                    :categories="categories"
                     :buyers="buyers"
                     @update="() => {}"
                     @create="() => {}"
@@ -319,7 +338,7 @@ setActiveTab(allocations.value[0]?.buyer_id);
                 </div>
               </template>
             </div>
-            <div class="col-sm-12" v-if="allocations.length <= 0 && !isNewRecord">
+            <div class="col-sm-12" v-if="cuttings.length <= 0 && !isNewRecord">
               <p class="text-center" style="margin-top: calc(50vh - 120px);">No Records Found</p>
             </div>
           </div>

@@ -142,7 +142,9 @@ setActiveTab(user.value?.id);
         <div class="modal-content">
           <ModalHeader
             title="Users"
-            :is-new="isNewRecord"
+            :access="{
+              new: isNewRecord
+            }"
             @edit="() => setEdit(user?.id)"
             @delete="() => deleteUser(user?.id)"
           />

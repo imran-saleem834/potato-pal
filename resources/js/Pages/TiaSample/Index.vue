@@ -141,7 +141,9 @@ setActiveTab(tiaSample.value?.id);
         <div class="modal-content">
           <ModalHeader
             title="Tia Samples"
-            :is-new="isNewRecord"
+            :access="{
+              new: isNewRecord
+            }"
             @edit="() => setEdit(tiaSample?.id)"
             @delete="() => deleteTiaSample(tiaSample?.id)"
           />

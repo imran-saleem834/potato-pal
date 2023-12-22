@@ -144,7 +144,9 @@ setActiveTab(unload.value?.id);
         <div class="modal-content">
           <ModalHeader
             title="Unloading"
-            :is-new="isNewRecord"
+            :access="{
+              new: isNewRecord
+            }"
             @edit="() => setEdit(unload?.id)"
             @delete="() => deleteUnload(unload?.id)"
           />

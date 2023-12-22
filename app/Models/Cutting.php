@@ -2,11 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
-class Allocation extends Model
+class Cutting extends Model
 {
     use HasFactory;
 
@@ -17,12 +18,8 @@ class Allocation extends Model
      */
     protected $fillable = [
         'buyer_id',
-        'grower_id',
-        'unique_key',
-        'no_of_bins',
-        'weight',
-        'bin_size',
-        'paddock',
+        'cut_date',
+        'cut_by',
         'comment',
     ];
 
@@ -31,12 +28,7 @@ class Allocation extends Model
         return $this->belongsTo(User::class, 'buyer_id');
     }
 
-    public function grower()
-    {
-        return $this->belongsTo(User::class, 'grower_id');
-    }
-
-    public function cuttings()
+    public function cuttingAllocations(): HasMany
     {
         return $this->hasMany(CuttingAllocation::class);
     }

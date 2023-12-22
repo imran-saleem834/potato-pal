@@ -10,6 +10,7 @@ use App\Http\Controllers\UnloadingController;
 use App\Http\Controllers\TiaSampleController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\AllocationController;
+use App\Http\Controllers\CuttingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -44,6 +45,7 @@ Route::middleware([
     Route::resource('/receivals', ReceivalController::class);
 
     Route::resource('/unloading', UnloadingController::class);
+    Route::resource('/cuttings', CuttingController::class);
 
     Route::post('/tia-samples/{id}/upload', [TiaSampleController::class, 'upload'])->name('tia-samples.upload');
     Route::post('/tia-samples/{id}/delete', [TiaSampleController::class, 'delete'])->name('tia-samples.delete');

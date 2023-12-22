@@ -139,7 +139,9 @@ setActiveTab(note.value?.id);
         <div class="modal-content">
           <ModalHeader
             title="Notes"
-            :is-new="isNewRecord"
+            :access="{
+              new: isNewRecord
+            }"
             @edit="() => setEdit(note?.id)"
             @delete="() => deleteNote(note?.id)"
           />

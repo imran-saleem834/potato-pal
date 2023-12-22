@@ -156,7 +156,9 @@ const deleteFile = (id) => {
         <div class="modal-content">
           <ModalHeader
             title="Files"
-            :is-new="isNewRecord"
+            :access="{
+              new: isNewRecord
+            }"
             @edit="() => setEdit(file?.id)"
             @delete="() => deleteFile(file?.id)"
           />

@@ -1,7 +1,14 @@
 <script setup>
 defineProps({
   title: String,
-  isNew: Boolean,
+  access: {
+    type: Object,
+    default: {
+      new: false,
+      edit: true,
+      delete: true,
+    }
+  }
 });
 
 defineEmits(['delete', 'edit']);
@@ -14,7 +21,7 @@ defineEmits(['delete', 'edit']);
     </button>
     <h4 class="modal-title" id="myModalLabel3">{{ title }}</h4>
     <div class="modal-menu">
-      <div v-if="!isNew" class="btn-group">
+      <div v-if="!access.new && (access.delete || access.edit)" class="btn-group">
         <button
           type="button"
           class="dropdown-toggle"
@@ -25,12 +32,12 @@ defineEmits(['delete', 'edit']);
           <span class="fa fa-ellipsis-v"></span>
         </button>
         <ul class="dropdown-menu">
-          <li>
+          <li v-if="access.delete">
             <a role="button" @click="$emit('delete')">
               <span class="fa fa-trash-o"></span> Delete
             </a>
           </li>
-          <li>
+          <li v-if="access.edit">
             <a role="button" @click="$emit('edit')">
               <span class="fa fa-edit"></span> Edit
             </a>

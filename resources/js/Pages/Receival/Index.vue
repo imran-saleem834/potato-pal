@@ -144,7 +144,9 @@ setActiveTab(receival.value?.id);
         <div class="modal-content">
           <ModalHeader
             title="Receivals"
-            :is-new="isNewRecord"
+            :access="{
+              new: isNewRecord
+            }"
             @edit="() => setEdit(receival?.id)"
             @delete="() => deleteReceival(receival?.id)"
           />

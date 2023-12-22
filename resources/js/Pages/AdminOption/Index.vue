@@ -140,7 +140,9 @@ setActiveTab(props.filters.type);
         <div class="modal-content">
           <ModalHeader
             title="Admin Options"
-            :is-new="true"
+            :access="{
+              new: true,
+            }"
             @edit="() => {}"
             @delete="() => {}"
           />
