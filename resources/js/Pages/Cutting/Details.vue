@@ -93,7 +93,7 @@ const storeRecord = () => {
   });
 }
 
-const deleteAllocation = () => {
+const deleteCutting = () => {
   const form = useForm({});
   form.delete(route('cuttings.destroy', props.cutting.id), {
     preserveScroll: true,
@@ -219,7 +219,7 @@ const deleteAllocation = () => {
             </div>
             <div class="col-sm-2 text-right">
               <a role="button" @click="setIsEdit" class="btn btn-red">Edit</a>
-              <a role="button" @click="deleteAllocation" class="btn btn-red">Delete</a>
+              <a role="button" @click="deleteCutting" class="btn btn-red">Delete</a>
             </div>
           </div>
           <template v-for="cuttingAllocation in cutting.cutting_allocations" :key="cuttingAllocation.id">
