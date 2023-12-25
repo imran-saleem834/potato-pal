@@ -1,11 +1,11 @@
 <script setup>
+import { useForm } from "@inertiajs/vue3";
 import { computed, ref, watch } from "vue";
-import { useForm, Link } from "@inertiajs/vue3";
-import { getCategoriesByType, getCategoryIdsByType, getCategoriesDropDownByType } from "@/helper.js";
 import Multiselect from '@vueform/multiselect'
-import TextInput from "@/Components/TextInput.vue";
 import DataTable from 'datatables.net-vue3';
 import DataTablesCore from 'datatables.net';
+import TextInput from "@/Components/TextInput.vue";
+import { getCategoriesByType, getCategoryIdsByType, getCategoriesDropDownByType } from "@/helper.js";
 
 DataTable.use(DataTablesCore);
 
@@ -27,7 +27,7 @@ const props = defineProps({
   buyers: Object,
 });
 
-const emit = defineEmits(['update', 'create']);
+const emit = defineEmits(['create', 'delete']);
 
 const isEdit = ref(false);
 
@@ -88,7 +88,7 @@ const storeRecord = () => {
     preserveScroll: true,
     preserveState: true,
     onSuccess: () => {
-      emit('create')
+      emit('create');
     },
   });
 }
@@ -99,6 +99,7 @@ const deleteAllocation = () => {
     preserveScroll: true,
     preserveState: true,
     onSuccess: () => {
+      emit('delete');
     },
   });
 }
@@ -112,42 +113,39 @@ const deleteAllocation = () => {
       </div>
     </div>
     <div class="col-md-12">
-      <div v-if="isForm" class="user-boxes">
-        <div class="row">
-          <div class="col-sm-10">
-            <h6>Buyer Name</h6>
-            <Multiselect
-              v-if="isNew"
-              v-model="form.buyer_id"
-              mode="single"
-              placeholder="Choose a buyer"
-              :searchable="true"
-              :options="buyers"
-              @change="onChangeBuyers"
-            />
-            <TextInput v-else v-model="buyers.find(buyer => buyer.value === form.buyer_id).label" disabled /> 
-            <div v-if="form.errors.buyer_id" class="has-error">
-              <span class="help-block text-left">{{ form.errors.buyer_id }}</span>
-            </div>
-            <div v-if="form.errors.selected_allocations" class="has-error">
-              <span class="help-block text-left">{{ form.errors.selected_allocations }}</span>
-            </div>
-          </div>
-          <div class="col-sm-2">
-            <h6>&nbsp;</h6>
-            <button
-              class="btn-red btn-select-receival"
-              data-toggle="modal"
-              data-target="#allocations"
-            >Select Allocations
-            </button>
-          </div>
-        </div>
-      </div>
-
       <h4 v-if="isNew">Cutting Details</h4>
       <div class="user-boxes allocation-boxes">
         <template v-if="isForm">
+          <div class="row">
+            <div class="col-sm-10">
+              <h6>Buyer Name</h6>
+              <Multiselect
+                v-if="isNew"
+                v-model="form.buyer_id"
+                mode="single"
+                placeholder="Choose a buyer"
+                :searchable="true"
+                :options="buyers"
+                @change="onChangeBuyers"
+              />
+              <TextInput v-else v-model="buyers.find(buyer => buyer.value === form.buyer_id).label" disabled />
+              <div v-if="form.errors.buyer_id" class="has-error">
+                <span class="help-block text-left">{{ form.errors.buyer_id }}</span>
+              </div>
+              <div v-if="form.errors.selected_allocations" class="has-error">
+                <span class="help-block text-left">{{ form.errors.selected_allocations }}</span>
+              </div>
+            </div>
+            <div class="col-sm-2">
+              <h6>&nbsp;</h6>
+              <button
+                class="btn-red btn-select-receival"
+                data-toggle="modal"
+                data-target="#allocations"
+              >Select Allocations
+              </button>
+            </div>
+          </div>
           <div v-for="(selectedAllocation, index) in form.selected_allocations" class="row">
             <div class="col-sm-3">
               <h5>Seed Type: {{ getCategoriesByType(selectedAllocation.categories, 'seed-type')[0]?.category?.name }}</h5>
@@ -302,7 +300,7 @@ const deleteAllocation = () => {
                   <td>{{ allocation.paddock }}</td>
                   <td>{{ allocation.bin_size }} Tonnes</td>
                   <td>{{ allocation.no_of_bins }}</td>
-                  <td>{{ allocation.weight }} Tonnes</td>
+                  <td>{{ allocation.weight.toFixed(2) }} Tonnes</td>
                   <td>
                     <input
                       type="checkbox"

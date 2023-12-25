@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers\CategoriesHelper;
-use App\Helpers\ReceivalHelper;
-use App\Models\Receival;
 use App\Models\User;
 use Inertia\Inertia;
+use App\Models\Receival;
 use App\Models\Allocation;
 use Illuminate\Http\Request;
+use App\Helpers\ReceivalHelper;
+use App\Helpers\CategoriesHelper;
 use App\Helpers\NotificationHelper;
 use App\Http\Requests\AllocationRequest;
 use Illuminate\Database\Eloquent\Builder;
@@ -43,21 +43,10 @@ class AllocationController extends Controller
 
         $firstBuyerId = $allocationBuyers->first()->buyer_id ?? '';
         $inputBuyerId = $request->input('buyerId', $firstBuyerId);
-        
-        $allocations = Allocation::with([
-            'categories.category',
-            'buyer'  => fn($query) => $query->select('id', 'name'),
-            'buyer.categories.category',
-            'grower' => fn($query) => $query->select('id', 'name'),
-        ])->where('buyer_id', $inputBuyerId)->get();
 
+        $allocations = $this->getAllocations($inputBuyerId);
         if ($allocations->isEmpty() && ((int)$inputBuyerId) !== ((int)$firstBuyerId)) {
-            $allocations = Allocation::with([
-                'categories.category',
-                'buyer'  => fn($query) => $query->select('id', 'name'),
-                'buyer.categories.category',
-                'grower' => fn($query) => $query->select('id', 'name'),
-            ])->where('buyer_id', $firstBuyerId)->get();
+            $allocations = $this->getAllocations($firstBuyerId);
         }
 
         $users = User::with([
@@ -140,12 +129,7 @@ class AllocationController extends Controller
      */
     public function show(string $id)
     {
-        $allocations = Allocation::with([
-            'categories.category',
-            'buyer'  => fn($query) => $query->select('id', 'name'),
-            'buyer.categories.category',
-            'grower' => fn($query) => $query->select('id', 'name'),
-        ])->where('buyer_id', $id)->get();
+        $allocations = $this->getAllocations($id);
 
         return response()->json($allocations);
     }
@@ -193,5 +177,15 @@ class AllocationController extends Controller
         NotificationHelper::deleteAction('Allocation', $id);
 
         return to_route('allocations.index', ['buyerId' => $buyerId]);
+    }
+
+    private function getAllocations($buyerId)
+    {
+        return Allocation::with([
+            'categories.category',
+            'buyer'  => fn($query) => $query->select('id', 'name'),
+            'buyer.categories.category',
+            'grower' => fn($query) => $query->select('id', 'name'),
+        ])->where('buyer_id', $buyerId)->get();
     }
 }

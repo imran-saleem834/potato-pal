@@ -26,7 +26,7 @@ const props = defineProps({
   buyers: Object,
 });
 
-const emit = defineEmits(['update', 'create']);
+const emit = defineEmits(['create', 'delete']);
 
 const isEdit = ref(false);
 
@@ -123,7 +123,7 @@ const storeRecord = () => {
     preserveScroll: true,
     preserveState: true,
     onSuccess: () => {
-      emit('create')
+      emit('create');
     },
   });
 }
@@ -134,6 +134,7 @@ const deleteAllocation = () => {
     preserveScroll: true,
     preserveState: true,
     onSuccess: () => {
+      emit('delete');
     },
   });
 }

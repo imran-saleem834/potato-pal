@@ -1,6 +1,6 @@
 <script setup>
-import { router, Link, useForm } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
+import { router, Link } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import TopBar from '@/Components/TopBar.vue';
 import MiddleBar from '@/Components/MiddleBar.vue';
@@ -28,7 +28,6 @@ const searchAllocations = ref('');
 watch(() => props?.single,
   (single) => {
     allocations.value = single || [];
-    setActiveTab(allocations.value[0]?.buyer_id);
   }
 );
 
@@ -46,6 +45,11 @@ const getAllocations = (id) => {
   axios.get(route('allocations.show', id)).then(response => {
     allocations.value = response.data;
 
+    // Reset URL
+    const newUrl = window.location.href.split('?')[0];
+    history.pushState({}, null, newUrl);
+
+    // Set Active Tab
     setActiveTab(response.data[0]?.buyer_id);
   });
 };
@@ -54,8 +58,6 @@ const setActiveTab = (id) => {
   activeTab.value = id;
   isNewRecord.value = false;
   isNewItemRecord.value = false;
-  // const newUrl = window.location.href.split('?')[0];
-  // history.pushState({}, null, newUrl);
 };
 
 const setNewRecord = () => {
@@ -144,8 +146,7 @@ setActiveTab(allocations.value[0]?.buyer_id);
               :is-new="true"
               :growers="growers"
               :buyers="buyers"
-              @update="() => {}"
-              @create="() => getAllocations(allocationBuyers[0]?.buyer_id)"
+              @create="() => setActiveTab(allocations[0]?.buyer_id)"
             />
             <template v-else>
               <div class="user-boxes">
@@ -197,16 +198,14 @@ setActiveTab(allocations.value[0]?.buyer_id);
                 :is-new-item="true"
                 :growers="growers"
                 :buyers="buyers"
-                @update="() => {}"
-                @create="() => createdItem(allocations[0]?.buyer_id)"
+                @create="() => setActiveTab(allocations[0]?.buyer_id)"
               />
               <template v-for="allocation in filterRecord" :key="allocation.id">
                 <Details
                   :allocation="allocation"
                   :growers="growers"
                   :buyers="buyers"
-                  @update="() => {}"
-                  @create="() => {}"
+                  @delete="() => setActiveTab(allocations[0]?.buyer_id)"
                 />
               </template>
               <div class="col-sm-12" v-if="filterRecord.length <= 0">
@@ -224,8 +223,13 @@ setActiveTab(allocations.value[0]?.buyer_id);
     <!-- tab-section -->
 
     <!-- Modal -->
-    <div class="modal right fade user-details" id="user-details" tabindex="-1" role="dialog"
-         aria-labelledby="myModalLabel3">
+    <div
+      tabindex="-1"
+      role="dialog"
+      id="user-details"
+      aria-labelledby="myModalLabel3"
+      class="modal right fade user-details"
+    >
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <ModalHeader
@@ -249,8 +253,7 @@ setActiveTab(allocations.value[0]?.buyer_id);
                 :is-new="true"
                 :growers="growers"
                 :buyers="buyers"
-                @update="() => {}"
-                @create="() => getAllocations(allocationBuyers[0]?.buyer_id)"
+                @create="() => setActiveTab(allocations[0]?.buyer_id)"
               />
               <template v-else>
                 <div class="user-boxes">
@@ -302,16 +305,14 @@ setActiveTab(allocations.value[0]?.buyer_id);
                   :is-new-item="true"
                   :growers="growers"
                   :buyers="buyers"
-                  @update="() => {}"
-                  @create="() => createdItem(allocations[0]?.buyer_id)"
+                  @create="() => setActiveTab(allocations[0]?.buyer_id)"
                 />
                 <template v-for="allocation in filterRecord" :key="allocation.id">
                   <Details
                     :allocation="allocation"
                     :growers="growers"
                     :buyers="buyers"
-                    @update="() => {}"
-                    @create="() => {}"
+                    @delete="() => setActiveTab(allocations[0]?.buyer_id)"
                   />
                 </template>
                 <div class="col-sm-12" v-if="filterRecord.length <= 0">

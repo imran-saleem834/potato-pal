@@ -1,5 +1,6 @@
 <script setup>
 import { ref, watch } from 'vue';
+import { router, useForm } from "@inertiajs/vue3";
 import AppLayout from '@/Layouts/AppLayout.vue';
 import TopBar from '@/Components/TopBar.vue';
 import MiddleBar from '@/Components/MiddleBar.vue';
@@ -7,7 +8,6 @@ import Details from '@/Pages/Receival/Details.vue';
 import LeftBar from "@/Components/LeftBar.vue";
 import ModalHeader from "@/Components/ModalHeader.vue";
 import ModalBreadcrumb from "@/Components/ModalBreadcrumb.vue";
-import { router, useForm } from "@inertiajs/vue3";
 
 const props = defineProps({
   receivals: Object,

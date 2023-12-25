@@ -2,15 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers\CategoriesHelper;
-use App\Helpers\ReceivalHelper;
-use App\Models\Category;
-use App\Models\Cutting;
-use App\Models\CuttingAllocation;
 use App\Models\User;
 use Inertia\Inertia;
+use App\Models\Cutting;
+use App\Models\Category;
 use App\Models\Allocation;
 use Illuminate\Http\Request;
+use App\Helpers\CategoriesHelper;
+use App\Models\CuttingAllocation;
 use App\Helpers\NotificationHelper;
 use App\Http\Requests\CuttingRequest;
 use Illuminate\Database\Eloquent\Builder;
@@ -42,20 +41,9 @@ class CuttingController extends Controller
         $firstBuyerId = $cuttingBuyers->first()->buyer_id ?? '';
         $inputBuyerId = $request->input('buyerId', $firstBuyerId);
 
-        $cuttings = Cutting::with([
-            'categories.category',
-            'cuttingAllocations.allocation.categories.category',
-            'buyer' => fn($query) => $query->select('id', 'name'),
-            'buyer.categories.category',
-        ])->where('buyer_id', $inputBuyerId)->get();
-
+        $cuttings = $this->getCuttings($inputBuyerId);
         if ($cuttings->isEmpty() && ((int)$inputBuyerId) !== ((int)$firstBuyerId)) {
-            $cuttings = Cutting::with([
-                'categories.category',
-                'cuttingAllocations.allocation.categories.category',
-                'buyer' => fn($query) => $query->select('id', 'name'),
-                'buyer.categories.category',
-            ])->where('buyer_id', $firstBuyerId)->get();
+            $cuttings = $this->getCuttings($firstBuyerId);
         }
 
         $users       = User::select(['id', 'name'])->get();
@@ -96,8 +84,6 @@ class CuttingController extends Controller
         $inputs = $request->only(['fungicide']);
         CategoriesHelper::createRelationOfTypes($inputs, $cutting->id, Cutting::class);
 
-        // ReceivalHelper::calculateRemainingReceivals($cutting->grower_id);
-
         NotificationHelper::addedAction('Cutting', $cutting->id);
 
         return to_route('cuttings.index', ['buyerId' => $cutting->buyer_id]);
@@ -108,12 +94,7 @@ class CuttingController extends Controller
      */
     public function show(string $id)
     {
-        $cuttings = Cutting::with([
-            'categories.category',
-            'cuttingAllocations.allocation.categories.category',
-            'buyer' => fn($query) => $query->select('id', 'name'),
-            'buyer.categories.category',
-        ])->where('buyer_id', $id)->get();
+        $cuttings = $this->getCuttings($id);
 
         return response()->json($cuttings);
     }
@@ -138,8 +119,6 @@ class CuttingController extends Controller
         $inputs = $request->only(['fungicide']);
         CategoriesHelper::createRelationOfTypes($inputs, $cutting->id, Cutting::class);
 
-        // ReceivalHelper::calculateRemainingReceivals($cutting->grower_id);
-
         NotificationHelper::updatedAction('Cutting', $id);
 
         return to_route('cuttings.index', ['buyerId' => $buyerId]);
@@ -158,10 +137,18 @@ class CuttingController extends Controller
 
         CuttingAllocation::where('cutting_id', $id)->delete();
 
-        // ReceivalHelper::calculateRemainingReceivals($growerId);
-
         NotificationHelper::deleteAction('Cutting', $id);
 
         return to_route('cuttings.index', ['buyerId' => $buyerId]);
+    }
+
+    private function getCuttings($buyerId)
+    {
+        return Cutting::with([
+            'categories.category',
+            'cuttingAllocations.allocation.categories.category',
+            'buyer' => fn($query) => $query->select('id', 'name'),
+            'buyer.categories.category',
+        ])->where('buyer_id', $buyerId)->get();
     }
 }

@@ -1,6 +1,6 @@
 <script setup>
-import { router, Link, useForm } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
+import { router, Link } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import TopBar from '@/Components/TopBar.vue';
 import MiddleBar from '@/Components/MiddleBar.vue';
@@ -29,7 +29,6 @@ const searchCuttings = ref('');
 watch(() => props?.single,
   (single) => {
     cuttings.value = single || [];
-    setActiveTab(cuttings.value[0]?.buyer_id);
   }
 );
 
@@ -47,6 +46,11 @@ const getCuttings = (id) => {
   axios.get(route('cuttings.show', id)).then(response => {
     cuttings.value = response.data;
 
+    // Reset URL
+    const newUrl = window.location.href.split('?')[0];
+    history.pushState({}, null, newUrl);
+    
+    // Set Active Tab
     setActiveTab(response.data[0]?.buyer_id);
   });
 };
@@ -55,19 +59,12 @@ const setActiveTab = (id) => {
   activeTab.value = id;
   isNewRecord.value = false;
   isNewItemRecord.value = false;
-  // const newUrl = window.location.href.split('?')[0];
-  // history.pushState({}, null, newUrl);
 };
 
 const setNewRecord = () => {
   isNewRecord.value = true;
   cuttings.value = [];
   activeTab.value = null;
-}
-
-const createdItem = (buyerId) => {
-  getCuttings(buyerId);
-  isNewItemRecord.value = false;
 }
 
 const filterRecord = computed(() => {
@@ -91,11 +88,11 @@ const filterRecord = computed(() => {
         return true;
       }
 
-      if (`${cutting.cutting_allocations[i].allocation.weight_after_cutting} Tonnes`.toLowerCase().includes(keyword)) {
+      if (`${cutting.cutting_allocations[i].weight_after_cutting} Tonnes`.toLowerCase().includes(keyword)) {
         return true;
       }
 
-      if (`${cutting.cutting_allocations[i].allocation.no_of_bins_after_cutting}`.toLowerCase().includes(keyword)) {
+      if (`${cutting.cutting_allocations[i].no_of_bins_after_cutting}`.toLowerCase().includes(keyword)) {
         return true;
       }
 
@@ -158,8 +155,7 @@ setActiveTab(cuttings.value[0]?.buyer_id);
               :allocations="allocations"
               :categories="categories"
               :buyers="buyers"
-              @update="() => {}"
-              @create="() => getCuttings(cuttingBuyers[0]?.buyer_id)"
+              @create="() => setActiveTab(cuttings[0]?.buyer_id)"
             />
             <template v-else>
               <div class="user-boxes">
@@ -212,8 +208,7 @@ setActiveTab(cuttings.value[0]?.buyer_id);
                 :allocations="allocations"
                 :categories="categories"
                 :buyers="buyers"
-                @update="() => {}"
-                @create="() => createdItem(cuttings[0]?.buyer_id)"
+                @create="() => setActiveTab(cuttings[0]?.buyer_id)"
               />
               <template v-for="cutting in filterRecord" :key="cutting.id">
                 <Details
@@ -221,8 +216,7 @@ setActiveTab(cuttings.value[0]?.buyer_id);
                   :allocations="allocations"
                   :categories="categories"
                   :buyers="buyers"
-                  @update="() => {}"
-                  @create="() => {}"
+                  @delete="() => setActiveTab(cuttings[0]?.buyer_id)"
                 />
               </template>
               <div class="col-sm-12" v-if="filterRecord.length <= 0">
@@ -240,8 +234,13 @@ setActiveTab(cuttings.value[0]?.buyer_id);
     <!-- tab-section -->
 
     <!-- Modal -->
-    <div class="modal right fade user-details" id="user-details" tabindex="-1" role="dialog"
-         aria-labelledby="myModalLabel3">
+    <div
+      tabindex="-1"
+      role="dialog"
+      id="user-details"
+      aria-labelledby="myModalLabel3"
+      class="modal right fade user-details"
+    >
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <ModalHeader
@@ -266,8 +265,7 @@ setActiveTab(cuttings.value[0]?.buyer_id);
                 :allocations="allocations"
                 :categories="categories"
                 :buyers="buyers"
-                @update="() => {}"
-                @create="() => getCuttings(cuttingBuyers[0]?.buyer_id)"
+                @create="() => setActiveTab(cuttings[0]?.buyer_id)"
               />
               <template v-else>
                 <div class="user-boxes">
@@ -320,8 +318,7 @@ setActiveTab(cuttings.value[0]?.buyer_id);
                   :allocations="allocations"
                   :categories="categories"
                   :buyers="buyers"
-                  @update="() => {}"
-                  @create="() => createdItem(cuttings[0]?.buyer_id)"
+                  @create="() => setActiveTab(cuttings[0]?.buyer_id)"
                 />
                 <template v-for="cutting in filterRecord" :key="cutting.id">
                   <Details
@@ -329,8 +326,7 @@ setActiveTab(cuttings.value[0]?.buyer_id);
                     :allocations="allocations"
                     :categories="categories"
                     :buyers="buyers"
-                    @update="() => {}"
-                    @create="() => {}"
+                    @delete="() => setActiveTab(cuttings[0]?.buyer_id)"
                   />
                 </template>
                 <div class="col-sm-12" v-if="filterRecord.length <= 0">
