@@ -157,7 +157,7 @@ const deleteCutting = () => {
               </button>
             </div>
           </div>
-          <div v-for="(selectedAllocation, index) in form.selected_allocations" class="row">
+          <section v-for="(selectedAllocation, index) in form.selected_allocations" class="row">
             <div class="col-sm-3">
               <h6>Seed Type</h6>
               <h5>
@@ -206,7 +206,7 @@ const deleteCutting = () => {
                 type="text"
               />
             </div>
-          </div>
+          </section>
           <div class="row">
             <div class="col-sm-3">
               <h6>Date of Cutting</h6>
