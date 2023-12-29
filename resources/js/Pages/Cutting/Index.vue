@@ -17,6 +17,7 @@ const props = defineProps({
   categories: Object,
   buyers: Object,
   filters: Object,
+  errors: Object
 });
 
 const cuttings = ref(props.single || []);
@@ -28,7 +29,9 @@ const searchCuttings = ref('');
 
 watch(() => props?.single,
   (single) => {
-    cuttings.value = single || [];
+    if (props.errors.length === undefined ||props.errors.length <= 0) {
+      cuttings.value = single || [];
+    }
   }
 );
 
@@ -63,6 +66,7 @@ const setActiveTab = (id) => {
 
 const setNewRecord = () => {
   isNewRecord.value = true;
+  isNewItemRecord.value = false;
   cuttings.value = [];
   activeTab.value = null;
 }
@@ -151,6 +155,7 @@ setActiveTab(cuttings.value[0]?.buyer_id);
           <div class="tab-content" v-if="cuttings.length > 0 || isNewRecord">
             <Details
               v-if="isNewRecord"
+              unique-key="newRecord"
               :is-new="true"
               :allocations="allocations"
               :categories="categories"
@@ -203,6 +208,7 @@ setActiveTab(cuttings.value[0]?.buyer_id);
               </div>
               <Details
                 v-if="isNewItemRecord"
+                unique-key="newItemRecord"
                 :cutting="{ buyer_id: cuttings[0]?.buyer_id }"
                 :is-new-item="true"
                 :allocations="allocations"
@@ -212,6 +218,7 @@ setActiveTab(cuttings.value[0]?.buyer_id);
               />
               <template v-for="cutting in filterRecord" :key="cutting.id">
                 <Details
+                  :unique-key="`${cutting.id}`"
                   :cutting="cutting"
                   :allocations="allocations"
                   :categories="categories"

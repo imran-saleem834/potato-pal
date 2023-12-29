@@ -16,6 +16,7 @@ const props = defineProps({
   growers: Object,
   buyers: Object,
   filters: Object,
+  errors: Object
 });
 
 const allocations = ref(props.single || []);
@@ -27,7 +28,9 @@ const searchAllocations = ref('');
 
 watch(() => props?.single,
   (single) => {
-    allocations.value = single || [];
+    if (props.errors.length === undefined ||props.errors.length <= 0) {
+      allocations.value = single || [];
+    }
   }
 );
 
@@ -62,13 +65,9 @@ const setActiveTab = (id) => {
 
 const setNewRecord = () => {
   isNewRecord.value = true;
+  isNewItemRecord.value = false;
   allocations.value = [];
   activeTab.value = null;
-}
-
-const createdItem = (buyerId) => {
-  getAllocations(buyerId);
-  isNewItemRecord.value = false;
 }
 
 const filterRecord = computed(() => {
@@ -143,6 +142,7 @@ setActiveTab(allocations.value[0]?.buyer_id);
           <div class="tab-content" v-if="allocations.length > 0 || isNewRecord">
             <Details
               v-if="isNewRecord"
+              unique-key="newRecord"
               :is-new="true"
               :growers="growers"
               :buyers="buyers"
@@ -194,6 +194,7 @@ setActiveTab(allocations.value[0]?.buyer_id);
               </div>
               <Details
                 v-if="isNewItemRecord"
+                unique-key="newItemRecord"
                 :allocation="{ buyer_id: allocations[0]?.buyer_id }"
                 :is-new-item="true"
                 :growers="growers"
@@ -202,6 +203,7 @@ setActiveTab(allocations.value[0]?.buyer_id);
               />
               <template v-for="allocation in filterRecord" :key="allocation.id">
                 <Details
+                  :unique-key="`${allocation.id}`"
                   :allocation="allocation"
                   :growers="growers"
                   :buyers="buyers"

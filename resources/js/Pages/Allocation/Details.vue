@@ -10,6 +10,7 @@ import DataTablesCore from 'datatables.net';
 DataTable.use(DataTablesCore);
 
 const props = defineProps({
+  uniqueKey: String,
   allocation: {
     type: Object,
     default: {}
@@ -49,6 +50,9 @@ const form = useForm({
 
 watch(() => props.allocation,
   (allocation) => {
+    if (props.isNewItem || isEdit.value) {
+      return;
+    }
     form.clearErrors();
     form.buyer_id = allocation.buyer_id
     form.grower_id = allocation.grower_id
@@ -188,7 +192,7 @@ const deleteAllocation = () => {
               <button
                 class="btn-red btn-select-receival"
                 data-toggle="modal"
-                data-target="#receivals"
+                :data-target="`#receivals-${uniqueKey}`"
               >Select Receival
               </button>
             </div>
@@ -305,7 +309,7 @@ const deleteAllocation = () => {
     </div>
   </div>
 
-  <div class="modal fade" id="receivals" tabindex="-1" role="dialog" aria-labelledby="myModalLabel4">
+  <div class="modal fade" :id="`receivals-${uniqueKey}`" tabindex="-1" role="dialog" aria-labelledby="myModalLabel4">
     <div class="modal-dialog modal-lg" role="document" style="width: 90%;">
       <div class="modal-content">
         <div class="modal-header">

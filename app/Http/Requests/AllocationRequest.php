@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Allocation;
 use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -27,13 +28,14 @@ class AllocationRequest extends FormRequest
         $weight   = $receival['weight'] ?? 0;
 
         $rules = [
+            'buyer_id'        => ['required', 'numeric', 'exists:users,id'],
             'grower_id'       => ['required', 'numeric', 'exists:users,id'],
             'unique_key'      => ['required', 'string'],
             'no_of_bins'      => ['required', 'numeric', 'gt:0', "max:$noOfBins"],
             'weight'          => ['required', 'numeric', 'gt:0', "max:$weight"],
             'bin_size'        => ['required', 'numeric', Rule::in([0.5, 1, 2])],
             'paddock'         => ['required', 'string'],
-            'comment'         => ['required', 'string', 'max:255'],
+            'comment'         => ['nullable', 'string', 'max:255'],
             'grower'          => ['required', 'array', 'max:1'],
             'seed_variety'    => ['required', 'array', 'max:1'],
             'seed_generation' => ['required', 'array', 'max:1'],
@@ -41,8 +43,15 @@ class AllocationRequest extends FormRequest
             'seed_type'       => ['required', 'array', 'max:1'],
         ];
 
-        if ($this->isMethod('POST')) {
-            $rules['buyer_id'] = ['required', 'numeric', 'exists:users,id'];
+        if ($this->isMethod('PATCH')) {
+            $allocation = Allocation::find($this->route('allocation'));
+            if ($receival['unique_key'] === $allocation->unique_key) {
+                $noOfBins = $allocation->no_of_bins + $noOfBins;
+                $weight   = $allocation->weight + $weight;
+            }
+
+            $rules['no_of_bins'] = ['required', 'numeric', 'gt:0', "max:$noOfBins"];
+            $rules['weight']     = ['required', 'numeric', 'gt:0', "max:$weight"];
         }
 
         return $rules;
@@ -57,9 +66,8 @@ class AllocationRequest extends FormRequest
     {
         return [
             'buyer_id'   => 'buyer',
+            'grower_id'  => 'grower',
             'unique_key' => 'receival',
-            //            'grower_id'            => 'grower',
-            //            'reallocated_buyer_id' => 'reallocated buyer',
         ];
     }
 }

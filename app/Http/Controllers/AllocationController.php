@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Inertia\Inertia;
+use App\Models\Cutting;
 use App\Models\Receival;
 use App\Models\Allocation;
 use Illuminate\Http\Request;
 use App\Helpers\ReceivalHelper;
+use App\Models\CuttingAllocation;
 use App\Helpers\CategoriesHelper;
 use App\Helpers\NotificationHelper;
 use App\Http\Requests\AllocationRequest;
@@ -55,8 +57,9 @@ class AllocationController extends Controller
         ])->select(['id', 'name', 'grower_name', 'paddocks'])->get();
 
         $growers = $users->map(function ($user) {
-            $user->remainingReceivals = $user->remainingReceivals->map(function ($remainingReceival) {
-
+            $user->remainingReceivals = $user->remainingReceivals->filter(function ($remainingReceival) {
+                return !empty($remainingReceival->receival_id);
+            })->map(function ($remainingReceival) {
                 $receival = Receival::with(['categories.category'])->find($remainingReceival->receival_id[0]);
 
                 [
@@ -176,7 +179,29 @@ class AllocationController extends Controller
 
         NotificationHelper::deleteAction('Allocation', $id);
 
-        return to_route('allocations.index', ['buyerId' => $buyerId]);
+        // Remove Cutting Allocations
+        $cuttingIds = [];
+        $cuttingAllocations = CuttingAllocation::where('allocation_id', $id)->get();
+        foreach ($cuttingAllocations as $cuttingAllocation) {
+            $cuttingIds[] = $cuttingAllocation->cutting_id;
+            $cuttingAllocation->delete();
+        }
+
+        // Remove Cutting if all it's allocations are removed
+        $cuttingIds = array_unique($cuttingIds);
+        foreach ($cuttingIds as $cuttingId) {
+            $isMoreCuttingAllocationExists = CuttingAllocation::where('cutting_id', $cuttingId)->exists();
+            if (!$isMoreCuttingAllocationExists) {
+                Cutting::destroy($cuttingId);
+            }
+        }
+
+        $isAllocationExists = Allocation::where('buyer_id', $buyerId)->exists();
+        if ($isAllocationExists) {
+            return to_route('allocations.index', ['buyerId' => $buyerId]);
+        }
+
+        return to_route('allocations.index');
     }
 
     private function getAllocations($buyerId)

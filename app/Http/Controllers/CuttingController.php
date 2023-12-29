@@ -52,8 +52,8 @@ class CuttingController extends Controller
         $allocations = $allocations->map(function ($allocation) {
             $allocation->allocation_id = $allocation->id;
             foreach ($allocation->cuttings as $cutting) {
-                $allocation->no_of_bins -= $cutting->no_of_bins_after_cutting;
-                $allocation->weight     -= $cutting->weight_after_cutting;
+                $allocation->no_of_bins -= $cutting->no_of_bins_before_cutting;
+                $allocation->weight     -= $cutting->weight_before_cutting;
             }
             return $allocation;
         });
@@ -76,9 +76,7 @@ class CuttingController extends Controller
         $cutting = Cutting::create($request->validated());
 
         foreach ($request->validated('selected_allocations') as $allocation) {
-            CuttingAllocation::create(
-                array_merge(['cutting_id' => $cutting->id], $allocation)
-            );
+            CuttingAllocation::create(array_merge(['cutting_id' => $cutting->id], $allocation));
         }
 
         $inputs = $request->only(['fungicide']);
@@ -109,12 +107,16 @@ class CuttingController extends Controller
         $cutting->update($request->validated());
         $cutting->save();
 
-        CuttingAllocation::where('cutting_id', $cutting->id)->delete();
-        foreach ($request->validated('selected_allocations') as $allocation) {
-            CuttingAllocation::create(
-                array_merge(['cutting_id' => $cutting->id], $allocation)
-            );
+        $cuttingAllocations = [];
+        foreach ($request->validated('selected_allocations') as $cuttingAllocation) {
+            if (isset($cuttingAllocation['id'])) {
+                $cuttingAllocations[] = $cuttingAllocation['id'];
+                CuttingAllocation::find($cuttingAllocation['id'])->update($cuttingAllocation);
+            } else {
+                CuttingAllocation::create(array_merge(['cutting_id' => $cutting->id], $cuttingAllocation));
+            }
         }
+        CuttingAllocation::where('cutting_id', $cutting->id)->whereNotIn('id', $cuttingAllocations)->delete();
 
         $inputs = $request->only(['fungicide']);
         CategoriesHelper::createRelationOfTypes($inputs, $cutting->id, Cutting::class);
@@ -139,16 +141,32 @@ class CuttingController extends Controller
 
         NotificationHelper::deleteAction('Cutting', $id);
 
-        return to_route('cuttings.index', ['buyerId' => $buyerId]);
+        $isCuttingExists = Cutting::where('buyer_id', $buyerId)->exists();
+
+        if ($isCuttingExists) {
+            return to_route('cuttings.index', ['buyerId' => $buyerId]);
+        }
+
+        return to_route('cuttings.index');
     }
 
     private function getCuttings($buyerId)
     {
-        return Cutting::with([
-            'categories.category',
-            'cuttingAllocations.allocation.categories.category',
-            'buyer' => fn($query) => $query->select('id', 'name'),
-            'buyer.categories.category',
-        ])->where('buyer_id', $buyerId)->get();
+        return Cutting::query()
+            ->with([
+                'categories.category',
+                'cuttingAllocations.allocation.categories.category',
+                'buyer' => fn($query) => $query->select('id', 'name'),
+                'buyer.categories.category',
+            ])
+            ->where('buyer_id', $buyerId)
+            ->get()
+            ->map(function ($cutting) {
+                $cutting->cuttingAllocations = $cutting->cuttingAllocations->map(function ($cuttingAllocation) {
+                    $cuttingAllocation->allocation->no_of_bins -= $cuttingAllocation->no_of_bins_before_cutting;
+                    $cuttingAllocation->allocation->weight     -= $cuttingAllocation->weight_before_cutting;
+                });
+                return $cutting;
+            });
     }
 }
