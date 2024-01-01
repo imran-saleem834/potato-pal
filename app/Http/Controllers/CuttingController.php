@@ -47,16 +47,16 @@ class CuttingController extends Controller
         }
 
         $users       = User::select(['id', 'name'])->get();
-        $allocations = Allocation::with(['cuttings', 'categories.category'])->get();
-
-        $allocations = $allocations->map(function ($allocation) {
-            $allocation->allocation_id = $allocation->id;
-            foreach ($allocation->cuttings as $cutting) {
-                $allocation->no_of_bins -= $cutting->no_of_bins_before_cutting;
-                $allocation->weight     -= $cutting->weight_before_cutting;
-            }
-            return $allocation;
-        });
+        $allocations = Allocation::with(['cuttings', 'categories.category'])
+            ->get()
+            ->map(function ($allocation) {
+                $allocation->allocation_id = $allocation->id;
+                foreach ($allocation->cuttings as $cutting) {
+                    $allocation->no_of_bins -= $cutting->no_of_bins_before_cutting;
+                    $allocation->weight     -= $cutting->weight_before_cutting;
+                }
+                return $allocation;
+            });
 
         return Inertia::render('Cutting/Index', [
             'cuttingBuyers' => $cuttingBuyers,

@@ -41,6 +41,11 @@ class Allocation extends Model
         return $this->hasMany(CuttingAllocation::class);
     }
 
+    public function reallocations()
+    {
+        return $this->hasMany(Reallocation::class);
+    }
+
     public function categories(): MorphMany
     {
         return $this->morphMany(CategoriesRelation::class, 'categorizable');
