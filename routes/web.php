@@ -12,6 +12,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\AllocationController;
 use App\Http\Controllers\CuttingController;
 use App\Http\Controllers\ReallocationController;
+use App\Http\Controllers\DispatchController;
 
 /*
 |--------------------------------------------------------------------------
@@ -52,8 +53,9 @@ Route::middleware([
     Route::post('/tia-samples/{id}/delete', [TiaSampleController::class, 'delete'])->name('tia-samples.delete');
     Route::resource('/tia-samples', TiaSampleController::class);
 
-    Route::resource('/allocations', AllocationController::class)->except(['create', 'edit']);
+    Route::resource('/allocations', AllocationController::class)->except(['create', 'edit', 'show']);
     Route::resource('/reallocations', ReallocationController::class)->except(['create', 'edit']);
+    Route::resource('/dispatch', DispatchController::class)->except(['create', 'edit', 'show']);
 
     Route::resource('/notifications', NotificationController::class);
 

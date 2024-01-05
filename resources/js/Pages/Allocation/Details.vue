@@ -260,7 +260,7 @@ const deleteAllocation = () => {
               <h5>Allocated No of Bins: {{ allocation.no_of_bins }}</h5>
             </div>
             <div class="col-sm-2">
-              <h5>Allocated: {{ allocation.weight }} Tonnes</h5>
+              <h5>Allocated: {{ allocation.weight.toFixed(2) }} Tonnes</h5>
             </div>
             <div class="col-sm-2 text-right">
               <a role="button" @click="setIsEdit" class="btn btn-red">Edit</a>
@@ -273,7 +273,7 @@ const deleteAllocation = () => {
                 v-for="category in getCategoriesByType(allocation.categories, 'grower')"
                 :key="category.id"
               >
-                <h5>Grower Group: {{ category.category.name }}</h5>
+                <h5>Receival Group: {{ category.category.name }}</h5>
               </template>
             </div>
             <div class="col-sm-2">

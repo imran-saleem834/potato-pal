@@ -15,7 +15,7 @@ use App\Helpers\NotificationHelper;
 use App\Http\Requests\AllocationRequest;
 use Illuminate\Database\Eloquent\Builder;
 
-class AllocationController extends Controller
+class DispatchController extends Controller
 {
     /**
      * @param Request $request
