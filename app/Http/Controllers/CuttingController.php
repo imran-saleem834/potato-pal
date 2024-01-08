@@ -47,10 +47,14 @@ class CuttingController extends Controller
         }
 
         $users       = User::select(['id', 'name'])->get();
-        $allocations = Allocation::with(['cuttings', 'categories.category'])
+        $allocations = Allocation::with(['dispatches', 'cuttings', 'categories.category'])
             ->get()
             ->map(function ($allocation) {
                 $allocation->allocation_id = $allocation->id;
+                foreach ($allocation->dispatches as $dispatch) {
+                    $allocation->no_of_bins -= $dispatch->no_of_bins;
+                    $allocation->weight     -= $dispatch->weight;
+                }
                 foreach ($allocation->cuttings as $cutting) {
                     $allocation->no_of_bins -= $cutting->no_of_bins_before_cutting;
                     $allocation->weight     -= $cutting->weight_before_cutting;
@@ -62,7 +66,7 @@ class CuttingController extends Controller
             'cuttingBuyers' => $cuttingBuyers,
             'single'        => $cuttings,
             'allocations'   => $allocations,
-            'categories'    => Category::where('type', 'fungicide')->get(),
+            'categories'    => fn() => Category::where('type', 'fungicide')->get(),
             'buyers'        => $users->map(fn($user) => ['value' => $user->id, 'label' => $user->name]),
             'filters'       => $request->only(['search']),
         ]);

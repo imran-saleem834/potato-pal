@@ -4,7 +4,7 @@ import LogoutButton from '@/Components/LogoutButton.vue';
 
 // route('reallocations.index')
 // route('cuttings.index')
-// route('dispatch.index')
+// route('dispatches.index')
 const menus = [
   { route: route('users.index'), image: 'menu1.png', label: 'Users' },
   { route: route('receivals.index'), image: 'menu2.png', label: 'Receivals' },

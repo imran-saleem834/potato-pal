@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\DeleteRecordsHelper;
 use App\Models\User;
 use Inertia\Inertia;
 use App\Models\Allocation;
@@ -47,9 +48,13 @@ class ReallocationController extends Controller
 
         $users       = User::select(['id', 'name'])->get();
         $allocations = Allocation::query()
-            ->with(['reallocations', 'categories.category'])
+            ->with(['dispatches', 'reallocations', 'categories.category'])
             ->get()
             ->map(function ($allocation) {
+                foreach ($allocation->dispatches as $dispatch) {
+                    $allocation->no_of_bins -= $dispatch->no_of_bins;
+                    $allocation->weight     -= $dispatch->weight;
+                }
                 foreach ($allocation->reallocations as $reallocation) {
                     $allocation->no_of_bins -= $reallocation->no_of_bins;
                     $allocation->weight     -= $reallocation->weight;
@@ -111,6 +116,8 @@ class ReallocationController extends Controller
         $reallocation = Reallocation::find($id);
         $buyerId      = $reallocation->buyer_id;
         $reallocation->delete();
+        
+        DeleteRecordsHelper::deleteDisaptachByReallocationId($id);
 
         NotificationHelper::deleteAction('Reallocation', $id);
 

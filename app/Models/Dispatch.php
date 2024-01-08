@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Reallocation extends Model
+class Dispatch extends Model
 {
     use HasFactory;
 
@@ -17,6 +17,7 @@ class Reallocation extends Model
     protected $fillable = [
         'buyer_id',
         'allocation_buyer_id',
+        'reallocation_id',
         'allocation_id',
         'no_of_bins',
         'weight',
@@ -38,8 +39,8 @@ class Reallocation extends Model
         return $this->belongsTo(Allocation::class);
     }
 
-    public function dispatches()
+    public function reallocation()
     {
-        return $this->hasMany(Dispatch::class);
+        return $this->belongsTo(Reallocation::class);
     }
 }

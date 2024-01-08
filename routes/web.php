@@ -55,7 +55,7 @@ Route::middleware([
 
     Route::resource('/allocations', AllocationController::class)->except(['create', 'edit', 'show']);
     Route::resource('/reallocations', ReallocationController::class)->except(['create', 'edit']);
-    Route::resource('/dispatch', DispatchController::class)->except(['create', 'edit', 'show']);
+    Route::resource('/dispatches', DispatchController::class)->except(['create', 'edit', 'show']);
 
     Route::resource('/notifications', NotificationController::class);
 
@@ -64,6 +64,7 @@ Route::middleware([
     Route::resource('/notes', NoteController::class);
 
     Route::resource('/files', FileController::class);
+    Route::inertia('/test', 'Test');
 });
 
 Route::get('/abc', function () {

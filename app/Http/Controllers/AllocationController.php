@@ -4,14 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Inertia\Inertia;
-use App\Models\Cutting;
 use App\Models\Receival;
 use App\Models\Allocation;
 use Illuminate\Http\Request;
 use App\Helpers\ReceivalHelper;
-use App\Models\CuttingAllocation;
 use App\Helpers\CategoriesHelper;
 use App\Helpers\NotificationHelper;
+use App\Helpers\DeleteRecordsHelper;
 use App\Http\Requests\AllocationRequest;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -153,28 +152,12 @@ class AllocationController extends Controller
         $allocation = Allocation::find($id);
         $buyerId    = $allocation->buyer_id;
         $growerId   = $allocation->grower_id;
-        $allocation->delete();
 
-        ReceivalHelper::calculateRemainingReceivals($growerId);
-
+        DeleteRecordsHelper::deleteAllocation($id);
+        
         NotificationHelper::deleteAction('Allocation', $id);
-
-        // Remove Cutting Allocations
-        $cuttingIds         = [];
-        $cuttingAllocations = CuttingAllocation::where('allocation_id', $id)->get();
-        foreach ($cuttingAllocations as $cuttingAllocation) {
-            $cuttingIds[] = $cuttingAllocation->cutting_id;
-            $cuttingAllocation->delete();
-        }
-
-        // Remove Cutting if all it's allocations are removed
-        $cuttingIds = array_unique($cuttingIds);
-        foreach ($cuttingIds as $cuttingId) {
-            $isMoreCuttingAllocationExists = CuttingAllocation::where('cutting_id', $cuttingId)->exists();
-            if (!$isMoreCuttingAllocationExists) {
-                Cutting::destroy($cuttingId);
-            }
-        }
+        
+        ReceivalHelper::calculateRemainingReceivals($growerId);
 
         $isAllocationExists = Allocation::where('buyer_id', $buyerId)->exists();
         if ($isAllocationExists) {
