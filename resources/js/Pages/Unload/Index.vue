@@ -110,7 +110,7 @@ setActiveTab(unload.value?.id);
           <LeftBar
             :items="unloads"
             :active-tab="activeTab"
-            :row-1="{title: 'Grower\'s Name', value: 'grower.name'}"
+            :row-1="{title: 'Grower', value: 'grower.name'}"
             :row-2="{title: 'Unloading Id', value: 'id'}"
             @click="getUnload"
           />
@@ -138,8 +138,7 @@ setActiveTab(unload.value?.id);
     <!-- tab-section -->
 
     <!-- Modal -->
-    <div class="modal right fade user-details" id="user-details" tabindex="-1" role="dialog"
-         aria-labelledby="myModalLabel3">
+    <div class="modal right fade user-details" id="user-details" tabindex="-1" role="dialog">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <ModalHeader

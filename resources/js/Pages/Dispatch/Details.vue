@@ -5,7 +5,9 @@ import Multiselect from '@vueform/multiselect'
 import TextInput from "@/Components/TextInput.vue";
 import DataTable from 'datatables.net-vue3';
 import DataTablesCore from 'datatables.net';
-import { getCategoryIdsByType, getSingleCategoryNameByType } from "@/helper.js";
+import { binSizes, getBinSizesValue } from "@/tonnes.js";
+import { getSingleCategoryNameByType } from "@/helper.js";
+import UlLiButton from "@/Components/UlLiButton.vue";
 
 DataTable.use(DataTablesCore);
 
@@ -43,6 +45,14 @@ const form = useForm({
   comment: props.dispatch.comment,
   selected_allocation: {},
   selected_reallocation: {},
+});
+
+const returnForm = useForm({
+  dispatch: null,
+  bin_size: '',
+  no_of_bins: '',
+  weight: '',
+  comment: '',
 });
 
 watch(() => props.dispatch,
@@ -140,6 +150,21 @@ const deleteDispatch = () => {
     },
   });
 }
+
+const openModalReturnAllocation = (dispatch) => {
+  returnForm.dispatch = dispatch;
+  returnForm.dispatch.allocation = dispatch.allocation_id ? dispatch.allocation : dispatch.reallocation.allocation
+}
+
+const storeReturnRecord = () => {
+  returnForm.post(route('dispatches.store'), {
+    preserveScroll: true,
+    preserveState: true,
+    onSuccess: () => {
+      emit('create');
+    },
+  });
+}
 </script>
 
 <template>
@@ -220,7 +245,8 @@ const deleteDispatch = () => {
             </table>
           </div>
 
-          <div v-if="Object.values(form.selected_reallocation).length" class="user-table d-none" style="margin: 10px 0;">
+          <div v-if="Object.values(form.selected_reallocation).length" class="user-table d-none"
+               style="margin: 10px 0;">
             <table class="table">
               <thead>
               <tr>
@@ -232,7 +258,10 @@ const deleteDispatch = () => {
               </thead>
               <tbody>
               <tr>
-                <td>{{ getSingleCategoryNameByType(form.selected_reallocation.allocation.categories, 'seed-type') }}</td>
+                <td>{{
+                    getSingleCategoryNameByType(form.selected_reallocation.allocation.categories, 'seed-type')
+                  }}
+                </td>
                 <td>{{ form.selected_reallocation.allocation.bin_size }} Tonnes</td>
                 <td>{{ form.selected_reallocation.no_of_bins }}</td>
                 <td>{{ form.selected_reallocation.weight }} Tonnes</td>
@@ -310,7 +339,8 @@ const deleteDispatch = () => {
                 Seed Variety: {{ getSingleCategoryNameByType(dispatch.allocation.categories, 'seed-variety') }}
               </h5>
               <h5 v-if="dispatch.reallocation_id">
-                Seed Variety: {{ getSingleCategoryNameByType(dispatch.reallocation.allocation.categories, 'seed-variety') }}
+                Seed Variety:
+                {{ getSingleCategoryNameByType(dispatch.reallocation.allocation.categories, 'seed-variety') }}
               </h5>
             </div>
             <div class="col-sm-2">
@@ -318,7 +348,8 @@ const deleteDispatch = () => {
                 Seed Generation: {{ getSingleCategoryNameByType(dispatch.allocation.categories, 'seed-generation') }}
               </h5>
               <h5 v-if="dispatch.reallocation_id">
-                Seed Generation: {{ getSingleCategoryNameByType(dispatch.reallocation.allocation.categories, 'seed-generation') }}
+                Seed Generation:
+                {{ getSingleCategoryNameByType(dispatch.reallocation.allocation.categories, 'seed-generation') }}
               </h5>
             </div>
             <div class="col-sm-2">
@@ -333,20 +364,29 @@ const deleteDispatch = () => {
               <h5 v-if="dispatch.allocation_id">Paddock: {{ dispatch.allocation.paddock }}</h5>
               <h5 v-if="dispatch.reallocation_id">Paddock: {{ dispatch.reallocation.allocation.paddock }}</h5>
             </div>
+            <div class="col-sm-2 text-right">
+              <button
+                class="btn btn-red"
+                data-toggle="modal"
+                :data-target="`#return-${uniqueKey}`"
+                @click="openModalReturnAllocation(dispatch)"
+              >Return
+              </button>
+            </div>
           </div>
         </template>
       </div>
     </div>
   </div>
 
-  <div class="modal fade" :id="`allocations-${uniqueKey}`" tabindex="-1" role="dialog" aria-labelledby="myModalLabel4">
+  <div class="modal fade" :id="`allocations-${uniqueKey}`" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-lg" role="document" style="width: 90%;">
       <div class="modal-content">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
-          <h4 class="modal-title" id="myModalLabel3">Select Re\Allocation</h4>
+          <h4 class="modal-title">Select Re\Allocation</h4>
         </div>
         <div class="modal-body">
           <table class="table">
@@ -407,6 +447,83 @@ const deleteDispatch = () => {
             </template>
             </tbody>
           </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div
+    v-if="Number.isInteger(parseInt(uniqueKey)) && returnForm.dispatch?.allocation"
+    class="modal fade"
+    :id="`return-${uniqueKey}`"
+    tabindex="-1"
+    role="dialog"
+  >
+    <div class="modal-dialog modal-lg" role="document" style="width: 90%;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+          <h4 class="modal-title">Return Re\Allocation</h4>
+        </div>
+        <div class="modal-body">
+          <table class="table">
+            <thead>
+            <tr>
+              <th>From</th>
+              <th>Seed Type</th>
+              <th>Seed Variety</th>
+              <th>Seed Class</th>
+              <th>Seed Generation</th>
+              <th>Grower Group</th>
+              <th>Paddock</th>
+              <th>Bin Size</th>
+            </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{{ returnForm.dispatch.allocation_id ? 'Allocation' : 'Reallocation' }}</td>
+                <td>{{ getSingleCategoryNameByType(returnForm.dispatch.allocation.categories, 'seed-type') }}</td>
+                <td>{{ getSingleCategoryNameByType(returnForm.dispatch.allocation.categories, 'seed-variety') }}</td>
+                <td>{{ getSingleCategoryNameByType(returnForm.dispatch.allocation.categories, 'seed-class') }}</td>
+                <td>{{ getSingleCategoryNameByType(returnForm.dispatch.allocation.categories, 'seed-generation') }}</td>
+                <td>{{ getSingleCategoryNameByType(returnForm.dispatch.allocation.categories, 'grower') }}</td>
+                <td>{{ returnForm.dispatch.allocation.paddock }}</td>
+                <td>{{ returnForm.dispatch.allocation.bin_size }} Tonnes</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="row">
+            <div class="col-sm-3">
+              <div class="user-boxes" style="box-shadow: none; padding: 0">
+                <h6>Return Bin Size</h6>
+                <UlLiButton
+                  :value="returnForm.bin_size"
+                  :error="returnForm.errors.bin_size"
+                  :items="binSizes"
+                  @click="(key) => returnForm.bin_size = key"
+                />
+              </div>
+            </div>
+            <div class="col-sm-3">
+              <h6>Return No of Bins</h6>
+              <TextInput v-model="returnForm.no_of_bins" :error="returnForm.errors.no_of_bins" type="text"/>
+            </div>
+            <div class="col-sm-3">
+              <h6>Return Weight Tonnes</h6>
+              <TextInput v-model="returnForm.weight" :error="returnForm.errors.weight" type="text"/>
+            </div>
+            <div class="col-sm-3">
+              <h6>Comment</h6>
+              <TextInput v-model="returnForm.comment" :error="returnForm.errors.comment" type="text"/>
+            </div>
+          </div>
+
+          <div class="text-right">
+            <a role="button" @click="storeReturnRecord" class="btn btn-red">Create</a>
+          </div>
         </div>
       </div>
     </div>

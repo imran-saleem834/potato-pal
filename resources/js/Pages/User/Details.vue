@@ -189,7 +189,7 @@ const storeRecord = () => {
         </ul>
         <h5 v-else>-</h5>
 
-        <h6>Grower Name</h6>
+        <h6>Grower</h6>
         <TextInput v-if="isForm" v-model="form.grower_name" :error="form.errors.grower_name" type="text"/>
         <h5 v-else-if="user.grower_name">{{ user.grower_name }}</h5>
         <h5 v-else>-</h5>

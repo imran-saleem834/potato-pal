@@ -1,10 +1,10 @@
 <script setup>
+import moment from 'moment';
 import { ref, watch } from "vue";
 import { router } from "@inertiajs/vue3";
 import AppLayout from '@/Layouts/AppLayout.vue';
 import TopBar from '@/Components/TopBar.vue';
 import MiddleBar from '@/Components/MiddleBar.vue';
-import moment from 'moment';
 
 const props = defineProps({
   notifications: {
@@ -51,21 +51,22 @@ const getNotificationActionColor = (action) => {
       type="Notifications"
       title="Notifications"
       :access="{
-                new: false,
-                edit: false,
-                delete: false,
-            }"
+        new: false,
+        edit: false,
+        delete: false,
+      }"
       @newRecord=""
       @editRecord=""
       @deleteRecord=""
     />
 
-    <!-- tab-section -->
     <div class="tab-section" style="margin-top: 30px">
       <div class="row row0">
-        <div v-for="notification in notifications"
-             :key="notification.id"
-             class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
+        <div
+          v-for="notification in notifications"
+          :key="notification.id"
+          class="col-xs-12 col-sm-6 col-md-4 col-lg-4"
+        >
           <div class="card">
             <div class="user-boxes" style="padding: 10px 20px;">
               <h5 style="margin-bottom: 0;">
@@ -74,12 +75,8 @@ const getNotificationActionColor = (action) => {
                   {{ notification.action }}
                 </strong>
               </h5>
-              <h6>
-                {{ moment(notification.created_at).format('YYYY-MM-DD HH:MM:SS') }}
-              </h6>
-              <h6>
-                <br> {{ notification.notification }}
-              </h6>
+              <h6>{{ moment(notification.created_at).format('YYYY-MM-DD HH:MM:SS') }}</h6>
+              <h6><br> {{ notification.notification }}</h6>
             </div>
           </div>
         </div>
@@ -89,6 +86,5 @@ const getNotificationActionColor = (action) => {
         <div class="clearfix"></div>
       </div>
     </div>
-    <!-- tab-section -->
   </AppLayout>
 </template>

@@ -62,7 +62,7 @@ class ReceivalController extends Controller
         return Inertia::render('Receival/Index', [
             'receivals'  => $receivals,
             'single'     => $receival,
-            'users'      => User::select(['id', 'name', 'paddocks'])->get()->toArray(),
+            'users'      => fn() => User::with(['categories.category'])->select(['id', 'name', 'paddocks'])->get(),
             'categories' => $categories,
             'filters'    => $request->only(['search']),
         ]);
@@ -186,6 +186,48 @@ class ReceivalController extends Controller
     public function pushForTiaSample(string $id)
     {
         TiaSample::firstOrCreate(['receival_id' => $id]);
+
+        return to_route('receivals.index');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function duplicate(Request $request, string $id)
+    {
+        $receival = Receival::with(['categories.category'])->find($id);
+
+        $inputs     = [];
+        $categories = [];
+        $types      = [
+            'grower_group',
+            'seed_type',
+            'seed_variety',
+            'seed_generation',
+            'seed_class',
+            'delivery_type',
+            'fungicide',
+            'transport'
+        ];
+        foreach ($request->input('inputs') as $field => $isTrue) {
+            if ($isTrue && $receival[$field]) {
+                $inputs[$field] = $receival[$field];
+            } else if ($isTrue && in_array($field, $types)) {
+                $field              = $field === 'grower_group' ? 'grower' : str_replace('_', '-', $field);
+                $categories[$field] = $receival->categories->where('type', $field)->pluck('category_id')->toArray();
+            }
+        }
+
+        $receival = Receival::create($inputs);
+
+        CategoriesHelper::createRelationOfTypes($categories, $receival->id, Receival::class);
+
+        $receival->unique_key = ReceivalHelper::getUniqueKey($receival);
+        $receival->save();
+        
+        ReceivalHelper::calculateRemainingReceivals($receival->grower_id);
+
+        NotificationHelper::duplicatedAction('Receival', $receival->id);
 
         return to_route('receivals.index');
     }

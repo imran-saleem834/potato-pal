@@ -1,3 +1,31 @@
+<script setup>
+import { Link } from '@inertiajs/vue3';
+
+defineProps({
+  type: String,
+  title: String,
+  isEditRecordSelected: {
+    type: Boolean,
+    default: false,
+  },
+  isNewRecordSelected: {
+    type: Boolean,
+    default: false,
+  },
+  access: {
+    type: Object,
+    default: {
+      new: true,
+      edit: true,
+      delete: true,
+      duplicate: false,
+    }
+  }
+});
+
+defineEmits(['editRecord', 'newRecord', 'deleteRecord', 'duplicate']);
+</script>
+
 <template>
   <div class="middle-section">
     <div class="middle-left">
@@ -21,7 +49,7 @@
               </a>
             </li>
             <li v-if="!isNewRecordSelected && access.new && access.edit">
-              <a role="button" @click="newRecord" class="btn-red">
+              <a role="button" @click="$emit('newRecord')" class="btn-red">
                 <span class="fa fa-plus"></span> Add
               </a>
             </li>
@@ -35,18 +63,29 @@
         <div class="user-right-button">
           <ul>
             <li v-if="!isNewRecordSelected && access.delete">
-              <a role="button" @click="deleteRecord" class="filter-btn">
+              <a role="button" @click="$emit('deleteRecord')" class="filter-btn">
                 <span class="fa fa-trash-o"></span>
               </a>
             </li>
             <li v-if="!isNewRecordSelected && !isEditRecordSelected && access.edit">
-              <a role="button" @click="editRecord" class="btn-red">
+              <a role="button" @click="$emit('editRecord')" class="btn-red">
                 <span class="fa fa-edit"></span> Edit
               </a>
             </li>
             <li v-if="!isNewRecordSelected && access.new && !access.edit">
-              <a role="button" @click="newRecord" class="btn-red">
+              <a role="button" @click="$emit('newRecord')" class="btn-red">
                 <span class="fa fa-plus"></span> Add
+              </a>
+            </li>
+            <li v-if="!isNewRecordSelected && !isEditRecordSelected && access.duplicate">
+              <a
+                role="button"
+                class="btn-red"
+                data-toggle="modal"
+                @click="$emit('duplicate')"
+                data-target="#duplicate-details"
+              >
+                <span class="fa fa-clone"></span> Duplicate
               </a>
             </li>
           </ul>
@@ -55,40 +94,3 @@
     </div>
   </div>
 </template>
-
-<script setup>
-import { Link } from '@inertiajs/vue3';
-
-defineProps({
-  type: String,
-  title: String,
-  isEditRecordSelected: {
-    type: Boolean,
-    default: false,
-  },
-  isNewRecordSelected: {
-    type: Boolean,
-    default: false,
-  },
-  access: {
-    type: Object,
-    default: {
-      new: true,
-      edit: true,
-      delete: true,
-    }
-  }
-});
-
-const emit = defineEmits(['editRecord', 'newRecord', 'deleteRecord']);
-
-const editRecord = () => {
-  emit('editRecord');
-};
-const newRecord = () => {
-  emit('newRecord');
-};
-const deleteRecord = () => {
-  emit('deleteRecord');
-};
-</script>

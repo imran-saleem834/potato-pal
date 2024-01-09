@@ -323,10 +323,10 @@ const deleteCutting = () => {
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
-          <h4 v-if="form.selected_allocations.length <= 0" class="modal-title" id="myModalLabel3">
+          <h4 v-if="form.selected_allocations.length <= 0" class="modal-title">
             Select Allocations
           </h4>
-          <h4 v-if="form.selected_allocations.length > 0" class="modal-title" id="myModalLabel3">
+          <h4 v-if="form.selected_allocations.length > 0" class="modal-title">
             Selected {{ form.selected_allocations.length }} Allocations
           </h4>
         </div>

@@ -1,11 +1,11 @@
 <script setup>
+import moment from 'moment';
 import { computed, watch } from "vue";
 import { useForm, Link } from "@inertiajs/vue3";
-import { getCategoriesByType, toCamelCase } from "@/helper.js";
-import moment from 'moment';
 import TextInput from "@/Components/TextInput.vue";
 import UlLiButton from "@/Components/UlLiButton.vue";
 import { getBinSizesValue } from "@/tonnes.js";
+import { getCategoriesByType, getSingleCategoryNameByType, toCamelCase } from "@/helper.js";
 
 const props = defineProps({
   unload: Object,
@@ -74,9 +74,11 @@ const storeRecord = () => {
         <h5 v-else>-</h5>
 
         <h6>Receival Id</h6>
-        <Link :href="route('receivals.index', {receivalId: unload.id})">
-          {{ unload.id }}
-        </Link>
+        <h5>
+          <Link :href="route('receivals.index', {receivalId: unload.id})">
+            {{ unload.id }}
+          </Link>
+        </h5>
 
         <h6>Time Added</h6>
         <h5>{{ moment(unload.created_at).format('DD/MM/YYYY hh:mm A') }}</h5>
@@ -91,10 +93,7 @@ const storeRecord = () => {
 
         <h6>Fungicide</h6>
         <ul v-if="getCategoriesByType(unload.categories, 'fungicide').length">
-          <li v-for="category in getCategoriesByType(unload.categories, 'fungicide')"
-              :key="category.id">
-            <a>{{ category.category?.name }}</a>
-          </li>
+          <li><a>{{ getSingleCategoryNameByType(unload.categories, 'fungicide') }}</a></li>
         </ul>
         <h5 v-else>-</h5>
 
@@ -106,7 +105,7 @@ const storeRecord = () => {
             </a>
           </li>
         </ul>
-        
+
         <h6>TIA Sampled</h6>
         <ul>
           <li>
@@ -122,10 +121,25 @@ const storeRecord = () => {
       <div class="user-boxes">
         <h6>Seed Type</h6>
         <ul v-if="getCategoriesByType(unload.categories, 'seed-type').length">
-          <li v-for="category in getCategoriesByType(unload.categories, 'seed-type')"
-              :key="category.id">
-            <a>{{ category.category?.name }}</a>
-          </li>
+          <li><a>{{ getSingleCategoryNameByType(unload.categories, 'seed-type') }}</a></li>
+        </ul>
+        <h5 v-else>-</h5>
+
+        <h6>Grower Group</h6>
+        <ul v-if="getCategoriesByType(unload.categories, 'grower').length">
+          <li><a>{{ getSingleCategoryNameByType(unload.categories, 'grower') }}</a></li>
+        </ul>
+        <h5 v-else>-</h5>
+
+        <h6>Seed Variety</h6>
+        <ul v-if="getCategoriesByType(unload.categories, 'seed-variety').length">
+          <li><a>{{ getSingleCategoryNameByType(unload.categories, 'seed-variety') }}</a></li>
+        </ul>
+        <h5 v-else>-</h5>
+
+        <h6>Seed Generation</h6>
+        <ul v-if="getCategoriesByType(unload.categories, 'seed-generation').length">
+          <li><a>{{ getSingleCategoryNameByType(unload.categories, 'seed-generation') }}</a></li>
         </ul>
         <h5 v-else>-</h5>
 
@@ -134,7 +148,7 @@ const storeRecord = () => {
           <li><a>{{ getBinSizesValue(unload.bin_size) }}</a></li>
         </ul>
         <h5 v-else>-</h5>
-        
+
         <h6>Number of bins</h6>
         <TextInput
           v-if="isForm"

@@ -15,6 +15,7 @@ import {
 } from "@/helper.js";
 import { binSizes, getBinSizesValue } from "@/tonnes.js";
 
+const userGrowerGroups = ref([]);
 const paddockOptions = ref([]);
 
 const props = defineProps({
@@ -66,21 +67,36 @@ watch(() => props.receival,
     form.comments = receival.comments
 
     updatePaddock(receival.grower_id);
+    resetGrowerGroups(receival.grower_id);
   }
 );
 
 watch(() => form.grower_id,
   (growerId) => {
     updatePaddock(growerId);
+    resetGrowerGroups(growerId);
   }
 );
+
+const onChangeGrowerUser = (grower_id) => {
+  resetGrowerGroups(grower_id);
+  form.grower = [];
+}
+
+const resetGrowerGroups = (grower_id) => {
+  const categories = props.users
+    ?.find(user => user.id === grower_id)
+    ?.categories;
+
+  userGrowerGroups.value = getCategoriesByType(categories, 'grower')?.map(item => {
+    return { 'value': item.category.id, 'label': item.category.name };
+  });
+}
 
 const updatePaddock = (growerId) => {
   if (growerId) {
     const user = props.users.find(user => user.id === growerId);
-    paddockOptions.value = (user.paddocks || []).map(paddock => {
-      return `${paddock.name} (${paddock.hectares})`
-    });
+    paddockOptions.value = (user.paddocks || []).map(paddock => paddock.name);
     paddockOptions.value = [...paddockOptions.value, ...props.receival?.paddocks || []];
     return;
   }
@@ -88,6 +104,7 @@ const updatePaddock = (growerId) => {
 }
 
 updatePaddock(props.receival.grower_id);
+resetGrowerGroups(props.receival.grower_id);
 
 const isForm = computed(() => props.isEdit || props.isNew)
 const isRequireFieldsEmpty = computed(() => {
@@ -95,7 +112,7 @@ const isRequireFieldsEmpty = computed(() => {
   if (growerGroup.length <= 0) {
     return true;
   }
-  if (props.receival.paddocks.length <= 0) {
+  if (props.receival.paddocks?.length <= 0) {
     return true;
   }
   const seedType = getCategoryIdsByType(props.receival.categories, 'seed-type');
@@ -158,7 +175,8 @@ const pushForUnload = () => {
   <div class="row">
     <div v-if="isRequireFieldsEmpty" class="col-md-12">
       <div class="alert alert-warning" role="alert">
-        Require these fields (Grower Group, Paddocks, Seed Type, Seed Variety, Seed Class, Seed Generation, Bin Size) to list in the allocations
+        Require these fields (Grower Group, Paddocks, Seed Type, Seed Variety, Seed Class, Seed Generation, Bin Size) to
+        list in the allocations
       </div>
     </div>
     <div v-if="isEdit || isNew" class="col-md-12">
@@ -176,6 +194,7 @@ const pushForUnload = () => {
           mode="single"
           placeholder="Choose a user"
           :searchable="true"
+          @change="onChangeGrowerUser"
           :options="getDropDownOptions(users)"
         />
         <h5 v-else-if="receival.grower">
@@ -196,7 +215,7 @@ const pushForUnload = () => {
           placeholder="Choose a grower group"
           :searchable="true"
           :create-option="true"
-          :options="getCategoriesDropDownByType(categories, 'grower')"
+          :options="userGrowerGroups"
         />
         <ul v-else-if="getCategoriesByType(receival.categories, 'grower').length">
           <li v-for="category in getCategoriesByType(receival.categories, 'grower')" :key="category.id">
@@ -352,7 +371,7 @@ const pushForUnload = () => {
 
         <h6>Seed Type</h6>
         <div v-if="form.errors.seed_type" class="has-error">
-            <span class="help-block text-left">{{ form.errors.seed_type }}</span>
+          <span class="help-block text-left">{{ form.errors.seed_type }}</span>
         </div>
         <Multiselect
           v-if="isForm"

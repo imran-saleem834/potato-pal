@@ -7,11 +7,12 @@ defineProps({
       new: false,
       edit: true,
       delete: true,
+      duplicate: false,
     }
   }
 });
 
-defineEmits(['delete', 'edit']);
+defineEmits(['delete', 'edit', 'duplicate']);
 </script>
 
 <template>
@@ -40,6 +41,16 @@ defineEmits(['delete', 'edit']);
           <li v-if="access.edit">
             <a role="button" @click="$emit('edit')">
               <span class="fa fa-edit"></span> Edit
+            </a>
+          </li>
+          <li v-if="access.duplicate">
+            <a 
+               role="button"
+               data-toggle="modal"
+               @click="$emit('duplicate')"
+               data-target="#duplicate-details"
+            >
+              <span class="fa fa-clone"></span> Duplicate
             </a>
           </li>
         </ul>

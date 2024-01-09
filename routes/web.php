@@ -42,6 +42,7 @@ Route::middleware([
 
     Route::post('/receivals/{id}/push/unload', [ReceivalController::class, 'pushForUnload'])->name('receivals.push.unload');
     Route::post('/receivals/{id}/push/tia-sample', [ReceivalController::class, 'pushForTiaSample'])->name('receivals.push.tia-sample');
+    Route::post('/receivals/{id}/duplicate', [ReceivalController::class, 'duplicate'])->name('receivals.duplicate');
     Route::post('/receivals/{id}/upload', [ReceivalController::class, 'upload'])->name('receivals.upload');
     Route::post('/receivals/{id}/delete', [ReceivalController::class, 'delete'])->name('receivals.delete');
     Route::resource('/receivals', ReceivalController::class);

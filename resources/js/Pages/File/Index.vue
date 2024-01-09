@@ -94,10 +94,10 @@ const deleteFile = (id) => {
       :is-edit-record-selected="!!edit"
       :is-new-record-selected="isNewRecord"
       :access="{
-                new: true,
-                edit: Object.values(file).length > 0,
-                delete: Object.values(file).length > 0,
-            }"
+        new: true,
+        edit: Object.values(file).length > 0,
+        delete: Object.values(file).length > 0,
+      }"
       @newRecord="setNewRecord"
       @editRecord="() => setEdit(file?.id)"
       @deleteRecord="() => deleteFile(file?.id)"
@@ -150,8 +150,7 @@ const deleteFile = (id) => {
       </div>
     </div>
 
-    <div class="modal right fade user-details" id="user-details" tabindex="-1" role="dialog"
-         aria-labelledby="myModalLabel3">
+    <div class="modal right fade user-details" id="user-details" tabindex="-1" role="dialog">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <ModalHeader

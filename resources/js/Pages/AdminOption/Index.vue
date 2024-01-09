@@ -68,10 +68,10 @@ setActiveTab(props.filters.type);
       :title="title"
       :is-new-record-selected="isNewRecord"
       :access="{
-                new: true,
-                edit: false,
-                delete: false,
-            }"
+        new: true,
+        edit: false,
+        delete: false,
+      }"
       @newRecord="setNewRecord"
       @editRecord="() => {}"
       @deleteRecord="() => {}"
@@ -134,8 +134,7 @@ setActiveTab(props.filters.type);
     <!-- tab-section -->
 
     <!-- Modal -->
-    <div class="modal right fade user-details" id="user-details" tabindex="-1" role="dialog"
-         aria-labelledby="myModalLabel3">
+    <div class="modal right fade user-details" id="user-details" tabindex="-1" role="dialog">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <ModalHeader

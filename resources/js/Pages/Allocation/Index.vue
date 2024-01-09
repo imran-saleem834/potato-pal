@@ -94,9 +94,9 @@ setActiveTab(allocations.value.data[0]?.buyer_id);
       :title="activeTab?.buyer?.name || 'New'"
       :is-new-record-selected="isNewRecord"
       :access="{
-          new: true,
-          edit: false,
-          delete: false,
+        new: true,
+        edit: false,
+        delete: false,
       }"
       @newRecord="setNewRecord"
       @editRecord="() => {}"
@@ -204,7 +204,6 @@ setActiveTab(allocations.value.data[0]?.buyer_id);
       tabindex="-1"
       role="dialog"
       id="user-details"
-      aria-labelledby="myModalLabel3"
       class="modal right fade user-details"
     >
       <div class="modal-dialog" role="document">

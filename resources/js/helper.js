@@ -17,7 +17,7 @@ export function getCategoryIdsByType(categories, type) {
 }
 
 export function getSingleCategoryNameByType(categories, type) {
-    return getCategoriesByType(categories, type)[0].category.name
+    return getCategoriesByType(categories, type)[0]?.category?.name
 }
 
 export function toCamelCase(string) {

@@ -77,23 +77,23 @@ setActiveTab(tiaSample.value?.id);
 </script>
 
 <template>
-  <AppLayout title="Tia Sample">
+  <AppLayout title="Tia Sampling">
     <TopBar
-      type="Tia Sample"
+      type="Tia Sampling"
       :value="search"
       @search="filter"
       @newRecord="setNewRecord"
     />
     <MiddleBar
-      type="Tia Sample"
+      type="Tia Sampling"
       :title="tiaSample?.receival?.grower?.name || 'New'"
       :is-edit-record-selected="!!edit"
       :is-new-record-selected="isNewRecord"
       :access="{
-                new: true,
-                edit: Object.values(tiaSample).length > 0,
-                delete: Object.values(tiaSample).length > 0,
-            }"
+        new: true,
+        edit: Object.values(tiaSample).length > 0,
+        delete: Object.values(tiaSample).length > 0,
+      }"
       @newRecord="setNewRecord"
       @editRecord="() => setEdit(tiaSample?.id)"
       @deleteRecord="() => deleteTiaSample(tiaSample?.id)"
@@ -106,7 +106,7 @@ setActiveTab(tiaSample.value?.id);
           <LeftBar
             :items="tiaSamples"
             :active-tab="activeTab"
-            :row-1="{title: 'Grower\'s Name', value: 'receival.grower.name'}"
+            :row-1="{title: 'Grower', value: 'receival.grower.name'}"
             :row-2="{title: 'Tia Sample Id', value: 'id'}"
             @click="getTiaSample"
           />
@@ -135,12 +135,11 @@ setActiveTab(tiaSample.value?.id);
     <!-- tab-section -->
 
     <!-- Modal -->
-    <div class="modal right fade user-details" id="user-details" tabindex="-1" role="dialog"
-         aria-labelledby="myModalLabel3">
+    <div class="modal right fade user-details" id="user-details" tabindex="-1" role="dialog">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <ModalHeader
-            title="Tia Samples"
+            title="Tia Sampling"
             :access="{
               new: isNewRecord
             }"
@@ -149,7 +148,7 @@ setActiveTab(tiaSample.value?.id);
           />
           <div class="modal-body" v-if="tiaSample">
             <ModalBreadcrumb
-              page="Tia Samples"
+              page="Tia Sampling"
               :title="tiaSample?.receival?.grower?.name || 'New'"
             />
             <Details
