@@ -5,20 +5,44 @@ import { usePage } from "@inertiajs/vue3";
 const page = usePage();
 const channel = ref('BU1');
 
+const userAgent = navigator.userAgent;
+// You might include more information for uniqueness if needed
+const additionalInfo = '';
+
+// Hash the information to create a unique identifier
+const deviceId = btoa(userAgent + additionalInfo);
+
+// const message = reactive({
+//   'responseChannel': `receivalId`,
+//   'getLoggedWeights': "PotatoPal",
+//   'title': "greeting",
+//   'description': "description",
+//   'terminalCommand': "S", 
+//   'seed': "", 
+//   'bins': "", 
+//   'staffID': `${page.props.auth.user.id}`,
+//   'system': 1
+//   // 'weighTime': weighTime, 
+//   // 'receivalID': receivalID, 
+//   // 'offset': offset, 
+//   // 'nextrows': nextrows
+// });
 const message = reactive({
-  'responseChannel': `receivalId`,
-  'getLoggedWeights': "PotatoPal",
-  'title': "greeting",
-  'description': "description",
-  'terminalCommand': "S", 
-  'seed': "", 
-  'bins': "", 
-  'staffID': `${page.props.auth.user.id}`,
-  'system': 1
-  // 'weighTime': weighTime, 
-  // 'receivalID': receivalID, 
-  // 'offset': offset, 
-  // 'nextrows': nextrows
+  responseChannel: deviceId, 
+  startWeighing: "PotatoPal", 
+  exWhomName: 'Sam', 
+  exWhomGroupName: 'Grower 1', 
+  potIdentifierCode: 'BU2', 
+  taskOwner: 'Bulk Unloading', 
+  emptyBinWeight: '120', 
+  binSize: '12', 
+  numberOfBinsToWeigh: '2', 
+  seedType: 'OVERSIZE', 
+  taskStartDate: '2024-01-09', 
+  taskStatus: "Pending", 
+  fungicide: 'fungicide 1', 
+  receivalID: '3', 
+  staffID: '9'
 });
 
 const buttonClick = () => {
@@ -35,8 +59,8 @@ let pubnub;
 const setupPubNub = () => {
   // Update this block with your publish/subscribe keys
   pubnub = new PubNub({
-    publishKey: "pub-c-09c14f75-bf91-4ab3-898c-ab220acf76ce",
-    subscribeKey: "sub-c-a7835d02-324e-11e9-b681-be2e977db94e",
+    publishKey: "---",
+    subscribeKey: "---",
     userId: `${page.props.auth.user.id}`
   });
 
@@ -59,7 +83,7 @@ const setupPubNub = () => {
   pubnub.addListener(listener);
 
   pubnub.subscribe({
-    channels: ['weighbridge', 'BU1', 'BU2', 'BU3']
+    channels: [deviceId, 'weighbridge', 'BU2', 'BU3']
   });
 };
 
@@ -67,7 +91,7 @@ const publishMessage = async (message) => {
   // With the right payload, you can publish a message, add a reaction to a message,
   // send a push notification, or send a small payload called a signal.
   const publishPayload = {
-    channel: 'BU1',
+    channel: 'weighbridge',
     message
   };
   await pubnub.publish(publishPayload);
