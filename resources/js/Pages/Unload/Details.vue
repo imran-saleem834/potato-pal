@@ -44,7 +44,7 @@ const message = reactive({
   seed: '',
   bins: '',
   responseChannel: '',
-  staffID: page.props.auth.user.name,
+  staffID: page.props.auth.user.id,
   system: '',
   terminalCommand: 'S',
 });
