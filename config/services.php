@@ -31,4 +31,9 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'pubnub' => [
+        'publish' => env('PUBNUB_PUBLISH_KEY'),
+        'subscribe' => env('PUBNUB_SUBSCRIBE_KEY'),
+    ],
+
 ];

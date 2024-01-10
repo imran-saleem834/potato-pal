@@ -23,3 +23,38 @@ createInertiaApp({
         color: '#4B5563',
     },
 });
+
+const deviceId = btoa(navigator.userAgent);
+let pubnub;
+const setupPubNub = () => {
+    pubnub = new PubNub({
+        publishKey: import.meta.env.VITE_PUBNUB_PUBLISH_KEY,
+        subscribeKey: import.meta.env.VITE_PUBNUB_SUBSCRIBE_KEY,
+        uuid: deviceId
+    });
+
+    const listener = {
+        status: (statusEvent) => {
+            console.log('statusEvent', statusEvent);
+            if (statusEvent.category === "PNConnectedCategory") {
+                console.log("Connected");
+            }
+        },
+        message: (messageEvent) => {
+            console.log('messageEvent', messageEvent);
+            if (messageEvent.message?.SendingCurrentWeight === 'yes') {
+                document.dispatchEvent(new CustomEvent('GetWeight', { 'detail': messageEvent.message }));
+            }
+        }
+    };
+    pubnub.addListener(listener);
+
+    pubnub.subscribe({
+        channels: [deviceId, 'weighbridge', 'BU2', 'BU3']
+    });
+};
+setupPubNub()
+window.pubnub = {
+    deviceId: deviceId,
+    instance: pubnub,
+};

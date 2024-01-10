@@ -20,6 +20,8 @@ class Receival extends Model
         'grower_id',
         'unique_key',
         'paddocks',
+        'channel',
+        'system',
         'bin_size',
         'no_of_bins',
         'weight',

@@ -1,7 +1,7 @@
 <script setup>
 import moment from 'moment';
-import { computed, watch } from "vue";
-import { useForm, Link } from "@inertiajs/vue3";
+import { computed, onMounted, reactive, ref, watch } from "vue";
+import { useForm, Link, usePage } from "@inertiajs/vue3";
 import TextInput from "@/Components/TextInput.vue";
 import UlLiButton from "@/Components/UlLiButton.vue";
 import { getBinSizesValue } from "@/tonnes.js";
@@ -15,12 +15,17 @@ const props = defineProps({
   categories: Array,
 });
 
+const bins = ref(null);
+const weight = ref(null);
+
 const emit = defineEmits(['update', 'create']);
 
 const form = useForm({
   no_of_bins: props.unload.no_of_bins,
   weight: props.unload.weight,
   status: props.unload.status,
+  channel: props.unload.channel,
+  system: props.unload.system,
 });
 
 watch(() => props.unload,
@@ -29,8 +34,49 @@ watch(() => props.unload,
     form.no_of_bins = unload.no_of_bins
     form.weight = unload.weight
     form.status = unload.status
+    form.channel = unload.channel
+    form.system = unload.system
   }
 );
+
+const page = usePage();
+const message = reactive({
+  seed: '',
+  bins: '',
+  responseChannel: '',
+  staffID: page.props.auth.user.name,
+  system: '',
+  terminalCommand: 'S',
+});
+
+const getWeight = () => {
+  message.responseChannel = window.pubnub.deviceId;
+  message.system = form.system;
+  const publishPayload = {
+    channel: form.channel,
+    message
+  };
+  window.pubnub.instance.publish(publishPayload);
+}
+
+onMounted(() => {
+  document.addEventListener('GetWeight', (event) => {
+    console.log('WeightReceived', event?.detail?.CurrentWeight, (event?.detail?.CurrentWeight / 40));
+    weight.value = (event?.detail?.CurrentWeight / 40).toFixed(3);
+  })
+})
+
+const acceptWeight = () => {
+  form.no_of_bins = parseInt(form.no_of_bins) + parseInt(bins.value);
+  form.weight = parseFloat(form.weight) + parseFloat(weight.value);
+  bins.value = null;
+  weight.value = null;
+}
+
+const rejectWeight = () => {
+  bins.value = null;
+  weight.value = null;
+}
 
 const isForm = computed(() => props.isEdit || props.isNew)
 
@@ -97,6 +143,24 @@ const storeRecord = () => {
         </ul>
         <h5 v-else>-</h5>
 
+        <h6>Grower Group</h6>
+        <ul v-if="getCategoriesByType(unload.categories, 'grower').length">
+          <li><a>{{ getSingleCategoryNameByType(unload.categories, 'grower') }}</a></li>
+        </ul>
+        <h5 v-else>-</h5>
+
+        <h6>Seed Variety</h6>
+        <ul v-if="getCategoriesByType(unload.categories, 'seed-variety').length">
+          <li><a>{{ getSingleCategoryNameByType(unload.categories, 'seed-variety') }}</a></li>
+        </ul>
+        <h5 v-else>-</h5>
+
+        <h6>Seed Generation</h6>
+        <ul v-if="getCategoriesByType(unload.categories, 'seed-generation').length">
+          <li><a>{{ getSingleCategoryNameByType(unload.categories, 'seed-generation') }}</a></li>
+        </ul>
+        <h5 v-else>-</h5>
+
         <h6>Status</h6>
         <ul>
           <li>
@@ -125,49 +189,94 @@ const storeRecord = () => {
         </ul>
         <h5 v-else>-</h5>
 
-        <h6>Grower Group</h6>
-        <ul v-if="getCategoriesByType(unload.categories, 'grower').length">
-          <li><a>{{ getSingleCategoryNameByType(unload.categories, 'grower') }}</a></li>
-        </ul>
-        <h5 v-else>-</h5>
-
-        <h6>Seed Variety</h6>
-        <ul v-if="getCategoriesByType(unload.categories, 'seed-variety').length">
-          <li><a>{{ getSingleCategoryNameByType(unload.categories, 'seed-variety') }}</a></li>
-        </ul>
-        <h5 v-else>-</h5>
-
-        <h6>Seed Generation</h6>
-        <ul v-if="getCategoriesByType(unload.categories, 'seed-generation').length">
-          <li><a>{{ getSingleCategoryNameByType(unload.categories, 'seed-generation') }}</a></li>
-        </ul>
-        <h5 v-else>-</h5>
-
         <h6>Bin Size</h6>
         <ul v-if="unload.bin_size">
           <li><a>{{ getBinSizesValue(unload.bin_size) }}</a></li>
         </ul>
         <h5 v-else>-</h5>
 
-        <h6>Number of bins</h6>
-        <TextInput
+        <h6>Channel</h6>
+        <UlLiButton
           v-if="isForm"
-          v-model="form.no_of_bins"
-          :error="form.errors.no_of_bins"
-          type="text"
+          :value="form.channel"
+          :error="form.errors.channel"
+          :items="[
+              { key: 'weighbridge', value: 'BU1' },
+              { key: 'BU2', value: 'BU2' },
+              { key: 'BU3', value: 'BU3' },
+            ]"
+          @click="(key) => form.channel = key"
         />
-        <h5 v-else-if="unload.no_of_bins">{{ unload.no_of_bins }}</h5>
+        <h5 v-else-if="unload.channel">{{ unload.channel === 'weighbridge' ? 'BU1' : unload.channel.toUpperCase() }}</h5>
+        <h5 v-else>-</h5>
+        
+        <h6>System</h6>
+        <UlLiButton
+          v-if="isForm"
+          :value="form.system"
+          :error="form.errors.system"
+          :items="form.channel === 'weighbridge' ? [ { key: '1', value: 'System 1' } ] : [
+              { key: '1', value: 'System 1' },
+              { key: '2', value: 'System 2' },
+            ]"
+          @click="(key) => form.system = key"
+        />
+        <h5 v-else-if="unload.system">{{ `System ${unload.system}` }}</h5>
         <h5 v-else>-</h5>
 
-        <h6>Weight of total bins</h6>
-        <TextInput
-          v-if="isForm"
-          v-model="form.weight"
-          :error="form.errors.weight"
-          type="text"
-        />
-        <h5 v-else-if="unload.weight">{{ unload.weight }} Tonnes</h5>
-        <h5 v-else>-</h5>
+        <div class="row">
+          <div class="col col-lg-6">
+            <h6>Number of total bins</h6>
+            <TextInput
+              v-if="isForm"
+              :disabled="true"
+              v-model="form.no_of_bins"
+              :error="form.errors.no_of_bins"
+              type="text"
+            />
+            <h5 v-else-if="unload.no_of_bins">{{ unload.no_of_bins }}</h5>
+            <h5 v-else>-</h5>
+          </div>
+          <div class="col col-lg-6">
+            <h6>Weight of total bins</h6>
+            <TextInput
+              v-if="isForm"
+              :disabled="true"
+              v-model="form.weight"
+              :error="form.errors.weight"
+              type="text"
+            />
+            <h5 v-else-if="unload.weight">{{ unload.weight }} Tonnes</h5>
+            <h5 v-else>-</h5>
+          </div>
+        </div>
+
+        <div v-if="isForm" class="row">
+          <div class="col col-lg-4">
+            <h6>Number of bins</h6>
+            <TextInput
+              v-model="bins"
+              type="text"
+            />
+          </div>
+          <div class="col col-lg-4">
+            <h6>Weight of bins</h6>
+            <input
+              :disabled="true"
+              :value="weight"
+              class="form-control"
+              type="text"
+            >
+          </div>
+          <div class="col col-lg-4">
+            <h6>&nbsp;</h6>
+            <div v-if="weight && bins">
+              <button @click="acceptWeight" class="btn btn-red"><i class="fa fa-check"></i></button>
+              <button @click="rejectWeight" class="btn btn-red"><i class="fa fa fa-ban"></i></button>
+            </div>
+            <button v-else @click="getWeight" class="btn btn-red">Get Weight</button>
+          </div>
+        </div>
 
         <div v-if="isForm">
           <h6>Status</h6>

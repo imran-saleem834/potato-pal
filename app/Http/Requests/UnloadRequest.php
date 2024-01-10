@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UnloadRequest extends FormRequest
@@ -24,6 +25,8 @@ class UnloadRequest extends FormRequest
         return [
             'no_of_bins' => ['nullable', 'numeric'],
             'weight'     => ['nullable', 'numeric'],
+            'channel'    => ['nullable', 'string', Rule::in(['weighbridge', 'BU2', 'BU3'])],
+            'system'     => ['nullable', 'numeric', 'max:2'],
             'status'     => ['required', 'string', 'max:20'],
         ];
     }

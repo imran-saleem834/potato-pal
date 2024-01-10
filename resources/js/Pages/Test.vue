@@ -13,36 +13,30 @@ const additionalInfo = '';
 const deviceId = btoa(userAgent + additionalInfo);
 
 // const message = reactive({
-//   'responseChannel': `receivalId`,
-//   'getLoggedWeights': "PotatoPal",
-//   'title': "greeting",
-//   'description': "description",
-//   'terminalCommand': "S", 
-//   'seed': "", 
-//   'bins': "", 
-//   'staffID': `${page.props.auth.user.id}`,
-//   'system': 1
-//   // 'weighTime': weighTime, 
-//   // 'receivalID': receivalID, 
-//   // 'offset': offset, 
-//   // 'nextrows': nextrows
+//   binSize: '12',
+//   emptyBinWeight: '120',
+//   exWhomGroupName: 'Grower 1',
+//   exWhomName: 'Sam',
+//   fungicide: 'fungicide 1',
+//   numberOfBinsToWeigh: '2',
+//   potIdentifierCode: 'BU2',
+//   receivalID: '3',
+//   // responseChannel: deviceId,
+//   responseChannel: 'BU2',
+//   seedType: 'OVERSIZE',
+//   staffID: '9',
+//   startWeighing: "PotatoPal",
+//   taskOwner: 'Bulk Unloading',
+//   taskStartDate: '2024-01-09',
+//   taskStatus: "Pending",
 // });
 const message = reactive({
-  responseChannel: deviceId, 
-  startWeighing: "PotatoPal", 
-  exWhomName: 'Sam', 
-  exWhomGroupName: 'Grower 1', 
-  potIdentifierCode: 'BU2', 
-  taskOwner: 'Bulk Unloading', 
-  emptyBinWeight: '120', 
-  binSize: '12', 
-  numberOfBinsToWeigh: '2', 
-  seedType: 'OVERSIZE', 
-  taskStartDate: '2024-01-09', 
-  taskStatus: "Pending", 
-  fungicide: 'fungicide 1', 
-  receivalID: '3', 
-  staffID: '9'
+  seed: "", 
+  bins: "", 
+  responseChannel: deviceId,
+  staffID: '9',
+  system: '1',
+  terminalCommand: "S",
 });
 
 const buttonClick = () => {
@@ -59,9 +53,10 @@ let pubnub;
 const setupPubNub = () => {
   // Update this block with your publish/subscribe keys
   pubnub = new PubNub({
-    publishKey: "---",
-    subscribeKey: "---",
-    userId: `${page.props.auth.user.id}`
+    publishKey: "pub-c-09c14f75-bf91-4ab3-898c-ab220acf76ce",
+    subscribeKey: "sub-c-a7835d02-324e-11e9-b681-be2e977db94e",
+    // userId: `${page.props.auth.user.id}`,
+    uuid: deviceId
   });
 
   const listener = {
@@ -83,7 +78,7 @@ const setupPubNub = () => {
   pubnub.addListener(listener);
 
   pubnub.subscribe({
-    channels: [deviceId, 'weighbridge', 'BU2', 'BU3']
+    channels: [deviceId, 'BU2']
   });
 };
 
@@ -91,7 +86,9 @@ const publishMessage = async (message) => {
   // With the right payload, you can publish a message, add a reaction to a message,
   // send a push notification, or send a small payload called a signal.
   const publishPayload = {
-    channel: 'weighbridge',
+    // channel: 'weighbridge', // 51
+    channel: 'BU2', // System 1: 20, System 2: 20
+    // channel: 'BU3', // System 1: 12-12, System 2: 36
     message
   };
   await pubnub.publish(publishPayload);
