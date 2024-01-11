@@ -1,7 +1,7 @@
 <script setup>
+import moment from 'moment';
 import { computed, ref, watch } from "vue";
 import { useForm, Link } from "@inertiajs/vue3";
-import moment from 'moment';
 import Multiselect from '@vueform/multiselect';
 import TextInput from "@/Components/TextInput.vue";
 import UlLiButton from "@/Components/UlLiButton.vue";
@@ -31,7 +31,7 @@ const emit = defineEmits(['update', 'create']);
 
 const form = useForm({
   grower_id: props.receival.grower_id,
-  grower: getCategoryIdsByType(props.receival.categories, 'grower'),
+  grower_group: getCategoryIdsByType(props.receival.categories, 'grower-group'),
   paddocks: props.receival.paddocks,
   seed_type: getCategoryIdsByType(props.receival.categories, 'seed-type'),
   bin_size: props.receival.bin_size,
@@ -39,7 +39,6 @@ const form = useForm({
   seed_generation: getCategoryIdsByType(props.receival.categories, 'seed-generation'),
   seed_class: getCategoryIdsByType(props.receival.categories, 'seed-class'),
   delivery_type: getCategoryIdsByType(props.receival.categories, 'delivery-type'),
-  fungicide: getCategoryIdsByType(props.receival.categories, 'fungicide'),
   transport: getCategoryIdsByType(props.receival.categories, 'transport'),
   grower_docket_no: props.receival.grower_docket_no,
   chc_receival_docket_no: props.receival.chc_receival_docket_no,
@@ -51,7 +50,7 @@ watch(() => props.receival,
   (receival) => {
     form.clearErrors();
     form.grower_id = receival.grower_id
-    form.grower = getCategoryIdsByType(receival.categories, 'grower')
+    form.grower_group = getCategoryIdsByType(receival.categories, 'grower-group')
     form.paddocks = receival.paddocks
     form.seed_type = getCategoryIdsByType(receival.categories, 'seed-type')
     form.bin_size = receival.bin_size
@@ -59,7 +58,6 @@ watch(() => props.receival,
     form.seed_generation = getCategoryIdsByType(receival.categories, 'seed-generation')
     form.seed_class = getCategoryIdsByType(receival.categories, 'seed-class')
     form.delivery_type = getCategoryIdsByType(receival.categories, 'delivery-type')
-    form.fungicide = getCategoryIdsByType(receival.categories, 'fungicide')
     form.transport = getCategoryIdsByType(receival.categories, 'transport')
     form.grower_docket_no = receival.grower_docket_no
     form.chc_receival_docket_no = receival.chc_receival_docket_no
@@ -88,7 +86,7 @@ const resetGrowerGroups = (grower_id) => {
     ?.find(user => user.id === grower_id)
     ?.categories;
 
-  userGrowerGroups.value = getCategoriesByType(categories, 'grower')?.map(item => {
+  userGrowerGroups.value = getCategoriesByType(categories, 'grower-group')?.map(item => {
     return { 'value': item.category.id, 'label': item.category.name };
   });
 }
@@ -108,7 +106,7 @@ resetGrowerGroups(props.receival.grower_id);
 
 const isForm = computed(() => props.isEdit || props.isNew)
 const isRequireFieldsEmpty = computed(() => {
-  const growerGroup = getCategoryIdsByType(props.receival.categories, 'grower');
+  const growerGroup = getCategoryIdsByType(props.receival.categories, 'grower-group');
   if (growerGroup.length <= 0) {
     return true;
   }
@@ -187,19 +185,19 @@ const pushForUnload = () => {
     </div>
     <div :class="colSize">
       <div class="user-boxes">
-        <h6>Name</h6>
+        <h6>Grower</h6>
         <Multiselect
           v-if="isForm"
           v-model="form.grower_id"
           mode="single"
-          placeholder="Choose a user"
+          placeholder="Choose a grower"
           :searchable="true"
           @change="onChangeGrowerUser"
-          :options="getDropDownOptions(users)"
+          :options="getDropDownOptions(users, true)"
         />
         <h5 v-else-if="receival.grower">
           <Link :href="route('users.index', { userId: receival.grower_id })">
-            {{ receival.grower?.name }}
+            {{ receival.grower?.name }} {{ receival.grower?.grower_name ? ' (' + receival.grower?.grower_name + ')' : '' }}
           </Link>
         </h5>
         <h5 v-else>-</h5>
@@ -210,15 +208,15 @@ const pushForUnload = () => {
         </div>
         <Multiselect
           v-if="isForm"
-          v-model="form.grower"
+          v-model="form.grower_group"
           mode="tags"
           placeholder="Choose a grower group"
           :searchable="true"
           :create-option="true"
           :options="userGrowerGroups"
         />
-        <ul v-else-if="getCategoriesByType(receival.categories, 'grower').length">
-          <li v-for="category in getCategoriesByType(receival.categories, 'grower')" :key="category.id">
+        <ul v-else-if="getCategoriesByType(receival.categories, 'grower-group').length">
+          <li v-for="category in getCategoriesByType(receival.categories, 'grower-group')" :key="category.id">
             <a>{{ category.category.name }}</a>
           </li>
         </ul>
@@ -461,23 +459,6 @@ const pushForUnload = () => {
           type="text"
         />
         <h5 v-else-if="receival.chc_receival_docket_no">{{ receival.chc_receival_docket_no }}</h5>
-        <h5 v-else>-</h5>
-
-        <h6>Fungicide</h6>
-        <Multiselect
-          v-if="isForm"
-          v-model="form.fungicide"
-          mode="tags"
-          placeholder="Choose a fungicide"
-          :searchable="true"
-          :create-option="true"
-          :options="getCategoriesDropDownByType(categories, 'fungicide')"
-        />
-        <ul v-else-if="getCategoriesByType(receival.categories, 'fungicide').length">
-          <li v-for="category in getCategoriesByType(receival.categories, 'fungicide')" :key="category.id">
-            <a>{{ category.category.name }}</a>
-          </li>
-        </ul>
         <h5 v-else>-</h5>
 
         <h6>Driver’s Name</h6>

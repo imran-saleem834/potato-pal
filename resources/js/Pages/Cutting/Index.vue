@@ -171,8 +171,8 @@ setActiveTab(cuttings.value[0]?.buyer_id);
                   </div>
                   <div class="col-sm-4">
                     <h6>Buyer Group</h6>
-                    <ul v-if="getCategoriesByType(cuttings[0]?.buyer?.categories, 'buyer').length > 0">
-                      <li v-for="category in getCategoriesByType(cuttings[0]?.buyer?.categories, 'buyer')"
+                    <ul v-if="getCategoriesByType(cuttings[0]?.buyer?.categories, 'buyer-group').length > 0">
+                      <li v-for="category in getCategoriesByType(cuttings[0]?.buyer?.categories, 'buyer-group')"
                           :key="category.id">
                         <a>{{ category.category.name }}</a>
                       </li>
@@ -282,8 +282,8 @@ setActiveTab(cuttings.value[0]?.buyer_id);
                     </div>
                     <div class="col-sm-4">
                       <h6>Buyer Group</h6>
-                      <ul v-if="getCategoriesByType(cuttings[0]?.buyer?.categories, 'buyer').length > 0">
-                        <li v-for="category in getCategoriesByType(cuttings[0]?.buyer?.categories, 'buyer')"
+                      <ul v-if="getCategoriesByType(cuttings[0]?.buyer?.categories, 'buyer-group').length > 0">
+                        <li v-for="category in getCategoriesByType(cuttings[0]?.buyer?.categories, 'buyer-group')"
                             :key="category.id">
                           <a>{{ category.category.name }}</a>
                         </li>

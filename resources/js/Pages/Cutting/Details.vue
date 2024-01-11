@@ -284,7 +284,7 @@ const deleteCutting = () => {
                 <div class="col-sm-2">
                   <h5>
                     Grower Group:
-                    {{ getCategoriesByType(cuttingAllocation.allocation.categories, 'grower')[0]?.category?.name }}
+                    {{ getCategoriesByType(cuttingAllocation.allocation.categories, 'grower-group')[0]?.category?.name }}
                   </h5>
                 </div>
                 <div class="col-sm-2">
@@ -354,7 +354,7 @@ const deleteCutting = () => {
                   <td>{{ getCategoriesByType(allocation.categories, 'seed-variety')[0]?.category?.name }}</td>
                   <td>{{ getCategoriesByType(allocation.categories, 'seed-class')[0]?.category?.name }}</td>
                   <td>{{ getCategoriesByType(allocation.categories, 'seed-generation')[0]?.category?.name }}</td>
-                  <td>{{ getCategoriesByType(allocation.categories, 'grower')[0]?.category?.name }}</td>
+                  <td>{{ getCategoriesByType(allocation.categories, 'grower-group')[0]?.category?.name }}</td>
                   <td>{{ allocation.paddock }}</td>
                   <td>{{ allocation.bin_size }} Tonnes</td>
                   <td>{{ allocation.no_of_bins }}</td>

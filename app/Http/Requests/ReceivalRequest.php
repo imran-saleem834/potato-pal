@@ -24,7 +24,7 @@ class ReceivalRequest extends FormRequest
     {
         return [
             'grower_id'              => ['required', 'exists:users,id'],
-            'grower'                 => ['nullable', 'array', 'max:1'],
+            'grower_group'           => ['nullable', 'array', 'max:1'],
             'paddocks'               => ['nullable', 'array', 'max:1'],
             'seed_variety'           => ['nullable', 'array', 'max:1'],
             'seed_generation'        => ['nullable', 'array', 'max:1'],
@@ -35,7 +35,6 @@ class ReceivalRequest extends FormRequest
             'delivery_type'          => ['nullable', 'array'],
             'grower_docket_no'       => ['nullable', 'string', 'max:50'],
             'chc_receival_docket_no' => ['nullable', 'string', 'max:50'],
-            'fungicide'              => ['nullable', 'array'],
             'driver_name'            => ['nullable', 'string', 'max:80'],
             'comments'               => ['nullable', 'string', 'max:191'],
         ];

@@ -2,9 +2,12 @@ export function getCategoriesByType(categories, type) {
     return (categories || []).filter(category => category.type === type);
 }
 
-export function getDropDownOptions(items) {
+export function getDropDownOptions(items, isGrower = false) {
     return (items || []).map(item => {
-        return { 'value': item.id, 'label': item.name };
+        return {
+            'value': item.id,
+            'label': isGrower && item.grower_name ? `${item.name} (${item.grower_name})` : item.name
+        };
     });
 }
 
@@ -21,7 +24,7 @@ export function getSingleCategoryNameByType(categories, type) {
 }
 
 export function toCamelCase(string) {
-    if(!string) return '';
+    if (!string) return '';
     const words = string.toLowerCase().split(' ');
     const uppercaseWords = words.map(word => {
         let splitWord = word.split('');

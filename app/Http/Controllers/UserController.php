@@ -20,16 +20,22 @@ class UserController extends Controller
     {
         $users = User::select('id', 'name', 'email')
             ->when($request->input('search'), function (Builder $query, $search) {
-                return $query->where('id', 'LIKE', "%$search%")
-                    ->orWhere('name', 'LIKE', "%$search%")
-                    ->orWhere('email', 'LIKE', "%$search%")
-                    ->orWhere('username', 'LIKE', "%$search%")
-                    ->orWhere('phone', 'LIKE', "%$search%")
-                    ->orWhere('role', 'LIKE', "%$search%")
-                    ->orWhere('grower_name', 'LIKE', "%$search%")
-                    ->orWhere('grower_tags', 'LIKE', "%$search%")
-                    ->orWhere('buyer_tags', 'LIKE', "%$search%")
-                    ->orWhere('paddocks', 'LIKE', "%$search%");
+                return $query->where(function (Builder $subQuery) use ($search) {
+                    return $subQuery
+                        ->where('id', 'LIKE', "%$search%")
+                        ->orWhere('name', 'LIKE', "%$search%")
+                        ->orWhere('email', 'LIKE', "%$search%")
+                        ->orWhere('username', 'LIKE', "%$search%")
+                        ->orWhere('phone', 'LIKE', "%$search%")
+                        ->orWhere('role', 'LIKE', "%$search%")
+                        ->orWhere('grower_name', 'LIKE', "%$search%")
+                        ->orWhere('grower_tags', 'LIKE', "%$search%")
+                        ->orWhere('buyer_tags', 'LIKE', "%$search%")
+                        ->orWhere('paddocks', 'LIKE', "%$search%")
+                        ->orWhereRelation('categories.category', function (Builder $catQuery) use ($search) {
+                            return $catQuery->where('name', 'LIKE', "%{$search}%");
+                        });
+                });
             })
             ->latest()
             ->get();
@@ -38,7 +44,7 @@ class UserController extends Controller
 
         $user = User::with(['categories'])->find($userId);
 
-        $categories = Category::whereIn('type', ['buyer', 'grower', 'cool-store'])->get();
+        $categories = Category::whereIn('type', User::CATEGORY_TYPES)->get();
 
         return Inertia::render('User/Index', [
             'users'      => $users,
@@ -53,11 +59,9 @@ class UserController extends Controller
      */
     public function store(UserRequest $request)
     {
-        $inputs = $request->validated();
+        $user = User::create($request->validated());
 
-        $user = User::create($inputs);
-
-        $categories = $request->only(['buyer', 'grower', 'cool_store']);
+        $categories = $request->only(User::CATEGORY_INPUTS);
         CategoriesHelper::createRelationOfTypes($categories, $user->id, User::class);
 
         NotificationHelper::addedAction('User', $user->id);
@@ -80,13 +84,14 @@ class UserController extends Controller
      */
     public function update(UserRequest $request, string $id)
     {
-        $inputs = $request->validated();
-
         $user = User::find($id);
-        $user->update($inputs);
+        $user->update($request->validated());
         $user->save();
 
-        $categories = $request->only(['buyer', 'grower', 'cool_store']);
+        $categories = $request->only(User::CATEGORY_INPUTS);
+
+        info(print_r($categories, true));
+
         CategoriesHelper::createRelationOfTypes($categories, $user->id, User::class);
 
         NotificationHelper::updatedAction('User', $id);
@@ -100,6 +105,7 @@ class UserController extends Controller
     public function destroy(string $id)
     {
         CategoriesHelper::deleteCategoryRealtions($id, User::class);
+
         User::destroy($id);
 
         NotificationHelper::deleteAction('User', $id);

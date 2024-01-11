@@ -86,7 +86,7 @@ setActiveTab(tiaSample.value?.id);
     />
     <MiddleBar
       type="Tia Sampling"
-      :title="tiaSample?.receival?.grower?.name || 'New'"
+      :title="tiaSample?.receival?.grower?.grower_name || 'New'"
       :is-edit-record-selected="!!edit"
       :is-new-record-selected="isNewRecord"
       :access="{
@@ -106,7 +106,7 @@ setActiveTab(tiaSample.value?.id);
           <LeftBar
             :items="tiaSamples"
             :active-tab="activeTab"
-            :row-1="{title: 'Grower', value: 'receival.grower.name'}"
+            :row-1="{title: 'Grower', value: 'receival.grower.grower_name'}"
             :row-2="{title: 'Tia Sample Id', value: 'id'}"
             @click="getTiaSample"
           />
@@ -149,7 +149,7 @@ setActiveTab(tiaSample.value?.id);
           <div class="modal-body" v-if="tiaSample">
             <ModalBreadcrumb
               page="Tia Sampling"
-              :title="tiaSample?.receival?.grower?.name || 'New'"
+              :title="tiaSample?.receival?.grower?.grower_name || 'New'"
             />
             <Details
               :tia-sample="tiaSample"

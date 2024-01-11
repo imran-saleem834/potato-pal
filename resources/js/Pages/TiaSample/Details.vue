@@ -273,7 +273,7 @@ const storeRecord = () => {
           <h6>Grower Name</h6>
           <h5 v-if="tiaSample.receival?.grower">
             <Link :href="route('users.index', { userId: tiaSample.receival.grower.id })">
-              {{ tiaSample.receival.grower.name }}
+              {{ tiaSample.receival.grower?.name }} {{ tiaSample.receival.grower?.grower_name ? ' (' + tiaSample.receival.grower?.grower_name + ')' : '' }}
             </Link>
           </h5>
           <h5 v-else>-</h5>
@@ -295,8 +295,8 @@ const storeRecord = () => {
           <h5>{{ moment(tiaSample.created_at).format('DD/MM/YYYY hh:mm A') }}</h5>
 
           <h6>Grower Group</h6>
-          <ul v-if="getCategoriesByType(tiaSample?.receival?.categories, 'grower').length">
-            <li v-for="category in getCategoriesByType(tiaSample?.receival?.categories, 'grower')"
+          <ul v-if="getCategoriesByType(tiaSample?.receival?.categories, 'grower-group').length">
+            <li v-for="category in getCategoriesByType(tiaSample?.receival?.categories, 'grower-group')"
                 :key="category.id">
               <a>{{ category.category?.name }}</a>
             </li>

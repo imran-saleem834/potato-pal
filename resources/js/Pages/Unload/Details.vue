@@ -4,8 +4,14 @@ import { computed, onMounted, reactive, ref, watch } from "vue";
 import { useForm, Link, usePage } from "@inertiajs/vue3";
 import TextInput from "@/Components/TextInput.vue";
 import UlLiButton from "@/Components/UlLiButton.vue";
+import Multiselect from '@vueform/multiselect';
 import { getBinSizesValue } from "@/tonnes.js";
-import { getCategoriesByType, getSingleCategoryNameByType, toCamelCase } from "@/helper.js";
+import {
+  toCamelCase,
+  getSingleCategoryNameByType,
+  getCategoriesDropDownByType,
+  getCategoriesByType, getCategoryIdsByType
+} from "@/helper.js";
 
 const props = defineProps({
   unload: Object,
@@ -21,6 +27,7 @@ const weight = ref(null);
 const emit = defineEmits(['update', 'create']);
 
 const form = useForm({
+  fungicide: getCategoryIdsByType(props.unload.categories, 'fungicide'),
   no_of_bins: props.unload.no_of_bins,
   weight: props.unload.weight,
   status: props.unload.status,
@@ -31,6 +38,7 @@ const form = useForm({
 watch(() => props.unload,
   (unload) => {
     form.clearErrors();
+    form.fungicide = getCategoryIdsByType(unload.categories, 'fungicide')
     form.no_of_bins = unload.no_of_bins
     form.weight = unload.weight
     form.status = unload.status
@@ -40,21 +48,50 @@ watch(() => props.unload,
 );
 
 const page = usePage();
-const message = reactive({
+const getWeightMessage = reactive({
   seed: '',
   bins: '',
-  responseChannel: '',
+  responseChannel: null,
   staffID: page.props.auth.user.id,
-  system: '',
+  system: null,
   terminalCommand: 'S',
 });
 
+const startWeighingMessage = reactive({
+  responseChannel: null, 
+  startWeighing: "PotatoPal", 
+  exWhomName: props.unload.grower.grower_name || '',
+  exWhomGroupName: getSingleCategoryNameByType(props.unload.categories, 'group'),
+  potIdentifierCode: props.unload.id, 
+  taskOwner: page.props.auth.user.name,
+  emptyBinWeight: props.unload.bin_size === 1 ? '120' : '204', 
+  binSize: props.unload.bin_size, 
+  numberOfBinsToWeigh: null, 
+  seedType: getSingleCategoryNameByType(props.unload.categories, 'seed-type'), 
+  taskStartDate: null, 
+  taskStatus: 'Pending', 
+  fungicide: getSingleCategoryNameByType(props.unload.categories, 'fungicide'),
+  receivalID: props.unload.id, 
+  staffID: page.props.auth.user.id,
+});
+
 const getWeight = () => {
-  message.responseChannel = window.pubnub.deviceId;
-  message.system = form.system;
+  getWeightMessage.responseChannel = window.pubnub.deviceId;
+  getWeightMessage.system = form.system;
   const publishPayload = {
     channel: form.channel,
-    message
+    message: getWeightMessage
+  };
+  window.pubnub.instance.publish(publishPayload);
+}
+
+const startWeighing = () => {
+  startWeighingMessage.responseChannel = window.pubnub.deviceId;
+  startWeighingMessage.taskStartDate = new Date();
+  startWeighingMessage.numberOfBinsToWeigh = bins.value;
+  const publishPayload = {
+    channel: form.channel,
+    message: startWeighingMessage
   };
   window.pubnub.instance.publish(publishPayload);
 }
@@ -110,11 +147,12 @@ const storeRecord = () => {
       </div>
     </div>
     <div v-if="!isNew" :class="colSize">
+      <h4>Seed Information</h4>
       <div class="user-boxes">
-        <h6>Name</h6>
+        <h6>Grower</h6>
         <h5 v-if="unload.grower">
           <Link :href="route('users.index', { userId: unload.grower.id })">
-            {{ unload.grower.name }}
+            {{ unload.grower?.name }} {{ unload.grower?.grower_name ? ' (' + unload.grower?.grower_name + ')' : '' }}
           </Link>
         </h5>
         <h5 v-else>-</h5>
@@ -129,23 +167,17 @@ const storeRecord = () => {
         <h6>Time Added</h6>
         <h5>{{ moment(unload.created_at).format('DD/MM/YYYY hh:mm A') }}</h5>
 
+        <h6>Grower Group</h6>
+        <ul v-if="getCategoriesByType(unload.categories, 'grower-group').length">
+          <li><a>{{ getSingleCategoryNameByType(unload.categories, 'grower-group') }}</a></li>
+        </ul>
+        <h5 v-else>-</h5>
+
         <h6>Paddock</h6>
         <ul v-if="unload.paddocks">
           <li v-for="paddock in unload.paddocks" :key="paddock">
             <a>{{ paddock }}</a>
           </li>
-        </ul>
-        <h5 v-else>-</h5>
-
-        <h6>Fungicide</h6>
-        <ul v-if="getCategoriesByType(unload.categories, 'fungicide').length">
-          <li><a>{{ getSingleCategoryNameByType(unload.categories, 'fungicide') }}</a></li>
-        </ul>
-        <h5 v-else>-</h5>
-
-        <h6>Grower Group</h6>
-        <ul v-if="getCategoriesByType(unload.categories, 'grower').length">
-          <li><a>{{ getSingleCategoryNameByType(unload.categories, 'grower') }}</a></li>
         </ul>
         <h5 v-else>-</h5>
 
@@ -161,16 +193,7 @@ const storeRecord = () => {
         </ul>
         <h5 v-else>-</h5>
 
-        <h6>Status</h6>
-        <ul>
-          <li>
-            <a role="button" :class="{'btn-pending' : unload.status === 'pending'}">
-              {{ toCamelCase(unload.status) }}
-            </a>
-          </li>
-        </ul>
-
-        <h6>TIA Sampled</h6>
+        <h6>TIA Sampling</h6>
         <ul>
           <li>
             <a role="button" :class="{'btn-pending' : (unload.tia_sample?.status || 'pending') === 'pending'}">
@@ -181,11 +204,37 @@ const storeRecord = () => {
       </div>
     </div>
     <div :class="colSize">
-      <h4>Seed information to Record</h4>
+      <h4>Unloading Information to Record</h4>
       <div class="user-boxes">
+        <h6>Status</h6>
+        <ul>
+          <li>
+            <a role="button" :class="{'btn-pending' : unload.status === 'pending'}">
+              {{ toCamelCase(unload.status) }}
+            </a>
+          </li>
+        </ul>
+        
         <h6>Seed Type</h6>
         <ul v-if="getCategoriesByType(unload.categories, 'seed-type').length">
           <li><a>{{ getSingleCategoryNameByType(unload.categories, 'seed-type') }}</a></li>
+        </ul>
+        <h5 v-else>-</h5>
+
+        <h6>Fungicide</h6>
+        <Multiselect
+          v-if="isForm"
+          v-model="form.fungicide"
+          mode="tags"
+          placeholder="Choose a fungicide"
+          :searchable="true"
+          :create-option="true"
+          :options="getCategoriesDropDownByType(categories, 'fungicide')"
+        />
+        <ul v-else-if="getCategoriesByType(unload.categories, 'fungicide').length">
+          <li v-for="category in getCategoriesByType(unload.categories, 'fungicide')" :key="category.id">
+            <a>{{ category.category.name }}</a>
+          </li>
         </ul>
         <h5 v-else>-</h5>
 
@@ -225,7 +274,7 @@ const storeRecord = () => {
         <h5 v-else>-</h5>
 
         <div class="row">
-          <div class="col col-lg-6">
+          <div class="col col-lg-4">
             <h6>Number of total bins</h6>
             <TextInput
               v-if="isForm"
@@ -237,7 +286,7 @@ const storeRecord = () => {
             <h5 v-else-if="unload.no_of_bins">{{ unload.no_of_bins }}</h5>
             <h5 v-else>-</h5>
           </div>
-          <div class="col col-lg-6">
+          <div class="col col-lg-4">
             <h6>Weight of total bins</h6>
             <TextInput
               v-if="isForm"
@@ -249,14 +298,22 @@ const storeRecord = () => {
             <h5 v-else-if="unload.weight">{{ unload.weight }} Tonnes</h5>
             <h5 v-else>-</h5>
           </div>
+          <div v-if="isForm" class="col col-lg-4">
+            <h6>&nbsp;</h6>
+            <button @click="startWeighing" class="btn btn-red">Start Weight</button>
+          </div>
         </div>
 
         <div v-if="isForm" class="row">
           <div class="col col-lg-4">
             <h6>Number of bins</h6>
-            <TextInput
-              v-model="bins"
-              type="text"
+            <UlLiButton
+              :value="bins"
+              :items="[
+                { key: 1, value: '1' },
+                { key: 2, value: '2' },
+              ]"
+              @click="(key) => bins = key"
             />
           </div>
           <div class="col col-lg-4">

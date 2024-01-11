@@ -328,10 +328,10 @@ const storeReturnRecord = () => {
           <div class="row">
             <div class="col-sm-2">
               <h5 v-if="dispatch.allocation_id">
-                Receival Group: {{ getSingleCategoryNameByType(dispatch.allocation.categories, 'grower') }}
+                Receival Group: {{ getSingleCategoryNameByType(dispatch.allocation.categories, 'grower-group') }}
               </h5>
               <h5 v-if="dispatch.reallocation_id">
-                Receival Group: {{ getSingleCategoryNameByType(dispatch.reallocation.allocation.categories, 'grower') }}
+                Receival Group: {{ getSingleCategoryNameByType(dispatch.reallocation.allocation.categories, 'grower-group') }}
               </h5>
             </div>
             <div class="col-sm-2">
@@ -418,7 +418,7 @@ const storeReturnRecord = () => {
                 <td>{{ getSingleCategoryNameByType(allocation.categories, 'seed-variety') }}</td>
                 <td>{{ getSingleCategoryNameByType(allocation.categories, 'seed-class') }}</td>
                 <td>{{ getSingleCategoryNameByType(allocation.categories, 'seed-generation') }}</td>
-                <td>{{ getSingleCategoryNameByType(allocation.categories, 'grower') }}</td>
+                <td>{{ getSingleCategoryNameByType(allocation.categories, 'grower-group') }}</td>
                 <td>{{ allocation.paddock }}</td>
                 <td>{{ allocation.bin_size }} Tonnes</td>
                 <td>{{ allocation.no_of_bins }}</td>
@@ -438,7 +438,7 @@ const storeReturnRecord = () => {
                 <td>{{ getSingleCategoryNameByType(reallocation.allocation.categories, 'seed-variety') }}</td>
                 <td>{{ getSingleCategoryNameByType(reallocation.allocation.categories, 'seed-class') }}</td>
                 <td>{{ getSingleCategoryNameByType(reallocation.allocation.categories, 'seed-generation') }}</td>
-                <td>{{ getSingleCategoryNameByType(reallocation.allocation.categories, 'grower') }}</td>
+                <td>{{ getSingleCategoryNameByType(reallocation.allocation.categories, 'grower-group') }}</td>
                 <td>{{ reallocation.allocation.paddock }}</td>
                 <td>{{ reallocation.allocation.bin_size }} Tonnes</td>
                 <td>{{ reallocation.no_of_bins }}</td>
@@ -488,7 +488,7 @@ const storeReturnRecord = () => {
                 <td>{{ getSingleCategoryNameByType(returnForm.dispatch.allocation.categories, 'seed-variety') }}</td>
                 <td>{{ getSingleCategoryNameByType(returnForm.dispatch.allocation.categories, 'seed-class') }}</td>
                 <td>{{ getSingleCategoryNameByType(returnForm.dispatch.allocation.categories, 'seed-generation') }}</td>
-                <td>{{ getSingleCategoryNameByType(returnForm.dispatch.allocation.categories, 'grower') }}</td>
+                <td>{{ getSingleCategoryNameByType(returnForm.dispatch.allocation.categories, 'grower-group') }}</td>
                 <td>{{ returnForm.dispatch.allocation.paddock }}</td>
                 <td>{{ returnForm.dispatch.allocation.bin_size }} Tonnes</td>
               </tr>

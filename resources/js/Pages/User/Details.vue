@@ -33,10 +33,10 @@ const form = useForm({
   phone: props.user.phone,
   role: props.user.role,
   cool_store: getCategoryIdsByType(props.user.categories, 'cool-store'),
-  grower: getCategoryIdsByType(props.user.categories, 'grower'),
+  grower_group: getCategoryIdsByType(props.user.categories, 'grower-group'),
   grower_name: props.user.grower_name,
   grower_tags: props.user.grower_tags,
-  buyer: getCategoryIdsByType(props.user.categories, 'buyer'),
+  buyer_group: getCategoryIdsByType(props.user.categories, 'buyer-group'),
   buyer_tags: props.user.buyer_tags,
   paddocks: props.user.paddocks === undefined || props.user.paddocks === null ? [] : props.user.paddocks,
   password: '',
@@ -54,10 +54,10 @@ watch(() => props.user,
     form.password = ''
     form.password_confirmation = ''
     form.cool_store = getCategoryIdsByType(user.categories, 'cool-store')
-    form.grower = getCategoryIdsByType(user.categories, 'grower')
+    form.grower_group = getCategoryIdsByType(user.categories, 'grower-group')
     form.grower_name = user.grower_name
     form.grower_tags = user.grower_tags
-    form.buyer = getCategoryIdsByType(user.categories, 'buyer')
+    form.buyer_group = getCategoryIdsByType(user.categories, 'buyer-group')
     form.buyer_tags = user.buyer_tags
     form.paddocks = user.paddocks === undefined || user.paddocks === null ? [] : user.paddocks
   }
@@ -173,17 +173,17 @@ const storeRecord = () => {
         <h6>Grower Group</h6>
         <Multiselect
           v-if="isForm"
-          v-model="form.grower"
+          v-model="form.grower_group"
           mode="tags"
           placeholder="Choose a grower group"
           :searchable="true"
           :create-option="true"
-          :options="getCategoriesDropDownByType(categories, 'grower')"
+          :options="getCategoriesDropDownByType(categories, 'grower-group')"
         />
-        <ul v-else-if="getCategoryIdsByType(user.categories, 'grower').length">
-          <li v-for="group in getCategoryIdsByType(user.categories, 'grower')" :key="group">
+        <ul v-else-if="getCategoryIdsByType(user.categories, 'grower-group').length">
+          <li v-for="group in getCategoryIdsByType(user.categories, 'grower-group')" :key="group">
             <a>{{
-                getCategoriesDropDownByType(categories, 'grower').find(g => parseInt(g.value) === parseInt(group))?.label || group
+                getCategoriesDropDownByType(categories, 'grower-group').find(g => parseInt(g.value) === parseInt(group))?.label || group
               }}</a>
           </li>
         </ul>
@@ -216,17 +216,17 @@ const storeRecord = () => {
         <h6>Buyer Group</h6>
         <Multiselect
           v-if="isForm"
-          v-model="form.buyer"
+          v-model="form.buyer_group"
           mode="tags"
           placeholder="Choose a buyer group"
           :searchable="true"
           :create-option="true"
-          :options="getCategoriesDropDownByType(categories, 'buyer')"
+          :options="getCategoriesDropDownByType(categories, 'buyer-group')"
         />
-        <ul v-else-if="getCategoryIdsByType(user.categories, 'buyer').length">
-          <li v-for="group in getCategoryIdsByType(user.categories, 'buyer')" :key="group">
+        <ul v-else-if="getCategoryIdsByType(user.categories, 'buyer-group').length">
+          <li v-for="group in getCategoryIdsByType(user.categories, 'buyer-group')" :key="group">
             <a>{{
-                getCategoriesDropDownByType(categories, 'buyer').find(g => parseInt(g.value) === parseInt(group))?.label || group
+                getCategoriesDropDownByType(categories, 'buyer-group').find(g => parseInt(g.value) === parseInt(group))?.label || group
               }}</a>
           </li>
         </ul>

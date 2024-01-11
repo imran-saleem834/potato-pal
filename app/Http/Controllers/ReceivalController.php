@@ -17,15 +17,12 @@ class ReceivalController extends Controller
     /**
      * Display a listing of the resource.
      * @param Request $request
+     * @return \Inertia\Response
      */
     public function index(Request $request)
     {
         $receivals = Receival::query()
-            ->with([
-                'grower' => function ($query) {
-                    return $query->select('id', 'name');
-                }
-            ])
+            ->with(['grower' => fn ($query) => $query->select('id', 'name', 'grower_name')])
             ->select('id', 'grower_id')
             ->when($request->input('search'), function (Builder $query, $search) {
                 return $query->where(function (Builder $subQuery) use ($search) {
@@ -36,25 +33,15 @@ class ReceivalController extends Controller
             ->get();
 
         $receivalId = $request->input('receivalId', $receivals->first()->id ?? 0);
-
-        $receival = Receival::with([
-            'categories.category',
-            'tiaSample' => function ($query) {
-                return $query->select('id', 'receival_id', 'status');
-            },
-            'grower'    => function ($query) {
-                return $query->select('id', 'name');
-            },
-        ])->find($receivalId);
+        $receival   = $this->getReceival($receivalId);
 
         $types      = [
-            'grower',
+            'grower-group',
             'seed-type',
             'seed-variety',
             'seed-generation',
             'seed-class',
             'delivery-type',
-            'fungicide',
             'transport'
         ];
         $categories = Category::whereIn('type', $types)->get();
@@ -62,7 +49,12 @@ class ReceivalController extends Controller
         return Inertia::render('Receival/Index', [
             'receivals'  => $receivals,
             'single'     => $receival,
-            'users'      => fn() => User::with(['categories.category'])->select(['id', 'name', 'paddocks'])->get(),
+            'users'      => fn() => User::with(['categories.category'])->select([
+                'id',
+                'name',
+                'grower_name',
+                'paddocks'
+            ])->get(),
             'categories' => $categories,
             'filters'    => $request->only(['search']),
         ]);
@@ -78,13 +70,12 @@ class ReceivalController extends Controller
         $receival = Receival::create($inputs);
 
         $inputs = $request->only([
-            'grower',
+            'grower_group',
             'seed_type',
             'seed_variety',
             'seed_generation',
             'seed_class',
             'delivery_type',
-            'fungicide',
             'transport'
         ]);
         CategoriesHelper::createRelationOfTypes($inputs, $receival->id, Receival::class);
@@ -104,15 +95,7 @@ class ReceivalController extends Controller
      */
     public function show(string $id)
     {
-        $receival = Receival::with([
-            'categories.category',
-            'tiaSample' => function ($query) {
-                return $query->select('id', 'receival_id', 'status');
-            },
-            'grower'    => function ($query) {
-                return $query->select('id', 'name');
-            },
-        ])->find($id);
+        $receival = $this->getReceival($id);
 
         return response()->json($receival);
     }
@@ -129,13 +112,12 @@ class ReceivalController extends Controller
         $receival->save();
 
         $inputs = $request->only([
-            'grower',
+            'grower_group',
             'seed_type',
             'seed_variety',
             'seed_generation',
             'seed_class',
             'delivery_type',
-            'fungicide',
             'transport'
         ]);
         CategoriesHelper::createRelationOfTypes($inputs, $receival->id, Receival::class);
@@ -206,14 +188,13 @@ class ReceivalController extends Controller
             'seed_generation',
             'seed_class',
             'delivery_type',
-            'fungicide',
             'transport'
         ];
         foreach ($request->input('inputs') as $field => $isTrue) {
             if ($isTrue && $receival[$field]) {
                 $inputs[$field] = $receival[$field];
             } else if ($isTrue && in_array($field, $types)) {
-                $field              = $field === 'grower_group' ? 'grower' : str_replace('_', '-', $field);
+                $field              = str_replace('_', '-', $field);
                 $categories[$field] = $receival->categories->where('type', $field)->pluck('category_id')->toArray();
             }
         }
@@ -224,7 +205,7 @@ class ReceivalController extends Controller
 
         $receival->unique_key = ReceivalHelper::getUniqueKey($receival);
         $receival->save();
-        
+
         ReceivalHelper::calculateRemainingReceivals($receival->grower_id);
 
         NotificationHelper::duplicatedAction('Receival', $receival->id);
@@ -273,5 +254,18 @@ class ReceivalController extends Controller
         $receival->images = array_values($images);
 
         $receival->save();
+    }
+
+    private function getReceival($receivalId)
+    {
+        return Receival::with([
+            'categories.category',
+            'tiaSample' => function ($query) {
+                return $query->select('id', 'receival_id', 'status');
+            },
+            'grower'    => function ($query) {
+                return $query->select('id', 'name', 'grower_name');
+            },
+        ])->find($receivalId);
     }
 }

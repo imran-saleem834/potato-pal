@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use App\Models\User;
+use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Laravel\Fortify\Rules\Password;
 use Illuminate\Foundation\Http\FormRequest;
@@ -29,16 +31,17 @@ class UserRequest extends FormRequest
             'username'            => ['required', 'string', 'max:50', 'unique:users'],
             'phone'               => ['required', 'string', 'max:20'],
             'role'                => ['nullable', 'array'],
-            'cool_store'          => ['nullable', 'array'],
-            'grower'              => ['nullable', 'array'],
             'grower_name'         => ['nullable', 'string', 'max:50'],
             'grower_tags'         => ['nullable', 'array'],
-            'buyer'               => ['nullable', 'array'],
             'buyer_tags'          => ['nullable', 'array'],
             'paddocks'            => ['nullable', 'array'],
             'paddocks.*.name'     => ['required', 'string', 'max:50'],
             'paddocks.*.hectares' => ['required', 'string', 'max:20'],
         ];
+
+        $rules = array_merge($rules, Arr::map(User::CATEGORY_INPUTS, function ($input) {
+            return [$input => ['nullable', 'array']];
+        }));
 
         if (!$this->isMethod('POST')) {
             $rules['email']    = [
@@ -89,8 +92,6 @@ class UserRequest extends FormRequest
         return [
             'paddocks.*.name'     => 'paddock name',
             'paddocks.*.hectares' => 'paddock hectares',
-            'buyer'               => 'buyer group',
-            'grower'              => 'grower group',
         ];
     }
 }

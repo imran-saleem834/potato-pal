@@ -36,7 +36,7 @@ class AllocationRequest extends FormRequest
             'bin_size'        => ['required', 'numeric', Rule::in([0.5, 1, 2])],
             'paddock'         => ['required', 'string'],
             'comment'         => ['nullable', 'string', 'max:255'],
-            'grower'          => ['required', 'array', 'max:1'],
+            'grower_group'    => ['required', 'array', 'max:1'],
             'seed_variety'    => ['required', 'array', 'max:1'],
             'seed_generation' => ['required', 'array', 'max:1'],
             'seed_class'      => ['required', 'array', 'max:1'],

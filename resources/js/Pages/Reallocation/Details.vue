@@ -243,7 +243,7 @@ const deleteReallocation = () => {
           </div>
           <div class="row">
             <div class="col-sm-2">
-              <h5>Grower Group: {{ getSingleCategoryNameByType(reallocation.allocation.categories, 'grower') }}</h5>
+              <h5>Grower Group: {{ getSingleCategoryNameByType(reallocation.allocation.categories, 'grower-group') }}</h5>
             </div>
             <div class="col-sm-2">
               <h5>Seed Variety: {{ getSingleCategoryNameByType(reallocation.allocation.categories, 'seed-variety') }}</h5>
@@ -300,7 +300,7 @@ const deleteReallocation = () => {
                 <td>{{ getSingleCategoryNameByType(allocation.categories, 'seed-variety') }}</td>
                 <td>{{ getSingleCategoryNameByType(allocation.categories, 'seed-class') }}</td>
                 <td>{{ getSingleCategoryNameByType(allocation.categories, 'seed-generation') }}</td>
-                <td>{{ getSingleCategoryNameByType(allocation.categories, 'grower') }}</td>
+                <td>{{ getSingleCategoryNameByType(allocation.categories, 'grower-group') }}</td>
                 <td>{{ allocation.paddock }}</td>
                 <td>{{ allocation.bin_size }} Tonnes</td>
                 <td>{{ allocation.no_of_bins }}</td>

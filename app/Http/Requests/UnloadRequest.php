@@ -23,6 +23,7 @@ class UnloadRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'fungicide'  => ['nullable', 'array'],
             'no_of_bins' => ['nullable', 'numeric'],
             'weight'     => ['nullable', 'numeric'],
             'channel'    => ['nullable', 'string', Rule::in(['weighbridge', 'BU2', 'BU3'])],

@@ -20,6 +20,9 @@ class User extends Authenticatable implements MustVerifyEmail
     use Notifiable;
     use TwoFactorAuthenticatable;
 
+    CONST CATEGORY_TYPES = ['buyer-group', 'grower-group', 'cool-store'];
+    CONST CATEGORY_INPUTS = ['buyer_group', 'grower_group', 'cool_store'];
+
     /**
      * The attributes that are mass assignable.
      *

@@ -101,7 +101,7 @@ class AllocationController extends Controller
         $allocation = Allocation::create($request->validated());
 
         $inputs = $request->only([
-            'grower',
+            'grower_group',
             'seed_type',
             'seed_variety',
             'seed_generation',
@@ -127,7 +127,7 @@ class AllocationController extends Controller
         $allocation->save();
 
         $inputs = $request->only([
-            'grower',
+            'grower_group',
             'seed_type',
             'seed_variety',
             'seed_generation',
@@ -172,7 +172,7 @@ class AllocationController extends Controller
         return Allocation::query()
             ->with([
                 'categories.category',
-                'grower' => fn($query) => $query->select('id', 'name'),
+                'grower' => fn($query) => $query->select('id', 'name', 'grower_name'),
             ])
             ->when($search, function ($query, $search) {
                 return $query->where(function ($subQuery) use ($search) {

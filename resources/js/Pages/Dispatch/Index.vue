@@ -135,8 +135,8 @@ setActiveTab(dispatches.value.data[0]?.buyer_id);
                 </div>
                 <div class="col-sm-4">
                   <h6>Buyer Group</h6>
-                  <ul v-if="getCategoriesByType(activeTab?.buyer?.categories, 'buyer').length > 0">
-                    <li v-for="category in getCategoriesByType(activeTab?.buyer?.categories, 'buyer')"
+                  <ul v-if="getCategoriesByType(activeTab?.buyer?.categories, 'buyer-group').length > 0">
+                    <li v-for="category in getCategoriesByType(activeTab?.buyer?.categories, 'buyer-group')"
                         :key="category.id">
                       <a>{{ category.category.name }}</a>
                     </li>
@@ -246,8 +246,8 @@ setActiveTab(dispatches.value.data[0]?.buyer_id);
                     </div>
                     <div class="col-sm-4">
                       <h6>Buyer Group</h6>
-                      <ul v-if="getCategoriesByType(activeTab?.buyer?.categories, 'buyer').length > 0">
-                        <li v-for="category in getCategoriesByType(activeTab?.buyer?.categories, 'buyer')"
+                      <ul v-if="getCategoriesByType(activeTab?.buyer?.categories, 'buyer-group').length > 0">
+                        <li v-for="category in getCategoriesByType(activeTab?.buyer?.categories, 'buyer-group')"
                             :key="category.id">
                           <a>{{ category.category.name }}</a>
                         </li>

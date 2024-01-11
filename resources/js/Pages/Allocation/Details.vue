@@ -40,7 +40,7 @@ const form = useForm({
   bin_size: props.allocation.bin_size,
   paddock: props.allocation.paddock,
   comment: props.allocation.comment,
-  grower: getCategoryIdsByType(props.allocation.categories, 'grower'),
+  grower_group: getCategoryIdsByType(props.allocation.categories, 'grower-group'),
   seed_type: getCategoryIdsByType(props.allocation.categories, 'seed-type'),
   seed_variety: getCategoryIdsByType(props.allocation.categories, 'seed-variety'),
   seed_generation: getCategoryIdsByType(props.allocation.categories, 'seed-generation'),
@@ -62,7 +62,7 @@ watch(() => props.allocation,
     form.bin_size = allocation.bin_size
     form.paddock = allocation.paddock
     form.comment = allocation.comment
-    form.grower = getCategoryIdsByType(allocation.categories, 'grower')
+    form.grower_group = getCategoryIdsByType(allocation.categories, 'grower-group')
     form.seed_type = getCategoryIdsByType(allocation.categories, 'seed-type')
     form.seed_variety = getCategoryIdsByType(allocation.categories, 'seed-variety')
     form.seed_generation = getCategoryIdsByType(allocation.categories, 'seed-generation')
@@ -90,7 +90,7 @@ const onSelectReceival = (receival) => {
   form.weight = null
   form.bin_size = receival.bin_size
   form.paddock = receival.paddock
-  form.grower = getCategoryIdsByType(receival.categories, 'grower')
+  form.grower_group = getCategoryIdsByType(receival.categories, 'grower-group')
   form.seed_type = getCategoryIdsByType(receival.categories, 'seed-type')
   form.seed_variety = getCategoryIdsByType(receival.categories, 'seed-variety')
   form.seed_generation = getCategoryIdsByType(receival.categories, 'seed-generation')
@@ -245,7 +245,9 @@ const deleteAllocation = () => {
             <div class="col-sm-2">
               <h5>
                 <strong>Grower Name: </strong>
-                <Link :href="route('users.index', {userId: allocation.grower_id})">{{ allocation.grower?.name }}</Link>
+                <Link :href="route('users.index', {userId: allocation.grower_id})">
+                  {{ allocation.grower?.name }} {{ allocation.grower?.grower_name ? ' (' + allocation.grower?.grower_name + ')' : '' }}
+                </Link>
               </h5>
             </div>
             <div class="col-sm-2">
@@ -270,7 +272,7 @@ const deleteAllocation = () => {
           <div class="row">
             <div class="col-sm-2">
               <template
-                v-for="category in getCategoriesByType(allocation.categories, 'grower')"
+                v-for="category in getCategoriesByType(allocation.categories, 'grower-group')"
                 :key="category.id"
               >
                 <h5>Receival Group: {{ category.category.name }}</h5>

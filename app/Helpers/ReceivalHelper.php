@@ -12,7 +12,7 @@ class ReceivalHelper
     {
         $uniqueKey = [];
         foreach ($receival->categories as $category) {
-            if ($category->type === 'grower') {
+            if ($category->type === 'grower-group') {
                 $uniqueKey[] = $category->category->id;
             }
             if ($category->type === 'seed-type') {
@@ -48,7 +48,7 @@ class ReceivalHelper
         $growerGroup = $seedType = $seedVariety = $seedClass = $seedGeneration = '';
         $paddock     = $receival->paddocks[0] ?? '';
         foreach ($receival->categories as $category) {
-            if ($category->type === 'grower') {
+            if ($category->type === 'grower-group') {
                 $growerGroup = $category->category->name;
             }
             if ($category->type === 'seed-type') {

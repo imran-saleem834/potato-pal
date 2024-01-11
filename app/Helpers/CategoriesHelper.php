@@ -10,14 +10,14 @@ class CategoriesHelper
     public static function createRelationOfTypes(array $inputs, int $forgingId, $model)
     {
         $categoryIds = [];
-        foreach ($inputs as $key => $input) {
-            $type = str_replace('_', '-', $key);
+        $inputs      = static::updateInputsToTypes($inputs);
+        foreach ($inputs as $type => $input) {
             foreach ($input as $categoryId) {
                 $categoryIds[] = static::createRelation($categoryId, $forgingId, $model, $type);
             }
         }
 
-        static::deleteCategoryRealtions($forgingId, $model, $categoryIds);
+        static::deleteCategoryRealtions($forgingId, $model, array_keys($inputs), $categoryIds);
     }
 
     public static function createRelation($categoryId, int $forgingId, $model, string $type): int
@@ -43,13 +43,25 @@ class CategoriesHelper
         return $category->id;
     }
 
-    public static function deleteCategoryRealtions(int $forgingId, $model, array $categoryIds = [])
+    public static function deleteCategoryRealtions(int $forgingId, $model, array $types = [], array $categoryIds = [])
     {
-        CategoriesRelation::where('categorizable_id', $forgingId)
+        return CategoriesRelation::where('categorizable_id', $forgingId)
             ->where('categorizable_type', $model)
+            ->when($types, function ($query, $types) {
+                return $query->whereIn('type', $types);
+            })
             ->when($categoryIds, function ($query, $categoryIds) {
                 return $query->whereNotIn('category_id', $categoryIds);
             })
             ->delete();
+    }
+
+    private static function updateInputsToTypes($inputs)
+    {
+        $fields = array_map(function ($field) {
+            return str_replace('_', '-', $field);
+        }, array_keys($inputs));
+
+        return array_combine($fields, $inputs);
     }
 }

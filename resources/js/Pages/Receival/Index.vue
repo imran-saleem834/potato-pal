@@ -124,7 +124,7 @@ setActiveTab(receival.value?.id);
     />
     <MiddleBar
       type="Receivals"
-      :title="receival?.grower?.name || 'New'"
+      :title="receival?.grower?.grower_name || 'New'"
       :is-edit-record-selected="!!edit"
       :is-new-record-selected="isNewRecord"
       :access="{
@@ -146,7 +146,7 @@ setActiveTab(receival.value?.id);
           <LeftBar
             :items="receivals"
             :active-tab="activeTab"
-            :row-1="{title: 'Grower', value: 'grower.name'}"
+            :row-1="{title: 'Grower', value: 'grower.grower_name'}"
             :row-2="{title: 'Receival Id', value: 'id'}"
             @click="getReceival"
           />
@@ -194,7 +194,7 @@ setActiveTab(receival.value?.id);
           <div class="modal-body" v-if="receival">
             <ModalBreadcrumb
               page="Receivals"
-              :title="receival?.grower?.name || 'New'"
+              :title="receival?.grower?.grower_name || 'New'"
             />
             <Details
               :receival="receival"

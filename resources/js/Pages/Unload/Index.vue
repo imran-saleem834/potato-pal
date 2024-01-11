@@ -12,7 +12,7 @@ import { router, useForm } from "@inertiajs/vue3";
 const props = defineProps({
   unloads: Object,
   single: Object,
-  receivals: Array,
+  categories: Array,
   filters: Object,
 });
 
@@ -90,7 +90,7 @@ setActiveTab(unload.value?.id);
     />
     <MiddleBar
       type="Unloading"
-      :title="unload?.grower?.name || 'New'"
+      :title="unload?.grower?.grower_name || 'New'"
       :is-edit-record-selected="!!edit"
       :is-new-record-selected="isNewRecord"
       :access="{
@@ -110,7 +110,7 @@ setActiveTab(unload.value?.id);
           <LeftBar
             :items="unloads"
             :active-tab="activeTab"
-            :row-1="{title: 'Grower', value: 'grower.name'}"
+            :row-1="{title: 'Grower', value: 'grower.grower_name'}"
             :row-2="{title: 'Unloading Id', value: 'id'}"
             @click="getUnload"
           />
@@ -120,6 +120,7 @@ setActiveTab(unload.value?.id);
             <div class="tab-pane active">
               <Details
                 :unload="unload"
+                :categories="categories"
                 :is-edit="!!edit"
                 :is-new="isNewRecord"
                 @update="() => getUnload(activeTab)"
@@ -152,10 +153,11 @@ setActiveTab(unload.value?.id);
           <div class="modal-body" v-if="unload">
             <ModalBreadcrumb
               page="Unloading"
-              :title="unload?.grower?.name || 'New'"
+              :title="unload?.grower?.grower_name || 'New'"
             />
             <Details
               :unload="unload"
+              :categories="categories"
               :is-edit="!!edit"
               :is-new="isNewRecord"
               @update="() => getUnload(activeTab)"
