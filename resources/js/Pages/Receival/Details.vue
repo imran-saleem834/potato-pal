@@ -393,7 +393,7 @@ const pushForUnload = () => {
           :value="form.bin_size"
           :error="form.errors.bin_size"
           :items="binSizes"
-          @click="(key) => form.bin_size = key"
+          @click="(value) => form.bin_size = value"
         />
         <ul v-else-if="receival.bin_size">
           <li><a>{{ getBinSizesValue(receival.bin_size) }}</a></li>

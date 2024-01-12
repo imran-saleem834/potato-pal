@@ -310,10 +310,10 @@ const storeRecord = () => {
           :value="form.status"
           :error="form.errors.status"
           :items="[
-            {key: 'pending', value: 'Pending'},
-            {key: 'certified', value: 'Certified'},
-            {key: 'not-certified', value: 'Not Certified'},
-            {key: 'rejected', value: 'Rejected'},
+            { value: 'pending', label: 'Pending' },
+            { value: 'certified', label: 'Certified' },
+            { value: 'not-certified', label: 'Not Certified' },
+            { value: 'rejected', label: 'Rejected' },
           ]"
           @click="(key) => form.status = key"
         />
@@ -358,7 +358,7 @@ const storeRecord = () => {
           :value="form.processor"
           :error="form.errors.processor"
           :items="binSizes"
-          @click="(key) => form.processor = key"
+          @click="(value) => form.processor = value"
         />
         <h5 v-else-if="tiaSample.processor">{{ getBinSizesValue(tiaSample.processor) }}</h5>
         <h5 v-else>-</h5>
@@ -516,9 +516,9 @@ const storeRecord = () => {
           :value="form.size"
           :error="form.errors.size"
           :items="[
-            {key: '35-350g', value: '35 - 350g'},
-            {key: '90mm', value: '90mm'},
-            {key: '70mm', value: '70mm'},
+            { value: '35-350g', label: '35 - 350g'},
+            { value: '90mm', label: '90mm'},
+            { value: '70mm', label: '70mm'},
           ]"
           @click="(key) => form.size = key"
         />

@@ -1,7 +1,7 @@
 export var binSizes = [
-    { key: 0.5, value: 'Half Tone' },
-    { key: 1, value: 'One Tone' },
-    { key: 2, value: 'Two Tone' },
+    { value: 0.5, label: 'Half Tone' },
+    { value: 1, label: 'One Tone' },
+    { value: 2, label: 'Two Tone' },
 ];
 
 export function getBinSizesValue(binSize) {

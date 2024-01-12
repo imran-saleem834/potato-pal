@@ -22,12 +22,12 @@ const props = defineProps({
         <span class="help-block text-left">{{ error }}</span>
     </div>
     <ul>
-        <li v-for="item in items" :key="item">
+        <li v-for="item in items" :key="item.value">
             <a
                 role="button"
-                @click="$emit('click', item.key)"
-                :class="{'black-btn' : value === item.key}"
-            >{{ item.value }}</a>
+                @click="$emit('click', item.value)"
+                :class="{'black-btn' : value === item.value}"
+            >{{ item.label }}</a>
         </li>
     </ul>
 </template>
