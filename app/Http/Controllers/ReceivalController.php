@@ -10,7 +10,7 @@ use App\Helpers\NotificationHelper;
 use App\Http\Requests\ReceivalRequest;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Builder;
-use App\Models\{Category, User, Receival, TiaSample};
+use App\Models\{Category, Unload, User, Receival, TiaSample};
 
 class ReceivalController extends Controller
 {
@@ -37,7 +37,6 @@ class ReceivalController extends Controller
 
         $types      = [
             'grower-group',
-            'seed-type',
             'seed-variety',
             'seed-generation',
             'seed-class',
@@ -71,7 +70,6 @@ class ReceivalController extends Controller
 
         $inputs = $request->only([
             'grower_group',
-            'seed_type',
             'seed_variety',
             'seed_generation',
             'seed_class',
@@ -79,11 +77,6 @@ class ReceivalController extends Controller
             'transport'
         ]);
         CategoriesHelper::createRelationOfTypes($inputs, $receival->id, Receival::class);
-
-        $receival->unique_key = ReceivalHelper::getUniqueKey($receival);
-        $receival->save();
-
-        ReceivalHelper::calculateRemainingReceivals($receival->grower_id);
 
         NotificationHelper::addedAction('Receival', $receival->id);
 
@@ -113,7 +106,6 @@ class ReceivalController extends Controller
 
         $inputs = $request->only([
             'grower_group',
-            'seed_type',
             'seed_variety',
             'seed_generation',
             'seed_class',
@@ -122,8 +114,7 @@ class ReceivalController extends Controller
         ]);
         CategoriesHelper::createRelationOfTypes($inputs, $receival->id, Receival::class);
 
-        $receival->unique_key = ReceivalHelper::getUniqueKey($receival);
-        $receival->save();
+        ReceivalHelper::updateUniqueKey($receival);
 
         ReceivalHelper::calculateRemainingReceivals($receival->grower_id);
 
@@ -137,11 +128,13 @@ class ReceivalController extends Controller
      */
     public function destroy(string $id)
     {
-        CategoriesHelper::deleteCategoryRealtions($id, Receival::class);
+        CategoriesHelper::deleteCategoryRelations($id, Receival::class);
 
         $receival = Receival::find($id);
         $growerId = $receival->grower_id;
         $receival->delete();
+
+        Unload::where('receival_id', $id)->delete();
 
         ReceivalHelper::calculateRemainingReceivals($growerId);
 
@@ -183,7 +176,6 @@ class ReceivalController extends Controller
         $categories = [];
         $types      = [
             'grower_group',
-            'seed_type',
             'seed_variety',
             'seed_generation',
             'seed_class',
@@ -202,11 +194,6 @@ class ReceivalController extends Controller
         $receival = Receival::create($inputs);
 
         CategoriesHelper::createRelationOfTypes($categories, $receival->id, Receival::class);
-
-        $receival->unique_key = ReceivalHelper::getUniqueKey($receival);
-        $receival->save();
-
-        ReceivalHelper::calculateRemainingReceivals($receival->grower_id);
 
         NotificationHelper::duplicatedAction('Receival', $receival->id);
 
@@ -260,12 +247,8 @@ class ReceivalController extends Controller
     {
         return Receival::with([
             'categories.category',
-            'tiaSample' => function ($query) {
-                return $query->select('id', 'receival_id', 'status');
-            },
-            'grower'    => function ($query) {
-                return $query->select('id', 'name', 'grower_name');
-            },
+            'grower'    => fn($query) => $query->select(['id', 'name', 'grower_name']),
+            'tiaSample' => fn($query) => $query->select(['id', 'status', 'receival_id']),
         ])->find($receivalId);
     }
 }

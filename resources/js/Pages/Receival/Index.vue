@@ -24,8 +24,6 @@ const duplicateForm = useForm({
     grower_id: true,
     grower_group: true,
     paddocks: true,
-    seed_type: true,
-    bin_size: true,
     seed_variety: true,
     seed_generation: true,
     seed_class: true,

@@ -10,21 +10,23 @@ import ModalBreadcrumb from "@/Components/ModalBreadcrumb.vue";
 import { router, useForm } from "@inertiajs/vue3";
 
 const props = defineProps({
-  unloads: Object,
+  receivals: Object,
   single: Object,
   categories: Array,
   filters: Object,
+  errors: Object
 });
 
-const unload = ref(props.single || {});
+const receival = ref(props.single || {});
 const activeTab = ref(null);
 const edit = ref(null);
-const isNewRecord = ref(false);
 const search = ref(props.filters.search);
 
 watch(() => props?.single,
   (single) => {
-    unload.value = single || {};
+    if (Object.values(props.errors).length === undefined || Object.values(props.errors).length <= 0) {
+      receival.value = single || {};
+    }
   }
 );
 
@@ -40,7 +42,7 @@ const filter = (keyword) => search.value = keyword;
 
 const getUnload = (id) => {
   axios.get(route('unloading.show', id)).then(response => {
-    unload.value = response.data;
+    receival.value = response.data;
 
     setActiveTab(response.data.id);
   });
@@ -49,19 +51,10 @@ const getUnload = (id) => {
 const setActiveTab = (id) => {
   activeTab.value = id;
   edit.value = null;
-  isNewRecord.value = false;
 };
 
 const setEdit = (id) => {
   edit.value = edit.value === id ? null : id;
-  isNewRecord.value = false;
-}
-
-const setNewRecord = () => {
-  isNewRecord.value = true;
-  edit.value = null;
-  unload.value = {};
-  activeTab.value = null;
 }
 
 const deleteUnload = (id) => {
@@ -69,12 +62,12 @@ const deleteUnload = (id) => {
   form.delete(route('unloading.destroy', id), {
     preserveState: true,
     onSuccess: () => {
-      setActiveTab(unload.value?.id);
+      setActiveTab(receival.value?.id);
     },
   });
 }
 
-setActiveTab(unload.value?.id);
+setActiveTab(receival.value?.id);
 </script>
 
 <template>
@@ -83,24 +76,20 @@ setActiveTab(unload.value?.id);
       type="Unloading"
       :value="search"
       @search="filter"
-      :access="{
-        new: false,
-      }"
-      @newRecord="setNewRecord"
+      :access="{ new: false }"
     />
     <MiddleBar
       type="Unloading"
-      :title="unload?.grower?.grower_name || 'New'"
+      :title="receival?.grower?.grower_name || 'New'"
       :is-edit-record-selected="!!edit"
-      :is-new-record-selected="isNewRecord"
+      :is-new-record-selected="false"
       :access="{
         new: false,
-        edit: Object.values(unload).length > 0,
-        delete: Object.values(unload).length > 0,
+        edit: Object.values(receival).length > 0,
+        delete: Object.values(receival).length > 0,
       }"
-      @newRecord="setNewRecord"
-      @editRecord="() => setEdit(unload?.id)"
-      @deleteRecord="() => deleteUnload(unload?.id)"
+      @editRecord="() => setEdit(receival?.id)"
+      @deleteRecord="() => deleteUnload(receival?.id)"
     />
 
     <!-- tab-section -->
@@ -108,28 +97,27 @@ setActiveTab(unload.value?.id);
       <div class="row row0">
         <div class="col-lg-3 col-sm-6" :class="{'mobile-userlist' : $windowWidth <= 767}">
           <LeftBar
-            :items="unloads"
+            :items="receivals"
             :active-tab="activeTab"
             :row-1="{title: 'Grower', value: 'grower.grower_name'}"
-            :row-2="{title: 'Unloading Id', value: 'id'}"
+            :row-2="{title: 'Receival Id', value: 'id'}"
             @click="getUnload"
           />
         </div>
         <div class="col-lg-8 col-sm-6">
-          <div class="tab-content" v-if="Object.values(unload).length > 0 || isNewRecord">
+          <div class="tab-content" v-if="Object.values(receival).length > 0">
             <div class="tab-pane active">
               <Details
-                :unload="unload"
+                :receival="receival"
                 :categories="categories"
                 :is-edit="!!edit"
-                :is-new="isNewRecord"
                 @update="() => getUnload(activeTab)"
-                @create="() => setActiveTab(unload?.id)"
+                @create="() => setActiveTab(receival?.id)"
                 col-size="col-md-6"
               />
             </div>
           </div>
-          <div class="col-sm-12" v-if="Object.values(unload).length <= 0 && !isNewRecord">
+          <div class="col-sm-12" v-if="Object.values(receival).length <= 0">
             <p class="text-center" style="margin-top: calc(50vh - 120px);">No Records Found</p>
           </div>
         </div>
@@ -144,24 +132,21 @@ setActiveTab(unload.value?.id);
         <div class="modal-content">
           <ModalHeader
             title="Unloading"
-            :access="{
-              new: isNewRecord
-            }"
-            @edit="() => setEdit(unload?.id)"
-            @delete="() => deleteUnload(unload?.id)"
+            :access="{ new: false }"
+            @edit="() => setEdit(receival?.id)"
+            @delete="() => deleteUnload(receival?.id)"
           />
-          <div class="modal-body" v-if="unload">
+          <div class="modal-body" v-if="receival">
             <ModalBreadcrumb
               page="Unloading"
-              :title="unload?.grower?.grower_name || 'New'"
+              :title="receival?.grower?.grower_name || 'New'"
             />
             <Details
-              :unload="unload"
+              :receival="receival"
               :categories="categories"
               :is-edit="!!edit"
-              :is-new="isNewRecord"
               @update="() => getUnload(activeTab)"
-              @create="() => setActiveTab(unload?.id)"
+              @create="() => setActiveTab(receival?.id)"
               col-size="col-md-12"
             />
           </div>

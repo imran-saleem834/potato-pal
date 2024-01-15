@@ -14,13 +14,7 @@ return new class extends Migration
         Schema::create('receivals', function (Blueprint $table) {
             $table->id();
             $table->foreignId('grower_id');
-            $table->string('unique_key', 100)->nullable();
             $table->string('paddocks')->nullable();
-            $table->string('channel', 30)->nullable();
-            $table->tinyInteger('system')->nullable();
-            $table->float('bin_size')->nullable();
-            $table->float('no_of_bins')->nullable();
-            $table->float('weight')->nullable();
             $table->string('grower_docket_no', 50)->nullable();
             $table->string('chc_receival_docket_no', 50)->nullable();
             $table->string('driver_name', 80)->nullable();

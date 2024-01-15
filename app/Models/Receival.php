@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Receival extends Model
@@ -18,13 +19,7 @@ class Receival extends Model
      */
     protected $fillable = [
         'grower_id',
-        'unique_key',
         'paddocks',
-        'channel',
-        'system',
-        'bin_size',
-        'no_of_bins',
-        'weight',
         'grower_docket_no',
         'chc_receival_docket_no',
         'driver_name',
@@ -51,10 +46,7 @@ class Receival extends Model
             ->orWhere('chc_receival_docket_no', 'LIKE', "%$search%")
             ->orWhere('driver_name', 'LIKE', "%$search%")
             ->orWhere('comments', 'LIKE', "%$search%")
-            ->orWhere('status', 'LIKE', "%$search%")
-            ->orWhere('bin_size', 'LIKE', "%$search%")
-            ->orWhere('no_of_bins', 'LIKE', "%$search%")
-            ->orWhere('weight', 'LIKE', "%$search%");
+            ->orWhere('status', 'LIKE', "%$search%");
     }
 
     public function grower()
@@ -65,6 +57,11 @@ class Receival extends Model
     public function tiaSample()
     {
         return $this->hasOne(TiaSample::class);
+    }
+
+    public function unloads(): HasMany
+    {
+        return $this->hasMany(Unload::class);
     }
 
     public function categories(): MorphMany

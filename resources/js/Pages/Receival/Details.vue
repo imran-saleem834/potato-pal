@@ -13,7 +13,6 @@ import {
   getCategoryIdsByType,
   getCategoriesByType
 } from "@/helper.js";
-import { binSizes, getBinSizesValue } from "@/tonnes.js";
 
 const userGrowerGroups = ref([]);
 const paddockOptions = ref([]);
@@ -33,8 +32,6 @@ const form = useForm({
   grower_id: props.receival.grower_id,
   grower_group: getCategoryIdsByType(props.receival.categories, 'grower-group'),
   paddocks: props.receival.paddocks,
-  seed_type: getCategoryIdsByType(props.receival.categories, 'seed-type'),
-  bin_size: props.receival.bin_size,
   seed_variety: getCategoryIdsByType(props.receival.categories, 'seed-variety'),
   seed_generation: getCategoryIdsByType(props.receival.categories, 'seed-generation'),
   seed_class: getCategoryIdsByType(props.receival.categories, 'seed-class'),
@@ -52,8 +49,6 @@ watch(() => props.receival,
     form.grower_id = receival.grower_id
     form.grower_group = getCategoryIdsByType(receival.categories, 'grower-group')
     form.paddocks = receival.paddocks
-    form.seed_type = getCategoryIdsByType(receival.categories, 'seed-type')
-    form.bin_size = receival.bin_size
     form.seed_variety = getCategoryIdsByType(receival.categories, 'seed-variety')
     form.seed_generation = getCategoryIdsByType(receival.categories, 'seed-generation')
     form.seed_class = getCategoryIdsByType(receival.categories, 'seed-class')
@@ -110,9 +105,6 @@ const isRequireFieldsEmpty = computed(() => {
   if (growerGroup.length <= 0) {
     return true;
   }
-  if (props.receival.paddocks?.length <= 0) {
-    return true;
-  }
   const seedType = getCategoryIdsByType(props.receival.categories, 'seed-type');
   if (seedType.length <= 0) {
     return true;
@@ -129,7 +121,7 @@ const isRequireFieldsEmpty = computed(() => {
   if (seedGeneration.length <= 0) {
     return true;
   }
-  return !props.receival.bin_size;
+  return props.receival.paddocks?.length <= 0;
 });
 
 const updateRecord = () => {
@@ -173,8 +165,7 @@ const pushForUnload = () => {
   <div class="row">
     <div v-if="isRequireFieldsEmpty" class="col-md-12">
       <div class="alert alert-warning" role="alert">
-        Require these fields (Grower Group, Paddocks, Seed Type, Seed Variety, Seed Class, Seed Generation, Bin Size) to
-        list in the allocations
+        Require these fields (Grower Group, Paddocks, Seed Variety, Class and Generation) to list in the allocations
       </div>
     </div>
     <div v-if="isEdit || isNew" class="col-md-12">
@@ -343,9 +334,9 @@ const pushForUnload = () => {
       </div>
     </div>
     <div :class="colSize">
-      <h4>Unloading Information</h4>
-      <div class="user-boxes">
-        <div v-if="!isForm">
+      <h4 v-if="!isForm">Unloading Information</h4>
+      <div v-if="!isForm" class="user-boxes">
+        <div>
           <h6>Unloading Status</h6>
           <ul>
             <li>
@@ -366,39 +357,6 @@ const pushForUnload = () => {
           </h5>
           <h5 v-else>-</h5>
         </div>
-
-        <h6>Seed Type</h6>
-        <div v-if="form.errors.seed_type" class="has-error">
-          <span class="help-block text-left">{{ form.errors.seed_type }}</span>
-        </div>
-        <Multiselect
-          v-if="isForm"
-          v-model="form.seed_type"
-          mode="tags"
-          placeholder="Choose a seed type"
-          :searchable="true"
-          :create-option="true"
-          :options="getCategoriesDropDownByType(categories, 'seed-type')"
-        />
-        <ul v-else-if="getCategoriesByType(receival.categories, 'seed-type').length">
-          <li v-for="category in getCategoriesByType(receival.categories, 'seed-type')" :key="category.id">
-            <a>{{ category.category.name }}</a>
-          </li>
-        </ul>
-        <h5 v-else>-</h5>
-
-        <h6>Bin Size</h6>
-        <UlLiButton
-          v-if="isForm"
-          :value="form.bin_size"
-          :error="form.errors.bin_size"
-          :items="binSizes"
-          @click="(value) => form.bin_size = value"
-        />
-        <ul v-else-if="receival.bin_size">
-          <li><a>{{ getBinSizesValue(receival.bin_size) }}</a></li>
-        </ul>
-        <h5 v-else>-</h5>
       </div>
 
       <h4>Other Information</h4>

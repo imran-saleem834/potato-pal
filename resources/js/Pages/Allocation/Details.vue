@@ -1,7 +1,7 @@
 <script setup>
 import { computed, ref, watch } from "vue";
 import { useForm, Link } from "@inertiajs/vue3";
-import { getCategoriesByType, getCategoryIdsByType } from "@/helper.js";
+import { getCategoriesByType, getCategoryIdsByType, getSingleCategoryNameByType } from "@/helper.js";
 import Multiselect from '@vueform/multiselect'
 import TextInput from "@/Components/TextInput.vue";
 import DataTable from 'datatables.net-vue3';
@@ -90,11 +90,11 @@ const onSelectReceival = (receival) => {
   form.weight = null
   form.bin_size = receival.bin_size
   form.paddock = receival.paddock
-  form.grower_group = getCategoryIdsByType(receival.categories, 'grower-group')
-  form.seed_type = getCategoryIdsByType(receival.categories, 'seed-type')
-  form.seed_variety = getCategoryIdsByType(receival.categories, 'seed-variety')
-  form.seed_generation = getCategoryIdsByType(receival.categories, 'seed-generation')
-  form.seed_class = getCategoryIdsByType(receival.categories, 'seed-class')
+  form.grower_group = getCategoryIdsByType(receival.receival_categories, 'grower-group')
+  form.seed_type = getCategoryIdsByType(receival.unload_categories, 'seed-type')
+  form.seed_variety = getCategoryIdsByType(receival.receival_categories, 'seed-variety')
+  form.seed_generation = getCategoryIdsByType(receival.receival_categories, 'seed-generation')
+  form.seed_class = getCategoryIdsByType(receival.receival_categories, 'seed-class')
 }
 
 const onChangeGrower = () => {
@@ -205,15 +205,15 @@ const deleteAllocation = () => {
                 <th>Seed Type</th>
                 <th>Bin Size</th>
                 <th>No of Bins Available</th>
-                <th>Weight in Tonnes</th>
+                <th>Weight</th>
               </tr>
               </thead>
               <tbody>
               <tr>
-                <td>{{ form.select_receival.seed_type }}</td>
-                <td>{{ form.select_receival.bin_size }} Tonnes</td>
+                <td>{{ getSingleCategoryNameByType(form.select_receival.unload_categories, 'seed-type') }}</td>
+                <td>{{ (form.select_receival.bin_size / 1000) }} tonnes</td>
                 <td>{{ form.select_receival.no_of_bins }}</td>
-                <td>{{ form.select_receival.weight }} Tonnes</td>
+                <td>{{ form.select_receival.weight }} kg</td>
               </tr>
               </tbody>
             </table>
@@ -225,7 +225,7 @@ const deleteAllocation = () => {
               <TextInput v-model="form.no_of_bins" :error="form.errors.no_of_bins" type="text"/>
             </div>
             <div class="col-sm-3">
-              <h6>Allocated Tonnes</h6>
+              <h6>Allocated Kg</h6>
               <TextInput v-model="form.weight" :error="form.errors.weight" type="text"/>
             </div>
             <div class="col-sm-6">
@@ -256,13 +256,13 @@ const deleteAllocation = () => {
               </template>
             </div>
             <div class="col-sm-2">
-              <h5>Size of Bin: {{ allocation.bin_size }} Tonnes</h5>
+              <h5>Size of Bin: {{ (allocation.bin_size / 1000) }} tonnes</h5>
             </div>
             <div class="col-sm-2">
               <h5>Allocated No of Bins: {{ allocation.no_of_bins }}</h5>
             </div>
             <div class="col-sm-2">
-              <h5>Allocated: {{ allocation.weight.toFixed(2) }} Tonnes</h5>
+              <h5>Allocated: {{ allocation.weight.toFixed(2) }} kg</h5>
             </div>
             <div class="col-sm-2 text-right">
               <a role="button" @click="setIsEdit" class="btn btn-red">Edit</a>
@@ -323,7 +323,7 @@ const deleteAllocation = () => {
         <div class="modal-body">
           <template v-for="grower in growers" :key="grower.value">
             <div v-if="form.grower_id === grower.value && isForm" style="margin: 20px 0;">
-              <DataTable class="table">
+              <table class="table">
                 <thead>
                 <tr>
                   <th>Seed Type</th>
@@ -346,19 +346,19 @@ const deleteAllocation = () => {
                     data-dismiss="modal"
                     aria-label="Close"
                   >
-                    <td>{{ receival.seed_type }}</td>
-                    <td>{{ receival.seed_variety }}</td>
-                    <td>{{ receival.seed_class }}</td>
-                    <td>{{ receival.seed_generation }}</td>
-                    <td>{{ receival.grower_group }}</td>
+                    <td>{{ getSingleCategoryNameByType(receival.unload_categories, 'seed-type') }}</td>
+                    <td>{{ getSingleCategoryNameByType(receival.receival_categories, 'seed-variety') }}</td>
+                    <td>{{ getSingleCategoryNameByType(receival.receival_categories, 'seed-class') }}</td>
+                    <td>{{ getSingleCategoryNameByType(receival.receival_categories, 'seed-generation') }}</td>
+                    <td>{{ getSingleCategoryNameByType(receival.receival_categories, 'grower-group') }}</td>
                     <td>{{ receival.paddock }}</td>
-                    <td>{{ receival.bin_size }} Tonnes</td>
+                    <td>{{ (receival.bin_size / 1000) }} tonnes</td>
                     <td>{{ receival.no_of_bins }}</td>
-                    <td>{{ receival.weight }} Tonnes</td>
+                    <td>{{ receival.weight }} kg</td>
                   </tr>
                 </template>
                 </tbody>
-              </DataTable>
+              </table>
             </div>
           </template>
         </div>

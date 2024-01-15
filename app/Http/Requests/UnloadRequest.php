@@ -23,12 +23,32 @@ class UnloadRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'fungicide'  => ['nullable', 'array'],
-            'no_of_bins' => ['nullable', 'numeric'],
-            'weight'     => ['nullable', 'numeric'],
-            'channel'    => ['nullable', 'string', Rule::in(['weighbridge', 'BU2', 'BU3'])],
-            'system'     => ['nullable', 'numeric', 'max:2'],
-            'status'     => ['required', 'string', 'max:20'],
+            'status'               => ['required', 'string', 'max:20'],
+            'fungicide'            => ['nullable', 'array'],
+            'unloads'              => ['required', 'array'],
+            'unloads.*.seed_type'  => ['required', 'numeric', 'exists:categories,id'],
+            'unloads.*.bin_size'   => ['required', 'numeric', Rule::in([500, 1000, 2000])],
+            'unloads.*.channel'    => ['required', 'string', Rule::in(['weighbridge', 'BU2', 'BU3'])],
+            'unloads.*.system'     => ['required', 'numeric', 'max:2'],
+            'unloads.*.no_of_bins' => ['required', 'numeric', 'gt:0'],
+            'unloads.*.weight'     => ['required', 'numeric', 'gt:0'],
+        ];
+    }
+
+    /**
+     * Get custom attributes for validator errors.
+     *
+     * @return array<string, string>
+     */
+    public function attributes(): array
+    {
+        return [
+            'unloads.*.seed_type'  => 'seed type',
+            'unloads.*.bin_size'   => 'bin size',
+            'unloads.*.channel'    => 'channel',
+            'unloads.*.system'     => 'system',
+            'unloads.*.no_of_bins' => 'no of bins',
+            'unloads.*.weight'     => 'weight',
         ];
     }
 }

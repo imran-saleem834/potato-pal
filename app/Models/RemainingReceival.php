@@ -18,6 +18,7 @@ class RemainingReceival extends Model
         'grower_id',
         'unique_key',
         'receival_id',
+        'unload_id',
         'no_of_bins',
         'weight'
     ];
@@ -29,5 +30,6 @@ class RemainingReceival extends Model
      */
     protected $casts = [
         'receival_id' => 'array',
+        'unload_id'   => 'array',
     ];
 }

@@ -33,7 +33,7 @@ class AllocationRequest extends FormRequest
             'unique_key'      => ['required', 'string'],
             'no_of_bins'      => ['required', 'numeric', 'gt:0', "max:$noOfBins"],
             'weight'          => ['required', 'numeric', 'gt:0', "max:$weight"],
-            'bin_size'        => ['required', 'numeric', Rule::in([0.5, 1, 2])],
+            'bin_size'        => ['required', 'numeric', Rule::in([500, 1000, 2000])],
             'paddock'         => ['required', 'string'],
             'comment'         => ['nullable', 'string', 'max:255'],
             'grower_group'    => ['required', 'array', 'max:1'],

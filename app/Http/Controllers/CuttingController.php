@@ -135,7 +135,7 @@ class CuttingController extends Controller
      */
     public function destroy(string $id)
     {
-        CategoriesHelper::deleteCategoryRealtions($id, Cutting::class);
+        CategoriesHelper::deleteCategoryRelations($id, Cutting::class);
 
         $cutting = Cutting::find($id);
         $buyerId = $cutting->buyer_id;

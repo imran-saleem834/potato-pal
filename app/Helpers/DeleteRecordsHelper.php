@@ -7,6 +7,8 @@ use App\Models\Allocation;
 use App\Models\CuttingAllocation;
 use App\Models\Dispatch;
 use App\Models\Reallocation;
+use App\Models\Receival;
+use App\Models\Unload;
 
 class DeleteRecordsHelper
 {

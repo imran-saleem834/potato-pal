@@ -125,7 +125,7 @@ setActiveTab(allocations.value.data[0]?.buyer_id);
             @create="() => setActiveTab(allocationBuyers[0]?.buyer_id)"
           />
           <template v-else>
-            <div class="user-boxes">
+            <div v-if="activeTab" class="user-boxes">
               <div class="row">
                 <div class="col-sm-4">
                   <h6>Buyer Name</h6>
@@ -150,7 +150,7 @@ setActiveTab(allocations.value.data[0]?.buyer_id);
                 </div>
               </div>
             </div>
-            <div class="row">
+            <div v-if="activeTab" class="row">
               <div class="col-sm-4">
                 <h4>Allocations Details</h4>
               </div>

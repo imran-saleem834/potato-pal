@@ -10,14 +10,17 @@ class CategoriesHelper
     public static function createRelationOfTypes(array $inputs, int $forgingId, $model)
     {
         $categoryIds = [];
+        info(print_r($inputs, true));
         $inputs      = static::updateInputsToTypes($inputs);
+        info(print_r($inputs, true));
         foreach ($inputs as $type => $input) {
+            info(print_r($input, true));
             foreach ($input as $categoryId) {
                 $categoryIds[] = static::createRelation($categoryId, $forgingId, $model, $type);
             }
         }
 
-        static::deleteCategoryRealtions($forgingId, $model, array_keys($inputs), $categoryIds);
+        static::deleteCategoryRelations($forgingId, $model, array_keys($inputs), $categoryIds);
     }
 
     public static function createRelation($categoryId, int $forgingId, $model, string $type): int
@@ -43,7 +46,7 @@ class CategoriesHelper
         return $category->id;
     }
 
-    public static function deleteCategoryRealtions(int $forgingId, $model, array $types = [], array $categoryIds = [])
+    public static function deleteCategoryRelations(int $forgingId, $model, array $types = [], array $categoryIds = [])
     {
         return CategoriesRelation::where('categorizable_id', $forgingId)
             ->where('categorizable_type', $model)

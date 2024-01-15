@@ -104,7 +104,7 @@ class UserController extends Controller
      */
     public function destroy(string $id)
     {
-        CategoriesHelper::deleteCategoryRealtions($id, User::class);
+        CategoriesHelper::deleteCategoryRelations($id, User::class);
 
         User::destroy($id);
 

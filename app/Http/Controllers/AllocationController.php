@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Unload;
 use App\Models\User;
 use Inertia\Inertia;
 use App\Models\Receival;
@@ -45,50 +46,49 @@ class AllocationController extends Controller
             'receivals.categories.category',
         ])->select(['id', 'name', 'grower_name', 'paddocks'])->get();
 
-        $growers = $users->map(function ($user) {
-            $user->remainingReceivals = $user->remainingReceivals->filter(function ($remainingReceival) {
-                return !empty($remainingReceival->receival_id);
-            })->map(function ($remainingReceival) {
-                $receival = Receival::with(['categories.category'])->find($remainingReceival->receival_id[0]);
+        $receivals = collect([]);
+        foreach ($users as $user) {
+            foreach ($user->remainingReceivals as $remainingReceival) {
+                if (empty($remainingReceival->receival_id)) {
+                    continue;
+                }
+                if (empty($remainingReceival->unload_id)) {
+                    continue;
+                }
 
-                [
-                    $binSize,
-                    $paddock,
-                    $growerGroup,
-                    $seedType,
-                    $seedVariety,
-                    $seedClass,
-                    $seedGeneration
-                ] = ReceivalHelper::getCategoryNames($receival);
+                $receivalId = $remainingReceival->receival_id[0];
+                $unloadId   = $remainingReceival->unload_id[0];
+                $receival   = Receival::select(['id', 'paddocks'])->with(['categories.category'])->find($receivalId);
+                $unload     = Unload::select(['id', 'bin_size'])->with(['categories.category'])->find($unloadId);
 
-                $remainingReceival->bin_size        = $binSize;
-                $remainingReceival->grower_group    = $growerGroup;
-                $remainingReceival->paddock         = $paddock;
-                $remainingReceival->seed_type       = $seedType;
-                $remainingReceival->seed_variety    = $seedVariety;
-                $remainingReceival->seed_class      = $seedClass;
-                $remainingReceival->seed_generation = $seedGeneration;
-                $remainingReceival->categories      = $receival->categories;
+                $receivals[] = [
+                    'grower_id'           => $remainingReceival->grower_id,
+                    'unique_key'          => $remainingReceival->unique_key,
+                    'bin_size'            => $unload->bin_size,
+                    'paddock'             => $receival->paddocks[0] ?? '',
+                    'no_of_bins'          => $remainingReceival->no_of_bins,
+                    'weight'              => $remainingReceival->weight,
+                    'receival_categories' => $receival->categories->toArray(),
+                    'unload_categories'   => $unload->categories->toArray(),
+                ];
+            }
+        }
 
-                return $remainingReceival;
-            });
+        info($receivals->toArray());
 
-            $user->remainingReceivals = $user->remainingReceivals->sortBy(function ($remainingReceival) {
-                return max($remainingReceival->receival_id);
-            })->values();
-
+        $growers = $users->map(function ($user) use ($receivals) {
             return [
                 'value'     => $user->id,
                 'label'     => $user->grower_name ? "$user->name ($user->grower_name)" : $user->name,
-                'receivals' => $user->remainingReceivals,
+                'receivals' => $receivals->where('grower_id', $user->id),
             ];
         });
 
         return Inertia::render('Allocation/Index', [
             'allocationBuyers' => $allocationBuyers,
             'single'           => $allocations,
-            'growers'          => fn () => $growers,
-            'buyers'           => fn () => $users->map(fn($user) => ['value' => $user->id, 'label' => $user->name]),
+            'growers'          => fn() => $growers,
+            'buyers'           => fn() => $users->map(fn($user) => ['value' => $user->id, 'label' => $user->name]),
             'filters'          => $request->only(['search']),
         ]);
     }
@@ -147,16 +147,16 @@ class AllocationController extends Controller
      */
     public function destroy(string $id)
     {
-        CategoriesHelper::deleteCategoryRealtions($id, Allocation::class);
+        CategoriesHelper::deleteCategoryRelations($id, Allocation::class);
 
         $allocation = Allocation::find($id);
         $buyerId    = $allocation->buyer_id;
         $growerId   = $allocation->grower_id;
 
         DeleteRecordsHelper::deleteAllocation($id);
-        
+
         NotificationHelper::deleteAction('Allocation', $id);
-        
+
         ReceivalHelper::calculateRemainingReceivals($growerId);
 
         $isAllocationExists = Allocation::where('buyer_id', $buyerId)->exists();

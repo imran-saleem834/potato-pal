@@ -84,13 +84,13 @@ const filterRecord = computed(() => {
     if (reallocation.allocation_buyer?.name.toLowerCase().includes(keyword)) {
       return true;
     }
-    if (`${allocation.bin_size} Tonnes`.toLowerCase().includes(keyword)) {
+    if (`${allocation.bin_size}`.toLowerCase().includes(keyword)) {
       return true;
     }
     if (`${reallocation.no_of_bins}`.toLowerCase().includes(keyword)) {
       return true;
     }
-    if (`${reallocation.weight} Tonnes`.toLowerCase().includes(keyword)) {
+    if (`${reallocation.weight}`.toLowerCase().includes(keyword)) {
       return true;
     }
     for (let i = 0; i < allocation.categories.length; i++) {
