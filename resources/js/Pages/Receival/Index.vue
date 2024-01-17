@@ -8,7 +8,7 @@ import Details from '@/Pages/Receival/Details.vue';
 import LeftBar from "@/Components/LeftBar.vue";
 import ModalHeader from "@/Components/ModalHeader.vue";
 import ModalBreadcrumb from "@/Components/ModalBreadcrumb.vue";
-import { toCamelCase } from "@/helper.js";
+import { getCategoriesByType } from "@/helper.js";
 
 const props = defineProps({
   receivals: Object,
@@ -16,6 +16,7 @@ const props = defineProps({
   users: Object,
   categories: Object,
   filters: Object,
+  errors: Object
 });
 
 const duplicateForm = useForm({
@@ -28,7 +29,6 @@ const duplicateForm = useForm({
     seed_generation: true,
     seed_class: true,
     delivery_type: true,
-    fungicide: true,
     transport: true,
     grower_docket_no: true,
     chc_receival_docket_no: true,
@@ -42,10 +42,13 @@ const activeTab = ref(null);
 const edit = ref(null);
 const isNewRecord = ref(false);
 const search = ref(props.filters.search);
+const duplicateReceival = ref(null);
 
 watch(() => props?.single,
   (single) => {
-    receival.value = single || {};
+    if (Object.values(props.errors).length === undefined || Object.values(props.errors).length <= 0) {
+      receival.value = single || {};
+    }
   }
 );
 
@@ -85,8 +88,9 @@ const setNewRecord = () => {
   activeTab.value = null;
 }
 
-const showDuplicateModal = (receivalId) => {
-  duplicateForm.receival_id = receivalId;
+const showDuplicateModal = (receival) => {
+  duplicateReceival.value = receival;
+  duplicateForm.receival_id = receival.id;
 }
 
 const duplicateRecord = () => {
@@ -134,7 +138,7 @@ setActiveTab(receival.value?.id);
       @newRecord="setNewRecord"
       @editRecord="() => setEdit(receival?.id)"
       @deleteRecord="() => deleteReceival(receival?.id)"
-      @duplicate="() => showDuplicateModal(receival?.id)"
+      @duplicate="() => showDuplicateModal(receival)"
     />
 
     <!-- tab-section -->
@@ -187,7 +191,7 @@ setActiveTab(receival.value?.id);
             }"
             @edit="() => setEdit(receival?.id)"
             @delete="() => deleteReceival(receival?.id)"
-            @duplicate="() => showDuplicateModal(receival?.id)"
+            @duplicate="() => showDuplicateModal(receival)"
           />
           <div class="modal-body" v-if="receival">
             <ModalBreadcrumb
@@ -221,14 +225,36 @@ setActiveTab(receival.value?.id);
           <div class="modal-body">
             <div class="tab-section">
               <div class="user-boxes" style="box-shadow: none;margin-bottom: 0;">
-                <ul>
+                <ul v-if="duplicateReceival">
                   <template v-for="(value, input) in duplicateForm.inputs" :key="input">
                     <li v-if="input !== 'grower_id'">
-                      <a
-                        role="button"
-                        @click="() => duplicateForm.inputs[input] = !duplicateForm.inputs[input]"
-                        :class="{'black-btn' : duplicateForm.inputs[input]}"
-                      >{{ toCamelCase(input.replaceAll('_', ' ')) }}</a>
+                      <template v-if="duplicateReceival[input]">
+                        <a
+                          role="button"
+                          @click="() => duplicateForm.inputs[input] = !duplicateForm.inputs[input]"
+                          :class="{'black-btn' : duplicateForm.inputs[input]}"
+                        >
+                          <template v-if="input === 'paddocks'">{{ duplicateReceival[input][0] }}</template>
+                          <template v-else>{{ duplicateReceival[input] }}</template>
+                        </a>
+                      </template>
+                      <template
+                        v-else-if="getCategoriesByType(duplicateReceival.categories, input.replaceAll('_', '-')).length"
+                      >
+                        <a
+                          role="button"
+                          @click="() => duplicateForm.inputs[input] = !duplicateForm.inputs[input]"
+                          :class="{'black-btn' : duplicateForm.inputs[input]}"
+                        >
+                          <template
+                            v-for="(category, key) in getCategoriesByType(duplicateReceival.categories, input.replaceAll('_', '-'))"
+                            :key="category.id"
+                          >
+                            <template v-if="key > 0 && ['delivery_type', 'transport'].includes(input)">,</template>
+                            {{ category.category.name }}
+                          </template>
+                        </a>
+                      </template>
                     </li>
                   </template>
                 </ul>

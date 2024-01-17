@@ -105,10 +105,6 @@ const isRequireFieldsEmpty = computed(() => {
   if (growerGroup.length <= 0) {
     return true;
   }
-  const seedType = getCategoryIdsByType(props.receival.categories, 'seed-type');
-  if (seedType.length <= 0) {
-    return true;
-  }
   const seedVariety = getCategoryIdsByType(props.receival.categories, 'seed-variety');
   if (seedVariety.length <= 0) {
     return true;
