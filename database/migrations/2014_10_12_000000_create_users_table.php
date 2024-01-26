@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name', 50);
-            $table->string('email', 90)->unique();
+            $table->string('email', 90)->unique()->nullable();
             $table->string('username', 50)->unique();
             $table->string('phone', 20)->nullable();
             $table->text('role')->nullable();
@@ -25,6 +25,7 @@ return new class extends Migration
             $table->string('profile_photo_path', 2048)->nullable();
             $table->string('grower_name', 50)->nullable();
             $table->text('grower_tags')->nullable();
+            $table->string('buyer_name', 50)->nullable();
             $table->text('buyer_tags')->nullable();
             $table->text('paddocks')->nullable();
             $table->timestamps();

@@ -51,19 +51,74 @@ const defaultUnloadFields = {
   weight: 0,
   channel: null,
   system: null,
+  isSeedTypeOversize: false
 };
+
+const resetBinsAndWeight = (index) => {
+  form.unloads[index].no_of_bins = null;
+  form.unloads[index].weight = null;
+}
+
+const onChangeChannel = (value, index) => {
+  form.unloads[index].channel = value;
+  form.unloads[index].bin_size = value === 'weighbridge' ? 1000 : 2000;
+
+  resetBinsAndWeight(index);
+}
+
+const onChangeSeedType = (value, index) => {
+  const selectedCategoryLabel = getCategoriesDropDownByType(props.categories, 'seed-type')
+    .find(category => category.value === value)?.label
+
+  resetBinsAndWeight(index);
+  
+  form.unloads[index].seed_type = value;
+  form.unloads[index].isSeedTypeOversize = (selectedCategoryLabel === 'Oversize');
+}
 
 const updateUnloadsOnChangeReceival = (receival) => {
   form.fungicide = getCategoryIdsByType(receival.categories, 'fungicide')
   form.unloads = receival.unloads.length <= 0 ? [{ ...defaultUnloadFields }] : receival.unloads;
 
   form.unloads.forEach((unload, index) => {
-    form.unloads[index].seed_type = getCategoryIdsByType(unload.categories, 'seed-type')[0];
-    
+    onChangeSeedType(getCategoryIdsByType(unload.categories, 'seed-type')[0], index);
+
     bins.value[index] = null;
     weight.value[index] = null;
     weightError.value[index] = null;
   });
+}
+
+const onChangeTotalBins = (index) => {
+  if (!form.unloads[index].isSeedTypeOversize) {
+    return;
+  }
+  const oversizeSeedWeightOneTonne = 920;
+  if (form.unloads[index].bin_size === 500) {
+    form.unloads[index].weight = form.unloads[index].no_of_bins * (oversizeSeedWeightOneTonne / 2)
+  }
+  if (form.unloads[index].bin_size === 1000) {
+    form.unloads[index].weight = form.unloads[index].no_of_bins * oversizeSeedWeightOneTonne
+  }
+  if (form.unloads[index].bin_size === 2000) {
+    form.unloads[index].weight = form.unloads[index].no_of_bins * (oversizeSeedWeightOneTonne * 2)
+  }
+}
+
+const onChangeBinSize = (value, index) => {
+  form.unloads[index].bin_size = value;
+
+  if (!form.unloads[index].isSeedTypeOversize) {
+    resetBinsAndWeight(index);
+  }
+  
+  onChangeTotalBins(index);
+}
+
+const onChangeSystem = (value, index) => {
+  form.unloads[index].system = value;
+  
+  resetBinsAndWeight(index);
 }
 
 updateUnloadsOnChangeReceival(props.receival);
@@ -142,8 +197,8 @@ onMounted(() => {
 })
 
 const acceptWeight = (index) => {
-  form.unloads[index].no_of_bins = parseInt(form.unloads[index].no_of_bins) + parseInt(bins.value[index]);
-  form.unloads[index].weight = parseFloat(form.unloads[index].weight) + parseFloat(weight.value[index]);
+  form.unloads[index].no_of_bins = parseInt(form.unloads[index].no_of_bins ?? 0) + parseInt(bins.value[index]);
+  form.unloads[index].weight = parseFloat(form.unloads[index].weight ?? 0) + parseFloat(weight.value[index]);
 
   rejectWeight(index);
 }
@@ -287,12 +342,31 @@ const storeRecord = () => {
           :value="form.unloads[index].seed_type"
           :error="form.errors[`unloads.${index}.seed_type`]"
           :items="getCategoriesDropDownByType(categories, 'seed-type')"
-          @click="(value) => form.unloads[index].seed_type = value"
+          @click="(value) => onChangeSeedType(value, index)"
         />
         <ul v-else-if="getCategoriesByType(unload.categories, 'seed-type').length">
           <li><a>{{ getSingleCategoryNameByType(unload.categories, 'seed-type') }}</a></li>
         </ul>
         <h5 v-else>-</h5>
+        
+        <template v-if="!form.unloads[index]?.isSeedTypeOversize">
+          <h6>Channel</h6>
+          <UlLiButton
+            v-if="isForm && form.unloads[index]"
+            :value="form.unloads[index].channel"
+            :error="form.errors[`unloads.${index}.channel`]"
+            :items="[
+              { value: 'weighbridge', label: 'BU1' },
+              { value: 'BU2', label: 'BU2' },
+              { value: 'BU3', label: 'BU3' },
+            ]"
+            @click="(value) => onChangeChannel(value, index)"
+          />
+          <h5 v-else-if="unload.channel">
+            {{ unload.channel === 'weighbridge' ? 'BU1' : unload.channel.toUpperCase() }}
+          </h5>
+          <h5 v-else>-</h5>
+        </template>
 
         <h6>Bin Size</h6>
         <UlLiButton
@@ -300,53 +374,39 @@ const storeRecord = () => {
           :value="form.unloads[index].bin_size"
           :error="form.errors[`unloads.${index}.bin_size`]"
           :items="binSizes"
-          @click="(value) => form.unloads[index].bin_size = value"
+          @click="(value) => onChangeBinSize(value, index)"
         />
         <ul v-else-if="unload.bin_size">
           <li><a>{{ getBinSizesValue(unload.bin_size) }}</a></li>
         </ul>
         <h5 v-else>-</h5>
 
-        <h6>Channel</h6>
-        <UlLiButton
-          v-if="isForm && form.unloads[index]"
-          :value="form.unloads[index].channel"
-          :error="form.errors[`unloads.${index}.channel`]"
-          :items="[
-              { value: 'weighbridge', label: 'BU1' },
-              { value: 'BU2', label: 'BU2' },
-              { value: 'BU3', label: 'BU3' },
-            ]"
-          @click="(value) => form.unloads[index].channel = value"
-        />
-        <h5 v-else-if="unload.channel">
-          {{ unload.channel === 'weighbridge' ? 'BU1' : unload.channel.toUpperCase() }}
-        </h5>
-        <h5 v-else>-</h5>
-
-        <h6>System</h6>
-        <UlLiButton
-          v-if="isForm && form.unloads[index]"
-          :value="form.unloads[index].system"
-          :error="form.errors[`unloads.${index}.system`]"
-          :items="
-            form.unloads[index].channel === 'weighbridge' ? 
-            [ { value: 1, label: 'System 1' } ] : 
-            [ { value: 1, label: 'System 1' }, { value: 2, label: 'System 2' } ]
-          "
-          @click="(value) => form.unloads[index].system = value"
-        />
-        <h5 v-else-if="unload.system">{{ `System ${unload.system}` }}</h5>
-        <h5 v-else>-</h5>
+        <template v-if="!form.unloads[index]?.isSeedTypeOversize">
+          <h6>System</h6>
+          <UlLiButton
+            v-if="isForm && form.unloads[index]"
+            :value="form.unloads[index].system"
+            :error="form.errors[`unloads.${index}.system`]"
+            :items="
+              form.unloads[index].channel === 'weighbridge' ? 
+              [ { value: 1, label: 'System 1' } ] : 
+              [ { value: 1, label: 'System 1' }, { value: 2, label: 'System 2' } ]
+            "
+            @click="(value) => onChangeSystem(value, index)"
+          />
+          <h5 v-else-if="unload.system">{{ `System ${unload.system}` }}</h5>
+          <h5 v-else>-</h5>
+        </template>
 
         <div v-if="isForm && form.unloads[index]" class="row">
           <div class="col col-lg-4">
             <h6>Number of total bins</h6>
             <TextInput
-              :disabled="true"
+              :disabled="!form.unloads[index]?.isSeedTypeOversize"
               v-model="form.unloads[index].no_of_bins"
               :error="form.errors[`unloads.${index}.no_of_bins`]"
               type="text"
+              @keyup="() => onChangeTotalBins(index)"
             />
           </div>
           <div class="col col-lg-4">
@@ -358,7 +418,7 @@ const storeRecord = () => {
               type="text"
             />
           </div>
-          <div class="col col-lg-4">
+          <div class="col col-lg-4" v-if="!form.unloads[index]?.isSeedTypeOversize">
             <h6>&nbsp;</h6>
             <button @click="startWeighing(index)" class="btn btn-red">Start Weight</button>
           </div>
@@ -373,7 +433,7 @@ const storeRecord = () => {
           <h5 v-else>-</h5>
         </template>
 
-        <div v-if="isForm && form.unloads[index]" class="row">
+        <div v-if="isForm && form.unloads[index] && !form.unloads[index]?.isSeedTypeOversize" class="row">
           <div class="col col-lg-4">
             <h6>Number of bins</h6>
             <UlLiButton

@@ -332,27 +332,33 @@ const pushForUnload = () => {
     <div :class="colSize">
       <h4 v-if="!isForm">Unloading Information</h4>
       <div v-if="!isForm" class="user-boxes">
-        <div>
-          <h6>Unloading Status</h6>
-          <ul>
-            <li>
-              <a
-                v-if="receival.status"
-                role="button"
-                :class="{'btn-pending' : receival.status === 'pending'}"
-              >{{ toCamelCase(receival.status) }}</a>
-              <a v-else role="button" class="black-btn" @click="pushForUnload">Push for Unload</a>
-            </li>
-          </ul>
+        <h6>Cool Store</h6>
+        <ul v-if="getCategoriesByType(receival.grower.categories, 'cool-store').length">
+          <li v-for="category in getCategoriesByType(receival.grower.categories, 'cool-store')" :key="category.id">
+            <a>{{ category.category.name }}</a>
+          </li>
+        </ul>
+        <h5 v-else>-</h5>
 
-          <h6>Unloading ID</h6>
-          <h5 v-if="receival.status">
-            <Link :href="route('unloading.index', { unloadId: receival.id })">
-              {{ receival.id }}
-            </Link>
-          </h5>
-          <h5 v-else>-</h5>
-        </div>
+        <h6>Unloading Status</h6>
+        <ul>
+          <li>
+            <a
+              v-if="receival.status"
+              role="button"
+              :class="{'btn-pending' : receival.status === 'pending'}"
+            >{{ toCamelCase(receival.status) }}</a>
+            <a v-else role="button" class="black-btn" @click="pushForUnload">Push for Unload</a>
+          </li>
+        </ul>
+
+        <h6>Unloading ID</h6>
+        <h5 v-if="receival.status">
+          <Link :href="route('unloading.index', { unloadId: receival.id })">
+            {{ receival.id }}
+          </Link>
+        </h5>
+        <h5 v-else>-</h5>
       </div>
 
       <h4>Other Information</h4>

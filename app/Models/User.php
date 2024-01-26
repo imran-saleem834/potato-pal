@@ -38,6 +38,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'email_verified_at',
         'grower_name',
         'grower_tags',
+        'buyer_name',
         'buyer_tags',
         'paddocks',
     ];

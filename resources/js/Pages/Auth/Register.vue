@@ -52,7 +52,6 @@ const submit = () => {
                                 type="email"
                                 class="form-control customInput"
                                 placeholder="shehar@next-x.com.au"
-                                required
                                 autocomplete="username"
                             >
                             <span v-show="form.errors.email" class="help-block text-left">{{ form.errors.email }}</span>
@@ -78,7 +77,6 @@ const submit = () => {
                                 type="text"
                                 class="form-control customInput"
                                 placeholder="04727294564"
-                                required
                                 autocomplete="phone"
                             >
                             <span v-show="form.errors.phone" class="help-block text-left">{{ form.errors.phone }}</span>

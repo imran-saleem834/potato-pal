@@ -14,6 +14,7 @@ const props = defineProps({
   single: Object,
   categories: Object,
   filters: Object,
+  errors: Object
 });
 
 const user = ref(props.single || {});
@@ -24,7 +25,9 @@ const search = ref(props.filters.search);
 
 watch(() => props?.single,
   (single) => {
-    user.value = single || {};
+    if (Object.values(props.errors).length === undefined || Object.values(props.errors).length <= 0) {
+     user.value = single || {};
+    }
   }
 );
 

@@ -30,6 +30,7 @@ class UserController extends Controller
                         ->orWhere('role', 'LIKE', "%$search%")
                         ->orWhere('grower_name', 'LIKE', "%$search%")
                         ->orWhere('grower_tags', 'LIKE', "%$search%")
+                        ->orWhere('buyer_name', 'LIKE', "%$search%")
                         ->orWhere('buyer_tags', 'LIKE', "%$search%")
                         ->orWhere('paddocks', 'LIKE', "%$search%")
                         ->orWhereRelation('categories.category', function (Builder $catQuery) use ($search) {
@@ -59,7 +60,12 @@ class UserController extends Controller
      */
     public function store(UserRequest $request)
     {
-        $user = User::create($request->validated());
+        $inputs = $request->validated();
+        $inputs = array_merge($inputs, [
+            'password'          => bcrypt($request->validated('password')),
+            'email_verified_at' => now()
+        ]);
+        $user = User::create($inputs);
 
         $categories = $request->only(User::CATEGORY_INPUTS);
         CategoriesHelper::createRelationOfTypes($categories, $user->id, User::class);
@@ -84,13 +90,19 @@ class UserController extends Controller
      */
     public function update(UserRequest $request, string $id)
     {
+        $inputs = $request->validated();
+
+        if ($request->filled('password')) {
+            $inputs = array_merge($inputs, ['password' => bcrypt($request->validated('password'))]);
+        } else {
+            unset($inputs['password']);
+        }
+        
         $user = User::find($id);
-        $user->update($request->validated());
+        $user->update($inputs);
         $user->save();
 
         $categories = $request->only(User::CATEGORY_INPUTS);
-
-        info(print_r($categories, true));
 
         CategoriesHelper::createRelationOfTypes($categories, $user->id, User::class);
 

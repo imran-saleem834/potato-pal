@@ -37,6 +37,7 @@ const form = useForm({
   grower_name: props.user.grower_name,
   grower_tags: props.user.grower_tags,
   buyer_group: getCategoryIdsByType(props.user.categories, 'buyer-group'),
+  buyer_name: props.user.buyer_name,
   buyer_tags: props.user.buyer_tags,
   paddocks: props.user.paddocks === undefined || props.user.paddocks === null ? [] : props.user.paddocks,
   password: '',
@@ -65,7 +66,10 @@ watch(() => props.user,
 
 const isForm = computed(() => props.isEdit || props.isNew)
 
-const addMorePaddocks = () => form.paddocks.push({ name: '', hectares: '' });
+const isBuyerSelected = computed(() => form.role?.find(r => r === 'buyer'))
+const isGrowerSelected = computed(() => form.role?.find(r => r === 'grower'))
+
+const addMorePaddocks = () => form.paddocks.push({ name: '', address: '', gps: '', hectares: '' });
 const removePaddocks = (index) => form.paddocks = form.paddocks.filter((paddocks, i) => i !== index);
 
 const updateRecord = () => {
@@ -87,6 +91,65 @@ const storeRecord = () => {
     },
   });
 }
+
+const getGpsLocation = (index) => {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const userLat = position.coords.latitude;
+        const userLng = position.coords.longitude;
+
+        form.paddocks[index].gps = `${userLat}, ${userLng}`;
+
+        // Fetch the address using the Geocoding API
+        fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${userLat},${userLng}&key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}`)
+          .then(response => response.json())
+          .then(data => {
+            if (data.status === 'OK') {
+              if (data.results[0]) {
+                form.paddocks[index].address = data.results[0].formatted_address;
+              } else {
+                form.paddocks[index].address = null;
+              }
+            } else {
+              form.errors[`paddocks.${index}.address`] = 'Geocoder failed due to: ' + data.status;
+            }
+          })
+          .catch(error => {
+            form.errors[`paddocks.${index}.address`] = 'Error getting your address';
+            console.log('Error fetching address: ', error)
+          });
+      },
+      (error) => {
+        form.errors[`paddocks.${index}.gps`] = 'Error getting your location';
+        console.log('Error getting your location: ', error.message)
+      }
+    );
+  } else {
+    form.errors[`paddocks.${index}.gps`] = 'Geolocation is not supported by this browser.';
+  }
+}
+
+const autocompleteInput = (index) => {
+  const input = document.getElementById(`autocomplete-input-${index}`);
+  const autocomplete = new google.maps.places.Autocomplete(input);
+
+  autocomplete.addListener('place_changed', () => {
+    const place = autocomplete.getPlace();
+
+    if (!place.geometry) {
+      form.errors[`paddocks.${index}.address`] = 'Place details not available for input';
+      console.log('Place details not available for input: ' + place.name);
+      return;
+    }
+
+    const latitude = place.geometry.location.lat();
+    const longitude = place.geometry.location.lng();
+
+    form.paddocks[index].address = place.formatted_address;
+    form.paddocks[index].gps = `${latitude}, ${longitude}`
+  });
+};
 </script>
 
 <template>
@@ -168,8 +231,51 @@ const storeRecord = () => {
         <h5 v-else>-</h5>
       </div>
 
-      <h4>Grower Details</h4>
-      <div class="user-boxes">
+      <h4 v-if="isBuyerSelected">Buyer Details</h4>
+      <div v-if="isBuyerSelected" class="user-boxes">
+        <h6>Buyer Group</h6>
+        <Multiselect
+          v-if="isForm"
+          v-model="form.buyer_group"
+          mode="tags"
+          placeholder="Choose a buyer group"
+          :searchable="true"
+          :create-option="true"
+          :options="getCategoriesDropDownByType(categories, 'buyer-group')"
+        />
+        <ul v-else-if="getCategoryIdsByType(user.categories, 'buyer-group').length">
+          <li v-for="group in getCategoryIdsByType(user.categories, 'buyer-group')" :key="group">
+            <a>{{
+                getCategoriesDropDownByType(categories, 'buyer-group').find(g => parseInt(g.value) === parseInt(group))?.label || group
+              }}</a>
+          </li>
+        </ul>
+        <h5 v-else>-</h5>
+
+        <h6>Buyer</h6>
+        <TextInput v-if="isForm" v-model="form.buyer_name" :error="form.errors.buyer_name" type="text"/>
+        <h5 v-else-if="user.buyer_name">{{ user.buyer_name }}</h5>
+        <h5 v-else>-</h5>
+
+        <h6>Unique Tags</h6>
+        <Multiselect
+          v-if="isForm"
+          v-model="form.buyer_tags"
+          mode="tags"
+          placeholder="Choose a buyer tags"
+          :searchable="true"
+          :create-option="true"
+          :options="form.buyer_tags"
+        />
+        <ul v-else-if="user.buyer_tags">
+          <li v-for="tag in user.buyer_tags" :key="tag"><a>{{ tag }}</a></li>
+        </ul>
+        <h5 v-else>-</h5>
+      </div>
+    </div>
+    <div :class="colSize">
+      <h4 v-if="isGrowerSelected">Grower Details</h4>
+      <div v-if="isGrowerSelected" class="user-boxes">
         <h6>Grower Group</h6>
         <Multiselect
           v-if="isForm"
@@ -209,50 +315,13 @@ const storeRecord = () => {
         </ul>
         <h5 v-else>-</h5>
       </div>
-    </div>
-    <div :class="colSize">
-      <h4>Buyer Details</h4>
-      <div class="user-boxes">
-        <h6>Buyer Group</h6>
-        <Multiselect
-          v-if="isForm"
-          v-model="form.buyer_group"
-          mode="tags"
-          placeholder="Choose a buyer group"
-          :searchable="true"
-          :create-option="true"
-          :options="getCategoriesDropDownByType(categories, 'buyer-group')"
-        />
-        <ul v-else-if="getCategoryIdsByType(user.categories, 'buyer-group').length">
-          <li v-for="group in getCategoryIdsByType(user.categories, 'buyer-group')" :key="group">
-            <a>{{
-                getCategoriesDropDownByType(categories, 'buyer-group').find(g => parseInt(g.value) === parseInt(group))?.label || group
-              }}</a>
-          </li>
-        </ul>
-        <h5 v-else>-</h5>
 
-        <h6>Unique Tags</h6>
-        <Multiselect
-          v-if="isForm"
-          v-model="form.buyer_tags"
-          mode="tags"
-          placeholder="Choose a buyer tags"
-          :searchable="true"
-          :create-option="true"
-          :options="form.buyer_tags"
-        />
-        <ul v-else-if="user.buyer_tags">
-          <li v-for="tag in user.buyer_tags" :key="tag"><a>{{ tag }}</a></li>
-        </ul>
-        <h5 v-else>-</h5>
-      </div>
-
-      <h4>Paddocks</h4>
-      <div class="user-boxes">
+      <h4 v-if="isGrowerSelected">Paddocks</h4>
+      <div v-if="isGrowerSelected" class="user-boxes">
         <template v-for="(paddocks, index) in form.paddocks" :key="index">
           <div class="user-column-two">
             <h6>Paddock Name</h6>
+            <h6>Location</h6>
             <h6>No of Hectares</h6>
           </div>
           <div class="user-column-two">
@@ -263,6 +332,31 @@ const storeRecord = () => {
               type="text"
             />
             <h5 v-else-if="paddocks.name">{{ paddocks.name }}</h5>
+            <h5 v-else>-</h5>
+
+            <div
+              v-if="isForm && form.paddocks[index]"
+              class="form-group"
+              :class="{'has-error' : form.errors[`paddocks.${index}.address`]}"
+            >
+              <div class="input-group">
+                <input
+                  type="text"
+                  class="form-control"
+                  v-model="form.paddocks[index].address"
+                  :id="`autocomplete-input-${index}`"
+                  @click="autocompleteInput(index)"
+                >
+                <a href="javascript:;" class="input-group-addon" @click="getGpsLocation(index)">
+                  <span class="fa fa-location-arrow"></span>
+                </a>
+              </div>
+              <span v-if="form.errors[`paddocks.${index}.address`]" class="help-block text-left">
+                {{ form.errors[`paddocks.${index}.address`] }}
+              </span>
+            </div>
+            <h5 v-else-if="paddocks.address">{{ paddocks.address }}</h5>
+            <h5 v-else-if="paddocks.gps">{{ paddocks.gps }}</h5>
             <h5 v-else>-</h5>
 
             <TextInput

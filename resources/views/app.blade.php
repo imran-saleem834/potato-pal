@@ -29,4 +29,6 @@
     <script type="text/javascript" src="{{ asset('js/index.js') }}"></script>
     <script type="text/javascript" src="{{ asset('js/wow.js') }}"></script>
     <script type="text/javascript" src="https://cdn.pubnub.com/sdk/javascript/pubnub.7.4.5.min.js"></script>
+
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ env('GOOGLE_MAPS_API_KEY') }}&libraries=places" defer></script>
 </html>

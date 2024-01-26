@@ -27,17 +27,28 @@ class UserRequest extends FormRequest
     {
         $rules = [
             'name'                => ['required', 'string', 'max:50'],
-            'email'               => ['required', 'string', 'email', 'max:90', 'unique:users'],
-            'username'            => ['required', 'string', 'max:50', 'unique:users'],
-            'phone'               => ['required', 'string', 'max:20'],
+            'email'               => ['nullable', 'string', 'email', 'max:90'],
+            'username'            => ['required', 'string', 'alpha_dash', 'max:50', 'unique:users'],
+            'phone'               => ['nullable', 'string', 'max:20'],
             'role'                => ['nullable', 'array'],
             'grower_name'         => ['nullable', 'string', 'max:50'],
             'grower_tags'         => ['nullable', 'array'],
+            'buyer_name'          => ['nullable', 'string', 'max:50'],
             'buyer_tags'          => ['nullable', 'array'],
             'paddocks'            => ['nullable', 'array'],
             'paddocks.*.name'     => ['required', 'string', 'max:50'],
             'paddocks.*.hectares' => ['required', 'string', 'max:20'],
+            'paddocks.*.address'  => ['nullable', 'string', 'max:255'],
+            'paddocks.*.gps'      => ['nullable', 'string', 'max:255'],
         ];
+
+        if (in_array('buyer', $this->input('role'))) {
+            $rules = array_merge($rules, ['buyer_name' => ['required', 'string', 'max:50']]);
+        }
+
+        if (in_array('grower', $this->input('role'))) {
+            $rules = array_merge($rules, ['grower_name' => ['required', 'string', 'max:50']]);
+        }
 
         $rules = array_merge($rules, Arr::map(User::CATEGORY_INPUTS, function ($input) {
             return [$input => ['nullable', 'array']];
@@ -45,7 +56,7 @@ class UserRequest extends FormRequest
 
         if (!$this->isMethod('POST')) {
             $rules['email']    = [
-                'required',
+                'nullable',
                 'string',
                 'email',
                 'max:90',
@@ -54,6 +65,7 @@ class UserRequest extends FormRequest
             $rules['username'] = [
                 'required',
                 'string',
+                'alpha_dash',
                 'max:50',
                 Rule::unique('users')->ignore($this->route('user'))
             ];
@@ -75,7 +87,7 @@ class UserRequest extends FormRequest
     {
         $paddocks = $this->input('paddocks');
         foreach ($this->input('paddocks') as $index => $paddock) {
-            if (empty($paddock['name']) && empty($paddock['hectares'])) {
+            if (empty($paddock['name']) && empty($paddock['hectares']) && empty($paddock['address']) && empty($paddock['gps'])) {
                 unset($paddocks[$index]);
             }
         }
@@ -92,6 +104,8 @@ class UserRequest extends FormRequest
         return [
             'paddocks.*.name'     => 'paddock name',
             'paddocks.*.hectares' => 'paddock hectares',
+            'paddocks.*.address'  => 'paddock address',
+            'paddocks.*.gps'      => 'paddock gps',
         ];
     }
 }
