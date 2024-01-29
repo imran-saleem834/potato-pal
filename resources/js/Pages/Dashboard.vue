@@ -30,24 +30,22 @@ const menus = [
   <Head><title>Dashboard</title></Head>
 
   <div class="admin-access">
-    <div class="container">
+    <div class="container-fluid">
       <div class="logout-text">
-        <LogoutButton/>
+        <LogoutButton />
       </div>
-      <div class="top-logo">
-        <Link :href="route('dashboard')">
-          <img src="/images/logo.png" alt="Potato Pal">
-        </Link>
-      </div>
+      <Link :href="route('dashboard')" class="d-block text-center">
+        <img src="/images/logo.png" alt="Potato Pal" class="logo" />
+      </Link>
       <div class="admin-menu">
         <h5>Welcome {{ $page.props.auth.user.name }}</h5>
         <div class="row">
           <div
             v-for="menu in menus"
             :key="menu.image"
-            class="col-md-3 col-sm-3 col-xs-3"
+            class="col-6 col-sm-3"
           >
-            <div class="menu-icon" :class="{ 'opacity-0-5' : menu.route === '' }">
+            <div class="menu-icon" :class="{ 'opacity-50' : menu.route === '' }">
               <Link :href="menu.route">
                 <img :src="`/images/${menu.image}`" :alt="menu.label">
                 <span>{{ menu.label }}</span>

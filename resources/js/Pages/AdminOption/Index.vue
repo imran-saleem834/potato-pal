@@ -79,33 +79,33 @@ setActiveTab(props.filters.type);
 
     <!-- tab-section -->
     <div class="tab-section">
-      <div class="row row0">
-        <div class="col-lg-3 col-sm-6">
-          <ul class="nav nav-tabs tabs-left sideways">
-            <li
-              v-for="optionType in optionTypes"
-              :key="optionType.slug"
-              :class="{'active' : activeTab === optionType.slug}"
-            >
-              <a
-                role="button"
-                :data-toggle="$windowWidth <= 767 ? 'modal' : 'tab'"
-                :data-target="$windowWidth <= 767 ? '#user-details' : ''"
-                @click="changeTab(optionType.slug)"
-              >
-                <div class="user-table">
-                  <table class="table"><tbody><tr><th>{{ optionType.label }}</th></tr></tbody></table>
-                  <span class="fa fa-angle-right angle-right"></span>
-                </div>
-              </a>
-            </li>
-          </ul>
+      <div class="row g-0">
+        <div class="col-12 col-sm-4 nav-left">
+          <a
+            role="button"
+            v-for="optionType in optionTypes"
+            :key="optionType.slug"
+            class="w-100 d-block position-relative"
+            :class="{'active' : activeTab === optionType.slug}"
+            :data-toggle="$windowWidth <= 767 ? 'modal' : 'tab'"
+            :data-target="$windowWidth <= 767 ? '#user-details' : ''"
+            @click="changeTab(optionType.slug)"
+          >
+            <table class="table mb-0">
+              <tbody>
+              <tr>
+                <th class="border-0">{{ optionType.label }}</th>
+              </tr>
+              </tbody>
+            </table>
+            <i class="bi bi-chevron-right angle-right"></i>
+          </a>
         </div>
-        <div class="col-lg-8 col-sm-6">
+        <div class="col-12 col-sm-8">
           <div class="tab-content">
             <div class="tab-pane active">
               <div class="row">
-                <div v-if="isNewRecord" class="col-sm-6 col-md-4">
+                <div v-if="isNewRecord" class="col-12 col-sm-6 col-md-4">
                   <Details
                     :category="{}"
                     :type="activeTab"
@@ -113,7 +113,7 @@ setActiveTab(props.filters.type);
                     @updateRecord="() => isNewRecord = false"
                   />
                 </div>
-                <div v-for="category in categories" :key="category.id" class="col-sm-6 col-md-4">
+                <div v-for="category in categories" :key="category.id" class="col-12 col-sm-6 col-md-4">
                   <Details
                     :category="category"
                     :type="activeTab"
@@ -121,7 +121,7 @@ setActiveTab(props.filters.type);
                     @updateRecord="() => isNewRecord = false"
                   />
                 </div>
-                <div class="col-sm-12" v-if="categories.length <= 0 && !isNewRecord">
+                <div class="col-12" v-if="categories.length <= 0 && !isNewRecord">
                   <p class="text-center" style="margin-top: calc(50vh - 120px);">No Records Found</p>
                 </div>
               </div>

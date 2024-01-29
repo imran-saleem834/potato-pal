@@ -184,7 +184,7 @@ setActiveTab(reallocations.value[0]?.buyer_id);
                     <input
                       v-model="searchAllocations"
                       type="text"
-                      class="form-control customInput"
+                      class="form-control custom-input"
                       placeholder="Search..."
                     >
                   </div>
@@ -292,7 +292,7 @@ setActiveTab(reallocations.value[0]?.buyer_id);
                       <input
                         v-model="searchAllocations"
                         type="text"
-                        class="form-control customInput"
+                        class="form-control custom-input"
                         placeholder="Search..."
                       >
                     </div>

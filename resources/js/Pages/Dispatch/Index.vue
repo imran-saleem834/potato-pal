@@ -161,7 +161,7 @@ setActiveTab(dispatches.value.data[0]?.buyer_id);
                   <input
                     v-model="search"
                     type="text"
-                    class="form-control customInput"
+                    class="form-control custom-input"
                     placeholder="Search dispatches..."
                   >
                 </div>
@@ -272,7 +272,7 @@ setActiveTab(dispatches.value.data[0]?.buyer_id);
                       <input
                         v-model="search"
                         type="text"
-                        class="form-control customInput"
+                        class="form-control custom-input"
                         placeholder="Search dispatches..."
                       >
                     </div>

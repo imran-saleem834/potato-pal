@@ -105,8 +105,8 @@ const deleteFile = (id) => {
 
     <!-- tab-section -->
     <div class="tab-section files-section">
-      <div class="row row0">
-        <div class="col-lg-3 col-sm-6" :class="{'mobile-userlist' : $windowWidth <= 767}">
+      <div class="row g-0">
+        <div class="col-12 col-sm-4 nav-left" :class="{'mobile-userlist' : $windowWidth <= 767}">
           <div class="files-left">
             <template v-for="(images, date) in files" :key="date">
               <h5>{{ moment(date).format('DD, MMM YYYY') }}</h5>
@@ -129,7 +129,7 @@ const deleteFile = (id) => {
             </ul>
           </div>
         </div>
-        <div class="col-lg-8 col-sm-6">
+        <div class="col-12 col-sm-8">
           <div class="slider-files hidden-xs" v-if="Object.values(file).length > 0 || isNewRecord">
             <Details
               :file="file"
@@ -142,7 +142,7 @@ const deleteFile = (id) => {
               @showImg="showImg"
             />
           </div>
-          <div class="col-sm-12" v-if="Object.values(file).length <= 0 && !isNewRecord">
+          <div class="col-12" v-if="Object.values(file).length <= 0 && !isNewRecord">
             <p class="text-center" style="margin-top: calc(50vh - 120px);">No Records Found</p>
           </div>
         </div>

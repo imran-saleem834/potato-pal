@@ -52,34 +52,26 @@ const storeRecord = () => {
 </script>
 
 <template>
+  <div v-if="isForm" class="d-flex justify-content-end mb-2">
+    <a v-if="isEdit" role="button" @click="updateRecord" class="btn btn-red">Update</a>
+    <a v-if="isNew" role="button" @click="storeRecord" class="btn btn-red">Create</a>
+  </div>
   <div class="row">
-    <div v-if="isEdit || isNew" class="col-md-12">
-      <div class="flex-end create-update-btn">
-        <a v-if="isEdit" role="button" @click="updateRecord" class="btn btn-red">Update</a>
-        <a v-if="isNew" role="button" @click="storeRecord" class="btn btn-red">Create</a>
-      </div>
-    </div>
-    <div class="col-md-12">
+    <div class="col-12">
       <div v-if="isForm" class="user-boxes">
-        <h6>Title</h6>
+        <label class="form-label">Title</label>
         <TextInput v-model="form.title" :error="form.errors.title" type="text"/>
 
-        <h6>Note</h6>
-        <div class="form-group" :class="{'has-error' : form.errors.note}">
-          <textarea v-model="form.note" class="form-control" rows="5"></textarea>
-          <span v-show="form.errors.note" class="help-block text-left">{{ form.errors.note }}</span>
-        </div>
+        <label class="form-label mt-3">Note</label>
+        <textarea
+          rows="5"
+          v-model="form.note"
+          class="form-control"
+          :class="{'is-invalid' : form.errors.note}"
+        ></textarea>
+        <div v-if="form.errors.note" class="invalid-feedback">{{ form.errors.note }}</div>
 
-        <h6>Unique Tags</h6>
-        <div v-if="form.errors.tags" class="has-error">
-          <span v-show="form.errors.tags" class="help-block text-left" v-text="form.errors.tags"/>
-        </div>
-        <div v-if="form.errors['tags.0']" class="has-error">
-          <span v-show="form.errors['tags.0']" class="help-block text-left" v-text="form.errors['tags.0']"/>
-        </div>
-        <div v-if="form.errors['tags.1']" class="has-error">
-          <span v-show="form.errors['tags.1']" class="help-block text-left" v-text="form.errors['tags.1']"/>
-        </div>
+        <label class="form-label mt-3">Unique Tags</label>
         <Multiselect
           v-model="form.tags"
           mode="tags"
@@ -88,7 +80,11 @@ const storeRecord = () => {
           :create-option="true"
           :options="form.tags"
         />
+        <div v-if="form.errors.tags" class="invalid-feedback" v-text="form.errors.tags"/>
+        <div v-if="form.errors['tags.0']" class="invalid-feedback" v-text="form.errors['tags.0']"/>
+        <div v-if="form.errors['tags.1']" class="invalid-feedback" v-text="form.errors['tags.1']"/>
       </div>
+
       <div v-if="!isNew" class="user-boxes notes-list">
         <p v-if="!isForm">{{ note.note }}</p>
 

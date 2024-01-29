@@ -1,9 +1,18 @@
 <script setup>
 import { Link } from '@inertiajs/vue3';
+import { ref } from "vue";
 
-defineProps({
+const props = defineProps({
   type: String,
   title: String,
+  search: {
+    type: String,
+    default: ''
+  },
+  activeTab: {
+    type: Number,
+    default: null,
+  },
   isEditRecordSelected: {
     type: Boolean,
     default: false,
@@ -23,69 +32,77 @@ defineProps({
   }
 });
 
-defineEmits(['editRecord', 'newRecord', 'deleteRecord', 'duplicate']);
+const keyword = ref(props.search);
+
+const emit = defineEmits(['search', 'editRecord', 'newRecord', 'deleteRecord', 'duplicate']);
+
+const search = () => {
+  emit('search', keyword.value);
+};
 </script>
 
 <template>
-  <div class="middle-section">
-    <div class="middle-left">
-      <div class="user-menu">
-        <div class="menu-left">
+  <div class="middle-section mt-3 mt-md-0">
+    <div class="row g-0">
+      <div class="col-4 col-md-4 d-none d-md-block">
+        <div class="d-flex justify-content-between align-items-center middle-left h-100">
           <ul>
             <li>
               <Link :href="route('dashboard')"><span class="fa fa-arrow-left"></span> Menu</Link>
             </li>
-            <li><span class="fa fa-chevron-right"></span></li>
+            <li><i class="bi bi-chevron-right"></i></li>
             <li>
               <Link :href="route(route().current())">{{ type }}</Link>
             </li>
           </ul>
-        </div>
-        <div class="menu-right">
+
           <ul>
-            <li class="hidden">
-              <a role="button" data-toggle="modal" data-target="#myModal2" class="filter-btn">
-                <span class="fa fa-filter"></span>
-              </a>
-            </li>
             <li v-if="!isNewRecordSelected && access.new && access.edit">
-              <a role="button" @click="$emit('newRecord')" class="btn-red">
-                <span class="fa fa-plus"></span> Add
+              <a role="button" @click="$emit('newRecord')" class="btn btn-red">
+                <i class="bi bi-plus-lg"></i> Add
               </a>
             </li>
           </ul>
         </div>
       </div>
-    </div>
-    <div class="middle-right">
-      <div class="user-right-flex">
-        <div><h4>{{ title }}</h4></div>
-        <div class="user-right-button">
+      <div class="col-12 col-md-8">
+        <div class="d-flex justify-content-between align-items-center middle-right h-100">
+          <h5 class="mb-0 d-none d-md-block">{{ title }}</h5>
+          <div class="form-group position-relative d-block d-md-none">
+            <i class="bi bi-search form-control-feedback"></i>
+            <input
+              type="text"
+              class="form-control custom-input"
+              v-model="keyword"
+              @input="search"
+              :placeholder="`Search ${type}`"
+            >
+          </div>
           <ul>
-            <li v-if="!isNewRecordSelected && access.delete">
-              <a role="button" @click="$emit('deleteRecord')" class="filter-btn">
-                <span class="fa fa-trash-o"></span>
+            <li v-if="!isNewRecordSelected && activeTab && access.delete">
+              <a role="button" @click="$emit('deleteRecord')" class="btn btn-transparent">
+                <i class="bi bi-trash"></i>
               </a>
             </li>
-            <li v-if="!isNewRecordSelected && !isEditRecordSelected && access.edit">
-              <a role="button" @click="$emit('editRecord')" class="btn-red">
-                <span class="fa fa-edit"></span> Edit
+            <li v-if="!isNewRecordSelected && activeTab && !isEditRecordSelected && access.edit">
+              <a role="button" @click="$emit('editRecord')" class="btn btn-red">
+                <i class="bi bi-pen"></i> Edit
               </a>
             </li>
             <li v-if="!isNewRecordSelected && access.new && !access.edit">
-              <a role="button" @click="$emit('newRecord')" class="btn-red">
-                <span class="fa fa-plus"></span> Add
+              <a role="button" @click="$emit('newRecord')" class="btn btn-red">
+                <i class="bi bi-plus-lg"></i> Add
               </a>
             </li>
-            <li v-if="!isNewRecordSelected && !isEditRecordSelected && access.duplicate">
+            <li v-if="!isNewRecordSelected && activeTab && !isEditRecordSelected && access.duplicate">
               <a
                 role="button"
-                class="btn-red"
+                class="btn btn-black"
                 data-toggle="modal"
                 @click="$emit('duplicate')"
                 data-target="#duplicate-details"
               >
-                <span class="fa fa-clone"></span> Duplicate
+                <i class="bi bi-copy"></i> Duplicate
               </a>
             </li>
           </ul>

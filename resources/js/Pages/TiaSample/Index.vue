@@ -80,29 +80,25 @@ setActiveTab(tiaSample.value?.id);
   <AppLayout title="Tia Sampling">
     <TopBar
       type="Tia Sampling"
-      :value="search"
-      @search="filter"
-      @newRecord="setNewRecord"
-    />
-    <MiddleBar
-      type="Tia Sampling"
       :title="tiaSample?.receival?.grower?.grower_name || 'New'"
+      :active-tab="activeTab"
+      :search="search"
+      @search="filter"
       :is-edit-record-selected="!!edit"
       :is-new-record-selected="isNewRecord"
       :access="{
         new: true,
         edit: Object.values(tiaSample).length > 0,
-        delete: Object.values(tiaSample).length > 0,
+        delete: Object.values(tiaSample).length > 0
       }"
-      @newRecord="setNewRecord"
       @editRecord="() => setEdit(tiaSample?.id)"
       @deleteRecord="() => deleteTiaSample(tiaSample?.id)"
     />
 
     <!-- tab-section -->
     <div class="tab-section tia-sample-tab-section">
-      <div class="row row0">
-        <div class="col-lg-3 col-sm-6" :class="{'mobile-userlist' : $windowWidth <= 767}">
+      <div class="row g-0">
+        <div class="col-12 col-sm-4 nav-left" :class="{'mobile-userlist' : $windowWidth <= 767}">
           <LeftBar
             :items="tiaSamples"
             :active-tab="activeTab"
@@ -111,7 +107,7 @@ setActiveTab(tiaSample.value?.id);
             @click="getTiaSample"
           />
         </div>
-        <div class="col-lg-9 col-sm-6">
+        <div class="col-12 col-sm-8">
           <div class="tab-content" v-if="Object.values(tiaSample).length > 0 || isNewRecord">
             <div class="tab-pane active">
               <Details

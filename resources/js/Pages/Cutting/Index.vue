@@ -197,7 +197,7 @@ setActiveTab(cuttings.value[0]?.buyer_id);
                     <input
                       v-model="searchCuttings"
                       type="text"
-                      class="form-control customInput"
+                      class="form-control custom-input"
                       placeholder="Search..."
                     >
                   </div>
@@ -308,7 +308,7 @@ setActiveTab(cuttings.value[0]?.buyer_id);
                       <input
                         v-model="searchCuttings"
                         type="text"
-                        class="form-control customInput"
+                        class="form-control custom-input"
                         placeholder="Search..."
                       >
                     </div>

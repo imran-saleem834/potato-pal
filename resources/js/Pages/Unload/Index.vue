@@ -74,19 +74,16 @@ setActiveTab(receival.value?.id);
   <AppLayout title="Unloading">
     <TopBar
       type="Unloading"
-      :value="search"
-      @search="filter"
-      :access="{ new: false }"
-    />
-    <MiddleBar
-      type="Unloading"
       :title="receival?.grower?.grower_name || 'New'"
+      :active-tab="activeTab"
+      :search="search"
+      @search="filter"
       :is-edit-record-selected="!!edit"
       :is-new-record-selected="false"
       :access="{
         new: false,
         edit: Object.values(receival).length > 0,
-        delete: Object.values(receival).length > 0,
+        delete: Object.values(receival).length > 0
       }"
       @editRecord="() => setEdit(receival?.id)"
       @deleteRecord="() => deleteUnload(receival?.id)"
@@ -94,8 +91,8 @@ setActiveTab(receival.value?.id);
 
     <!-- tab-section -->
     <div class="tab-section">
-      <div class="row row0">
-        <div class="col-lg-3 col-sm-6" :class="{'mobile-userlist' : $windowWidth <= 767}">
+      <div class="row g-0">
+        <div class="col-12 col-sm-4 nav-left" :class="{'mobile-userlist' : $windowWidth <= 767}">
           <LeftBar
             :items="receivals"
             :active-tab="activeTab"
@@ -104,7 +101,7 @@ setActiveTab(receival.value?.id);
             @click="getUnload"
           />
         </div>
-        <div class="col-lg-8 col-sm-6">
+        <div class="col-12 col-sm-8">
           <div class="tab-content" v-if="Object.values(receival).length > 0">
             <div class="tab-pane active">
               <Details

@@ -3,6 +3,7 @@
 namespace App\Helpers;
 
 use App\Models\Category;
+use Illuminate\Support\Arr;
 use App\Models\CategoriesRelation;
 
 class CategoriesHelper
@@ -10,12 +11,12 @@ class CategoriesHelper
     public static function createRelationOfTypes(array $inputs, int $forgingId, $model)
     {
         $categoryIds = [];
-        info(print_r($inputs, true));
         $inputs      = static::updateInputsToTypes($inputs);
-        info(print_r($inputs, true));
         foreach ($inputs as $type => $input) {
-            info(print_r($input, true));
-            foreach ($input as $categoryId) {
+            if (empty($input)) {
+                continue;
+            }
+            foreach (Arr::wrap($input) as $categoryId) {
                 $categoryIds[] = static::createRelation($categoryId, $forgingId, $model, $type);
             }
         }

@@ -21,7 +21,7 @@ class NotificationController extends Controller
                     ->orWhere('notification', 'LIKE', "%$search%");
             })
             ->latest()
-            ->get();
+            ->paginate(40);
 
         return Inertia::render('Notification/Index', [
             'notifications' => $notifications,

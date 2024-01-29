@@ -24,45 +24,45 @@ const submit = () => {
 </script>
 
 <template>
-  <Head title="Log in"></Head>
+  <Head><title>Log in</title></Head>
 
   <div class="login-section">
-    <div class="container">
+    <div class="container-fluid">
       <LoginCard
         type="login"
         :canResetPassword="canResetPassword"
         :status="status"
         @submit="submit"
       >
-        <div class="form-group has-feedback" :class="{'has-error' : form.errors.username}">
-          <span class="fa fa-envelope-o form-control-feedback"></span>
+        <div class="mb-3 position-relative">
+          <i class="bi bi-envelope form-control-feedback"></i>
           <input
             id="username"
             v-model="form.username"
             type="text"
-            class="form-control customInput"
+            class="form-control custom-input"
+            :class="{'is-invalid' : form.errors.username}"
             placeholder="sheharyar"
             required
             autocomplete="username"
           >
-          <span v-show="form.errors.username" class="help-block text-left">{{ form.errors.username }}</span>
+          <div v-if="form.errors.username" class="invalid-feedback">{{ form.errors.username }}</div>
         </div>
-        <div class="form-group has-feedback" :class="{'has-error' : form.errors.password}">
-          <span class="fa fa-globe form-control-feedback"></span>
+        <div class="mb-3 position-relative">
+          <i class="bi bi-globe form-control-feedback"></i>
           <input
             id="password"
             v-model="form.password"
             type="password"
-            class="form-control customInput"
+            class="form-control custom-input"
+            :class="{'is-invalid' : form.errors.password}"
             placeholder="***************"
             required
             autocomplete="current-password"
           >
-          <span v-show="form.errors.password" class="help-block text-left">{{
-              form.errors.password
-            }}</span>
+          <div v-if="form.errors.password" class="invalid-feedback">{{ form.errors.password }}</div>
         </div>
-        <div class="checkbox text-left">
+        <div class="mb-3 checkbox">
           <label>
             <input
               v-model="form.remember"
@@ -72,11 +72,11 @@ const submit = () => {
             > Remember me
           </label>
         </div>
-        <div class="form-group has-feedback">
+        <div class="mb-3">
           <input
             type="submit"
             value="Log in"
-            class="btn btn-red-large"
+            class="btn btn-lg-red"
             :disabled="form.processing"
           >
         </div>

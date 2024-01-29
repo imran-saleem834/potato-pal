@@ -13,6 +13,7 @@ const props = defineProps({
   notes: Object,
   single: Object,
   filters: Object,
+  errors: Object,
 });
 
 const note = ref(props.single || {});
@@ -23,7 +24,9 @@ const search = ref(props.filters.search);
 
 watch(() => props?.single,
   (single) => {
-    note.value = single || {};
+    if (Object.values(props.errors).length === undefined || Object.values(props.errors).length <= 0) {
+      note.value = single || {};
+    }
   }
 );
 
@@ -101,8 +104,8 @@ setActiveTab(note.value?.id);
 
     <!-- tab-section -->
     <div class="tab-section">
-      <div class="row row0">
-        <div class="col-lg-3 col-sm-6" :class="{'mobile-userlist' : $windowWidth <= 767}">
+      <div class="row g-0">
+        <div class="col-12 col-sm-4 nav-left" :class="{'mobile-userlist' : $windowWidth <= 767}">
           <LeftBar
             :items="notes"
             :active-tab="activeTab"
@@ -111,7 +114,7 @@ setActiveTab(note.value?.id);
             @click="getNote"
           />
         </div>
-        <div class="col-lg-8 col-sm-6">
+        <div class="col-12 col-sm-8">
           <div class="tab-content" v-if="Object.values(note).length > 0 || isNewRecord">
             <div class="tab-pane active">
               <Details
@@ -123,11 +126,10 @@ setActiveTab(note.value?.id);
               />
             </div>
           </div>
-          <div class="col-sm-12" v-if="Object.values(note).length <= 0 && !isNewRecord">
+          <div class="col-12" v-if="Object.values(note).length <= 0 && !isNewRecord">
             <p class="text-center" style="margin-top: calc(50vh - 120px);">No Records Found</p>
           </div>
         </div>
-        <div class="clearfix"></div>
       </div>
     </div>
     <!-- tab-section -->

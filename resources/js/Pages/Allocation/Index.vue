@@ -105,8 +105,8 @@ setActiveTab(allocations.value.data[0]?.buyer_id);
 
     <!-- tab-section -->
     <div class="tab-section">
-      <div class="row row0">
-        <div class="col-lg-3 col-sm-6" :class="{'mobile-userlist' : $windowWidth <= 767}">
+      <div class="row g-0">
+        <div class="col-12 col-sm-4 nav-left" :class="{'mobile-userlist' : $windowWidth <= 767}">
           <LeftBar
             :items="allocationBuyers"
             :active-tab="activeTab?.id"
@@ -115,7 +115,7 @@ setActiveTab(allocations.value.data[0]?.buyer_id);
             @click="getAllocations"
           />
         </div>
-        <div class="col-lg-8 col-sm-6 tab-content">
+        <div class="col-12 col-sm-8 tab-content">
           <Details
             v-if="isNewRecord"
             unique-key="newRecord"
@@ -159,7 +159,7 @@ setActiveTab(allocations.value.data[0]?.buyer_id);
                   <input
                     v-model="search"
                     type="text"
-                    class="form-control customInput"
+                    class="form-control custom-input"
                     placeholder="Search Allocations..."
                   >
                 </div>
@@ -267,7 +267,7 @@ setActiveTab(allocations.value.data[0]?.buyer_id);
                       <input
                         v-model="search"
                         type="text"
-                        class="form-control customInput"
+                        class="form-control custom-input"
                         placeholder="Search Allocations..."
                       >
                     </div>

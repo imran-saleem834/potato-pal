@@ -58,26 +58,21 @@ const deleteRecord = () => {
 
 <template>
   <div class="user-boxes">
-    <h4>Name</h4>
+    <label class="form-label">Name</label>
     <TextInput v-if="edit || isNew" v-model="form.name" :error="form.errors.name" type="text"/>
-    <h5 style="margin-bottom: 40px;" v-else>{{ category.name }}</h5>
+    <h6 v-else class="fw-bold">{{ category.name }}</h6>
 
-    <ul>
+    <ul class="mt-4">
       <li v-if="isNew">
-        <a role="button" @click="storeRecord" class="red-btn"><span class="fa fa-edit hidden"></span> Create</a>
+        <a role="button" @click="storeRecord" class="btn btn-red">Create</a>
       </li>
       <li v-if="!isNew && !edit">
-        <a role="button" @click="editRecord" class="red-btn"><span class="fa fa-edit hidden"></span> Edit</a>
+        <a role="button" @click="editRecord" class="btn btn-red">Edit</a>
       </li>
       <li v-if="edit">
-        <a role="button" @click="updateRecord" class="red-btn">
-          <span class="fa fa-edit hidden"></span> Update
-        </a>
+        <a role="button" @click="updateRecord" class="btn btn-red">Update</a>
       </li>
-      <li class="hidden" v-if="!isNew">
-        <a role="button" @click="deleteRecord" class="trash-btn"><span class="fa fa-trash-o"></span></a>
-      </li>
-      <li v-if="!isNew"><a role="button" @click="deleteRecord" class="red-btn">Delete</a></li>
+      <li v-if="!isNew"><a role="button" @click="deleteRecord" class="btn btn-red">Delete</a></li>
     </ul>
   </div>
 </template>

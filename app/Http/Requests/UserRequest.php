@@ -42,11 +42,11 @@ class UserRequest extends FormRequest
             'paddocks.*.gps'      => ['nullable', 'string', 'max:255'],
         ];
 
-        if (in_array('buyer', $this->input('role'))) {
+        if (in_array('buyer', $this->input('role', []))) {
             $rules = array_merge($rules, ['buyer_name' => ['required', 'string', 'max:50']]);
         }
 
-        if (in_array('grower', $this->input('role'))) {
+        if (in_array('grower', $this->input('role', []))) {
             $rules = array_merge($rules, ['grower_name' => ['required', 'string', 'max:50']]);
         }
 

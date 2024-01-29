@@ -43,7 +43,7 @@ class UserController extends Controller
 
         $userId = $request->input('userId', $users->first()->id ?? 0);
 
-        $user = User::with(['categories'])->find($userId);
+        $user = User::with(['categories.category'])->find($userId);
 
         $categories = Category::whereIn('type', User::CATEGORY_TYPES)->get();
 
@@ -80,7 +80,7 @@ class UserController extends Controller
      */
     public function show(string $id)
     {
-        $user = User::with(['categories'])->find($id);
+        $user = User::with(['categories.category'])->find($id);
 
         return response()->json($user);
     }

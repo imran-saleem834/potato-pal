@@ -120,13 +120,10 @@ setActiveTab(receival.value?.id);
   <AppLayout title="Receivals">
     <TopBar
       type="Receivals"
-      :value="search"
-      @search="filter"
-      @newRecord="setNewRecord"
-    />
-    <MiddleBar
-      type="Receivals"
       :title="receival?.grower?.grower_name || 'New'"
+      :active-tab="activeTab"
+      :search="search"
+      @search="filter"
       :is-edit-record-selected="!!edit"
       :is-new-record-selected="isNewRecord"
       :access="{
@@ -138,13 +135,13 @@ setActiveTab(receival.value?.id);
       @newRecord="setNewRecord"
       @editRecord="() => setEdit(receival?.id)"
       @deleteRecord="() => deleteReceival(receival?.id)"
-      @duplicate="() => showDuplicateModal(receival)"
+      @duplicate="() => showDuplicateModal(receival?.id)"
     />
 
     <!-- tab-section -->
     <div class="tab-section">
-      <div class="row row0">
-        <div class="col-lg-3 col-sm-6" :class="{'mobile-userlist' : $windowWidth <= 767}">
+      <div class="row g-0">
+        <div class="col-12 col-sm-4 nav-left d-md-block" :class="{'d-none' : activeTab}">
           <LeftBar
             :items="receivals"
             :active-tab="activeTab"
@@ -153,7 +150,7 @@ setActiveTab(receival.value?.id);
             @click="getReceival"
           />
         </div>
-        <div class="col-lg-8 col-sm-6">
+        <div class="col-12 col-sm-8 d-md-block" :class="{'d-none': !activeTab}">
           <div class="tab-content" v-if="Object.values(receival).length > 0 || isNewRecord">
             <div class="tab-pane active">
               <Details
@@ -164,54 +161,18 @@ setActiveTab(receival.value?.id);
                 :categories="categories"
                 @update="() => getReceival(activeTab)"
                 @create="() => setActiveTab(receival?.id)"
-                col-size="col-md-6"
+                @unset="() => setActiveTab(null)"
+                col-size="col-12 col-lg-6"
               />
             </div>
           </div>
-          <div class="col-sm-12" v-if="Object.values(receival).length <= 0 && !isNewRecord">
-            <p class="text-center" style="margin-top: calc(50vh - 120px);">No Records Found</p>
+          <div v-if="Object.values(receival).length <= 0 && !isNewRecord">
+            <p class="w-100 text-center" style="margin-top: calc(50vh - 120px);">No Records Found</p>
           </div>
         </div>
-        <div class="clearfix"></div>
       </div>
     </div>
     <!-- tab-section -->
-
-    <!-- Modal -->
-    <div class="modal right fade user-details" id="user-details" tabindex="-1" role="dialog">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <ModalHeader
-            title="Receivals"
-            :access="{
-              new: isNewRecord,
-              edit: true,
-              delete: true,
-              duplicate: true
-            }"
-            @edit="() => setEdit(receival?.id)"
-            @delete="() => deleteReceival(receival?.id)"
-            @duplicate="() => showDuplicateModal(receival)"
-          />
-          <div class="modal-body" v-if="receival">
-            <ModalBreadcrumb
-              page="Receivals"
-              :title="receival?.grower?.grower_name || 'New'"
-            />
-            <Details
-              :receival="receival"
-              :is-edit="!!edit"
-              :is-new="isNewRecord"
-              :users="users"
-              :categories="categories"
-              @update="() => getReceival(activeTab)"
-              @create="() => setActiveTab(receival?.id)"
-              col-size="col-md-12"
-            />
-          </div>
-        </div>
-      </div>
-    </div>
 
     <div class="modal fade" id="duplicate-details" tabindex="-1" role="dialog">
       <div class="modal-dialog" role="document">

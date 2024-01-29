@@ -82,39 +82,57 @@ const storeRecord = () => {
 
 <template>
   <template v-if="isForm">
-    <TextInput v-model="form.title" :error="form.errors.title" type="text"/>
+    <div class="user-boxes">
+      <TextInput v-model="form.title" :error="form.errors.title" type="text"/>
 
-    <input type="file" @input="form.image = $event.target?.files[0] || ''"/>
-    <div :class="{'has-error' : form.errors.image}">
-            <span v-show="form.errors.image" class="help-block text-left">
-                {{ form.errors.image }}
-            </span>
-    </div>
+      <div class="my-3">
+        <input
+          type="file"
+          id="select-file"
+          class="form-control"
+          :class="{'is-invalid' : form.errors.image}"
+          @input="form.image = $event.target?.files[0] || ''"
+        />
+        <div v-if="form.errors.image" class="invalid-feedback">{{ form.errors.image }}</div>
+      </div>
 
-    <div class="flex-end">
-      <a v-if="isEdit" role="button" @click="updateRecord" class="btn btn-red">Update</a>
-      <a v-if="isNew" role="button" @click="storeRecord" class="btn btn-red">Create</a>
+      <div class="d-flex justify-content-end">
+        <a v-if="isEdit" role="button" @click="updateRecord" class="btn btn-red">Update</a>
+        <a v-if="isNew" role="button" @click="storeRecord" class="btn btn-red">Create</a>
+      </div>
     </div>
   </template>
   <template v-else>
-    <div id="carousel-example-generic" class="slide" data-ride="carousel">
-      <div class="carousel-inner" role="listbox">
-        <div v-if="Object.values(file).length > 0" class="item active" @click="emit('showImg')" style="cursor: zoom-in">
-          <img :src="`storage/${file.image}`" :alt="file.title"/>
-          <div class="">
-            <h4>{{ moment(file.created_at).format('DD, MMM YYYY hh:mm') }}</h4>
-            <p>{{ file.title }}</p>
-          </div>
+    <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
+      <div class="carousel-inner">
+        <div v-if="Object.values(file).length > 0" class="carousel-item active" @click="emit('showImg')">
+          <img :src="`storage/${file.image}`" :alt="file.title" style="cursor: zoom-in" />
+          <h5 class="mt-3">{{ moment(file.created_at).format('DD, MMM YYYY hh:mm') }}</h5>
+          <p>{{ file.title }}</p>
         </div>
       </div>
-      <a v-if="isPrev" class="left carousel-control" role="button" @click="prev">
-        <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
-        <span class="sr-only">Previous</span>
-      </a>
-      <a v-if="isNext" class="right carousel-control" role="button" @click="next">
-        <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
-        <span class="sr-only">Next</span>
-      </a>
+      <button
+        v-if="isPrev"
+        class="carousel-control-prev"
+        type="button"
+        data-bs-target="#carouselExampleControls"
+        data-bs-slide="prev"
+        @click="prev"
+      >
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+      </button>
+      <button
+        v-if="isNext"
+        class="carousel-control-next"
+        type="button"
+        data-bs-target="#carouselExampleControls"
+        data-bs-slide="next"
+        @click="next"
+      >
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+      </button>
     </div>
   </template>
 </template>

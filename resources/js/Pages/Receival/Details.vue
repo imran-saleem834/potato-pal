@@ -26,7 +26,7 @@ const props = defineProps({
   categories: Array,
 });
 
-const emit = defineEmits(['update', 'create']);
+const emit = defineEmits(['update', 'create', 'unset']);
 
 const form = useForm({
   grower_id: props.receival.grower_id,
@@ -158,36 +158,62 @@ const pushForUnload = () => {
 </script>
 
 <template>
+  <div v-if="isForm" class="d-md-flex justify-content-end mb-2 d-none">
+    <a v-if="isEdit" role="button" @click="updateRecord" class="btn btn-red">Update</a>
+    <a v-if="isNew" role="button" @click="storeRecord" class="btn btn-red">Create</a>
+  </div>
   <div class="row">
-    <div v-if="isRequireFieldsEmpty" class="col-md-12">
+    <div v-if="isRequireFieldsEmpty" class="col-12">
       <div class="alert alert-warning" role="alert">
         Require these fields (Grower Group, Paddocks, Seed Variety, Class and Generation) to list in the allocations
       </div>
     </div>
-    <div v-if="isEdit || isNew" class="col-md-12">
-      <div class="flex-end create-update-btn">
-        <a v-if="isEdit" role="button" @click="updateRecord" class="btn btn-red">Update</a>
-        <a v-if="isNew" role="button" @click="storeRecord" class="btn btn-red">Create</a>
-      </div>
-    </div>
     <div :class="colSize">
       <div class="user-boxes">
-        <h6>Grower</h6>
-        <Multiselect
-          v-if="isForm"
-          v-model="form.grower_id"
-          mode="single"
-          placeholder="Choose a grower"
-          :searchable="true"
-          @change="onChangeGrowerUser"
-          :options="getDropDownOptions(users, true)"
-        />
-        <h5 v-else-if="receival.grower">
-          <Link :href="route('users.index', { userId: receival.grower_id })">
-            {{ receival.grower?.name }} {{ receival.grower?.grower_name ? ' (' + receival.grower?.grower_name + ')' : '' }}
-          </Link>
-        </h5>
-        <h5 v-else>-</h5>
+        <table class="table">
+          <tr>
+            <th>Grower</th>
+            <td>
+              <Multiselect
+                v-if="isForm"
+                v-model="form.grower_id"
+                mode="single"
+                placeholder="Choose a grower"
+                :searchable="true"
+                @change="onChangeGrowerUser"
+                :class="{'is-invalid' : form.errors.grower_id}"
+                :options="getDropDownOptions(users, true)"
+              />
+              <div v-else-if="receival.grower">
+                <Link :href="route('users.index', { userId: receival.grower_id })">
+                  {{ receival.grower?.name }} {{ receival.grower?.grower_name ? ' (' + receival.grower?.grower_name + ')' : '' }}
+                </Link>
+              </div>
+              <template v-else>-</template>
+              <div v-if="form.errors.grower_id" class="invalid-feedback">{{ form.errors.grower_id }}</div>
+            </td>
+          </tr>
+          <tr>
+            <th>Grower Group</th>
+            <td>
+              <Multiselect
+                v-if="isForm"
+                v-model="form.grower_group"
+                mode="tags"
+                placeholder="Choose a grower group"
+                :searchable="true"
+                :create-option="true"
+                :options="userGrowerGroups"
+              />
+              <ul class="p-0" v-else-if="getCategoriesByType(receival.categories, 'grower-group').length">
+                <li v-for="category in getCategoriesByType(receival.categories, 'grower-group')" :key="category.id">
+                  <a class="mb-0">{{ category.category.name }}</a>
+                </li>
+              </ul>
+              <template v-else>-</template>
+            </td>
+          </tr>
+        </table>
 
         <h6>Grower Group</h6>
         <div v-if="form.errors.grower" class="has-error">
