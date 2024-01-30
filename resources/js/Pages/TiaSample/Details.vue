@@ -394,7 +394,7 @@ const storeRecord = () => {
             <a
               role="button"
               @click="() => form.disease_scoring = score"
-              :class="{'black-btn' : form.disease_scoring === score}"
+              :class="{'btn-black' : form.disease_scoring === score}"
             >{{ score }}</a>
           </li>
         </ul>
@@ -446,7 +446,7 @@ const storeRecord = () => {
             <a
               role="button"
               @click="() => form.excessive_dirt = !form.excessive_dirt"
-              :class="{'black-btn' : form.excessive_dirt}"
+              :class="{'btn-black' : form.excessive_dirt}"
             >Excessive Dirt</a>
           </li>
         </ul>
@@ -462,7 +462,7 @@ const storeRecord = () => {
             <a
               role="button"
               @click="() => form.minor_skin_cracking = !form.minor_skin_cracking"
-              :class="{'black-btn' : form.minor_skin_cracking}"
+              :class="{'btn-black' : form.minor_skin_cracking}"
             >Minor Skin Cracking</a>
           </li>
         </ul>
@@ -478,7 +478,7 @@ const storeRecord = () => {
             <a
               role="button"
               @click="() => form.skinning = !form.skinning"
-              :class="{'black-btn' : form.skinning}"
+              :class="{'btn-black' : form.skinning}"
             >Skinning</a>
           </li>
         </ul>
@@ -494,7 +494,7 @@ const storeRecord = () => {
             <a
               role="button"
               @click="() => form.regarding = !form.regarding"
-              :class="{'black-btn' : form.regarding}"
+              :class="{'btn-black' : form.regarding}"
             >Regarding</a>
           </li>
         </ul>

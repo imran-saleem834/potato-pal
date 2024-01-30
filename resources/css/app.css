@@ -179,7 +179,9 @@
     font-size: 14px;
 }
 
-.multiselect-option {
+.multiselect-option, 
+.multiselect-no-results,
+.multiselect-single-label-text {
     font-size: 14px;
 }
 
@@ -220,8 +222,8 @@ body {
 }
 
 .btn-black {
-    background: #000000;
-    border: 1px solid #000000;
+    background: #000000 !important;
+    border: 1px solid #000000 !important;
     color: #fff !important;
 }
 
@@ -592,6 +594,7 @@ body {
 
 .tab-section .user-boxes .table tr th {
     width: 30%;
+    padding-right: 5px;
     font-weight: lighter;
 }
 
@@ -668,9 +671,9 @@ body {
     color: #000000;
 }
 
-.tab-section .user-boxes ul li .black-btn {
-    background: #000000;
-    color: #FFFFFF;
+.tab-section .user-boxes ul li .btn-dark {
+    background: #F2F2F2;
+    color: #000000;
 }
 
 /*.user-details .user-boxes ul li .red-btn,*/

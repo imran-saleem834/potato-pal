@@ -2,11 +2,8 @@
 import { ref, watch } from 'vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import TopBar from '@/Components/TopBar.vue';
-import MiddleBar from '@/Components/MiddleBar.vue';
 import Details from '@/Pages/Unload/Details.vue';
 import LeftBar from "@/Components/LeftBar.vue";
-import ModalHeader from "@/Components/ModalHeader.vue";
-import ModalBreadcrumb from "@/Components/ModalBreadcrumb.vue";
 import { router, useForm } from "@inertiajs/vue3";
 
 const props = defineProps({
@@ -21,6 +18,7 @@ const receival = ref(props.single || {});
 const activeTab = ref(null);
 const edit = ref(null);
 const search = ref(props.filters.search);
+const details = ref(null);
 
 watch(() => props?.single,
   (single) => {
@@ -80,19 +78,17 @@ setActiveTab(receival.value?.id);
       @search="filter"
       :is-edit-record-selected="!!edit"
       :is-new-record-selected="false"
-      :access="{
-        new: false,
-        edit: Object.values(receival).length > 0,
-        delete: Object.values(receival).length > 0
-      }"
-      @editRecord="() => setEdit(receival?.id)"
-      @deleteRecord="() => deleteUnload(receival?.id)"
+      :access="{ new: false }"
+      @edit="() => setEdit(receival?.id)"
+      @unset="() => setActiveTab(null)"
+      @store="() => details.storeRecord()"
+      @update="() => details.updateRecord()"
+      @delete="() => deleteUnload(receival?.id)"
     />
 
-    <!-- tab-section -->
     <div class="tab-section">
       <div class="row g-0">
-        <div class="col-12 col-sm-4 nav-left" :class="{'mobile-userlist' : $windowWidth <= 767}">
+        <div class="col-12 col-lg-5 col-xl-4 nav-left d-lg-block" :class="{'d-none' : activeTab}">
           <LeftBar
             :items="receivals"
             :active-tab="activeTab"
@@ -101,53 +97,23 @@ setActiveTab(receival.value?.id);
             @click="getUnload"
           />
         </div>
-        <div class="col-12 col-sm-8">
+        <div class="col-12 col-lg-7 col-xl-8 d-lg-block" :class="{'d-none': !activeTab}">
           <div class="tab-content" v-if="Object.values(receival).length > 0">
-            <div class="tab-pane active">
               <Details
+                ref="details"
                 :receival="receival"
                 :categories="categories"
                 :is-edit="!!edit"
                 @update="() => getUnload(activeTab)"
                 @create="() => setActiveTab(receival?.id)"
-                col-size="col-md-6"
+                col-size="col-12 col-xl-6"
               />
-            </div>
           </div>
           <div class="col-sm-12" v-if="Object.values(receival).length <= 0">
             <p class="text-center" style="margin-top: calc(50vh - 120px);">No Records Found</p>
           </div>
         </div>
         <div class="clearfix"></div>
-      </div>
-    </div>
-    <!-- tab-section -->
-
-    <!-- Modal -->
-    <div class="modal right fade user-details" id="user-details" tabindex="-1" role="dialog">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <ModalHeader
-            title="Unloading"
-            :access="{ new: false }"
-            @edit="() => setEdit(receival?.id)"
-            @delete="() => deleteUnload(receival?.id)"
-          />
-          <div class="modal-body" v-if="receival">
-            <ModalBreadcrumb
-              page="Unloading"
-              :title="receival?.grower?.grower_name || 'New'"
-            />
-            <Details
-              :receival="receival"
-              :categories="categories"
-              :is-edit="!!edit"
-              @update="() => getUnload(activeTab)"
-              @create="() => setActiveTab(receival?.id)"
-              col-size="col-md-12"
-            />
-          </div>
-        </div>
       </div>
     </div>
   </AppLayout>

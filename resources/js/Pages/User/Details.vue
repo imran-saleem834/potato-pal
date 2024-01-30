@@ -169,7 +169,7 @@ const autocompleteInput = (index) => {
         <h4>User Details</h4>
       </div>
       <div class="user-boxes">
-        <table class="table">
+        <table class="table mb-0">
           <tr>
             <th>Name</th>
             <td>
@@ -249,7 +249,7 @@ const autocompleteInput = (index) => {
                 :create-option="true"
                 :options="getCategoriesDropDownByType(categories, 'cool-store')"
               />
-              <ul class="p-0" v-else-if="getCategoryIdsByType(user.categories, 'cool-store').length">
+              <ul class="p-0" v-else-if="getCategoriesByType(user.categories, 'cool-store').length">
                 <li v-for="category in getCategoriesByType(user.categories, 'cool-store')" :key="category.id">
                   <a>{{ category.category?.name }}</a>
                 </li>
@@ -262,7 +262,7 @@ const autocompleteInput = (index) => {
 
       <h4 v-if="isBuyerSelected">Buyer Details</h4>
       <div v-if="isBuyerSelected" class="user-boxes">
-        <table class="table">
+        <table class="table mb-0">
           <tr>
             <th>Buyer Group</th>
             <td :class="{'pb-0' : !isForm}">
@@ -275,7 +275,7 @@ const autocompleteInput = (index) => {
                 :create-option="true"
                 :options="getCategoriesDropDownByType(categories, 'buyer-group')"
               />
-              <ul class="p-0" v-else-if="getCategoryIdsByType(user.categories, 'buyer-group').length">
+              <ul class="p-0" v-else-if="getCategoriesByType(user.categories, 'buyer-group').length">
                 <li v-for="category in getCategoriesByType(user.categories, 'buyer-group')" :key="category.id">
                   <a>{{ category.category?.name }}</a>
                 </li>
@@ -316,7 +316,7 @@ const autocompleteInput = (index) => {
     <div :class="colSize">
       <h4 v-if="isGrowerSelected">Grower Details</h4>
       <div v-if="isGrowerSelected" class="user-boxes">
-        <table class="table">
+        <table class="table mb-0">
           <tr>
             <th>Grower Group</th>
             <td :class="{'pb-0' : !isForm}">
@@ -329,7 +329,7 @@ const autocompleteInput = (index) => {
                 :create-option="true"
                 :options="getCategoriesDropDownByType(categories, 'grower-group')"
               />
-              <ul class="p-0" v-else-if="getCategoryIdsByType(user.categories, 'grower-group').length">
+              <ul class="p-0" v-else-if="getCategoriesByType(user.categories, 'grower-group').length">
                 <li v-for="category in getCategoriesByType(user.categories, 'grower-group')" :key="category.id">
                   <a>{{ category.category?.name }}</a>
                 </li>
@@ -368,7 +368,7 @@ const autocompleteInput = (index) => {
 
       <h4 v-if="isGrowerSelected">Paddocks</h4>
       <div v-if="isGrowerSelected" class="user-boxes">
-        <table class="table paddock-table">
+        <table class="table paddock-table mb-0">
           <tr>
             <th>Paddock Name</th>
             <th>Paddock Location</th>

@@ -170,9 +170,9 @@ const search = () => {
               <a
                 role="button"
                 class="btn btn-black"
-                data-toggle="modal"
+                data-bs-toggle="modal" 
+                data-bs-target="#duplicate-details"
                 @click="$emit('duplicate')"
-                data-target="#duplicate-details"
               >
                 <i class="bi bi-copy"></i> <span class="d-none d-md-inline-block">Duplicate</span>
               </a>
