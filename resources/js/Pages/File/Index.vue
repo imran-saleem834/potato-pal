@@ -23,6 +23,7 @@ const edit = ref(null);
 const isNewRecord = ref(false);
 const visibleRef = ref(false);
 const indexRef = ref(0);
+const details = ref(null);
 
 watch(() => props.files,
   (newFiles) => {
@@ -117,8 +118,6 @@ setActiveTab(file.value?.id);
                     style="cursor: pointer"
                     :src="`storage/${image.image}`"
                     :alt="image.title"
-                    :data-toggle="$windowWidth <= 767 ? 'modal' : 'tab'"
-                    :data-target="$windowWidth <= 767 ? '#user-details' : ''"
                     @click="() => setActiveTab(image.id)"
                   />
                 </li>
@@ -132,6 +131,7 @@ setActiveTab(file.value?.id);
         <div class="col-12 col-lg-7 col-xl-8 d-lg-block" :class="{'d-none': !activeTab && !isNewRecord}">
           <div class="tab-content slider-files" v-if="Object.values(file).length > 0 || isNewRecord">
             <Details
+              ref="details"
               :file="file"
               :flat-files="flatFiles"
               :is-edit="!!edit"

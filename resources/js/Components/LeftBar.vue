@@ -40,8 +40,6 @@ const getObjectProperty = (obj, key) => {
     :key="item.id"
     class="w-100 d-block position-relative"
     :class="{'active' : activeTab === item.id}"
-    :data-toggle="$windowWidth <= 767 ? 'modal' : 'tab'"
-    :data-target="$windowWidth <= 767 ? '#user-details' : ''"
     @click="menuClick(item.id)"
   >
     <table class="table mb-0">
