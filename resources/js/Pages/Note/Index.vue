@@ -2,11 +2,8 @@
 import { ref, watch } from "vue";
 import AppLayout from '@/Layouts/AppLayout.vue';
 import TopBar from '@/Components/TopBar.vue';
-import MiddleBar from '@/Components/MiddleBar.vue';
 import Details from '@/Pages/Note/Details.vue';
 import LeftBar from "@/Pages/Note/LeftBar.vue";
-import ModalHeader from "@/Components/ModalHeader.vue";
-import ModalBreadcrumb from "@/Components/ModalBreadcrumb.vue";
 import { router, useForm } from "@inertiajs/vue3";
 
 const props = defineProps({
@@ -21,6 +18,7 @@ const activeTab = ref(null);
 const edit = ref(null);
 const isNewRecord = ref(false);
 const search = ref(props.filters.search);
+const details = ref(null);
 
 watch(() => props?.single,
   (single) => {
@@ -83,29 +81,23 @@ setActiveTab(note.value?.id);
   <AppLayout title="Notes">
     <TopBar
       type="Notes"
-      :value="search"
-      @search="filter"
-      @newRecord="setNewRecord"
-    />
-    <MiddleBar
-      type="Notes"
       :title="note?.title || 'New'"
+      :active-tab="activeTab"
+      :search="search"
+      @search="filter"
       :is-edit-record-selected="!!edit"
       :is-new-record-selected="isNewRecord"
-      :access="{
-        new: true,
-        edit: Object.values(note).length > 0,
-        delete: Object.values(note).length > 0,
-      }"
-      @newRecord="setNewRecord"
-      @editRecord="() => setEdit(note?.id)"
-      @deleteRecord="() => deleteNote(note?.id)"
+      @new="setNewRecord"
+      @edit="() => setEdit(note?.id)"
+      @unset="() => setActiveTab(null)"
+      @store="() => details.storeRecord()"
+      @update="() => details.updateRecord()"
+      @delete="() => deleteNote(note?.id)"
     />
 
-    <!-- tab-section -->
     <div class="tab-section">
       <div class="row g-0">
-        <div class="col-12 col-sm-4 nav-left" :class="{'mobile-userlist' : $windowWidth <= 767}">
+        <div class="col-12 col-lg-5 col-xl-4 nav-left d-lg-block" :class="{'d-none' : activeTab || isNewRecord}">
           <LeftBar
             :items="notes"
             :active-tab="activeTab"
@@ -114,50 +106,19 @@ setActiveTab(note.value?.id);
             @click="getNote"
           />
         </div>
-        <div class="col-12 col-sm-8">
+        <div class="col-12 col-lg-7 col-xl-8 d-lg-block" :class="{'d-none': !activeTab && !isNewRecord}">
           <div class="tab-content" v-if="Object.values(note).length > 0 || isNewRecord">
-            <div class="tab-pane active">
-              <Details
-                :note="note"
-                :is-edit="!!edit"
-                :is-new="isNewRecord"
-                @update="() => getNote(activeTab)"
-                @create="() => setActiveTab(note?.id)"
-              />
-            </div>
-          </div>
-          <div class="col-12" v-if="Object.values(note).length <= 0 && !isNewRecord">
-            <p class="text-center" style="margin-top: calc(50vh - 120px);">No Records Found</p>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- tab-section -->
-
-    <!-- Modal -->
-    <div class="modal right fade user-details" id="user-details" tabindex="-1" role="dialog">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <ModalHeader
-            title="Notes"
-            :access="{
-              new: isNewRecord
-            }"
-            @edit="() => setEdit(note?.id)"
-            @delete="() => deleteNote(note?.id)"
-          />
-          <div class="modal-body">
-            <ModalBreadcrumb
-              page="Notes"
-              :title="note?.title || 'New'"
-            />
             <Details
+              ref="details"
               :note="note"
               :is-edit="!!edit"
               :is-new="isNewRecord"
               @update="() => getNote(activeTab)"
               @create="() => setActiveTab(note?.id)"
             />
+          </div>
+          <div class="col-12" v-if="Object.values(note).length <= 0 && !isNewRecord">
+            <p class="text-center" style="margin-top: calc(50vh - 120px);">No Records Found</p>
           </div>
         </div>
       </div>

@@ -113,18 +113,16 @@ setActiveTab(user.value?.id);
         </div>
         <div class="col-12 col-lg-7 col-xl-8 d-lg-block" :class="{'d-none': !activeTab && !isNewRecord}">
           <div class="tab-content" v-if="Object.values(user).length > 0 || isNewRecord">
-            <div class="tab-pane active">
-              <Details
-                ref="details"
-                :user="user"
-                :is-edit="!!edit"
-                :is-new="isNewRecord"
-                :categories="categories"
-                @update="() => getUser(activeTab)"
-                @create="() => setActiveTab(user?.id)"
-                col-size="col-12 col-xl-6"
-              />
-            </div>
+            <Details
+              ref="details"
+              :user="user"
+              :is-edit="!!edit"
+              :is-new="isNewRecord"
+              :categories="categories"
+              @update="() => getUser(activeTab)"
+              @create="() => setActiveTab(user?.id)"
+              col-size="col-12 col-xl-6"
+            />
           </div>
           <div v-if="Object.values(user).length <= 0 && !isNewRecord">
             <p class="w-100 text-center" style="margin-top: calc(50vh - 120px);">No Records Found</p>

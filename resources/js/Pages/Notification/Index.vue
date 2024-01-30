@@ -44,15 +44,9 @@ const getNotificationActionColor = (action) => {
   <AppLayout title="Notifications">
     <TopBar
       type="Notifications"
-      :value="search"
-      @search="filter"
-      :access="{
-        new: false
-      }"
-    />
-    <MiddleBar
-      type="Notifications"
       title="Notifications"
+      :search="search"
+      @search="filter"
       :access="{
         new: false,
         edit: false,

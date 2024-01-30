@@ -2,10 +2,7 @@
 import { computed, ref, watch } from 'vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import TopBar from '@/Components/TopBar.vue';
-import MiddleBar from '@/Components/MiddleBar.vue';
 import Details from '@/Pages/AdminOption/Details.vue';
-import ModalHeader from "@/Components/ModalHeader.vue";
-import ModalBreadcrumb from "@/Components/ModalBreadcrumb.vue";
 import { router } from "@inertiajs/vue3";
 
 const props = defineProps({
@@ -23,9 +20,7 @@ const setActiveTab = (id) => {
   isNewRecord.value = false;
 };
 
-const setNewRecord = () => {
-  isNewRecord.value = true;
-}
+const setNewRecord = () => isNewRecord.value = true;
 
 const changeTab = (type) => {
   setActiveTab(type);
@@ -56,31 +51,24 @@ setActiveTab(props.filters.type);
 <template>
   <AppLayout :title="`Admin ${title} Options`">
     <TopBar
-      v-if="activeTab"
-      :type="title"
-      :value="search"
-      @search="filter"
-      @newRecord="setNewRecord"
-    />
-    <MiddleBar
-      v-if="activeTab"
       type="Admin Options"
       :title="title"
+      :active-tab="activeTab"
+      :search="search"
+      @search="filter"
       :is-new-record-selected="isNewRecord"
       :access="{
-        new: true,
+        new: !!activeTab,
         edit: false,
         delete: false,
       }"
-      @newRecord="setNewRecord"
-      @editRecord="() => {}"
-      @deleteRecord="() => {}"
+      @new="setNewRecord"
+      @unset="() => setActiveTab(null)"
     />
 
-    <!-- tab-section -->
     <div class="tab-section">
       <div class="row g-0">
-        <div class="col-12 col-sm-4 nav-left">
+        <div class="col-12 col-lg-5 col-xl-4 nav-left d-lg-block" :class="{'d-none' : activeTab || isNewRecord}">
           <a
             role="button"
             v-for="optionType in optionTypes"
@@ -101,76 +89,30 @@ setActiveTab(props.filters.type);
             <i class="bi bi-chevron-right angle-right"></i>
           </a>
         </div>
-        <div class="col-12 col-sm-8">
+        <div class="col-12 col-lg-7 col-xl-8 d-lg-block" :class="{'d-none': !activeTab && !isNewRecord}">
           <div class="tab-content">
-            <div class="tab-pane active">
-              <div class="row">
-                <div v-if="isNewRecord" class="col-12 col-sm-6 col-md-4">
-                  <Details
-                    :category="{}"
-                    :type="activeTab"
-                    :is-new="true"
-                    @updateRecord="() => isNewRecord = false"
-                  />
-                </div>
-                <div v-for="category in categories" :key="category.id" class="col-12 col-sm-6 col-md-4">
-                  <Details
-                    :category="category"
-                    :type="activeTab"
-                    :is-new="false"
-                    @updateRecord="() => isNewRecord = false"
-                  />
-                </div>
-                <div class="col-12" v-if="categories.length <= 0 && !isNewRecord">
-                  <p class="text-center" style="margin-top: calc(50vh - 120px);">No Records Found</p>
-                </div>
+            <div class="row">
+              <div v-if="isNewRecord" class="col-12 col-sm-6 col-md-4 col-lg-6 col-xl-4">
+                <Details
+                  :type="activeTab"
+                  :is-new="true"
+                  @updateRecord="() => isNewRecord = false"
+                />
+              </div>
+              <div v-for="category in categories" :key="category.id" class="col-12 col-sm-6 col-md-4 col-lg-6 col-xl-4">
+                <Details
+                  :category="category"
+                  :type="activeTab"
+                  @updateRecord="() => isNewRecord = false"
+                />
+              </div>
+              <div class="col-12" v-if="categories.length <= 0 && !isNewRecord">
+                <p class="text-center" style="margin-top: calc(50vh - 120px);">No Records Found</p>
               </div>
             </div>
           </div>
         </div>
         <div class="clearfix"></div>
-      </div>
-    </div>
-    <!-- tab-section -->
-
-    <!-- Modal -->
-    <div class="modal right fade user-details" id="user-details" tabindex="-1" role="dialog">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <ModalHeader
-            title="Admin Options"
-            :access="{
-              new: true,
-            }"
-            @edit="() => {}"
-            @delete="() => {}"
-          />
-          <div class="modal-body">
-            <ModalBreadcrumb
-              page="Admin Options"
-              :title="title"
-            />
-            <div v-if="isNewRecord">
-              <Details
-                :category="{}"
-                :type="activeTab"
-                :is-new="true"
-                @updateRecord="() => isNewRecord = false"
-              />
-            </div>
-            <div v-for="category in categories" :key="category.id">
-              <Details
-                :category="category"
-                :type="activeTab"
-                :is-new="false"
-                @updateRecord="() => isNewRecord = false"
-              />
-            </div>
-            <div class="col-sm-12" v-if="categories.length <= 0 && !isNewRecord">
-              <p class="text-center" style="margin-top: calc(50vh - 120px);">No Records Found</p>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   </AppLayout>

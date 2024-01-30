@@ -1,12 +1,21 @@
 <script setup>
 import { ref, watch } from "vue";
 import { useForm } from "@inertiajs/vue3";
+import { useToast } from "vue-toastification";
 import TextInput from "@/Components/TextInput.vue";
 
+const toast = useToast();
+
 const props = defineProps({
-  category: Object,
+  category: {
+    type: Object,
+    default: {}
+  },
   type: String,
-  isNew: Boolean,
+  isNew: {
+    type: Boolean,
+    default: false
+  },
 });
 
 const emit = defineEmits(['updateRecord']);
@@ -34,7 +43,8 @@ const updateRecord = () => {
     preserveScroll: true,
     preserveState: true,
     onSuccess: () => {
-      edit.value = false
+      edit.value = false;
+      toast.success('The option has been updated successfully!');
     },
   });
 }
@@ -44,35 +54,58 @@ const storeRecord = () => {
     preserveScroll: true,
     preserveState: true,
     onSuccess: () => {
-      emit('updateRecord')
+      emit('updateRecord');
+      toast.success('The option has been created successfully!');
     },
   });
 }
+
 const deleteRecord = () => {
   form.delete(route('categories.destroy', props.category.id), {
     preserveScroll: true,
     preserveState: true,
+    onSuccess: () => {
+      edit.value = false;
+      toast.success('The option has been deleted successfully!');
+    },
   });
 }
 </script>
 
 <template>
   <div class="user-boxes">
-    <label class="form-label">Name</label>
-    <TextInput v-if="edit || isNew" v-model="form.name" :error="form.errors.name" type="text"/>
-    <h6 v-else class="fw-bold">{{ category.name }}</h6>
+    <table class="table">
+      <tr>
+        <th>Name</th>
+        <td>
+          <TextInput v-if="edit || isNew" v-model="form.name" :error="form.errors.name" type="text"/>
+          <template v-else><span class="fw-bold">{{ category.name }}</span></template>
+        </td>
+      </tr>
+    </table>
 
     <ul class="mt-4">
       <li v-if="isNew">
-        <a role="button" @click="storeRecord" class="btn btn-red">Create</a>
+        <button @click="storeRecord" class="btn btn-red" :disabled="form.processing">
+          <template v-if="form.processing"><i class="bi bi-arrow-repeat d-inline-block spin"></i></template>
+          <template v-else>Create</template>
+        </button>
       </li>
       <li v-if="!isNew && !edit">
-        <a role="button" @click="editRecord" class="btn btn-red">Edit</a>
+        <button @click="editRecord" class="btn btn-red">Edit</button>
       </li>
       <li v-if="edit">
-        <a role="button" @click="updateRecord" class="btn btn-red">Update</a>
+        <button @click="updateRecord" class="btn btn-red" :disabled="form.processing">
+          <template v-if="form.processing"><i class="bi bi-arrow-repeat d-inline-block spin"></i></template>
+          <template v-else>Update</template>
+        </button>
       </li>
-      <li v-if="!isNew"><a role="button" @click="deleteRecord" class="btn btn-red">Delete</a></li>
+      <li v-if="!isNew">
+        <button @click="deleteRecord" class="btn btn-red" :disabled="form.processing">
+          <template v-if="form.processing"><i class="bi bi-arrow-repeat d-inline-block spin"></i></template>
+          <template v-else>Delete</template>
+        </button>
+      </li>
     </ul>
   </div>
 </template>

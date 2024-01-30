@@ -1,8 +1,11 @@
 <script setup>
+import moment from 'moment';
 import { computed, watch } from "vue";
 import { useForm } from "@inertiajs/vue3";
-import moment from 'moment';
+import { useToast } from "vue-toastification";
 import TextInput from "@/Components/TextInput.vue";
+
+const toast = useToast();
 
 const props = defineProps({
   file: Object,
@@ -38,9 +41,7 @@ const isPrev = computed(() => {
   return !!props.flatFiles[index - 1];
 })
 
-const isForm = computed(() => {
-  return props.isEdit || props.isNew;
-});
+const isForm = computed(() => props.isEdit || props.isNew);
 
 watch(() => props.file,
   (file) => {
@@ -63,7 +64,8 @@ const updateRecord = () => {
     preserveScroll: true,
     preserveState: true,
     onSuccess: () => {
-      emit('update')
+      emit('update');
+      toast.success('The file has been updated successfully!');
     },
   });
 };
@@ -74,32 +76,40 @@ const storeRecord = () => {
     preserveState: true,
     onSuccess: () => {
       form.image = null;
-      emit('create')
+      emit('create');
+      toast.success('The file has been created successfully!');
     },
   });
 };
+
+defineExpose({
+  updateRecord,
+  storeRecord
+});
 </script>
 
 <template>
   <template v-if="isForm">
     <div class="user-boxes">
-      <TextInput v-model="form.title" :error="form.errors.title" type="text"/>
-
-      <div class="my-3">
-        <input
-          type="file"
-          id="select-file"
-          class="form-control"
-          :class="{'is-invalid' : form.errors.image}"
-          @input="form.image = $event.target?.files[0] || ''"
-        />
-        <div v-if="form.errors.image" class="invalid-feedback">{{ form.errors.image }}</div>
-      </div>
-
-      <div class="d-flex justify-content-end">
-        <a v-if="isEdit" role="button" @click="updateRecord" class="btn btn-red">Update</a>
-        <a v-if="isNew" role="button" @click="storeRecord" class="btn btn-red">Create</a>
-      </div>
+      <table class="table text-start">
+        <tr>
+          <th>Title</th>
+          <td><TextInput v-model="form.title" :error="form.errors.title" type="text"/></td>
+        </tr>
+        <tr>
+          <th>File</th>
+          <td>
+            <input
+              type="file"
+              id="select-file"
+              class="form-control"
+              :class="{'is-invalid' : form.errors.image}"
+              @input="form.image = $event.target?.files[0] || ''"
+            />
+            <div v-if="form.errors.image" class="invalid-feedback">{{ form.errors.image }}</div>
+          </td>
+        </tr>
+      </table>
     </div>
   </template>
   <template v-else>

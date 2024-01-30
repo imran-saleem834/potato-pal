@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import LogoutButton from '@/Components/LogoutButton.vue';
 
@@ -11,7 +11,7 @@ const props = defineProps({
     default: ''
   },
   activeTab: {
-    type: Number,
+    type: [String, Number],
     default: null,
   },
   isEditRecordSelected: {
@@ -33,6 +33,14 @@ const props = defineProps({
   }
 });
 
+const access = computed(() => ({
+  new: true,
+  edit: true,
+  delete: true,
+  duplicate: false,
+  ...props.access,
+}));
+
 const keyword = ref(props.search);
 
 const emit = defineEmits(['search', 'unset', 'edit', 'new', 'store', 'update', 'delete', 'duplicate']);
@@ -47,7 +55,10 @@ const search = () => {
     <div class="container-fluid">
       <div class="d-flex d-md-none justify-content-between mt-3 mobile-topbar">
         <Link :href="route('dashboard')"><i class="bi bi-chevron-compact-left"></i></Link>
-        <h4>{{ type }}</h4>
+        <h4>
+          <template v-if="activeTab || isEditRecordSelected">{{ title }}</template>
+          <template v-else>{{ type }}</template>
+        </h4>
         <div class="mt-1">
           <LogoutButton />
         </div>

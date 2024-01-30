@@ -1,10 +1,11 @@
 <script setup>
 import { computed, watch } from "vue";
 import { useForm } from "@inertiajs/vue3";
+import { useToast } from "vue-toastification";
 import { getCategoriesDropDownByType, getCategoryIdsByType, getCategoriesByType } from "@/helper.js";
 import Multiselect from '@vueform/multiselect'
 import TextInput from "@/Components/TextInput.vue";
-import { useToast } from "vue-toastification";
+
 const toast = useToast();
 
 const UserAccess = [
@@ -66,10 +67,10 @@ watch(() => props.user,
   }
 );
 
-const isForm = computed(() => props.isEdit || props.isNew)
+const isForm = computed(() => props.isEdit || props.isNew);
 
-const isBuyerSelected = computed(() => form.role?.find(r => r === 'buyer'))
-const isGrowerSelected = computed(() => form.role?.find(r => r === 'grower'))
+const isBuyerSelected = computed(() => form.role?.find(r => r === 'buyer'));
+const isGrowerSelected = computed(() => form.role?.find(r => r === 'grower'));
 
 const addMorePaddocks = () => form.paddocks.push({ name: '', address: '', gps: '', hectares: '' });
 const removePaddocks = (index) => form.paddocks = form.paddocks.filter((paddocks, i) => i !== index);
@@ -99,7 +100,7 @@ const storeRecord = () => {
 defineExpose({
   updateRecord,
   storeRecord
-})
+});
 
 const getGpsLocation = (index) => {
   if (navigator.geolocation) {
