@@ -75,8 +75,6 @@ setActiveTab(props.filters.type);
             :key="optionType.slug"
             class="w-100 d-block position-relative"
             :class="{'active' : activeTab === optionType.slug}"
-            :data-toggle="$windowWidth <= 767 ? 'modal' : 'tab'"
-            :data-target="$windowWidth <= 767 ? '#user-details' : ''"
             @click="changeTab(optionType.slug)"
           >
             <table class="table mb-0">

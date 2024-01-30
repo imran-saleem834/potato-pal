@@ -1,13 +1,13 @@
 <script setup>
 import { router } from '@inertiajs/vue3';
 import { ref, watch } from 'vue';
+import { useToast } from "vue-toastification";
 import AppLayout from '@/Layouts/AppLayout.vue';
 import TopBar from '@/Components/TopBar.vue';
-import MiddleBar from '@/Components/MiddleBar.vue';
 import Details from '@/Pages/TiaSample/Details.vue';
 import LeftBar from "@/Components/LeftBar.vue";
-import ModalHeader from "@/Components/ModalHeader.vue";
-import ModalBreadcrumb from "@/Components/ModalBreadcrumb.vue";
+
+const toast = useToast();
 
 const props = defineProps({
   tiaSamples: Object,
@@ -21,6 +21,7 @@ const activeTab = ref(null);
 const edit = ref(null);
 const isNewRecord = ref(false);
 const search = ref(props.filters.search);
+const details = ref(null);
 
 watch(() => props?.single,
   (single) => {
@@ -69,6 +70,7 @@ const deleteTiaSample = (id) => {
     preserveState: true,
     onSuccess: () => {
       setActiveTab(tiaSample.value?.id);
+      toast.success('The tia sample has been deleted successfully!');
     },
   });
 }
@@ -86,19 +88,17 @@ setActiveTab(tiaSample.value?.id);
       @search="filter"
       :is-edit-record-selected="!!edit"
       :is-new-record-selected="isNewRecord"
-      :access="{
-        new: true,
-        edit: Object.values(tiaSample).length > 0,
-        delete: Object.values(tiaSample).length > 0
-      }"
-      @editRecord="() => setEdit(tiaSample?.id)"
-      @deleteRecord="() => deleteTiaSample(tiaSample?.id)"
+      @new="setNewRecord"
+      @edit="() => setEdit(tiaSample?.id)"
+      @unset="() => setActiveTab(null)"
+      @store="() => details.storeRecord()"
+      @update="() => details.updateRecord()"
+      @delete="() => deleteTiaSample(tiaSample?.id)"
     />
 
-    <!-- tab-section -->
     <div class="tab-section tia-sample-tab-section">
       <div class="row g-0">
-        <div class="col-12 col-sm-4 nav-left" :class="{'mobile-userlist' : $windowWidth <= 767}">
+        <div class="col-12 col-lg-5 col-xl-4 nav-left d-lg-block" :class="{'d-none' : activeTab || isNewRecord}">
           <LeftBar
             :items="tiaSamples"
             :active-tab="activeTab"
@@ -107,57 +107,24 @@ setActiveTab(tiaSample.value?.id);
             @click="getTiaSample"
           />
         </div>
-        <div class="col-12 col-sm-8">
+        <div class="col-12 col-lg-7 col-xl-8 d-lg-block" :class="{'d-none': !activeTab && !isNewRecord}">
           <div class="tab-content" v-if="Object.values(tiaSample).length > 0 || isNewRecord">
-            <div class="tab-pane active">
-              <Details
-                :tia-sample="tiaSample"
-                :is-edit="!!edit"
-                :is-new="isNewRecord"
-                :receivals="receivals"
-                @update="() => getTiaSample(activeTab)"
-                @create="() => setActiveTab(tiaSample?.id)"
-                col-size="col-md-6"
-              />
-            </div>
-          </div>
-          <div class="col-sm-12" v-if="Object.values(tiaSample).length <= 0 && !isNewRecord">
-            <p class="text-center" style="margin-top: calc(50vh - 120px);">No Records Found</p>
-          </div>
-        </div>
-        <div class="clearfix"></div>
-      </div>
-    </div>
-    <!-- tab-section -->
-
-    <!-- Modal -->
-    <div class="modal right fade user-details" id="user-details" tabindex="-1" role="dialog">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <ModalHeader
-            title="Tia Sampling"
-            :access="{
-              new: isNewRecord
-            }"
-            @edit="() => setEdit(tiaSample?.id)"
-            @delete="() => deleteTiaSample(tiaSample?.id)"
-          />
-          <div class="modal-body" v-if="tiaSample">
-            <ModalBreadcrumb
-              page="Tia Sampling"
-              :title="tiaSample?.receival?.grower?.grower_name || 'New'"
-            />
             <Details
+              ref="details"
               :tia-sample="tiaSample"
               :is-edit="!!edit"
               :is-new="isNewRecord"
               :receivals="receivals"
               @update="() => getTiaSample(activeTab)"
               @create="() => setActiveTab(tiaSample?.id)"
-              col-size="col-md-12"
+              col-size="col-12 col-xl-6"
             />
           </div>
+          <div class="col-12" v-if="Object.values(tiaSample).length <= 0 && !isNewRecord">
+            <p class="text-center" style="margin-top: calc(50vh - 120px);">No Records Found</p>
+          </div>
         </div>
+        <div class="clearfix"></div>
       </div>
     </div>
   </AppLayout>

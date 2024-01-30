@@ -165,9 +165,7 @@ const autocompleteInput = (index) => {
 <template>
   <div class="row">
     <div :class="colSize">
-      <div class="d-flex justify-content-between align-items-center">
-        <h4>User Details</h4>
-      </div>
+      <h4>User Details</h4>
       <div class="user-boxes">
         <table class="table mb-0">
           <tr>

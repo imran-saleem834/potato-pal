@@ -1,13 +1,16 @@
 <script setup>
+import moment from 'moment';
 import { computed, watch } from "vue";
 import { useForm, Link } from "@inertiajs/vue3";
-import { getCategoriesByType, toCamelCase } from "@/helper.js";
-import moment from 'moment';
 import Multiselect from '@vueform/multiselect';
+import { useToast } from "vue-toastification";
 import TextInput from "@/Components/TextInput.vue";
 import Images from "@/Components/Images.vue";
 import UlLiButton from "@/Components/UlLiButton.vue";
 import { binSizes, getBinSizesValue } from "@/tonnes.js";
+import { getCategoriesByType, toCamelCase } from "@/helper.js";
+
+const toast = useToast();
 
 const props = defineProps({
   tiaSample: Object,
@@ -228,7 +231,8 @@ const updateRecord = () => {
     preserveScroll: true,
     preserveState: true,
     onSuccess: () => {
-      emit('update')
+      emit('update');
+      toast.success('The tia sample has been updated successfully!');
     },
   });
 }
@@ -238,172 +242,222 @@ const storeRecord = () => {
     preserveScroll: true,
     preserveState: true,
     onSuccess: () => {
-      emit('create')
+      emit('create');
+      toast.success('The tia sample has been created successfully!');
     },
   });
 }
+
+defineExpose({
+  updateRecord,
+  storeRecord
+});
 </script>
 
 <template>
   <div class="row">
-    <div v-if="isEdit || isNew" class="col-md-12">
-      <div class="flex-end create-update-btn">
-        <a v-if="isEdit" role="button" @click="updateRecord" class="btn btn-red">Update</a>
-        <a v-if="isNew" role="button" @click="storeRecord" class="btn btn-red">Create</a>
-      </div>
-    </div>
     <div :class="colSize">
+      <h4>Receival Details</h4>
       <div class="user-boxes">
-        <template v-if="isForm">
-          <h6>Receival</h6>
-          <Multiselect
-            v-model="form.receival_id"
-            mode="single"
-            placeholder="Choose a receival"
-            :searchable="true"
-            :options="receivals"
-          />
-          <div :class="{'has-error' : form.errors.receival_id}">
-            <span v-show="form.errors.receival_id" class="help-block text-left">
-              {{ form.errors.receival_id }}
-            </span>
-          </div>
-        </template>
-        <template v-else>
-          <h6>Grower Name</h6>
-          <h5 v-if="tiaSample.receival?.grower">
-            <Link :href="route('users.index', { userId: tiaSample.receival.grower.id })">
-              {{ tiaSample.receival.grower?.name }} {{ tiaSample.receival.grower?.grower_name ? ' (' + tiaSample.receival.grower?.grower_name + ')' : '' }}
-            </Link>
-          </h5>
-          <h5 v-else>-</h5>
-
-          <h6>Tia Sample Id</h6>
-          <h5>{{ tiaSample.id }}</h5>
-        </template>
-
-        <template v-if="!isNew">
-          <h6>Receival Id</h6>
-          <h5 v-if="tiaSample.receival">
-            <Link :href="route('receivals.index', { receivalId: tiaSample.receival.id })">
-              {{ tiaSample.receival.id }}
-            </Link>
-          </h5>
-          <h5 v-else>-</h5>
-
-          <h6>Time Added</h6>
-          <h5>{{ moment(tiaSample.created_at).format('DD/MM/YYYY hh:mm A') }}</h5>
-
-          <h6>Grower Group</h6>
-          <ul v-if="getCategoriesByType(tiaSample?.receival?.categories, 'grower-group').length">
-            <li v-for="category in getCategoriesByType(tiaSample?.receival?.categories, 'grower-group')"
-                :key="category.id">
-              <a>{{ category.category?.name }}</a>
-            </li>
-          </ul>
-          <h5 v-else>-</h5>
-        </template>
-
-        <h6>Status</h6>
-        <UlLiButton
-          v-if="isForm"
-          :value="form.status"
-          :error="form.errors.status"
-          :items="[
-            { value: 'pending', label: 'Pending' },
-            { value: 'certified', label: 'Certified' },
-            { value: 'not-certified', label: 'Not Certified' },
-            { value: 'rejected', label: 'Rejected' },
-          ]"
-          @click="(key) => form.status = key"
-        />
-        <ul v-else>
-          <li>
-            <a role="button" :class="{'btn-pending' : tiaSample.status === 'pending'}">
-              {{ toCamelCase(tiaSample.status || 'pending') }}
-            </a>
-          </li>
-        </ul>
+        <table class="table mb-0">
+          <tr v-if="isForm">
+            <th>Receival</th>
+            <td>
+              <Multiselect
+                v-model="form.receival_id"
+                mode="single"
+                placeholder="Choose a receival"
+                :searchable="true"
+                :options="receivals"
+                :class="{'is-invalid' : form.errors.receival_id}"
+              />
+              <div v-if="form.errors.receival_id" class="invalid-feedback" v-text="form.errors.receival_id"/>
+            </td>
+          </tr>
+          <template v-else>
+            <tr>
+              <th>Grower Name</th>
+              <td>
+                <Link
+                  class="p-0"
+                  v-if="tiaSample.receival?.grower"
+                  :href="route('users.index', { userId: tiaSample.receival.grower.id })"
+                >
+                  {{ tiaSample.receival.grower?.name }} {{
+                    tiaSample.receival.grower?.grower_name ? ' (' + tiaSample.receival.grower?.grower_name + ')' : ''
+                  }}
+                </Link>
+              </td>
+            </tr>
+            <tr>
+              <th>Receival Id</th>
+              <td>
+                <Link
+                  class="p-0"
+                  v-if="tiaSample.receival"
+                  :href="route('receivals.index', { receivalId: tiaSample.receival.id })"
+                >
+                  {{ tiaSample.receival.id }}
+                </Link>
+              </td>
+            </tr>
+          </template>
+          <tr v-if="!isNew">
+            <th>Time Added</th>
+            <td>{{ moment(tiaSample.created_at).format('DD/MM/YYYY hh:mm A') }}</td>
+          </tr>
+          <tr v-if="!isNew">
+            <th>Grower Group</th>
+            <td class="pb-0">
+              <ul class="p-0" v-if="getCategoriesByType(tiaSample?.receival?.categories, 'grower-group').length">
+                <li v-for="category in getCategoriesByType(tiaSample?.receival?.categories, 'grower-group')"
+                    :key="category.id">
+                  <a>{{ category.category.name }}</a>
+                </li>
+              </ul>
+              <template v-else>-</template>
+            </td>
+          </tr>
+          <tr>
+            <th>Status</th>
+            <td class="pb-0">
+              <UlLiButton
+                v-if="isForm"
+                :value="form.status"
+                :error="form.errors.status"
+                :items="[
+                  { value: 'pending', label: 'Pending' },
+                  { value: 'certified', label: 'Certified' },
+                  { value: 'not-certified', label: 'Not Certified' },
+                  { value: 'rejected', label: 'Rejected' },
+                ]"
+                @click="(key) => form.status = key"
+              />
+              <ul v-else class="p-0">
+                <li>
+                  <a role="button" :class="{'btn-pending' : tiaSample.status === 'pending'}">
+                    {{ toCamelCase(tiaSample.status || 'pending') }}
+                  </a>
+                </li>
+              </ul>
+            </td>
+          </tr>
+        </table>
       </div>
 
       <h4>Seed Details</h4>
       <div class="user-boxes">
-        <template v-if="!isNew">
-          <h6>Seed Variety</h6>
-          <ul v-if="getCategoriesByType(tiaSample?.receival?.categories, 'seed-variety').length">
-            <li v-for="category in getCategoriesByType(tiaSample?.receival?.categories, 'seed-variety')"
-                :key="category.id">
-              <a>{{ category.category?.name }}</a>
-            </li>
-          </ul>
-          <h5 v-else>-</h5>
-
-          <h6>Seed Generation</h6>
-          <ul v-if="getCategoriesByType(tiaSample?.receival?.categories, 'seed-generation').length">
-            <li v-for="category in getCategoriesByType(tiaSample?.receival?.categories, 'seed-generation')"
-                :key="category.id">
-              <a>{{ category.category?.name }}</a>
-            </li>
-          </ul>
-          <h5 v-else>-</h5>
-
-          <h6>Grower Docket No</h6>
-          <h5 v-if="tiaSample.receival?.grower_docket_no">{{ tiaSample.receival.grower_docket_no }}</h5>
-          <h5 v-else>-</h5>
-        </template>
-
-        <h6>Processor</h6>
-        <UlLiButton
-          v-if="isForm"
-          :value="form.processor"
-          :error="form.errors.processor"
-          :items="binSizes"
-          @click="(value) => form.processor = value"
-        />
-        <h5 v-else-if="tiaSample.processor">{{ getBinSizesValue(tiaSample.processor) }}</h5>
-        <h5 v-else>-</h5>
-
-        <h6>Inspection No</h6>
-        <TextInput v-if="isForm" v-model="form.inspection_no" :error="form.errors.inspection_no" type="text"/>
-        <h5 v-else-if="tiaSample.inspection_no">{{ tiaSample.inspection_no }}</h5>
-        <h5 v-else>-</h5>
-
-        <h6>Inspection Date</h6>
-        <TextInput
-          v-if="isForm"
-          v-model="form.inspection_date"
-          :error="form.errors.inspection_date"
-          type="date"
-        />
-        <h5 v-else-if="tiaSample.inspection_date">
-          {{ moment(tiaSample.inspection_date).format('YYYY-MM-DD') }}
-        </h5>
-        <h5 v-else>-</h5>
-
-        <h6>Cool Store</h6>
-        <TextInput v-if="isForm" v-model="form.cool_store" :error="form.errors.cool_store" type="text"/>
-        <h5 v-else-if="tiaSample.cool_store">{{ tiaSample.cool_store }}</h5>
-        <h5 v-else>-</h5>
+        <table class="table mb-0">
+          <tr v-if="!isNew">
+            <th>Seed Variety</th>
+            <td class="pb-0">
+              <ul class="p-0" v-if="getCategoriesByType(tiaSample?.receival?.categories, 'seed-variety').length">
+                <li v-for="category in getCategoriesByType(tiaSample?.receival?.categories, 'seed-variety')"
+                    :key="category.id">
+                  <a>{{ category.category.name }}</a>
+                </li>
+              </ul>
+              <template v-else>-</template>
+            </td>
+          </tr>
+          <tr v-if="!isNew">
+            <th>Seed Generation</th>
+            <td class="pb-0">
+              <ul class="p-0" v-if="getCategoriesByType(tiaSample?.receival?.categories, 'seed-generation').length">
+                <li v-for="category in getCategoriesByType(tiaSample?.receival?.categories, 'seed-generation')"
+                    :key="category.id">
+                  <a>{{ category.category.name }}</a>
+                </li>
+              </ul>
+              <template v-else>-</template>
+            </td>
+          </tr>
+          <tr v-if="!isNew">
+            <th>Growers’s Docket No</th>
+            <td>
+              <template v-if="tiaSample.receival?.grower_docket_no">
+                {{ tiaSample.receival?.grower_docket_no }}
+              </template>
+              <template v-else>-</template>
+            </td>
+          </tr>
+          <tr>
+            <th>Processor</th>
+            <td class="pb-0">
+              <UlLiButton
+                v-if="isForm"
+                :value="form.processor"
+                :error="form.errors.processor"
+                :items="binSizes"
+                @click="(value) => form.processor = value"
+              />
+              <ul v-else-if="tiaSample.processor" class="p-0">
+                <li><a>{{ getBinSizesValue(tiaSample.processor) }}</a></li>
+              </ul>
+              <template v-else>-</template>
+            </td>
+          </tr>
+          <tr>
+            <th>Inspection No</th>
+            <td>
+              <TextInput v-if="isForm" v-model="form.inspection_no" :error="form.errors.inspection_no" type="text"/>
+              <template v-else-if="tiaSample.inspection_no">{{ tiaSample.inspection_no }}</template>
+              <template v-else>-</template>
+            </td>
+          </tr>
+          <tr>
+            <th>Inspection Date</th>
+            <td>
+              <TextInput v-if="isForm" v-model="form.inspection_date" :error="form.errors.inspection_date" type="date"/>
+              <template v-else-if="tiaSample.inspection_date">
+                {{ moment(tiaSample.inspection_date).format('YYYY-MM-DD') }}
+              </template>
+              <template v-else>-</template>
+            </td>
+          </tr>
+          <tr>
+            <th>Cool Store</th>
+            <td>
+              <TextInput v-if="isForm" v-model="form.cool_store" :error="form.errors.cool_store" type="text"/>
+              <template v-else-if="tiaSample.cool_store">{{ tiaSample.cool_store }}</template>
+              <template v-else>-</template>
+            </td>
+          </tr>
+        </table>
       </div>
 
       <h4>Continue External Report</h4>
       <div class="user-boxes">
-        <h6><strong>DISEASE SCORING KEY</strong></h6>
-        <ul v-if="isForm">
-          <li v-for="score in [1, 2, 3, 4, 5, 6]" :key="`score-${score}`">
-            <a
-              role="button"
-              @click="() => form.disease_scoring = score"
-              :class="{'btn-black' : form.disease_scoring === score}"
-            >{{ score }}</a>
-          </li>
-        </ul>
-        <div v-else-if="tiaSample.disease_scoring">{{ tiaSample.disease_scoring }}</div>
-        <div v-else>-</div>
-
-        <div v-if="form.errors.disease_scoring" class="has-error">
-          <span class="help-block text-left">{{ form.errors.disease_scoring }}</span>
-        </div>
+        <table class="table mb-0">
+          <tr>
+            <th><strong class="p-0">DISEASE SCORING KEY</strong></th>
+            <td class="pb-0">
+              <ul v-if="isForm" class="p-0" :class="{'is-invalid' : form.errors.disease_scoring}">
+                <li v-for="score in [1, 2, 3, 4, 5, 6]" :key="`score-${score}`">
+                  <a
+                    role="button"
+                    @click="() => form.disease_scoring = score"
+                    :class="{'btn btn-black' : form.disease_scoring === score}"
+                  >{{ score }}</a>
+                </li>
+              </ul>
+              <ul v-else-if="tiaSample.disease_scoring" class="p-0">
+                <li v-for="score in [1, 2, 3, 4, 5, 6]" :key="`score-${score}`">
+                  <a
+                    role="button"
+                    :class="{'btn btn-black' : tiaSample.disease_scoring === score}"
+                  >{{ score }}</a>
+                </li>
+              </ul>
+              <template v-else>-</template>
+              <div
+                v-if="form.errors.disease_scoring"
+                class="invalid-feedback p-0 m-0"
+                v-text="form.errors.disease_scoring"
+              />
+            </td>
+          </tr>
+        </table>
 
         <template v-for="sample in sample2" :key="sample.name">
           <h6>{{ sample.title }}</h6>

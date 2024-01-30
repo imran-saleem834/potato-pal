@@ -27,7 +27,6 @@
         "moment": "^2.29.4",
         "pubnub": "^7.5.0",
         "vue-easy-lightbox": "^1.17.0",
-        "vue-toastification": "^2.0.0-rc.5",
-        "vue-window-size": "^2.0.0"
+        "vue-toastification": "^2.0.0-rc.5"
     }
 }

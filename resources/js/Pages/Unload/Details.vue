@@ -536,7 +536,7 @@ defineExpose({
         </table>
       </div>
 
-      <div v-if="isForm" class="col col-sm-12 mb-2 text-right">
+      <div v-if="isForm" class="col col-sm-12 mb-2 text-end">
         <button @click="addMoreUnload" class="btn btn-red">Add More seed type weighing</button>
       </div>
     </div>
