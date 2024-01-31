@@ -167,7 +167,7 @@ const autocompleteInput = (index) => {
     <div :class="colSize">
       <h4>User Details</h4>
       <div class="user-boxes">
-        <table class="table mb-0">
+        <table class="table input-table mb-0">
           <tr>
             <th>Name</th>
             <td>
@@ -260,7 +260,7 @@ const autocompleteInput = (index) => {
 
       <h4 v-if="isBuyerSelected">Buyer Details</h4>
       <div v-if="isBuyerSelected" class="user-boxes">
-        <table class="table mb-0">
+        <table class="table input-table mb-0">
           <tr>
             <th>Buyer Group</th>
             <td :class="{'pb-0' : !isForm}">
@@ -314,7 +314,7 @@ const autocompleteInput = (index) => {
     <div :class="colSize">
       <h4 v-if="isGrowerSelected">Grower Details</h4>
       <div v-if="isGrowerSelected" class="user-boxes">
-        <table class="table mb-0">
+        <table class="table input-table mb-0">
           <tr>
             <th>Grower Group</th>
             <td :class="{'pb-0' : !isForm}">
@@ -366,7 +366,7 @@ const autocompleteInput = (index) => {
 
       <h4 v-if="isGrowerSelected">Paddocks</h4>
       <div v-if="isGrowerSelected" class="user-boxes">
-        <table class="table paddock-table mb-0">
+        <table class="table input-table paddock-table mb-0">
           <tr>
             <th>Paddock Name</th>
             <th>Paddock Location</th>

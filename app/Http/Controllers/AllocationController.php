@@ -24,7 +24,7 @@ class AllocationController extends Controller
     public function index(Request $request)
     {
         $allocationBuyers = Allocation::select('buyer_id')
-            ->with(['buyer' => fn($query) => $query->select('id', 'name'), 'buyer.categories.category'])
+            ->with(['buyer' => fn($query) => $query->select(['id', 'name', 'buyer_name']), 'buyer.categories.category'])
             ->latest()
             ->groupBy('buyer_id')
             ->get()

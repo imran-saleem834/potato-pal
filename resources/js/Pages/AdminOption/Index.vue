@@ -77,11 +77,9 @@ setActiveTab(props.filters.type);
             :class="{'active' : activeTab === optionType.slug}"
             @click="changeTab(optionType.slug)"
           >
-            <table class="table mb-0">
+            <table class="table table-borderless mb-0">
               <tbody>
-              <tr>
-                <th class="border-0">{{ optionType.label }}</th>
-              </tr>
+              <tr><th>{{ optionType.label }}</th></tr>
               </tbody>
             </table>
             <i class="bi bi-chevron-right angle-right"></i>

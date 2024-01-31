@@ -44,15 +44,15 @@ const getObjectProperty = (obj, key) => {
     :class="{'active' : activeTab === item.id}"
     @click="menuClick(item.id)"
   >
-    <table class="table mb-0">
+    <table class="table table-borderless mb-0">
       <tbody>
       <tr>
-        <th class="border-0">{{ moment(item.created_at).format('DD, MMM YYYY') }}</th>
-        <th class="border-0"></th>
+        <th>{{ moment(item.created_at).format('DD, MMM YYYY') }}</th>
+        <th></th>
       </tr>
       <tr>
-        <td class="border-0" v-text="getObjectProperty(item, row1.value)"/>
-        <td class="border-0 d-flex justify-content-center">
+        <td v-text="getObjectProperty(item, row1.value)"/>
+        <td class="d-flex justify-content-center">
           <template v-if="item.tags">
             <span v-for="tag in item.tags" :key="tag" class="btn btn-red shadow-none mx-1">{{ tag }}</span>
           </template>

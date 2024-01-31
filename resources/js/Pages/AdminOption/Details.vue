@@ -74,7 +74,7 @@ const deleteRecord = () => {
 
 <template>
   <div class="user-boxes">
-    <table class="table">
+    <table class="table input-table">
       <tr>
         <th>Name</th>
         <td>

@@ -14,6 +14,7 @@ const props = defineProps({
   single: Object,
   receivals: Array,
   filters: Object,
+  errors: Object,
 });
 
 const tiaSample = ref(props.single || {});
@@ -25,7 +26,9 @@ const details = ref(null);
 
 watch(() => props?.single,
   (single) => {
-    tiaSample.value = single || {};
+    if (Object.values(props.errors).length === undefined || Object.values(props.errors).length <= 0) {
+      tiaSample.value = single || {};
+    }
   }
 );
 
@@ -117,7 +120,7 @@ setActiveTab(tiaSample.value?.id);
               :receivals="receivals"
               @update="() => getTiaSample(activeTab)"
               @create="() => setActiveTab(tiaSample?.id)"
-              col-size="col-12 col-xl-6"
+              col-size="col-12 col-xxl-6"
             />
           </div>
           <div class="col-12" v-if="Object.values(tiaSample).length <= 0 && !isNewRecord">

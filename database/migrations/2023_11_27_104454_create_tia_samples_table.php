@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('tia_samples', function (Blueprint $table) {
             $table->id();
             $table->foreignId('receival_id');
-            $table->tinyInteger('processor')->nullable();
+            $table->float('processor')->nullable();
             $table->string('inspection_no', 20)->nullable();
             $table->date('inspection_date')->nullable();
             $table->string('cool_store', 100)->nullable();

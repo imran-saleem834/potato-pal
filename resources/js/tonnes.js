@@ -5,5 +5,5 @@ export var binSizes = [
 ];
 
 export function getBinSizesValue(binSize) {
-    return binSizes.find(bin => bin.value === binSize)?.label;
+    return binSizes.find(bin => bin.value === binSize).label;
 }

@@ -72,7 +72,7 @@ defineExpose({
   <div class="row">
     <div class="col-12">
       <div v-if="isForm" class="user-boxes">
-        <table class="table">
+        <table class="table input-table">
           <tr>
             <th>Title</th>
             <td>

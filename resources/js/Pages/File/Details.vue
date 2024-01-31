@@ -91,7 +91,7 @@ defineExpose({
 <template>
   <template v-if="isForm">
     <div class="user-boxes">
-      <table class="table text-start">
+      <table class="table input-table text-start">
         <tr>
           <th>Title</th>
           <td><TextInput v-model="form.title" :error="form.errors.title" type="text"/></td>

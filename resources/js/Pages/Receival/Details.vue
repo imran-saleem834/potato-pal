@@ -184,7 +184,7 @@ const pushForUnload = () => {
     <div :class="colSize">
       <h4>Grower Information</h4>
       <div class="user-boxes">
-        <table class="table mb-0">
+        <table class="table input-table mb-0">
           <tr>
             <th>Grower</th>
             <td>
@@ -263,7 +263,7 @@ const pushForUnload = () => {
 
       <h4>Seed Information</h4>
       <div class="user-boxes">
-        <table class="table mb-0">
+        <table class="table input-table mb-0">
           <tr>
             <th>Seed Variety</th>
             <td :class="{'pb-0' : !isForm}">
@@ -384,7 +384,7 @@ const pushForUnload = () => {
     <div :class="colSize">
       <h4 v-if="!isForm">Unloading Information</h4>
       <div v-if="!isForm" class="user-boxes">
-        <table class="table mb-0">
+        <table class="table input-table mb-0">
           <tr>
             <th>Cool Store</th>
             <td class="pb-0">
@@ -440,7 +440,7 @@ const pushForUnload = () => {
 
       <h4>Other Information</h4>
       <div class="user-boxes">
-        <table class="table mb-0">
+        <table class="table input-table mb-0">
           <tr>
             <th>Transport Co.</th>
             <td :class="{'pb-0' : !isForm}">

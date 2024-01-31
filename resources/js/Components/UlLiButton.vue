@@ -11,7 +11,7 @@ const props = defineProps({
     default: null,
   },
   value: {
-    type: [Number, String],
+    type: [Number, String, Boolean],
     default: null,
   },
 });
@@ -23,7 +23,7 @@ const props = defineProps({
       <a
         role="button"
         @click="$emit('click', item.value)"
-        :class="{'btn-black' : value === item.value}"
+        :class="{'btn btn-black' : value === item.value}"
       >{{ item.label }}</a>
     </li>
   </ul>

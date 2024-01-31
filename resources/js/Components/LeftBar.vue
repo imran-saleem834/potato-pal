@@ -42,15 +42,15 @@ const getObjectProperty = (obj, key) => {
     :class="{'active' : activeTab === item.id}"
     @click="menuClick(item.id)"
   >
-    <table class="table mb-0">
+    <table class="table table-borderless mb-0">
       <tbody>
       <tr>
-        <th class="border-0" v-text="row1.title" />
-        <th class="border-0" v-text="row2.title" />
+        <th v-text="row1.title" />
+        <th v-text="row2.title" />
       </tr>
       <tr>
-        <td class="border-0" v-text="getObjectProperty(item, row1.value)"/>
-        <td class="border-0" v-text="getObjectProperty(item, row2.value)"/>
+        <td v-text="getObjectProperty(item, row1.value)"/>
+        <td v-text="getObjectProperty(item, row2.value)"/>
       </tr>
       </tbody>
     </table>

@@ -51,7 +51,7 @@ class TiaSampleRequest extends FormRequest
     {
         $rules = [
             'receival_id'         => ['required', 'exists:receivals,id', 'unique:tia_samples,receival_id'],
-            'processor'           => ['nullable', 'numeric', 'max:2'],
+            'processor'           => ['nullable', Rule::in([500, 1000, 2000])],
             'inspection_no'       => ['nullable', 'string', 'max:20'],
             'inspection_date'     => ['nullable', 'date'],
             'cool_store'          => ['nullable', 'string', 'max:100'],

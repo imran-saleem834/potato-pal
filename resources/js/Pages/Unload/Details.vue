@@ -252,7 +252,7 @@ defineExpose({
     <div :class="colSize">
       <h4>Seed Information</h4>
       <div class="user-boxes">
-        <table class="table mb-0">
+        <table class="table input-table mb-0">
           <tr>
             <th>Grower</th>
             <td>
@@ -344,7 +344,7 @@ defineExpose({
     <div :class="colSize">
       <h4>Unloading Information to Record</h4>
       <div class="user-boxes">
-        <table class="table mb-0">
+        <table class="table input-table mb-0">
           <tr>
             <th>Status</th>
             <td class="pb-0">
@@ -392,7 +392,7 @@ defineExpose({
         </table>
       </div>
       <div v-for="(unload, index) in form.unloads" class="user-boxes">
-        <table class="table mb-0">
+        <table class="table input-table mb-0">
           <tr>
             <th>Seed Type</th>
             <td class="pb-0">
