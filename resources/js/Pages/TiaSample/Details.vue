@@ -14,7 +14,6 @@ const toast = useToast();
 
 const props = defineProps({
   tiaSample: Object,
-  colSize: String,
   isEdit: Boolean,
   isNew: Boolean,
   receivals: Array,
@@ -256,7 +255,7 @@ defineExpose({
 
 <template>
   <div class="row">
-    <div :class="colSize">
+    <div class="col-12 col-xxl-6">
       <h4>Receival Details</h4>
       <div class="user-boxes">
         <table class="table input-table mb-0">
@@ -283,8 +282,10 @@ defineExpose({
                   v-if="tiaSample.receival?.id"
                   :href="route('users.index', { userId: tiaSample.receival.grower.id })"
                 >
-                  {{ tiaSample.receival.grower?.name }} 
-                  {{ tiaSample.receival.grower?.grower_name ? ' (' + tiaSample.receival.grower?.grower_name + ')' : '' }}
+                  {{ tiaSample.receival.grower?.name }}
+                  {{
+                    tiaSample.receival.grower?.grower_name ? ' (' + tiaSample.receival.grower?.grower_name + ')' : ''
+                  }}
                 </Link>
                 <template v-else>-</template>
               </td>
@@ -324,6 +325,7 @@ defineExpose({
             <td class="pb-0">
               <UlLiButton
                 v-if="isForm"
+                :is-form="true"
                 :value="form.status"
                 :error="form.errors.status"
                 :items="[
@@ -345,7 +347,9 @@ defineExpose({
           </tr>
         </table>
       </div>
+    </div>
 
+    <div class="col-12 col-xxl-6">
       <h4>Seed Details</h4>
       <div class="user-boxes">
         <table class="table input-table mb-0">
@@ -386,10 +390,11 @@ defineExpose({
             <th>Processor</th>
             <td class="pb-0">
               <UlLiButton
+                :is-form="isForm"
                 :value="form.processor"
                 :error="form.errors.processor"
                 :items="binSizes"
-                @click="(value) => isForm && (form.processor = value)"
+                @click="(value) => form.processor = value"
               />
             </td>
           </tr>
@@ -421,7 +426,94 @@ defineExpose({
           </tr>
         </table>
       </div>
+    </div>
 
+    <div class="col-12 col-xxl-6">
+      <h4>TIA Seed Potato Certificate Sheet</h4>
+      <div class="user-boxes table-responsive">
+        <table class="table input-table mb-0">
+          <tr class="d-table-row d-sm-none border-0">
+            <th colspan="2" class="fw-bold border-0">Size</th>
+          </tr>
+          <tr>
+            <th class="fw-bold d-none d-sm-table-cell">Size</th>
+            <td class="pb-0">
+              <UlLiButton
+                :is-form="isForm"
+                :value="form.size"
+                :error="form.errors.size"
+                :items="[
+                  { value: '35-350g', label: '35 - 350g'},
+                  { value: '90mm', label: '90mm'},
+                  { value: '70mm', label: '70mm'},
+                ]"
+                @click="(value) => form.size = value"
+              />
+            </td>
+          </tr>
+          <template v-for="sample in samples" :key="sample.name">
+            <template v-if="sample.name">
+              <tr class="d-table-row d-sm-none border-0">
+                <td colspan="2" class="p-0 m-0">
+                  <table class="table table-borderless p-0 m-0">
+                    <tr class="border-0">
+                      <td :class="{'fw-bold' : sample.bold }" class="d-table-cell d-sm-none border-0 pb-0">
+                        {{ sample.title }}
+                      </td>
+                      <td class="pb-0 text-end" style="width: 40%;">{{ sample.allow }}</td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+              <tr>
+                <th :class="{'fw-bold' : sample.bold }" class="d-none d-sm-table-cell">{{ sample.title }}</th>
+                <td>
+                  <ul v-if="isForm" class="multiple-inputs p-0 m-0">
+                    <li
+                      v-for="(value, index) in tiaSample[sample.name]"
+                      :key="`${index}-${sample.name}`"
+                      :class="sample.name"
+                    >
+                      <input
+                        type="text"
+                        class="form-control"
+                        :disabled="index === 4"
+                        v-model="form[sample.name][index]"
+                        @keyup="changeSampleValue(sample.name, 4)"
+                      >
+                    </li>
+                    <li class="d-none d-sm-inline-block">{{ sample.allow }}</li>
+
+                    <template
+                      v-for="(value, index) in tiaSample[sample.name]"
+                      :key="`${index}-${sample.name}-error`"
+                    >
+                      <div
+                        class="w-100 text-start"
+                        v-if="form.errors[`${sample.name}.${index}`]"
+                      >
+                        <div class="is-invalid"></div>
+                        <div class="invalid-feedback m-0 p-0">{{ form.errors[`${sample.name}.${index}`] }}</div>
+                      </div>
+                    </template>
+                  </ul>
+                  <template v-else>
+                    {{ displaySampleValue(sample.name) }}
+                  </template>
+                </td>
+              </tr>
+            </template>
+            <template v-else>
+              <tr>
+                <th colspan="2" class="fw-bold fs-6">{{ sample.title }}</th>
+              </tr>
+            </template>
+          </template>
+        </table>
+      </div>
+    </div>
+
+    <div class="col-12 col-xxl-6">
       <h4>Continue External Report</h4>
       <div class="user-boxes">
         <table class="table input-table mb-0">
@@ -429,6 +521,7 @@ defineExpose({
             <th class="fw-bold">DISEASE SCORING KEY</th>
             <td class="pb-0">
               <UlLiButton
+                :is-form="isForm"
                 :value="form.disease_scoring"
                 :error="form.errors.disease_scoring"
                 :items="[
@@ -439,7 +532,7 @@ defineExpose({
                   { value: 5, label: '5' },
                   { value: 6, label: '6' },
                 ]"
-                @click="(value) => isForm && (form.disease_scoring = value)"
+                @click="(value) => form.disease_scoring = value"
               />
             </td>
           </tr>
@@ -483,13 +576,14 @@ defineExpose({
             <th>Excessive Dirt</th>
             <td class="pb-0">
               <UlLiButton
+                :is-form="isForm"
                 :value="form.excessive_dirt"
                 :error="form.errors.excessive_dirt"
                 :items="[
                   { value: true, label: 'Yes' },
                   { value: false, label: 'No' },
                 ]"
-                @click="(value) => isForm && (form.excessive_dirt = value)"
+                @click="(value) => form.excessive_dirt = value"
               />
             </td>
           </tr>
@@ -497,13 +591,14 @@ defineExpose({
             <th>Minor Skin Cracking</th>
             <td class="pb-0">
               <UlLiButton
+                :is-form="isForm"
                 :value="form.minor_skin_cracking"
                 :error="form.errors.minor_skin_cracking"
                 :items="[
                   { value: true, label: 'Yes' },
                   { value: false, label: 'No' },
                 ]"
-                @click="(value) => isForm && (form.minor_skin_cracking = value)"
+                @click="(value) => form.minor_skin_cracking = value"
               />
             </td>
           </tr>
@@ -511,13 +606,14 @@ defineExpose({
             <th>Skinning</th>
             <td class="pb-0">
               <UlLiButton
+                :is-form="isForm"
                 :value="form.skinning"
                 :error="form.errors.skinning"
                 :items="[
                   { value: true, label: 'Yes' },
                   { value: false, label: 'No' },
                 ]"
-                @click="(value) => isForm && (form.skinning = value)"
+                @click="(value) => form.skinning = value"
               />
             </td>
           </tr>
@@ -525,13 +621,14 @@ defineExpose({
             <th>Regarding</th>
             <td class="pb-0">
               <UlLiButton
+                :is-form="isForm"
                 :value="form.regarding"
                 :error="form.errors.regarding"
                 :items="[
                   { value: true, label: 'Yes' },
                   { value: false, label: 'No' },
                 ]"
-                @click="(value) => isForm && (form.regarding = value)"
+                @click="(value) => form.regarding = value"
               />
             </td>
           </tr>
@@ -542,70 +639,6 @@ defineExpose({
               <template v-else-if="tiaSample.comment">{{ tiaSample.comment }}</template>
               <template v-else>-</template>
             </td>
-          </tr>
-        </table>
-      </div>
-    </div>
-    <div :class="colSize">
-      <h4>TIA Seed Potato Certificate Sheet</h4>
-      <div class="user-boxes table-responsive">
-        <table class="table input-table mb-0">
-          <tr>
-            <th><strong class="p-0">Size</strong></th>
-            <td class="pb-0">
-              <UlLiButton
-                :value="form.size"
-                :error="form.errors.size"
-                :items="[
-                  { value: '35-350g', label: '35 - 350g'},
-                  { value: '90mm', label: '90mm'},
-                  { value: '70mm', label: '70mm'},
-                ]"
-                @click="(value) => isForm && (form.size = value)"
-              />
-            </td>
-          </tr>
-          <tr v-for="sample in samples" :key="sample.name">
-            <template v-if="sample.name">
-              <th :class="{'fw-bold' : sample.bold }">{{ sample.title }}</th>
-              <td>
-                <ul v-if="isForm" class="multiple-inputs p-0 m-0">
-                  <li
-                    v-for="(value, index) in tiaSample[sample.name]"
-                    :key="`${index}-${sample.name}`"
-                    :class="sample.name"
-                  >
-                    <input
-                      type="text"
-                      class="form-control"
-                      :disabled="index === 4"
-                      v-model="form[sample.name][index]"
-                      @keyup="changeSampleValue(sample.name, 4)"
-                    >
-                  </li>
-                  <li class="d-inline-block">{{ sample.allow }}</li>
-
-                  <template
-                    v-for="(value, index) in tiaSample[sample.name]"
-                    :key="`${index}-${sample.name}-error`"
-                  >
-                    <div
-                      class="w-100 text-start"
-                      v-if="form.errors[`${sample.name}.${index}`]"
-                    >
-                      <div class="is-invalid"></div>
-                      <div class="invalid-feedback m-0 p-0">{{ form.errors[`${sample.name}.${index}`] }}</div>
-                    </div>
-                  </template>
-                </ul>
-                <template v-else>
-                  {{ displaySampleValue(sample.name) }}
-                </template>
-              </td>
-            </template>
-            <template v-else>
-              <th colspan="2" class="fw-bold fs-6">{{ sample.title }}</th>
-            </template>
           </tr>
         </table>
       </div>

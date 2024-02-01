@@ -180,8 +180,8 @@ class AllocationController extends Controller
                         ->where('paddock', 'LIKE', "%{$search}%")
                         ->orWhere('comment', 'LIKE', "%{$search}%")
                         ->orWhere('no_of_bins', 'LIKE', "%{$search}%")
-                        ->orWhereRaw("CONCAT(`bin_size`, ' Tonnes') LIKE '%{$search}%'")
-                        ->orWhereRaw("CONCAT(`weight`, ' Tonnes') LIKE '%{$search}%'")
+                        ->orWhereRaw("CONCAT(`bin_size`, ' kg') LIKE '%{$search}%'")
+                        ->orWhereRaw("CONCAT(`weight`, ' kg') LIKE '%{$search}%'")
                         ->orWhereRelation('grower', function (Builder $query) use ($search) {
                             return $query->where('name', 'LIKE', "%{$search}%")
                                 ->orWhere('grower_name', 'LIKE', "%{$search}%");

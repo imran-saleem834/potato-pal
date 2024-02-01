@@ -120,7 +120,6 @@ setActiveTab(tiaSample.value?.id);
               :receivals="receivals"
               @update="() => getTiaSample(activeTab)"
               @create="() => setActiveTab(tiaSample?.id)"
-              col-size="col-12 col-xxl-6"
             />
           </div>
           <div class="col-12" v-if="Object.values(tiaSample).length <= 0 && !isNewRecord">

@@ -21,15 +21,7 @@ class ReallocationController extends Controller
     public function index(Request $request)
     {
         $reallocationBuyers = Reallocation::select('buyer_id')
-            ->with(['buyer' => fn($query) => $query->select('id', 'name')])
-            ->when($request->input('search'), function (Builder $query, $search) {
-                return $query->where('id', 'LIKE', "%$search%")
-                    ->orWhere('buyer_id', 'LIKE', "%$search%")
-                    ->orWhere('allocation_id', 'LIKE', "%$search%")
-                    ->orWhere('no_of_bins', 'LIKE', "%$search%")
-                    ->orWhere('weight', 'LIKE', "%$search%")
-                    ->orWhere('comment', 'LIKE', "%$search%");
-            })
+            ->with(['buyer' => fn($query) => $query->select(['id', 'name', 'buyer_name']), 'buyer.categories.category'])
             ->latest()
             ->groupBy('buyer_id')
             ->get()
@@ -41,9 +33,9 @@ class ReallocationController extends Controller
         $firstBuyerId = $reallocationBuyers->first()->buyer_id ?? '';
         $inputBuyerId = $request->input('buyerId', $firstBuyerId);
 
-        $reallocations = $this->getReallocations($inputBuyerId);
+        $reallocations = $this->getReallocations($inputBuyerId, $request->input('search'));
         if ($reallocations->isEmpty() && ((int)$inputBuyerId) !== ((int)$firstBuyerId)) {
-            $reallocations = $this->getReallocations($firstBuyerId);
+            $reallocations = $this->getReallocations($firstBuyerId, $request->input('search'));
         }
 
         $users       = User::select(['id', 'name'])->get();
@@ -84,16 +76,6 @@ class ReallocationController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        $reallocations = $this->getReallocations($id);
-
-        return response()->json($reallocations);
-    }
-
-    /**
      * Update the specified resource in storage.
      */
     public function update(ReallocationRequest $request, string $id)
@@ -129,13 +111,33 @@ class ReallocationController extends Controller
         return to_route('reallocations.index');
     }
 
-    private function getReallocations($buyerId)
+    private function getReallocations($buyerId, $search = '')
     {
-        return Reallocation::with([
-            'allocation.categories.category',
-            'allocationBuyer' => fn($query) => $query->select('id', 'name'),
-            'buyer'           => fn($query) => $query->select('id', 'name'),
-            'buyer.categories.category',
-        ])->where('buyer_id', $buyerId)->get();
+        return Reallocation::query()
+            ->with([
+                'allocation.categories.category',
+                'allocationBuyer' => fn($query) => $query->select('id', 'name'),
+                'buyer'           => fn($query) => $query->select('id', 'name'),
+                'buyer.categories.category',
+            ])
+            ->when($search, function ($query, $search) {
+                return $query->where(function ($subQuery) use ($search) {
+                    return $subQuery
+                        ->orWhere('comment', 'LIKE', "%{$search}%")
+                        ->orWhere('no_of_bins', 'LIKE', "%{$search}%")
+                        ->orWhereRaw("CONCAT(`bin_size`, ' kg') LIKE '%{$search}%'")
+                        ->orWhereRaw("CONCAT(`weight`, ' kg') LIKE '%{$search}%'")
+                        ->orWhereRelation('allocation', function (Builder $query) use ($search) {
+                            return $query->where('paddock', 'LIKE', "%{$search}%")
+                                ->orWhereRaw("CONCAT(`bin_size`, ' kg') LIKE '%{$search}%'");
+                        })
+                        ->orWhereRelation('allocation.categories.category', function (Builder $query) use ($search) {
+                            return $query->where('name', 'LIKE', "%{$search}%");
+                        });
+                });
+            })
+            ->where('buyer_id', $buyerId)
+            ->paginate(10)
+            ->withQueryString();
     }
 }

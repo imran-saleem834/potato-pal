@@ -131,12 +131,12 @@ setActiveTab(allocations.value.data[0]?.buyer_id);
                   </thead>
                   <tbody>
                   <tr class="align-middle border-0">
-                    <td class="d-none d-sm-table-cell border-0">
+                    <td class="pb-0 d-none d-sm-table-cell border-0">
                       <Link :href="route('users.index', {userId: activeTab?.buyer_id})">
                         {{ activeTab?.buyer_id }}
                       </Link>
                     </td>
-                    <td class="border-0">
+                    <td class="pb-0 border-0">
                       <Link :href="route('users.index', {userId: activeTab?.buyer_id})">
                         {{ `${activeTab?.buyer?.name} (${activeTab?.buyer?.buyer_name})` }}
                       </Link>
@@ -167,7 +167,7 @@ setActiveTab(allocations.value.data[0]?.buyer_id);
                 </div>
                 <div class="col-12 col-sm-4 col-lg-4 mb-3 mb-sm-4 text-end">
                   <button 
-                    class="btn btn-red" 
+                    class="btn btn-black" 
                     :disabled="isNewItemRecord" 
                     @click="isNewItemRecord = true"
                   >
@@ -177,6 +177,7 @@ setActiveTab(allocations.value.data[0]?.buyer_id);
               </div>
               <Details
                 v-if="isNewItemRecord"
+                ref="details"
                 unique-key="newItemRecord"
                 :allocation="{ buyer_id: activeTab?.buyer_id }"
                 :is-new-item="true"
@@ -186,6 +187,7 @@ setActiveTab(allocations.value.data[0]?.buyer_id);
               />
               <template v-for="allocation in allocations?.data" :key="allocation.id">
                 <Details
+                  ref="details"
                   :unique-key="`${allocation.id}`"
                   :allocation="allocation"
                   :growers="growers"

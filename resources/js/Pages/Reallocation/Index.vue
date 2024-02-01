@@ -1,13 +1,11 @@
 <script setup>
-import { computed, ref, watch } from 'vue';
+import { ref, watch } from 'vue';
 import { router, Link } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import TopBar from '@/Components/TopBar.vue';
-import MiddleBar from '@/Components/MiddleBar.vue';
 import Details from '@/Pages/Reallocation/Details.vue';
 import LeftBar from "@/Components/LeftBar.vue";
-import ModalHeader from "@/Components/ModalHeader.vue";
-import ModalBreadcrumb from "@/Components/ModalBreadcrumb.vue";
+import Pagination from "@/Components/Pagination.vue";
 import { getCategoriesByType } from "@/helper.js";
 
 const props = defineProps({
@@ -24,7 +22,7 @@ const activeTab = ref(null);
 const isNewRecord = ref(false);
 const isNewItemRecord = ref(false);
 const search = ref(props.filters.search);
-const searchAllocations = ref('');
+const details = ref(null);
 
 watch(() => props?.single,
   (single) => {
@@ -37,28 +35,36 @@ watch(() => props?.single,
 watch(search, (value) => {
   router.get(
     route('reallocations.index'),
-    { search: value },
-    { preserveState: true, preserveScroll: true },
+    { search: value, buyerId: activeTab.value.buyer_id },
+    {
+      preserveState: true,
+      preserveScroll: true,
+      only: ['single']
+    },
   )
 });
 
 const filter = (keyword) => search.value = keyword;
 
 const getReallocations = (id) => {
-  axios.get(route('reallocations.show', id)).then(response => {
-    reallocations.value = response.data;
+  router.get(route('reallocations.index'),
+    { buyerId: id },
+    {
+      preserveState: true,
+      preserveScroll: true,
+      only: ['single'],
+      onSuccess: () => {
+        const newUrl = window.location.href.split('?')[0];
+        history.pushState({}, null, newUrl);
 
-    // Reset URL
-    const newUrl = window.location.href.split('?')[0];
-    history.pushState({}, null, newUrl);
-
-    // Set Active Tab
-    setActiveTab(response.data[0]?.buyer_id);
-  });
+        setActiveTab(id);
+      }
+    }
+  )
 };
 
 const setActiveTab = (id) => {
-  activeTab.value = id;
+  activeTab.value = props.reallocationBuyers.find(buyer => buyer.id === id);
   isNewRecord.value = false;
   isNewItemRecord.value = false;
 };
@@ -66,83 +72,47 @@ const setActiveTab = (id) => {
 const setNewRecord = () => {
   isNewRecord.value = true;
   isNewItemRecord.value = false;
-  reallocations.value = [];
+  reallocations.value.data = [];
   activeTab.value = null;
 }
 
-const filterRecord = computed(() => {
-  if (searchAllocations.value === '') {
-    return reallocations.value;
-  }
-
-  const keyword = searchAllocations.value.toLowerCase();
-  return reallocations.value.filter(reallocation => {
-    const allocation = reallocation.allocation;
-    if (allocation.paddock.toLowerCase().includes(keyword)) {
-      return true;
-    }
-    if (reallocation.allocation_buyer?.name.toLowerCase().includes(keyword)) {
-      return true;
-    }
-    if (`${allocation.bin_size}`.toLowerCase().includes(keyword)) {
-      return true;
-    }
-    if (`${reallocation.no_of_bins}`.toLowerCase().includes(keyword)) {
-      return true;
-    }
-    if (`${reallocation.weight}`.toLowerCase().includes(keyword)) {
-      return true;
-    }
-    for (let i = 0; i < allocation.categories.length; i++) {
-      if (allocation.categories[i].category.name.toLowerCase().includes(keyword)) {
-        return true;
-      }
-    }
-    return false;
-  });
-});
-
-setActiveTab(reallocations.value[0]?.buyer_id);
+setActiveTab(reallocations.value.data[0]?.buyer_id);
 </script>
 
 <template>
   <AppLayout title="Reallocations">
     <TopBar
       type="Reallocations"
-      :value="search"
+      :title="activeTab?.buyer?.buyer_name || 'New'"
+      :active-tab="activeTab?.id"
+      :search="search"
       @search="filter"
-      @newRecord="setNewRecord"
-    />
-    <MiddleBar
-      type="Reallocations"
-      :title="reallocations[0]?.buyer?.name || 'New'"
       :is-new-record-selected="isNewRecord"
       :access="{
-        new: true,
         edit: false,
         delete: false,
       }"
-      @newRecord="setNewRecord"
-      @editRecord="() => {}"
-      @deleteRecord="() => {}"
+      @new="setNewRecord"
+      @unset="() => setActiveTab(null)"
+      @store="() => details.storeRecord()"
     />
 
-    <!-- tab-section -->
     <div class="tab-section">
-      <div class="row row0">
-        <div class="col-lg-3 col-sm-6" :class="{'mobile-userlist' : $windowWidth <= 767}">
+      <div class="row g-0">
+        <div class="col-12 col-lg-5 col-xl-4 nav-left d-lg-block" :class="{'d-none' : activeTab || isNewRecord}">
           <LeftBar
             :items="reallocationBuyers"
-            :active-tab="activeTab"
-            :row-1="{title: 'Buyer Name', value: 'buyer.name'}"
+            :active-tab="activeTab?.id"
+            :row-1="{title: 'Buyer Name', value: 'buyer.buyer_name'}"
             :row-2="{title: 'Buyer Id', value: 'id'}"
             @click="getReallocations"
           />
         </div>
-        <div class="col-lg-8 col-sm-6">
-          <div class="tab-content" v-if="reallocations.length > 0 || isNewRecord">
+        <div class="col-12 col-lg-7 col-xl-8 d-lg-block" :class="{'d-none': !activeTab && !isNewRecord}">
+          <div class="tab-content">
             <Details
               v-if="isNewRecord"
+              ref="details"
               unique-key="newRecord"
               :is-new="true"
               :allocations="allocations"
@@ -150,181 +120,88 @@ setActiveTab(reallocations.value[0]?.buyer_id);
               @create="() => setActiveTab(reallocations[0]?.buyer_id)"
             />
             <template v-else>
-              <div class="user-boxes">
-                <div class="row">
-                  <div class="col-sm-4">
-                    <h6>Buyer Name</h6>
-                    <h5>{{ reallocations[0]?.buyer?.name }}</h5>
-                  </div>
-                  <div class="col-sm-4">
-                    <h6>Buyer Group</h6>
-                    <ul v-if="getCategoriesByType(reallocations[0]?.buyer?.categories, 'buyer-group').length > 0">
-                      <li v-for="category in getCategoriesByType(reallocations[0]?.buyer?.categories, 'buyer-group')"
-                          :key="category.id">
-                        <a>{{ category.category.name }}</a>
-                      </li>
-                    </ul>
-                  </div>
-                  <div class="col-sm-4">
-                    <h6>Buyer Id</h6>
-                    <h5>
-                      <Link :href="route('users.index', {userId: reallocations[0]?.buyer_id})">
-                        {{ reallocations[0]?.buyer_id }}
+              <div v-if="activeTab" class="user-boxes">
+                <table class="table input-table mb-0">
+                  <thead>
+                  <tr>
+                    <th class="d-none d-sm-table-cell">Buyer ID</th>
+                    <th>Buyer Name</th>
+                    <th>Buyer Group</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr class="align-middle border-0">
+                    <td class="pb-0 d-none d-sm-table-cell border-0">
+                      <Link :href="route('users.index', {userId: activeTab?.buyer_id})">
+                        {{ activeTab?.buyer_id }}
                       </Link>
-                    </h5>
-                  </div>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-sm-4">
-                  <h4>Reallocations Details</h4>
-                </div>
-                <div class="col-sm-4">
-                  <div class="form-group has-feedback">
-                    <input
-                      v-model="searchAllocations"
-                      type="text"
-                      class="form-control custom-input"
-                      placeholder="Search..."
-                    >
-                  </div>
-                </div>
-                <div class="col-sm-4 text-right">
-                  <a role="button" class="btn btn-red" @click="() => isNewItemRecord = true">Add new allocation</a>
-                </div>
-              </div>
-              <Details
-                v-if="isNewItemRecord"
-                unique-key="newItemRecord"
-                :reallocation="{ buyer_id: reallocations[0]?.buyer_id }"
-                :is-new-item="true"
-                :allocations="allocations"
-                :buyers="buyers"
-                @create="() => setActiveTab(reallocations[0]?.buyer_id)"
-              />
-              <template v-for="reallocation in filterRecord" :key="reallocation.id">
-                <Details
-                  :unique-key="`${reallocation.id}`"
-                  :reallocation="reallocation"
-                  :allocations="allocations"
-                  :buyers="buyers"
-                  @delete="() => setActiveTab(reallocations[0]?.buyer_id)"
-                />
-              </template>
-              <div class="col-sm-12" v-if="filterRecord.length <= 0">
-                <p class="text-center" style="margin-top: calc(50vh - 120px);">No Records Found</p>
-              </div>
-            </template>
-          </div>
-          <div class="col-sm-12" v-if="reallocations.length <= 0 && !isNewRecord">
-            <p class="text-center" style="margin-top: calc(50vh - 120px);">No Records Found</p>
-          </div>
-        </div>
-        <div class="clearfix"></div>
-      </div>
-    </div>
-    <!-- tab-section -->
-
-    <!-- Modal -->
-    <div
-      tabindex="-1"
-      role="dialog"
-      id="user-details"
-      class="modal right fade user-details"
-    >
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <ModalHeader
-            title="Reallocations"
-            :access="{
-              new: isNewRecord,
-              edit: false,
-              delete: false,
-            }"
-            @edit="() => {}"
-            @delete="() => {}"
-          />
-          <div class="modal-body">
-            <ModalBreadcrumb
-              page="Reallocations"
-              :title="reallocations[0]?.buyer?.name || 'New'"
-            />
-            <div v-if="reallocations.length > 0 || isNewRecord">
-              <Details
-                v-if="isNewRecord"
-                :is-new="true"
-                :allocations="allocations"
-                :buyers="buyers"
-                @create="() => setActiveTab(reallocations[0]?.buyer_id)"
-              />
-              <template v-else>
-                <div class="user-boxes">
-                  <div class="row">
-                    <div class="col-sm-4">
-                      <h6>Buyer Name</h6>
-                      <h5>{{ reallocations[0]?.buyer?.name }}</h5>
-                    </div>
-                    <div class="col-sm-4">
-                      <h6>Buyer Group</h6>
-                      <ul v-if="getCategoriesByType(reallocations[0]?.buyer?.categories, 'buyer-group').length > 0">
-                        <li v-for="category in getCategoriesByType(reallocations[0]?.buyer?.categories, 'buyer-group')"
+                    </td>
+                    <td class="pb-0 border-0">
+                      <Link :href="route('users.index', {userId: activeTab?.buyer_id})">
+                        {{ `${activeTab?.buyer?.name} (${activeTab?.buyer?.buyer_name})` }}
+                      </Link>
+                    </td>
+                    <td class="pb-0 border-0">
+                      <ul v-if="getCategoriesByType(activeTab?.buyer?.categories, 'buyer-group').length > 0">
+                        <li v-for="category in getCategoriesByType(activeTab?.buyer?.categories, 'buyer-group')"
                             :key="category.id">
                           <a>{{ category.category.name }}</a>
                         </li>
                       </ul>
-                    </div>
-                    <div class="col-sm-4">
-                      <h6>Buyer Id</h6>
-                      <h5>
-                        <Link :href="route('users.index', {userId: reallocations[0]?.buyer_id})">
-                          {{ reallocations[0]?.buyer_id }}
-                        </Link>
-                      </h5>
-                    </div>
-                  </div>
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div v-if="activeTab" class="row align-items-center">
+                <div class="col-12 col-sm-4 col-lg-3 mb-3 mb-sm-4">
+                  <h4 class="m-0">Reallocations Details</h4>
                 </div>
-                <div class="row">
-                  <div class="col-sm-4">
-                    <h4>Reallocations Details</h4>
-                  </div>
-                  <div class="col-sm-4">
-                    <div class="form-group has-feedback">
-                      <input
-                        v-model="searchAllocations"
-                        type="text"
-                        class="form-control custom-input"
-                        placeholder="Search..."
-                      >
-                    </div>
-                  </div>
-                  <div class="col-sm-4 text-right">
-                    <a role="button" class="btn btn-red" @click="() => isNewItemRecord = true">Add new allocation</a>
-                  </div>
+                <div class="col-12 col-sm-4 col-lg-5 mb-3 mb-sm-4">
+                  <input
+                    v-model="search"
+                    type="text"
+                    class="form-control"
+                    placeholder="Search Reallocations..."
+                  >
                 </div>
+                <div class="col-12 col-sm-4 col-lg-4 mb-3 mb-sm-4 text-end">
+                  <button
+                    class="btn btn-black"
+                    :disabled="isNewItemRecord"
+                    @click="isNewItemRecord = true"
+                  >
+                    <i class="bi bi-plus-lg"></i> Add allocation
+                  </button>
+                </div>
+              </div>
+              <Details
+                v-if="isNewItemRecord"
+                ref="details"
+                unique-key="newItemRecord"
+                :reallocation="{ buyer_id: activeTab?.buyer_id }"
+                :is-new-item="true"
+                :allocations="allocations"
+                :buyers="buyers"
+                @create="() => setActiveTab(activeTab?.buyer_id)"
+              />
+              <template v-for="reallocation in reallocations?.data" :key="reallocation.id">
                 <Details
-                  v-if="isNewItemRecord"
-                  :reallocation="{ buyer_id: reallocations[0]?.buyer_id }"
-                  :is-new-item="true"
+                  ref="details"
+                  :unique-key="`${reallocation.id}`"
+                  :reallocation="reallocation"
                   :allocations="allocations"
                   :buyers="buyers"
-                  @create="() => setActiveTab(reallocations[0]?.buyer_id)"
+                  @delete="() => setActiveTab(reallocations?.data[0]?.buyer_id)"
                 />
-                <template v-for="reallocation in filterRecord" :key="reallocation.id">
-                  <Details
-                    :reallocation="reallocation"
-                    :allocations="allocations"
-                    :buyers="buyers"
-                    @delete="() => setActiveTab(reallocations[0]?.buyer_id)"
-                  />
-                </template>
-                <div class="col-sm-12" v-if="filterRecord.length <= 0">
-                  <p class="text-center" style="margin-top: calc(50vh - 120px);">No Records Found</p>
-                </div>
               </template>
-            </div>
-            <div class="col-sm-12" v-if="reallocations.length <= 0 && !isNewRecord">
-              <p class="text-center" style="margin-top: calc(50vh - 120px);">No Records Found</p>
-            </div>
+              <div class="col-12 text-end">
+                <Pagination :links="reallocations.links"/>
+              </div>
+            </template>
+          </div>
+          <div class="col-12" v-if="reallocations?.data.length <= 0 && !isNewRecord">
+            <p class="text-center" style="margin-top: calc(50vh - 120px);">No Records Found</p>
           </div>
         </div>
       </div>

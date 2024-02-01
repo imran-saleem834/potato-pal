@@ -6,6 +6,9 @@ import TextInput from "@/Components/TextInput.vue";
 import DataTable from 'datatables.net-vue3';
 import DataTablesCore from 'datatables.net';
 import { getSingleCategoryNameByType } from "@/helper.js";
+import { useToast } from "vue-toastification";
+
+const toast = useToast();
 
 DataTable.use(DataTablesCore);
 
@@ -92,6 +95,7 @@ const updateRecord = () => {
     preserveState: true,
     onSuccess: () => {
       isEdit.value = false;
+      toast.success('The reallocation has been updated successfully!');
     },
   });
 }
@@ -102,6 +106,7 @@ const storeRecord = () => {
     preserveState: true,
     onSuccess: () => {
       emit('create');
+      toast.success('The reallocation has been created successfully!');
     },
   });
 }
@@ -113,202 +118,214 @@ const deleteReallocation = () => {
     preserveState: true,
     onSuccess: () => {
       emit('delete');
+      toast.success('The reallocation has been deleted successfully!');
     },
   });
 }
+
+defineExpose({
+  storeRecord
+});
 </script>
 
 <template>
-  <div class="row">
-    <div v-if="isNew" class="col-md-12">
-      <div class="flex-end create-update-btn">
-        <a role="button" @click="storeRecord" class="btn btn-red">Create</a>
-      </div>
+  <div v-if="isNew" class="user-boxes">
+    <table class="table input-table mb-0">
+      <tr>
+        <th>Reallocation Buyer Name</th>
+        <td>
+          <Multiselect
+            v-model="form.buyer_id"
+            mode="single"
+            placeholder="Choose a buyer"
+            :searchable="true"
+            :options="buyers"
+            :class="{'is-invalid' : form.errors.buyer_id}"
+          />
+          <div v-if="form.errors.buyer_id" class="invalid-feedback p-0 m-0" v-text="form.errors.buyer_id"/>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <h4 v-if="isNew">Reallocations Details</h4>
+  <div class="user-boxes position-relative" :class="{'pe-5': !isForm}">
+    <table v-if="isForm" class="table input-table">
+      <tr>
+        <th class="d-none d-sm-table-cell">Allocation Buyer Name</th>
+        <td>
+          <div class="p-0" :class="{'input-group': form.allocation_buyer_id}">
+            <Multiselect
+              v-model="form.allocation_buyer_id"
+              @change="onChangeAllocationBuyer"
+              mode="single"
+              placeholder="Choose a grower"
+              :searchable="true"
+              :options="buyers"
+              :class="{'is-invalid' : form.errors.allocation_buyer_id || form.errors.allocation_id}"
+            />
+            <button
+              v-if="form.allocation_buyer_id"
+              class="btn btn-red input-group-text px-1 px-sm-2"
+              data-bs-toggle="modal"
+              :data-bs-target="`#allocations-${uniqueKey}`"
+              v-text="'Select Allocation'"
+            />
+          </div>
+          <div
+            v-if="form.errors.allocation_buyer_id"
+            class="invalid-feedback p-0 m-0"
+            v-text="form.errors.allocation_buyer_id"
+          />
+          <div
+            v-if="form.errors.allocation_id"
+            class="invalid-feedback p-0 m-0"
+            v-text="form.errors.allocation_id"
+          />
+        </td>
+      </tr>
+    </table>
+
+    <div v-if="isForm && Object.values(form.selected_allocation).length" class="table-responsive">
+      <table class="table table-sm">
+        <thead>
+        <tr>
+          <th>Seed Type</th>
+          <th>Bin Size</th>
+          <th>Bins Available</th>
+          <th>Weight</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+          <td>{{ getSingleCategoryNameByType(form.selected_allocation.categories, 'seed-type') }}</td>
+          <td>{{ (form.selected_allocation.bin_size / 1000) }} tonnes</td>
+          <td class="text-center text-md-start">{{ form.selected_allocation.no_of_bins }}</td>
+          <td>{{ form.selected_allocation.weight }} kg</td>
+        </tr>
+        </tbody>
+      </table>
     </div>
-    <div class="col-md-12">
-      <div v-if="isNew" class="user-boxes">
-        <h6>Reallocation Buyer Name</h6>
-        <Multiselect
-          v-model="form.buyer_id"
-          mode="single"
-          placeholder="Choose a buyer"
-          :searchable="true"
-          :options="buyers"
-        />
-        <div v-if="form.errors.buyer_id" class="has-error">
-          <span class="help-block text-left">{{ form.errors.buyer_id }}</span>
+
+    <template v-if="isForm">
+      <div class="row">
+        <div class="col-6 col-sm-3 mb-3">
+          <label class="form-label">Reallocated Bins</label>
+          <TextInput v-model="form.no_of_bins" :error="form.errors.no_of_bins" type="text"/>
+        </div>
+        <div class="col-6 col-sm-3 mb-3">
+          <label class="form-label">Reallocated Kg</label>
+          <TextInput v-model="form.weight" :error="form.errors.weight" type="text"/>
+        </div>
+        <div class="col-12 col-sm-6 mb-3">
+          <label class="form-label">Comment</label>
+          <TextInput v-model="form.comment" :error="form.errors.comment" type="text"/>
         </div>
       </div>
+      <div v-if="isEdit || isNewItem" class="w-100 text-end">
+        <button v-if="isEdit" @click="updateRecord" class="btn btn-red">
+          <template v-if="form.processing"><i class="bi bi-arrow-repeat d-inline-block spin"></i></template>
+          <template v-else>Update</template>
+        </button>
+        <button v-if="isNewItem" @click="storeRecord" class="btn btn-red">
+          <template v-if="form.processing"><i class="bi bi-arrow-repeat d-inline-block spin"></i></template>
+          <template v-else>Create</template>
+        </button>
+      </div>
+    </template>
+    <template v-else>
+      <div class="btn-group position-absolute" style="top: 0; right: 0;">
+        <button @click="setIsEdit" class="btn btn-red p-1"><i class="bi bi-pen"></i></button>
+        <button @click="deleteReallocation" class="btn btn-red p-1">
+          <template v-if="form.processing">
+            <i class="bi bi-arrow-repeat d-inline-block spin"></i>
+          </template>
+          <template v-else><i class="bi bi-trash"></i></template>
+        </button>
+      </div>
+      <div class="row allocation-items-box">
+        <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+          <span>Allocation Buyer Name: </span>
+          <Link :href="route('users.index', {userId: reallocation.allocation_buyer_id})">
+            {{ reallocation?.allocation_buyer?.name }}
+          </Link>
+        </div>
+        <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+          <span>Seed Type:</span> {{ getSingleCategoryNameByType(reallocation.allocation.categories, 'seed-type') || '-' }}
+        </div>
+        <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+          <span>Bin Size:</span> {{ (reallocation.allocation.bin_size / 1000) }} tonnes
+        </div>
+        <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+          <span>Reallocated Bins:</span> {{ reallocation.no_of_bins }}
+        </div>
+        <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+          <span>Reallocated:</span> {{ reallocation.weight.toFixed(2) }} kg
+        </div>
+        <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+          <span>Grower Group:</span> {{ getSingleCategoryNameByType(reallocation.allocation.categories, 'grower-group') || '-' }}
+        </div>
+        <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+          <span>Seed Variety:</span> {{ getSingleCategoryNameByType(reallocation.allocation.categories, 'seed-variety') || '-' }}
+        </div>
+        <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+          <span>Seed Gen.:</span> {{ getSingleCategoryNameByType(reallocation.allocation.categories, 'seed-generation') || '-' }}
+        </div>
+        <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+          <span>Seed Class:</span> {{ getSingleCategoryNameByType(reallocation.allocation.categories, 'seed-class') || '-' }}
+        </div>
+        <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 pb-1">
+          <span>Paddock:</span> {{ reallocation.allocation.paddock }}
+        </div>
+      </div>
+    </template>
+  </div>
 
-      <h4 v-if="isNew">Reallocations Details</h4>
-      <div class="user-boxes allocation-boxes">
-        <template v-if="isForm">
-          <div class="row">
-            <div class="col-sm-10">
-              <h6>Allocation Buyer Name</h6>
-              <Multiselect
-                v-model="form.allocation_buyer_id"
-                @change="onChangeAllocationBuyer"
-                mode="single"
-                placeholder="Choose a buyer"
-                :searchable="true"
-                :options="buyers"
-              />
-              <div v-if="form.errors.allocation_buyer_id" class="has-error">
-                <span class="help-block text-left">{{ form.errors.allocation_buyer_id }}</span>
-              </div>
-              <div v-if="form.errors.allocation_id" class="has-error">
-                <span class="help-block text-left">{{ form.errors.allocation_id }}</span>
-              </div>
-            </div>
-            <div class="col-sm-2">
-              <h6>&nbsp;</h6>
-              <button
-                class="btn-red btn-select-receival"
-                data-toggle="modal"
-                :data-target="`#allocations-${uniqueKey}`"
-              >Select Allocation
-              </button>
-            </div>
-          </div>
-
-          <div v-if="Object.values(form.selected_allocation).length" class="user-table d-none" style="margin: 10px 0;">
-            <table class="table">
+  <div class="modal fade" :id="`allocations-${uniqueKey}`" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Select Allocation</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="table-responsive">
+            <table class="table mb-0">
               <thead>
               <tr>
                 <th>Seed Type</th>
+                <th>Seed Variety</th>
+                <th>Seed Class</th>
+                <th>Seed Generation</th>
+                <th>Grower Group</th>
+                <th>Paddock</th>
                 <th>Bin Size</th>
-                <th>No of Bins Available</th>
-                <th>Weight in Tonnes</th>
+                <th>No Of Bins</th>
+                <th>Weight</th>
               </tr>
               </thead>
               <tbody>
-              <tr>
-                <td>{{ getSingleCategoryNameByType(form.selected_allocation.categories, 'seed-type') }}</td>
-                <td>{{ form.selected_allocation.bin_size }} Tonnes</td>
-                <td>{{ form.selected_allocation.no_of_bins }}</td>
-                <td>{{ form.selected_allocation.weight }} Tonnes</td>
-              </tr>
+              <template v-for="allocation in allocations" :key="allocation.id">
+                <tr
+                  v-if="form.allocation_buyer_id === allocation.buyer_id && isForm && (allocation.no_of_bins > 0 || allocation.weight > 0)"
+                  @click="() => onSelectAllocation(allocation)"
+                  style="cursor: pointer"
+                  data-bs-dismiss="modal"
+                >
+                  <td>{{ getSingleCategoryNameByType(allocation.categories, 'seed-type') }}</td>
+                  <td>{{ getSingleCategoryNameByType(allocation.categories, 'seed-variety') }}</td>
+                  <td>{{ getSingleCategoryNameByType(allocation.categories, 'seed-class') }}</td>
+                  <td>{{ getSingleCategoryNameByType(allocation.categories, 'seed-generation') }}</td>
+                  <td>{{ getSingleCategoryNameByType(allocation.categories, 'grower-group') }}</td>
+                  <td>{{ allocation.paddock }}</td>
+                  <td>{{ allocation.bin_size }} Tonnes</td>
+                  <td>{{ allocation.no_of_bins }}</td>
+                  <td>{{ allocation.weight }} Tonnes</td>
+                </tr>
+              </template>
               </tbody>
             </table>
           </div>
-
-          <div class="row">
-            <div class="col-sm-3">
-              <h6>Reallocated No of Bins</h6>
-              <TextInput v-model="form.no_of_bins" :error="form.errors.no_of_bins" type="text"/>
-            </div>
-            <div class="col-sm-3">
-              <h6>Reallocated Tonnes</h6>
-              <TextInput v-model="form.weight" :error="form.errors.weight" type="text"/>
-            </div>
-            <div class="col-sm-6">
-              <h6>Comment</h6>
-              <TextInput v-model="form.comment" :error="form.errors.comment" type="text"/>
-            </div>
-          </div>
-          <div v-if="isEdit || isNewItem" class="row">
-            <div class="col-sm-12 text-right">
-              <a v-if="isEdit" role="button" @click="updateRecord" class="btn btn-red">Update</a>
-              <a v-if="isNewItem" role="button" @click="storeRecord" class="btn btn-red">Create</a>
-            </div>
-          </div>
-        </template>
-        <template v-else>
-          <div class="row">
-            <div class="col-sm-2">
-              <h5>
-                <strong>Allocation Buyer Name: </strong>
-                <Link :href="route('users.index', {userId: reallocation.allocation_buyer_id})">
-                  {{ reallocation?.allocation_buyer?.name }}
-                </Link>
-              </h5>
-            </div>
-            <div class="col-sm-2">
-              <h5>Seed Type: {{ getSingleCategoryNameByType(reallocation.allocation.categories, 'seed-type') }}</h5>
-            </div>
-            <div class="col-sm-2">
-              <h5>Size of Bin: {{ reallocation.allocation.bin_size }} Tonnes</h5>
-            </div>
-            <div class="col-sm-2">
-              <h5>Reallocated No of Bins: {{ reallocation.no_of_bins }}</h5>
-            </div>
-            <div class="col-sm-2">
-              <h5>Reallocated: {{ reallocation.weight }} Tonnes</h5>
-            </div>
-            <div class="col-sm-2 text-right">
-              <a role="button" @click="setIsEdit" class="btn btn-red">Edit</a>
-              <a role="button" @click="deleteReallocation" class="btn btn-red">Delete</a>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-sm-2">
-              <h5>Grower Group: {{ getSingleCategoryNameByType(reallocation.allocation.categories, 'grower-group') }}</h5>
-            </div>
-            <div class="col-sm-2">
-              <h5>Seed Variety: {{ getSingleCategoryNameByType(reallocation.allocation.categories, 'seed-variety') }}</h5>
-            </div>
-            <div class="col-sm-2">
-              <h5>Seed Generation: {{ getSingleCategoryNameByType(reallocation.allocation.categories, 'seed-generation') }}</h5>
-            </div>
-            <div class="col-sm-2">
-              <h5>Seed Class: {{ getSingleCategoryNameByType(reallocation.allocation.categories, 'seed-class') }}</h5>
-            </div>
-            <div class="col-sm-2">
-              <h5>Paddock: {{ reallocation.allocation.paddock }}</h5>
-            </div>
-          </div>
-        </template>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal fade" :id="`allocations-${uniqueKey}`" tabindex="-1" role="dialog" aria-labelledby="myModalLabel4">
-    <div class="modal-dialog modal-lg" role="document" style="width: 90%;">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-          <h4 class="modal-title">Select Allocation</h4>
-        </div>
-        <div class="modal-body">
-          <table class="table">
-            <thead>
-            <tr>
-              <th>Seed Type</th>
-              <th>Seed Variety</th>
-              <th>Seed Class</th>
-              <th>Seed Generation</th>
-              <th>Grower Group</th>
-              <th>Paddock</th>
-              <th>Bin Size</th>
-              <th>No Of Bins</th>
-              <th>Weight</th>
-            </tr>
-            </thead>
-            <tbody>
-            <template v-for="allocation in allocations" :key="allocation.id">
-              <tr
-                v-if="form.allocation_buyer_id === allocation.buyer_id && isForm && (allocation.no_of_bins > 0 || allocation.weight > 0)"
-                @click="() => onSelectAllocation(allocation)"
-                style="cursor: pointer"
-                data-dismiss="modal"
-                aria-label="Close"
-              >
-                <td>{{ getSingleCategoryNameByType(allocation.categories, 'seed-type') }}</td>
-                <td>{{ getSingleCategoryNameByType(allocation.categories, 'seed-variety') }}</td>
-                <td>{{ getSingleCategoryNameByType(allocation.categories, 'seed-class') }}</td>
-                <td>{{ getSingleCategoryNameByType(allocation.categories, 'seed-generation') }}</td>
-                <td>{{ getSingleCategoryNameByType(allocation.categories, 'grower-group') }}</td>
-                <td>{{ allocation.paddock }}</td>
-                <td>{{ allocation.bin_size }} Tonnes</td>
-                <td>{{ allocation.no_of_bins }}</td>
-                <td>{{ allocation.weight }} Tonnes</td>
-              </tr>
-            </template>
-            </tbody>
-          </table>
         </div>
       </div>
     </div>

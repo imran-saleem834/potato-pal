@@ -350,6 +350,7 @@ defineExpose({
             <td class="pb-0">
               <UlLiButton
                 v-if="isForm"
+                :is-form="true"
                 :value="form.status"
                 :error="form.errors.status"
                 :items="[
@@ -398,6 +399,7 @@ defineExpose({
             <td class="pb-0">
               <UlLiButton
                 v-if="isForm && form.unloads[index]"
+                :is-form="true"
                 :value="form.unloads[index].seed_type"
                 :error="form.errors[`unloads.${index}.seed_type`]"
                 :items="getCategoriesDropDownByType(categories, 'seed-type')"
@@ -414,6 +416,7 @@ defineExpose({
             <td class="pb-0">
               <UlLiButton
                 v-if="isForm && form.unloads[index]"
+                :is-form="true"
                 :value="form.unloads[index].channel"
                 :error="form.errors[`unloads.${index}.channel`]"
                 :items="[
@@ -434,6 +437,7 @@ defineExpose({
             <td class="pb-0">
               <UlLiButton
                 v-if="isForm && form.unloads[index]"
+                :is-form="true"
                 :value="form.unloads[index].bin_size"
                 :error="form.errors[`unloads.${index}.bin_size`]"
                 :items="binSizes"
@@ -450,6 +454,7 @@ defineExpose({
             <td class="pb-0">
               <UlLiButton
                 v-if="isForm && form.unloads[index]"
+                :is-form="true"
                 :value="form.unloads[index].system"
                 :error="form.errors[`unloads.${index}.system`]"
                 :items="
@@ -503,11 +508,12 @@ defineExpose({
             <td class="pb-0">
               <div class="d-inline-block">
                 <UlLiButton
+                  :is-form="true"
                   :value="bins[index]"
                   :items="[
-                  { value: 1, label: '1' },
-                  { value: 2, label: '2' },
-                ]"
+                    { value: 1, label: '1' },
+                    { value: 2, label: '2' },
+                  ]"
                   :error="weightError[index]"
                   @click="(value) => bins[index] = value"
                 />

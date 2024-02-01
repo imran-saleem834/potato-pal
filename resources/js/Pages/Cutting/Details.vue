@@ -5,7 +5,14 @@ import Multiselect from '@vueform/multiselect'
 import DataTable from 'datatables.net-vue3';
 import DataTablesCore from 'datatables.net';
 import TextInput from "@/Components/TextInput.vue";
-import { getCategoriesByType, getCategoryIdsByType, getCategoriesDropDownByType } from "@/helper.js";
+import {
+  getCategoryIdsByType,
+  getCategoriesDropDownByType,
+  getSingleCategoryNameByType
+} from "@/helper.js";
+import { useToast } from "vue-toastification";
+
+const toast = useToast();
 
 DataTable.use(DataTablesCore);
 
@@ -90,6 +97,7 @@ const updateRecord = () => {
     preserveState: true,
     onSuccess: () => {
       isEdit.value = false;
+      toast.success('The cutting information has been updated successfully!');
     },
   });
 }
@@ -100,6 +108,7 @@ const storeRecord = () => {
     preserveState: true,
     onSuccess: () => {
       emit('create');
+      toast.success('The cutting information has been saved successfully!');
     },
   });
 }
@@ -111,228 +120,245 @@ const deleteCutting = () => {
     preserveState: true,
     onSuccess: () => {
       emit('delete');
+      toast.success('The cutting record has been deleted successfully!');
     },
   });
 }
+
+defineExpose({
+  storeRecord
+});
 </script>
 
 <template>
-  <div class="row">
-    <div v-if="isNew" class="col-md-12">
-      <div class="flex-end create-update-btn">
-        <a role="button" @click="storeRecord" class="btn btn-red">Create</a>
-      </div>
-    </div>
-    <div class="col-md-12">
-      <h4 v-if="isNew">Cutting Details</h4>
-      <div class="user-boxes allocation-boxes">
-        <template v-if="isForm">
-          <div class="row">
-            <div class="col-sm-10">
-              <h6>Buyer Name</h6>
-              <Multiselect
-                v-if="isNew"
-                v-model="form.buyer_id"
-                mode="single"
-                placeholder="Choose a buyer"
-                :searchable="true"
-                :options="buyers"
-                @change="onChangeBuyers"
-              />
-              <TextInput v-else v-model="buyers.find(buyer => buyer.value === form.buyer_id).label" disabled/>
-              <div v-if="form.errors.buyer_id" class="has-error">
-                <span class="help-block text-left">{{ form.errors.buyer_id }}</span>
-              </div>
-              <div v-if="form.errors.selected_allocations" class="has-error">
-                <span class="help-block text-left">{{ form.errors.selected_allocations }}</span>
-              </div>
-            </div>
-            <div class="col-sm-2">
-              <h6>&nbsp;</h6>
-              <button
-                class="btn-red btn-select-receival"
-                data-toggle="modal"
-                :data-target="`#allocations-${uniqueKey}`"
-              >Select Allocations
-              </button>
-            </div>
+  <h4 v-if="isNew">Cutting Details</h4>
+  <div class="user-boxes position-relative" :class="{'pe-5': !isForm}">
+    <table v-if="isForm" class="table input-table">
+      <tr>
+        <th class="d-none d-sm-table-cell">Buyer Name</th>
+        <td>
+          <div class="p-0" :class="{'input-group': form.buyer_id}">
+            <Multiselect
+              v-if="isNew"
+              v-model="form.buyer_id"
+              @change="onChangeBuyers"
+              mode="single"
+              placeholder="Choose a buyer"
+              :searchable="true"
+              :options="buyers"
+              :class="{'is-invalid' : form.errors.buyer_id || form.errors.selected_allocations}"
+            />
+            <input
+              v-else
+              type="text"
+              class="form-control"
+              :disabled="true"
+              v-model="buyers.find(buyer => buyer.value === form.buyer_id).label"
+            >
+            <button
+              v-if="form.buyer_id"
+              class="btn btn-red input-group-text px-1 px-sm-2"
+              data-bs-toggle="modal"
+              :data-bs-target="`#allocations-${uniqueKey}`"
+              v-text="'Select Allocations'"
+            />
           </div>
-          <section v-for="(selectedAllocation, index) in form.selected_allocations" class="row">
-            <div class="col-sm-3">
-              <h6>Seed Type</h6>
-              <h5>
-                {{ getCategoriesByType(selectedAllocation.allocation.categories, 'seed-type')[0]?.category?.name }}
-              </h5>
-              <h6>Seed Variety</h6>
-              <h5>
-                {{ getCategoriesByType(selectedAllocation.allocation.categories, 'seed-variety')[0]?.category?.name }}
-              </h5>
-              <h6>Paddock</h6>
-              <h5>{{ selectedAllocation.allocation.paddock }}</h5>
-            </div>
-            <div class="col-sm-3">
-              <h6>Bin Size</h6>
-              <h5>{{ selectedAllocation.allocation.bin_size }} Tonnes</h5>
-              <h6>Available No of Bins</h6>
-              <h5>{{ selectedAllocation.allocation.no_of_bins }}</h5>
-              <h6>Available Weight</h6>
-              <h5>{{ selectedAllocation.allocation.weight }} Tonnes</h5>
-            </div>
-            <div class="col-sm-3">
-              <h6>No of Bins to Cut</h6>
+          <div v-if="form.errors.buyer_id" class="invalid-feedback p-0 m-0" v-text="form.errors.buyer_id"/>
+          <div
+            v-if="form.errors.selected_allocations"
+            class="invalid-feedback p-0 m-0"
+            v-text="form.errors.selected_allocations"
+          />
+        </td>
+      </tr>
+    </table>
+
+    <template v-if="isForm">
+      <div v-for="(selectedAllocation, index) in form.selected_allocations" class="row allocation-items-box">
+        <div class="col-sm-6 col-md-3 col-lg-6 col-xl-3 mt-md-4">
+          <div class="col-12 mb-1 pb-1 mb-md-3 mb-lg-1 mb-xl-3">
+            <span>Seed Type: </span>{{
+              getSingleCategoryNameByType(selectedAllocation.allocation.categories, 'seed-type') || '-'
+            }}
+          </div>
+          <div class="col-12 mb-1 pb-1 mb-md-3 mb-lg-1 mb-xl-3">
+            <span>Seed Variety: </span>{{
+              getSingleCategoryNameByType(selectedAllocation.allocation.categories, 'seed-variety') || '-'
+            }}
+          </div>
+          <div class="col-12 mb-1 pb-1 mb-md-3 mb-lg-1 mb-xl-3">
+            <span>Paddock: </span>{{ selectedAllocation.allocation.paddock }}
+          </div>
+        </div>
+        <div class="col-sm-6 col-md-3 col-lg-6 col-xl-3 mt-md-4">
+          <div class="col-12 mb-1 pb-1 mb-md-3 mb-lg-1 mb-xl-3">
+            <span>Bin Size: </span>{{ (selectedAllocation.allocation.bin_size / 1000) }} tonnes
+          </div>
+          <div class="col-12 mb-1 pb-1 mb-md-3 mb-lg-1 mb-xl-3">
+            <span>Available No of Bins: </span>{{ selectedAllocation.allocation.no_of_bins }}
+          </div>
+          <div class="col-12 mb-1 pb-1 mb-md-3 mb-lg-1 mb-xl-3">
+            <span>Available Weight: </span>{{ selectedAllocation.allocation.weight }} kg
+          </div>
+        </div>
+        <div class="col-sm-6 col-md-3 col-lg-6 col-xl-3 mb-3">
+          <div class="row">
+            <div class="col-6 col-sm-12">
+              <label class="form-label">Bins to cut</label>
               <TextInput
                 v-model="form.selected_allocations[index].no_of_bins_before_cutting"
                 :error="form.errors[`selected_allocations.${index}.no_of_bins_before_cutting`]"
                 type="text"
               />
-              <h6>No of Bins after Cut</h6>
+            </div>
+            <div class="col-6 col-sm-12 mt-0 mt-sm-3">
+              <label class="form-label">Bins after cut</label>
               <TextInput
                 v-model="form.selected_allocations[index].no_of_bins_after_cutting"
                 :error="form.errors[`selected_allocations.${index}.no_of_bins_after_cutting`]"
                 type="text"
               />
             </div>
-            <div class="col-sm-3">
-              <h6>Tonnes to Cut</h6>
+          </div>
+        </div>
+        <div class="col-sm-6 col-md-3 col-lg-6 col-xl-3 mb-3">
+          <div class="row">
+            <div class="col-6 col-sm-12">
+              <label class="form-label">Kg to cut</label>
               <TextInput
                 v-model="form.selected_allocations[index].weight_before_cutting"
                 :error="form.errors[`selected_allocations.${index}.weight_before_cutting`]"
                 type="text"
               />
-              <h6>Tonnes after Cut</h6>
+            </div>
+            <div class="col-6 col-sm-12 mt-0 mt-sm-3">
+              <label class="form-label">Kg after cut</label>
               <TextInput
                 v-model="form.selected_allocations[index].weight_after_cutting"
                 :error="form.errors[`selected_allocations.${index}.weight_after_cutting`]"
                 type="text"
               />
             </div>
-          </section>
-          <div class="row">
-            <div class="col-sm-3">
-              <h6>Date of Cutting</h6>
-              <TextInput v-model="form.cut_date" :error="form.errors.cut_date" type="date"/>
-            </div>
-            <div class="col-sm-3">
-              <h6>Cut By</h6>
-              <TextInput v-model="form.cut_by" :error="form.errors.cut_by" type="text"/>
-            </div>
-            <div class="col-sm-3">
-              <h6>Fungicide</h6>
-              <Multiselect
-                v-model="form.fungicide"
-                mode="tags"
-                placeholder="Choose a fungicide"
-                :searchable="true"
-                :create-option="true"
-                :options="getCategoriesDropDownByType(categories, 'fungicide')"
-              />
-            </div>
-            <div class="col-sm-3">
-              <h6>Comment</h6>
-              <TextInput v-model="form.comment" :error="form.errors.comment" type="text"/>
-            </div>
           </div>
-          <div v-if="isEdit || isNewItem" class="row">
-            <div class="col-sm-12 text-right">
-              <a v-if="isEdit" role="button" @click="updateRecord" class="btn btn-red">Update</a>
-              <a v-if="isNewItem" role="button" @click="storeRecord" class="btn btn-red">Create</a>
-            </div>
-          </div>
-        </template>
-        <template v-else>
-          <div class="row">
-            <div class="col-sm-3">
-              <h5>Date of Cut: {{ cutting.cut_date }}</h5>
-            </div>
-            <div class="col-sm-3">
-              <h5>Cut By: {{ cutting.cut_by }}</h5>
-            </div>
-            <div class="col-sm-4">
-              <h5>Comment: {{ cutting.comment }}</h5>
-            </div>
-            <div class="col-sm-2 text-right">
-              <a role="button" @click="setIsEdit" class="btn btn-red">Edit</a>
-              <a role="button" @click="deleteCutting" class="btn btn-red">Delete</a>
-            </div>
-          </div>
-          <template v-for="cuttingAllocation in cutting.cutting_allocations" :key="cuttingAllocation.id">
-            <section>
-              <div class="row">
-                <div class="col-sm-2">
-                  <h5>
-                    Seed Type: 
-                    {{ getCategoriesByType(cuttingAllocation.allocation.categories, 'seed-type')[0]?.category?.name }}
-                  </h5>
-                </div>
-                <div class="col-sm-2">
-                  <h5>Size of Bin: {{ cuttingAllocation.allocation.bin_size }} Tonnes</h5>
-                </div>
-                <div class="col-sm-2">
-                  <h5>No of Bins Before Cut: {{ cuttingAllocation.no_of_bins_before_cutting }}</h5>
-                </div>
-                <div class="col-sm-2">
-                  <h5>Weight Before Cut: {{ cuttingAllocation.weight_before_cutting }} Tonnes</h5>
-                </div>
-                <div class="col-sm-2">
-                  <h5>No of Bins After Cut: {{ cuttingAllocation.no_of_bins_after_cutting }}</h5>
-                </div>
-                <div class="col-sm-2">
-                  <h5>Weight After Cut: {{ cuttingAllocation.weight_after_cutting }} Tonnes</h5>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-sm-2">
-                  <h5>
-                    Grower Group:
-                    {{ getCategoriesByType(cuttingAllocation.allocation.categories, 'grower-group')[0]?.category?.name }}
-                  </h5>
-                </div>
-                <div class="col-sm-2">
-                  <h5>
-                    Seed Variety: 
-                    {{ getCategoriesByType(cuttingAllocation.allocation.categories, 'seed-variety')[0]?.category?.name }}
-                  </h5>
-                </div>
-                <div class="col-sm-2">
-                  <h5>
-                    Seed Generation: 
-                    {{ getCategoriesByType(cuttingAllocation.allocation.categories, 'seed-generation')[0]?.category?.name }}
-                  </h5>
-                </div>
-                <div class="col-sm-2">
-                  <h5>
-                    Seed Class: 
-                    {{ getCategoriesByType(cuttingAllocation.allocation.categories, 'seed-class')[0]?.category?.name }}
-                  </h5>
-                </div>
-                <div class="col-sm-2">
-                  <h5>Paddock: {{ cuttingAllocation.allocation.paddock }}</h5>
-                </div>
-              </div>
-            </section>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 mb-3">
+          <label class="form-label">Date of Cutting</label>
+          <TextInput v-model="form.cut_date" :error="form.errors.cut_date" type="date"/>
+        </div>
+        <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 mb-3">
+          <label class="form-label">Cut By</label>
+          <TextInput v-model="form.cut_by" :error="form.errors.cut_by" type="text"/>
+        </div>
+        <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 mb-3">
+          <label class="form-label">Comment</label>
+          <Multiselect
+            v-model="form.fungicide"
+            mode="tags"
+            placeholder="Choose a fungicide"
+            :searchable="true"
+            :create-option="true"
+            :options="getCategoriesDropDownByType(categories, 'fungicide')"
+            :class="{'is-invalid' : form.errors.fungicide}"
+          />
+          <div v-if="form.errors.fungicide" class="invalid-feedback" v-text="form.errors.fungicide"/>
+        </div>
+        <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 mb-3">
+          <label class="form-label">Comment</label>
+          <TextInput v-model="form.comment" :error="form.errors.comment" type="text"/>
+        </div>
+      </div>
+      <div v-if="isEdit || isNewItem" class="w-100 text-end">
+        <button v-if="isEdit" @click="updateRecord" class="btn btn-red">
+          <template v-if="form.processing"><i class="bi bi-arrow-repeat d-inline-block spin"></i></template>
+          <template v-else>Update</template>
+        </button>
+        <button v-if="isNewItem" @click="storeRecord" class="btn btn-red">
+          <template v-if="form.processing"><i class="bi bi-arrow-repeat d-inline-block spin"></i></template>
+          <template v-else>Create</template>
+        </button>
+      </div>
+    </template>
+    <template v-else>
+      <div class="btn-group position-absolute" style="top: 0; right: 0;">
+        <button @click="setIsEdit" class="btn btn-red p-1"><i class="bi bi-pen"></i></button>
+        <button @click="deleteCutting" class="btn btn-red p-1">
+          <template v-if="form.processing">
+            <i class="bi bi-arrow-repeat d-inline-block spin"></i>
           </template>
+          <template v-else><i class="bi bi-trash"></i></template>
+        </button>
+      </div>
+      <div class="row allocation-items-box">
+        <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+          <span>Date of cut:</span> {{ cutting.cut_date }}
+        </div>
+        <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+          <span>Cut By:</span> {{ cutting.cut_by }}
+        </div>
+        <div class="col-12 col-sm-4 col-md-6 col-lg-4 col-xl-6 mb-1 pb-1">
+          <span>Comment:</span> {{ cutting.comment }}
+        </div>
+        <template v-for="cuttingAllocation in cutting.cutting_allocations" :key="cuttingAllocation.id">
+          <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+            <span>Seed Type:</span>
+            {{ getSingleCategoryNameByType(cuttingAllocation.allocation.categories, 'seed-type') || '-' }}
+          </div>
+          <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+            <span>Bin Size:</span> {{ (cuttingAllocation.allocation.bin_size / 1000) }} tonnes
+          </div>
+          <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+            <span>Bins before cut:</span> {{ cuttingAllocation.no_of_bins_before_cutting }}
+          </div>
+          <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+            <span>Weight before cut:</span> {{ cuttingAllocation.weight_before_cutting }} kg
+          </div>
+          <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+            <span>Bins after cut:</span> {{ cuttingAllocation.no_of_bins_after_cutting }}
+          </div>
+          <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+            <span>Weight after cut:</span> {{ cuttingAllocation.weight_after_cutting }} kg
+          </div>
+          <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+            <span>Grower. Group:</span>
+            {{ getSingleCategoryNameByType(cuttingAllocation.allocation.categories, 'grower-group') || '-' }}
+          </div>
+          <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+            <span>Seed Variety:</span>
+            {{ getSingleCategoryNameByType(cuttingAllocation.allocation.categories, 'seed-variety') || '-' }}
+          </div>
+          <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+            <span>Seed Gen.:</span>
+            {{ getSingleCategoryNameByType(cuttingAllocation.allocation.categories, 'seed-generation') || '-' }}
+          </div>
+          <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+            <span>Seed Class:</span>
+            {{ getSingleCategoryNameByType(cuttingAllocation.allocation.categories, 'seed-class') || '-' }}
+          </div>
+          <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 pb-1">
+            <span>Paddock:</span> {{ cuttingAllocation.allocation.paddock }}
+          </div>
         </template>
       </div>
-    </div>
+    </template>
   </div>
 
-  <div class="modal fade" :id="`allocations-${uniqueKey}`" tabindex="-1" role="dialog" aria-labelledby="myModalLabel4">
-    <div class="modal-dialog modal-lg" role="document" style="width: 90%;">
+  <div class="modal fade" :id="`allocations-${uniqueKey}`" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-xl">
       <div class="modal-content">
         <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-          <h4 v-if="form.selected_allocations.length <= 0" class="modal-title">
-            Select Allocations
-          </h4>
-          <h4 v-if="form.selected_allocations.length > 0" class="modal-title">
-            Selected {{ form.selected_allocations.length }} Allocations
-          </h4>
+          <h5 class="modal-title" id="exampleModalLabel">
+            <template v-if="form.selected_allocations.length > 0">
+              Selected {{ form.selected_allocations.length }} Allocations
+            </template>
+            <template v-else>Select Allocations</template>
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <div style="margin: 20px 0;">
-            <table class="table">
+          <div class="table-responsive">
+            <table class="table mb-0">
               <thead>
               <tr>
                 <th>Seed Type</th>
@@ -350,15 +376,15 @@ const deleteCutting = () => {
               <tbody>
               <template v-for="allocation in allocations" :key="allocation.id">
                 <tr v-if="form.buyer_id === allocation.buyer_id && isForm">
-                  <td>{{ getCategoriesByType(allocation.categories, 'seed-type')[0]?.category?.name }}</td>
-                  <td>{{ getCategoriesByType(allocation.categories, 'seed-variety')[0]?.category?.name }}</td>
-                  <td>{{ getCategoriesByType(allocation.categories, 'seed-class')[0]?.category?.name }}</td>
-                  <td>{{ getCategoriesByType(allocation.categories, 'seed-generation')[0]?.category?.name }}</td>
-                  <td>{{ getCategoriesByType(allocation.categories, 'grower-group')[0]?.category?.name }}</td>
+                  <td>{{ getSingleCategoryNameByType(allocation.categories, 'seed-type') || '-' }}</td>
+                  <td>{{ getSingleCategoryNameByType(allocation.categories, 'seed-variety') || '-' }}</td>
+                  <td>{{ getSingleCategoryNameByType(allocation.categories, 'seed-class') || '-' }}</td>
+                  <td>{{ getSingleCategoryNameByType(allocation.categories, 'seed-generation') || '-' }}</td>
+                  <td>{{ getSingleCategoryNameByType(allocation.categories, 'grower-group') || '-' }}</td>
                   <td>{{ allocation.paddock }}</td>
-                  <td>{{ allocation.bin_size }} Tonnes</td>
+                  <td>{{ (allocation.bin_size / 1000) }} tonnes</td>
                   <td>{{ allocation.no_of_bins }}</td>
-                  <td>{{ allocation.weight.toFixed(2) }} Tonnes</td>
+                  <td>{{ allocation.weight.toFixed(2) }} kg</td>
                   <td>
                     <input
                       type="checkbox"
@@ -379,8 +405,4 @@ const deleteCutting = () => {
 
 <style>
 @import 'datatables.net-dt';
-
-.allocation-boxes section:not(:last-of-type) {
-  border-bottom: 1px solid #dddcdc
-}
 </style>

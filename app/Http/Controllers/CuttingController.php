@@ -23,13 +23,7 @@ class CuttingController extends Controller
     public function index(Request $request)
     {
         $cuttingBuyers = Cutting::select('buyer_id')
-            ->with(['buyer' => fn($query) => $query->select('id', 'name')])
-            ->when($request->input('search'), function (Builder $query, $search) {
-                return $query->where('id', 'LIKE', "%$search%")
-                    ->orWhere('buyer_id', 'LIKE', "%$search%")
-                    ->orWhere('cut_date', 'LIKE', "%$search%")
-                    ->orWhere('cut_by', 'LIKE', "%$search%");
-            })
+            ->with(['buyer' => fn($query) => $query->select(['id', 'name', 'buyer_name']), 'buyer.categories.category'])
             ->latest()
             ->groupBy('buyer_id')
             ->get()
@@ -41,9 +35,9 @@ class CuttingController extends Controller
         $firstBuyerId = $cuttingBuyers->first()->buyer_id ?? '';
         $inputBuyerId = $request->input('buyerId', $firstBuyerId);
 
-        $cuttings = $this->getCuttings($inputBuyerId);
+        $cuttings = $this->getCuttings($inputBuyerId, $request->input('search'));
         if ($cuttings->isEmpty() && ((int)$inputBuyerId) !== ((int)$firstBuyerId)) {
-            $cuttings = $this->getCuttings($firstBuyerId);
+            $cuttings = $this->getCuttings($firstBuyerId, $request->input('search'));
         }
 
         $users       = User::select(['id', 'name'])->get();
@@ -89,16 +83,6 @@ class CuttingController extends Controller
         NotificationHelper::addedAction('Cutting', $cutting->id);
 
         return to_route('cuttings.index', ['buyerId' => $cutting->buyer_id]);
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        $cuttings = $this->getCuttings($id);
-
-        return response()->json($cuttings);
     }
 
     /**
@@ -154,23 +138,48 @@ class CuttingController extends Controller
         return to_route('cuttings.index');
     }
 
-    private function getCuttings($buyerId)
+    private function getCuttings($buyerId, $search = '')
     {
-        return Cutting::query()
+        $cuttings = Cutting::query()
             ->with([
                 'categories.category',
                 'cuttingAllocations.allocation.categories.category',
                 'buyer' => fn($query) => $query->select('id', 'name'),
                 'buyer.categories.category',
             ])
+            ->when($search, function ($query, $search) {
+                 return $query->where(function ($subQuery) use ($search) {
+                     return $subQuery
+                         ->where('comment', 'LIKE', "%{$search}%")
+                         ->orWhere('cut_by', 'LIKE', "%{$search}%")
+                         ->orWhere('cut_date', 'LIKE', "%{$search}%")
+                         ->orWhereRelation('cuttingAllocations', function (Builder $query) use ($search) {
+                             return $query
+                                 ->where('no_of_bins_before_cutting', 'LIKE', "%{$search}%")
+                                 ->orWhere('no_of_bins_after_cutting', 'LIKE', "%{$search}%")
+                                 ->orWhereRaw("CONCAT(`weight_before_cutting`, ' kg') LIKE '%{$search}%'")
+                                 ->orWhereRaw("CONCAT(`weight_after_cutting`, ' kg') LIKE '%{$search}%'");
+                         })
+                         ->orWhereRelation('categories.category', function (Builder $query) use ($search) {
+                             return $query->where('name', 'LIKE', "%{$search}%");
+                         })
+                         ->orWhereRelation('cuttingAllocations.allocation.categories.category', function (Builder $query) use ($search) {
+                             return $query->where('name', 'LIKE', "%{$search}%");
+                         });
+                 });
+            })
             ->where('buyer_id', $buyerId)
-            ->get()
-            ->map(function ($cutting) {
-                $cutting->cuttingAllocations = $cutting->cuttingAllocations->map(function ($cuttingAllocation) {
-                    $cuttingAllocation->allocation->no_of_bins -= $cuttingAllocation->no_of_bins_before_cutting;
-                    $cuttingAllocation->allocation->weight     -= $cuttingAllocation->weight_before_cutting;
-                });
-                return $cutting;
+            ->paginate(10)
+            ->withQueryString();
+
+        tap($cuttings)->map(function ($cutting) {
+            $cutting->cuttingAllocations = $cutting->cuttingAllocations->map(function ($cuttingAllocation) {
+                $cuttingAllocation->allocation->no_of_bins -= $cuttingAllocation->no_of_bins_before_cutting;
+                $cuttingAllocation->allocation->weight     -= $cuttingAllocation->weight_before_cutting;
             });
+            return $cutting;
+        });
+
+        return $cuttings;
     }
 }

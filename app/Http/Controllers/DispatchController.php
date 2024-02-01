@@ -21,7 +21,7 @@ class DispatchController extends Controller
     public function index(Request $request)
     {
         $dispatchBuyers = Dispatch::select('buyer_id')
-            ->with(['buyer' => fn($query) => $query->select('id', 'name'), 'buyer.categories.category'])
+            ->with(['buyer' => fn($query) => $query->select(['id', 'name', 'buyer_name']), 'buyer.categories.category'])
             ->latest()
             ->groupBy('buyer_id')
             ->get()
@@ -133,7 +133,7 @@ class DispatchController extends Controller
                     return $subQuery
                         ->where('comment', 'LIKE', "%{$search}%")
                         ->orWhere('no_of_bins', 'LIKE', "%{$search}%")
-                        ->orWhereRaw("CONCAT(`weight`, ' Tonnes') LIKE '%{$search}%'")
+                        ->orWhereRaw("CONCAT(`weight`, ' kg') LIKE '%{$search}%'")
                         ->orWhereRelation('allocationBuyer', function (Builder $query) use ($search) {
                             return $query->where('name', 'LIKE', "%{$search}%");
                         })
