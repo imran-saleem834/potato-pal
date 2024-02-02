@@ -39,18 +39,15 @@ class UserController extends Controller
                 });
             })
             ->latest()
-            ->get();
+            ->paginate(20)
+            ->withQueryString();
 
-        $userId = $request->input('userId', $users->first()->id ?? 0);
-
-        $user = User::with(['categories.category'])->find($userId);
-
-        $categories = Category::whereIn('type', User::CATEGORY_TYPES)->get();
+        $userId = $request->input('userId', $users->items()[0]->id ?? 0);
 
         return Inertia::render('User/Index', [
             'users'      => $users,
-            'single'     => $user,
-            'categories' => $categories,
+            'single'     => $this->getUser($userId),
+            'categories' => Category::whereIn('type', User::CATEGORY_TYPES)->get(),
             'filters'    => $request->only(['search']),
         ]);
     }
@@ -80,9 +77,7 @@ class UserController extends Controller
      */
     public function show(string $id)
     {
-        $user = User::with(['categories.category'])->find($id);
-
-        return response()->json($user);
+        return response()->json($this->getUser($id));
     }
 
     /**
@@ -123,5 +118,10 @@ class UserController extends Controller
         NotificationHelper::deleteAction('User', $id);
 
         return to_route('users.index');
+    }
+
+    private function getUser($id)
+    {
+        return User::with(['categories.category'])->find($id);
     }
 }

@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import LogoutButton from '@/Components/LogoutButton.vue';
+import ConfirmedModal from "@/Components/ConfirmedModal.vue";
 
 const props = defineProps({
   type: String,
@@ -60,7 +61,7 @@ const search = () => {
           <template v-else>{{ type }}</template>
         </h4>
         <div class="mt-1">
-          <LogoutButton />
+          <LogoutButton/>
         </div>
       </div>
       <div class="row topbar">
@@ -131,7 +132,12 @@ const search = () => {
           </div>
           <ul>
             <li v-if="!isNewRecordSelected && activeTab && access.delete">
-              <a role="button" @click="$emit('delete')" class="btn btn-transparent">
+              <a
+                role="button"
+                data-bs-toggle="modal"
+                data-bs-target="#delete-record"
+                class="btn btn-transparent"
+              >
                 <i class="bi bi-trash"></i>
               </a>
             </li>
@@ -141,12 +147,22 @@ const search = () => {
               </a>
             </li>
             <li v-if="!isNewRecordSelected && isEditRecordSelected">
-              <a role="button" @click="$emit('update')" class="btn btn-red">
+              <a
+                role="button"
+                class="btn btn-red"
+                data-bs-toggle="modal"
+                data-bs-target="#update-record"
+              >
                 <i class="bi bi-check-lg"></i> <span class="d-none d-md-inline-block">Update</span>
               </a>
             </li>
             <li v-if="isNewRecordSelected">
-              <a role="button" @click="$emit('store')" class="btn btn-red">
+              <a
+                role="button"
+                class="btn btn-red"
+                data-bs-toggle="modal"
+                data-bs-target="#store-record"
+              >
                 <i class="bi bi-check-lg"></i> <span class="d-none d-md-inline-block">Create</span>
               </a>
             </li>
@@ -165,12 +181,12 @@ const search = () => {
                 <i class="bi bi-x-circle"></i>
               </a>
             </li>
-            
+
             <li v-if="!isNewRecordSelected && activeTab && !isEditRecordSelected && access.duplicate">
               <a
                 role="button"
                 class="btn btn-black"
-                data-bs-toggle="modal" 
+                data-bs-toggle="modal"
                 data-bs-target="#duplicate-details"
                 @click="$emit('duplicate')"
               >
@@ -182,4 +198,24 @@ const search = () => {
       </div>
     </div>
   </div>
+
+  <ConfirmedModal
+    id="delete-record"
+    cancel="No, Keep it"
+    ok="Yes, Delete!"
+    @ok="$emit('delete')"
+  />
+
+  <ConfirmedModal
+    id="store-record"
+    title="You want to store this record?"
+    @ok="$emit('store')"
+  />
+
+  <ConfirmedModal
+    id="update-record"
+    title="You want to update this record?"
+    ok="Yes, Update!"
+    @ok="$emit('update')"
+  />
 </template>

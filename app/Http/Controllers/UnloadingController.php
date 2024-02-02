@@ -30,9 +30,11 @@ class UnloadingController extends Controller
             })
             ->whereNotNull('status')
             ->latest()
-            ->get();
+            ->paginate(20)
+            ->withQueryString()
+            ->onEachSide(1);
 
-        $receivalId = $request->input('receivalId', $receivals->first()->id ?? 0);
+        $receivalId = $request->input('receivalId', $receivals->items()[0]->id ?? 0);
 
         return Inertia::render('Unload/Index', [
             'receivals'  => $receivals,

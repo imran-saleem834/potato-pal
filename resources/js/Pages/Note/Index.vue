@@ -74,7 +74,9 @@ const deleteNote = (id) => {
   });
 }
 
-setActiveTab(note.value?.id);
+if (props.notes.current_page === 1) {
+  setActiveTab(note.value?.id);
+}
 </script>
 
 <template>
@@ -99,7 +101,8 @@ setActiveTab(note.value?.id);
       <div class="row g-0">
         <div class="col-12 col-lg-5 col-xl-4 nav-left d-lg-block" :class="{'d-none' : activeTab || isNewRecord}">
           <LeftBar
-            :items="notes"
+            :items="notes.data"
+            :links="notes.links"
             :active-tab="activeTab"
             :row-1="{title: 'Title', value: 'title'}"
             :row-2="{title: 'Note Id', value: 'id'}"

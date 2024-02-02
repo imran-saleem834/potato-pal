@@ -30,31 +30,22 @@ class ReceivalController extends Controller
                 });
             })
             ->latest()
-            ->get();
+            ->paginate(20)
+            ->withQueryString()
+            ->onEachSide(1);
 
-        $receivalId = $request->input('receivalId', $receivals->first()->id ?? 0);
-        $receival   = $this->getReceival($receivalId);
-
-        $types      = [
-            'grower-group',
-            'seed-variety',
-            'seed-generation',
-            'seed-class',
-            'delivery-type',
-            'transport'
-        ];
-        $categories = Category::whereIn('type', $types)->get();
+        $receivalId = $request->input('receivalId', $receivals->items()[0]->id ?? 0);
 
         return Inertia::render('Receival/Index', [
             'receivals'  => $receivals,
-            'single'     => $receival,
-            'users'      => fn() => User::with(['categories.category'])->select([
+            'single'     => $this->getReceival($receivalId),
+            'users'      => User::with(['categories.category'])->select([
                 'id',
                 'name',
                 'grower_name',
                 'paddocks'
             ])->get(),
-            'categories' => $categories,
+            'categories' => Category::whereIn('type', Receival::CATEGORY_TYPES)->get(),
             'filters'    => $request->only(['search']),
         ]);
     }

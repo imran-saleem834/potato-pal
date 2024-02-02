@@ -20,8 +20,10 @@ class FileController extends Controller
     {
         $files = File::query()
             ->when($request->input('search'), function (Builder $query, $search) {
-                return $query->where('id', 'LIKE', "%$search%")
-                    ->orWhere('title', 'LIKE', "%$search%");
+                return $query->where(function (Builder $subQuery) use ($search) {
+                    return $subQuery->where('id', 'LIKE', "%$search%")
+                        ->orWhere('title', 'LIKE', "%$search%");
+                });
             })
             ->latest()
             ->get()

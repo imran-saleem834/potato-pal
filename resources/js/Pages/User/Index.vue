@@ -78,7 +78,9 @@ const deleteUser = (id) => {
   });
 }
 
-setActiveTab(user.value?.id);
+if (props.users.current_page === 1) {
+  setActiveTab(user.value?.id);
+}
 </script>
 
 <template>
@@ -104,7 +106,8 @@ setActiveTab(user.value?.id);
       <div class="row g-0">
         <div class="col-12 col-lg-5 col-xl-4 nav-left d-lg-block" :class="{'d-none' : activeTab || isNewRecord}">
           <LeftBar
-            :items="users"
+            :items="users.data"
+            :links="users.links"
             :active-tab="activeTab"
             :row-1="{title: 'Name', value: 'name'}"
             :row-2="{title: 'Email', value: 'email'}"

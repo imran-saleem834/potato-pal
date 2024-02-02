@@ -7,6 +7,7 @@ import TextInput from "@/Components/TextInput.vue";
 import DataTable from 'datatables.net-vue3';
 import DataTablesCore from 'datatables.net';
 import { useToast } from "vue-toastification";
+import ConfirmedModal from "@/Components/ConfirmedModal.vue";
 
 const toast = useToast();
 
@@ -240,11 +241,21 @@ defineExpose({
         </div>
       </div>
       <div v-if="isEdit || isNewItem" class="w-100 text-end">
-        <button v-if="isEdit" @click="updateRecord" class="btn btn-red">
+        <button 
+          v-if="isEdit" 
+          data-bs-toggle="modal" 
+          :data-bs-target="`#update-allocation-${uniqueKey}`" 
+          class="btn btn-red"
+        >
           <template v-if="form.processing"><i class="bi bi-arrow-repeat d-inline-block spin"></i></template>
           <template v-else>Update</template>
         </button>
-        <button v-if="isNewItem" @click="storeRecord" class="btn btn-red">
+        <button 
+          v-if="isNewItem" 
+          data-bs-toggle="modal" 
+          :data-bs-target="`#store-allocation-${uniqueKey}`" 
+          class="btn btn-red"
+        >
           <template v-if="form.processing"><i class="bi bi-arrow-repeat d-inline-block spin"></i></template>
           <template v-else>Create</template>
         </button>
@@ -253,7 +264,7 @@ defineExpose({
     <template v-else>
       <div class="btn-group position-absolute" style="top: 0; right: 0;">
         <button @click="setIsEdit" class="btn btn-red p-1"><i class="bi bi-pen"></i></button>
-        <button @click="deleteAllocation" class="btn btn-red p-1">
+        <button data-bs-toggle="modal" :data-bs-target="`#delete-allocation-${uniqueKey}`" class="btn btn-red p-1">
           <template v-if="form.processing">
             <i class="bi bi-arrow-repeat d-inline-block spin"></i>
           </template>
@@ -294,6 +305,9 @@ defineExpose({
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 pb-1">
           <span>Paddock:</span> {{ allocation.paddock }}
+        </div>
+        <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 pb-1">
+          <span>Comment:</span> {{ allocation.comment }}
         </div>
       </div>
     </template>
@@ -350,6 +364,26 @@ defineExpose({
       </div>
     </div>
   </div>
+
+  <ConfirmedModal
+    :id="`delete-allocation-${uniqueKey}`"
+    cancel="No, Keep it"
+    ok="Yes, Delete!"
+    @ok="deleteAllocation"
+  />
+
+  <ConfirmedModal
+    :id="`store-allocation-${uniqueKey}`"
+    title="You want to store this record?"
+    @ok="storeRecord"
+  />
+
+  <ConfirmedModal
+    :id="`update-allocation-${uniqueKey}`"
+    title="You want to update this record?"
+    ok="Yes, Update!"
+    @ok="updateRecord"
+  />
 </template>
 
 <style>

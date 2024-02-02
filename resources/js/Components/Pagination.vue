@@ -12,10 +12,10 @@ defineProps({
       <template v-for="(link, key) in links" :key="key">
         <li v-if="link.url" class="page-item">
           <Link
-            class="page-link"
+            class="page-link text-black"
             :href="link.url"
-            :class="{ 'bg-info text-white': link.active }"
-            v-html="link.label"
+            :class="{ 'btn-red text-white': link.active }"
+            v-html="link.label.replace('Previous', '').replace('Next', '')"
           />
         </li>
       </template>

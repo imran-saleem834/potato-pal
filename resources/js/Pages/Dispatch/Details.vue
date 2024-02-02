@@ -8,6 +8,7 @@ import DataTablesCore from 'datatables.net';
 import { binSizes } from "@/tonnes.js";
 import { getSingleCategoryNameByType } from "@/helper.js";
 import UlLiButton from "@/Components/UlLiButton.vue";
+import ConfirmedModal from "@/Components/ConfirmedModal.vue";
 
 DataTable.use(DataTablesCore);
 
@@ -284,11 +285,21 @@ defineExpose({
         </div>
       </div>
       <div v-if="isEdit || isNewItem" class="w-100 text-end">
-        <button v-if="isEdit" @click="updateRecord" class="btn btn-red">
+        <button
+          v-if="isEdit"
+          data-bs-toggle="modal"
+          :data-bs-target="`#update-dispatch-${uniqueKey}`"
+          class="btn btn-red"
+        >
           <template v-if="form.processing"><i class="bi bi-arrow-repeat d-inline-block spin"></i></template>
           <template v-else>Update</template>
         </button>
-        <button v-if="isNewItem" @click="storeRecord" class="btn btn-red">
+        <button
+          v-if="isNewItem"
+          data-bs-toggle="modal"
+          :data-bs-target="`#store-dispatch-${uniqueKey}`"
+          class="btn btn-red"
+        >
           <template v-if="form.processing"><i class="bi bi-arrow-repeat d-inline-block spin"></i></template>
           <template v-else>Create</template>
         </button>
@@ -297,7 +308,7 @@ defineExpose({
     <template v-else>
       <div class="btn-group position-absolute" style="top: 0; right: 0;">
         <button @click="setIsEdit" class="btn btn-red p-1"><i class="bi bi-pen"></i></button>
-        <button @click="deleteDispatch" class="btn btn-red p-1">
+        <button data-bs-toggle="modal" :data-bs-target="`#delete-dispatch-${uniqueKey}`" class="btn btn-red p-1">
           <template v-if="form.processing">
             <i class="bi bi-arrow-repeat d-inline-block spin"></i>
           </template>
@@ -320,7 +331,7 @@ defineExpose({
           </Link>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Seed Type:</span>
+          <span>Seed Type: </span>
           <template v-if="dispatch.allocation_id">
             {{ getSingleCategoryNameByType(dispatch.allocation.categories, 'seed-type') }}
           </template>
@@ -330,7 +341,7 @@ defineExpose({
           <template v-else>-</template>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Bin Size:</span>
+          <span>Bin Size: </span>
           <template v-if="dispatch.allocation_id">
             {{ (dispatch.allocation.bin_size / 1000) }} tonnes
           </template>
@@ -346,7 +357,7 @@ defineExpose({
           <span>Dispatch Weight:</span> {{ dispatch.weight.toFixed(2) }} Kg
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Receival Group:</span>
+          <span>Receival Group: </span>
           <template v-if="dispatch.allocation_id">
             {{ getSingleCategoryNameByType(dispatch.allocation.categories, 'grower-group') }}
           </template>
@@ -356,7 +367,7 @@ defineExpose({
           <template v-else>-</template>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Seed Variety:</span>
+          <span>Seed Variety: </span>
           <template v-if="dispatch.allocation_id">
             {{ getSingleCategoryNameByType(dispatch.allocation.categories, 'seed-variety') }}
           </template>
@@ -366,7 +377,7 @@ defineExpose({
           <template v-else>-</template>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Seed Generation:</span>
+          <span>Seed Generation: </span>
           <template v-if="dispatch.allocation_id">
             {{ getSingleCategoryNameByType(dispatch.allocation.categories, 'seed-generation') }}
           </template>
@@ -376,7 +387,7 @@ defineExpose({
           <template v-else>-</template>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Seed Class:</span>
+          <span>Seed Class: </span>
           <template v-if="dispatch.allocation_id">
             {{ getSingleCategoryNameByType(dispatch.allocation.categories, 'seed-class') }}
           </template>
@@ -386,10 +397,13 @@ defineExpose({
           <template v-else>-</template>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Paddock:</span>
+          <span>Paddock: </span>
           <template v-if="dispatch.allocation_id">{{ dispatch.allocation.paddock }}</template>
           <template v-else-if="dispatch.reallocation_id">{{ dispatch.reallocation.allocation.paddock }}</template>
           <template v-else>-</template>
+        </div>
+        <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+          <span>Comment: </span> {{ dispatch.comment }}
         </div>
       </div>
     </template>
@@ -467,7 +481,6 @@ defineExpose({
   </div>
 
   <div
-    
     class="modal fade"
     :id="`return-${uniqueKey}`"
     tabindex="-1"
@@ -542,6 +555,26 @@ defineExpose({
       </div>
     </div>
   </div>
+
+  <ConfirmedModal
+    :id="`delete-dispatch-${uniqueKey}`"
+    cancel="No, Keep it"
+    ok="Yes, Delete!"
+    @ok="deleteDispatch"
+  />
+
+  <ConfirmedModal
+    :id="`store-dispatch-${uniqueKey}`"
+    title="You want to store this record?"
+    @ok="storeRecord"
+  />
+
+  <ConfirmedModal
+    :id="`update-dispatch-${uniqueKey}`"
+    title="You want to update this record?"
+    ok="Yes, Update!"
+    @ok="updateRecord"
+  />
 </template>
 
 <style>

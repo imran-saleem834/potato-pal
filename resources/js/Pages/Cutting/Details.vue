@@ -5,6 +5,7 @@ import Multiselect from '@vueform/multiselect'
 import DataTable from 'datatables.net-vue3';
 import DataTablesCore from 'datatables.net';
 import TextInput from "@/Components/TextInput.vue";
+import ConfirmedModal from "@/Components/ConfirmedModal.vue";
 import {
   getCategoryIdsByType,
   getCategoriesDropDownByType,
@@ -252,7 +253,7 @@ defineExpose({
           <TextInput v-model="form.cut_by" :error="form.errors.cut_by" type="text"/>
         </div>
         <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 mb-3">
-          <label class="form-label">Comment</label>
+          <label class="form-label">Fungicide</label>
           <Multiselect
             v-model="form.fungicide"
             mode="tags"
@@ -270,11 +271,21 @@ defineExpose({
         </div>
       </div>
       <div v-if="isEdit || isNewItem" class="w-100 text-end">
-        <button v-if="isEdit" @click="updateRecord" class="btn btn-red">
+        <button
+          v-if="isEdit"
+          data-bs-toggle="modal"
+          :data-bs-target="`#update-cutting-${uniqueKey}`"
+          class="btn btn-red"
+        >
           <template v-if="form.processing"><i class="bi bi-arrow-repeat d-inline-block spin"></i></template>
           <template v-else>Update</template>
         </button>
-        <button v-if="isNewItem" @click="storeRecord" class="btn btn-red">
+        <button
+          v-if="isNewItem"
+          data-bs-toggle="modal"
+          :data-bs-target="`#store-cutting-${uniqueKey}`"
+          class="btn btn-red"
+        >
           <template v-if="form.processing"><i class="bi bi-arrow-repeat d-inline-block spin"></i></template>
           <template v-else>Create</template>
         </button>
@@ -283,7 +294,7 @@ defineExpose({
     <template v-else>
       <div class="btn-group position-absolute" style="top: 0; right: 0;">
         <button @click="setIsEdit" class="btn btn-red p-1"><i class="bi bi-pen"></i></button>
-        <button @click="deleteCutting" class="btn btn-red p-1">
+        <button data-bs-toggle="modal" :data-bs-target="`#delete-cutting-${uniqueKey}`" class="btn btn-red p-1">
           <template v-if="form.processing">
             <i class="bi bi-arrow-repeat d-inline-block spin"></i>
           </template>
@@ -297,7 +308,10 @@ defineExpose({
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
           <span>Cut By:</span> {{ cutting.cut_by }}
         </div>
-        <div class="col-12 col-sm-4 col-md-6 col-lg-4 col-xl-6 mb-1 pb-1">
+        <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+          <span>Fungicide:</span> {{ getSingleCategoryNameByType(cutting.categories, 'fungicide') || '-' }}
+        </div>
+        <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
           <span>Comment:</span> {{ cutting.comment }}
         </div>
         <template v-for="cuttingAllocation in cutting.cutting_allocations" :key="cuttingAllocation.id">
@@ -401,6 +415,26 @@ defineExpose({
       </div>
     </div>
   </div>
+
+  <ConfirmedModal
+    :id="`delete-cutting-${uniqueKey}`"
+    cancel="No, Keep it"
+    ok="Yes, Delete!"
+    @ok="deleteCutting"
+  />
+
+  <ConfirmedModal
+    :id="`store-cutting-${uniqueKey}`"
+    title="You want to store this record?"
+    @ok="storeRecord"
+  />
+
+  <ConfirmedModal
+    :id="`update-cutting-${uniqueKey}`"
+    title="You want to update this record?"
+    ok="Yes, Update!"
+    @ok="updateRecord"
+  />
 </template>
 
 <style>

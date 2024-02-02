@@ -199,7 +199,7 @@ setActiveTab(cuttings.value.data[0]?.buyer_id);
                   @delete="() => setActiveTab(cuttings?.data[0]?.buyer_id)"
                 />
               </template>
-              <div class="col-12 text-end">
+              <div class="float-end">
                 <Pagination :links="cuttings.links"/>
               </div>
             </template>

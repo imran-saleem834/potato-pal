@@ -65,7 +65,9 @@ const deleteUnload = (id) => {
   });
 }
 
-setActiveTab(receival.value?.id);
+if (props.receivals.current_page === 1) {
+  setActiveTab(receival.value?.id);
+}
 </script>
 
 <template>
@@ -90,7 +92,8 @@ setActiveTab(receival.value?.id);
       <div class="row g-0">
         <div class="col-12 col-lg-5 col-xl-4 nav-left d-lg-block" :class="{'d-none' : activeTab}">
           <LeftBar
-            :items="receivals"
+            :items="receivals.data"
+            :links="receivals.links"
             :active-tab="activeTab"
             :row-1="{title: 'Grower', value: 'grower.grower_name'}"
             :row-2="{title: 'Receival Id', value: 'id'}"

@@ -19,28 +19,29 @@ class TiaSampleController extends Controller
     {
         $tiaSamples = TiaSample::query()
             ->with([
-                'receival'        => function ($query) {
-                    return $query->select('id', 'grower_id');
-                },
-                'receival.grower' => function ($query) {
-                    return $query->select('id', 'name', 'grower_name');
-                }
+                'receival'        => fn($query) => $query->select(['id', 'grower_id']),
+                'receival.grower' => fn($query) => $query->select(['id', 'name', 'grower_name']),
             ])
             ->select('id', 'receival_id')
             ->when($request->input('search'), function (Builder $query, $search) {
-                return $query->where('id', 'LIKE', "%$search%")
-                    ->orWhere('receival_id', 'LIKE', "%$search%")
-                    ->orWhere('processor', 'LIKE', "%$search%")
-                    ->orWhere('inspection_no', 'LIKE', "%$search%")
-                    ->orWhere('inspection_date', 'LIKE', "%$search%")
-                    ->orWhere('cool_store', 'LIKE', "%$search%")
-                    ->orWhere('size', 'LIKE', "%$search%")
-                    ->orWhere('status', 'LIKE', "%$search%");
+                return $query->where(function (Builder $subQuery) use ($search) {
+                    return $subQuery->where('id', 'LIKE', "%$search%")
+                        ->orWhere('receival_id', 'LIKE', "%$search%")
+                        ->orWhere('processor', 'LIKE', "%$search%")
+                        ->orWhere('inspection_no', 'LIKE', "%$search%")
+                        ->orWhere('inspection_date', 'LIKE', "%$search%")
+                        ->orWhere('cool_store', 'LIKE', "%$search%")
+                        ->orWhere('size', 'LIKE', "%$search%")
+                        ->orWhere('status', 'LIKE', "%$search%")
+                        ->orWhere('comment', 'LIKE', "%$search%");
+                });
             })
             ->latest()
-            ->get();
+            ->paginate(20)
+            ->withQueryString()
+            ->onEachSide(1);
 
-        $tiaSampleId = $request->input('tiaSampleId', $tiaSamples->first()->id ?? 0);
+        $tiaSampleId = $request->input('tiaSampleId', $tiaSamples->items()[0]->id ?? 0);
 
         $tiaSample = TiaSample::with(['receival.grower', 'receival.categories.category'])->find($tiaSampleId);
 

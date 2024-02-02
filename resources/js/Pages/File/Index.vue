@@ -111,7 +111,7 @@ setActiveTab(file.value?.id);
         <div class="col-12 col-lg-5 col-xl-4 nav-left d-lg-block" :class="{'d-none' : activeTab || isNewRecord}">
           <div class="files-left">
             <template v-for="(images, date) in files" :key="date">
-              <h5>{{ moment(date).format('DD, MMM YYYY') }}</h5>
+              <h6>{{ moment(date).format('DD, MMM YYYY') }}</h6>
               <ul>
                 <li v-for="image in images" :key="image.id">
                   <img

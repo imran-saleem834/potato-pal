@@ -195,7 +195,7 @@ setActiveTab(allocations.value.data[0]?.buyer_id);
                   @delete="() => setActiveTab(allocations?.data[0]?.buyer_id)"
                 />
               </template>
-              <div class="col-12 text-end">
+              <div class="float-end">
                 <Pagination :links="allocations.links"/>
               </div>
             </template>

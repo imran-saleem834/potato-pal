@@ -195,7 +195,7 @@ setActiveTab(reallocations.value.data[0]?.buyer_id);
                   @delete="() => setActiveTab(reallocations?.data[0]?.buyer_id)"
                 />
               </template>
-              <div class="col-12 text-end">
+              <div class="float-end">
                 <Pagination :links="reallocations.links"/>
               </div>
             </template>

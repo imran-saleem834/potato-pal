@@ -16,9 +16,11 @@ class NotificationController extends Controller
     {
         $notifications = Notification::query()
             ->when($request->input('search'), function (Builder $query, $search) {
-                return $query->where('id', 'LIKE', "%$search%")
-                    ->orWhere('action', 'LIKE', "%$search%")
-                    ->orWhere('notification', 'LIKE', "%$search%");
+                return $query->where(function (Builder $subQuery) use ($search) {
+                    return $subQuery->where('id', 'LIKE', "%$search%")
+                        ->orWhere('action', 'LIKE', "%$search%")
+                        ->orWhere('notification', 'LIKE', "%$search%");
+                });
             })
             ->latest()
             ->paginate(40);

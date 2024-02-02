@@ -199,7 +199,7 @@ setActiveTab(dispatches.value.data[0]?.buyer_id);
                   @delete="() => setActiveTab(dispatches?.data[0]?.buyer_id)"
                 />
               </template>
-              <div class="col-sm-12 text-right">
+              <div class="float-end">
                 <Pagination :links="dispatches.links"/>
               </div>
             </template>

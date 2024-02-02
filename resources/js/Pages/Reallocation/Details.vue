@@ -7,6 +7,7 @@ import DataTable from 'datatables.net-vue3';
 import DataTablesCore from 'datatables.net';
 import { getSingleCategoryNameByType } from "@/helper.js";
 import { useToast } from "vue-toastification";
+import ConfirmedModal from "@/Components/ConfirmedModal.vue";
 
 const toast = useToast();
 
@@ -223,11 +224,21 @@ defineExpose({
         </div>
       </div>
       <div v-if="isEdit || isNewItem" class="w-100 text-end">
-        <button v-if="isEdit" @click="updateRecord" class="btn btn-red">
+        <button
+          v-if="isEdit"
+          data-bs-toggle="modal"
+          :data-bs-target="`#update-reallocation-${uniqueKey}`"
+          class="btn btn-red"
+        >
           <template v-if="form.processing"><i class="bi bi-arrow-repeat d-inline-block spin"></i></template>
           <template v-else>Update</template>
         </button>
-        <button v-if="isNewItem" @click="storeRecord" class="btn btn-red">
+        <button
+          v-if="isNewItem"
+          data-bs-toggle="modal"
+          :data-bs-target="`#store-reallocation-${uniqueKey}`"
+          class="btn btn-red"
+        >
           <template v-if="form.processing"><i class="bi bi-arrow-repeat d-inline-block spin"></i></template>
           <template v-else>Create</template>
         </button>
@@ -236,7 +247,7 @@ defineExpose({
     <template v-else>
       <div class="btn-group position-absolute" style="top: 0; right: 0;">
         <button @click="setIsEdit" class="btn btn-red p-1"><i class="bi bi-pen"></i></button>
-        <button @click="deleteReallocation" class="btn btn-red p-1">
+        <button data-bs-toggle="modal" :data-bs-target="`#delete-reallocation-${uniqueKey}`" class="btn btn-red p-1">
           <template v-if="form.processing">
             <i class="bi bi-arrow-repeat d-inline-block spin"></i>
           </template>
@@ -247,7 +258,7 @@ defineExpose({
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
           <span>Allocation Buyer Name: </span>
           <Link :href="route('users.index', {userId: reallocation.allocation_buyer_id})">
-            {{ reallocation?.allocation_buyer?.name }}
+            {{ `${reallocation?.allocation_buyer?.name} (${reallocation?.allocation_buyer?.buyer_name})` }}
           </Link>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
@@ -276,6 +287,9 @@ defineExpose({
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 pb-1">
           <span>Paddock:</span> {{ reallocation.allocation.paddock }}
+        </div>
+        <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 pb-1">
+          <span>Comment:</span> {{ reallocation.comment }}
         </div>
       </div>
     </template>
@@ -330,6 +344,26 @@ defineExpose({
       </div>
     </div>
   </div>
+
+  <ConfirmedModal
+    :id="`delete-reallocation-${uniqueKey}`"
+    cancel="No, Keep it"
+    ok="Yes, Delete!"
+    @ok="deleteReallocation"
+  />
+
+  <ConfirmedModal
+    :id="`store-reallocation-${uniqueKey}`"
+    title="You want to store this record?"
+    @ok="storeRecord"
+  />
+
+  <ConfirmedModal
+    :id="`update-reallocation-${uniqueKey}`"
+    title="You want to update this record?"
+    ok="Yes, Update!"
+    @ok="updateRecord"
+  />
 </template>
 
 <style>

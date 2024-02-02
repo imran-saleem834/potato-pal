@@ -1,6 +1,12 @@
 <script setup>
+import Pagination from "@/Components/Pagination.vue";
+
 defineProps({
   items: Array,
+  links: {
+    type: Array,
+    default: [],
+  },
   activeTab: {
     type: Number,
     default: null,
@@ -61,5 +67,8 @@ const getObjectProperty = (obj, key) => {
     class="text-center"
     style="margin-top: calc(50vh - 120px);"
   >No Records Found
+  </div>
+  <div v-if="links.length > 0" class="float-end mt-3 me-2">
+    <Pagination :links="links"/>
   </div>
 </template>

@@ -21,21 +21,23 @@ class NoteController extends Controller
         $notes = Note::query()
             ->select('id', 'title', 'tags', 'created_at')
             ->when($request->input('search'), function (Builder $query, $search) {
-                return $query->where('id', 'LIKE', "%$search%")
-                    ->orWhere('title', 'LIKE', "%$search%")
-                    ->orWhere('note', 'LIKE', "%$search%")
-                    ->orWhere('tags', 'LIKE', "%$search%");
+                return $query->where(function (Builder $subQuery) use ($search) {
+                    return $subQuery->where('id', 'LIKE', "%$search%")
+                        ->orWhere('title', 'LIKE', "%$search%")
+                        ->orWhere('note', 'LIKE', "%$search%")
+                        ->orWhere('tags', 'LIKE', "%$search%");
+                });
             })
             ->latest()
-            ->get();
+            ->paginate(20)
+            ->withQueryString()
+            ->onEachSide(1);
 
-        $noteId = $request->input('noteId', $notes->first()->id ?? 0);
-
-        $note = Note::find($noteId);
+        $noteId = $request->input('noteId', $notes->items()[0]->id ?? 0);
 
         return Inertia::render('Note/Index', [
             'notes'   => $notes,
-            'single'  => $note,
+            'single'  => Note::find($noteId),
             'filters' => $request->only(['search']),
         ]);
     }

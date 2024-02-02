@@ -77,8 +77,9 @@ const deleteTiaSample = (id) => {
     },
   });
 }
-
-setActiveTab(tiaSample.value?.id);
+if (props.tiaSamples.current_page === 1) {
+  setActiveTab(tiaSample.value?.id);
+}
 </script>
 
 <template>
@@ -103,7 +104,8 @@ setActiveTab(tiaSample.value?.id);
       <div class="row g-0">
         <div class="col-12 col-lg-5 col-xl-4 nav-left d-lg-block" :class="{'d-none' : activeTab || isNewRecord}">
           <LeftBar
-            :items="tiaSamples"
+            :items="tiaSamples.data"
+            :links="tiaSamples.links"
             :active-tab="activeTab"
             :row-1="{title: 'Grower', value: 'receival.grower.grower_name'}"
             :row-2="{title: 'Tia Sample Id', value: 'id'}"

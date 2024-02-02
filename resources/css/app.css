@@ -466,15 +466,15 @@ body {
     border-right: 1px solid #ddd;
 }
 
-.nav-left a {
+.nav-left > a {
     padding: 10px 15px;
     text-decoration: none;
     box-shadow: 1px 5px 8px rgba(0, 0, 0, 0.09);
 }
 
-.nav-left a.active,
-.nav-left a:hover,
-.nav-left a:focus {
+.nav-left > a.active,
+.nav-left > a:hover,
+.nav-left > a:focus {
     background: #EFD6E0;
 }
 
@@ -500,7 +500,7 @@ body {
     margin-top: -10px;
 }
 
-.nav-left a .angle-right {
+.nav-left > a .angle-right {
     position: absolute;
     top: calc(50% - 10px);
     right: 20px;

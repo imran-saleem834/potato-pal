@@ -143,9 +143,7 @@ class CuttingController extends Controller
         $cuttings = Cutting::query()
             ->with([
                 'categories.category',
-                'cuttingAllocations.allocation.categories.category',
-                'buyer' => fn($query) => $query->select('id', 'name'),
-                'buyer.categories.category',
+                'cuttingAllocations.allocation.categories.category'
             ])
             ->when($search, function ($query, $search) {
                  return $query->where(function ($subQuery) use ($search) {

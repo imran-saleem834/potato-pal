@@ -79,7 +79,7 @@ const getNotificationActionColor = (action) => {
             <p class="text-center" style="margin-top: calc(50vh - 120px);">No Records Found</p>
           </div>
         </div>
-        <div class="col-12 d-flex justify-content-end">
+        <div class="float-end">
           <Pagination :links="notifications.links" />
         </div>
       </div>

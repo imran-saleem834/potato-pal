@@ -116,9 +116,7 @@ class ReallocationController extends Controller
         return Reallocation::query()
             ->with([
                 'allocation.categories.category',
-                'allocationBuyer' => fn($query) => $query->select('id', 'name'),
-                'buyer'           => fn($query) => $query->select('id', 'name'),
-                'buyer.categories.category',
+                'allocationBuyer' => fn($query) => $query->select('id', 'name', 'buyer_name'),
             ])
             ->when($search, function ($query, $search) {
                 return $query->where(function ($subQuery) use ($search) {
