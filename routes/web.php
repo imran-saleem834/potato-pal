@@ -13,6 +13,7 @@ use App\Http\Controllers\AllocationController;
 use App\Http\Controllers\CuttingController;
 use App\Http\Controllers\ReallocationController;
 use App\Http\Controllers\DispatchController;
+use App\Http\Controllers\WeighbridgeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -59,6 +60,8 @@ Route::middleware([
     Route::resource('/allocations', AllocationController::class)->except(['create', 'edit', 'show']);
     Route::resource('/reallocations', ReallocationController::class)->except(['create', 'edit']);
     Route::resource('/dispatches', DispatchController::class)->except(['create', 'edit', 'show']);
+
+    Route::get('/weighbridges', [WeighbridgeController::class, 'index'])->name('weighbridges.index');
 
     Route::resource('/notifications', NotificationController::class);
 

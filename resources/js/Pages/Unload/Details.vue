@@ -472,7 +472,7 @@ defineExpose({
           </tr>
           <tr>
             <th>No. of total bins</th>
-            <td class="pb-0">
+            <td>
               <input
                 type="text"
                 class="form-control"
@@ -491,7 +491,7 @@ defineExpose({
           </tr>
           <tr>
             <th>Weight of total bins</th>
-            <td class="pb-0">
+            <td>
               <TextInput
                 v-if="isForm && form.unloads[index]"
                 :disabled="true"
