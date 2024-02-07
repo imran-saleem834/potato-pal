@@ -5,7 +5,7 @@ import Multiselect from '@vueform/multiselect'
 import TextInput from "@/Components/TextInput.vue";
 import DataTable from 'datatables.net-vue3';
 import DataTablesCore from 'datatables.net';
-import { binSizes } from "@/tonnes.js";
+import { binSizes, getBinSizesValue } from "@/tonnes.js";
 import { getSingleCategoryNameByType } from "@/helper.js";
 import UlLiButton from "@/Components/UlLiButton.vue";
 import ConfirmedModal from "@/Components/ConfirmedModal.vue";
@@ -196,7 +196,7 @@ defineExpose({
   <div class="user-boxes position-relative" :class="{'pe-5': !isForm}">
     <table v-if="isForm" class="table input-table">
       <tr>
-        <th class="d-none d-sm-table-cell">Allocation Buyer Name</th>
+        <th class="d-none d-sm-table-cell">Re\Allocation Buyer Name</th>
         <td>
           <div class="p-0" :class="{'input-group': form.allocation_buyer_id}">
             <Multiselect
@@ -240,7 +240,7 @@ defineExpose({
         <tbody>
         <tr>
           <td>{{ getSingleCategoryNameByType(form.selected_allocation.categories, 'seed-type') || '-' }}</td>
-          <td>{{ (form.selected_allocation.bin_size / 1000) }} tonnes</td>
+          <td>{{ getBinSizesValue(form.selected_allocation.bin_size) }}</td>
           <td>{{ form.selected_allocation.no_of_bins }}</td>
           <td>{{ form.selected_allocation.weight }} Kg</td>
         </tr>
@@ -261,7 +261,7 @@ defineExpose({
         <tbody>
         <tr>
           <td>{{ getSingleCategoryNameByType(form.selected_reallocation.allocation.categories, 'seed-type') }}</td>
-          <td>{{ (form.selected_reallocation.allocation.bin_size / 1000) }} tonnes</td>
+          <td>{{ getBinSizesValue(form.selected_reallocation.allocation.bin_size) }}</td>
           <td>{{ form.selected_reallocation.no_of_bins }}</td>
           <td>{{ form.selected_reallocation.weight }} Kg</td>
         </tr>
@@ -306,7 +306,7 @@ defineExpose({
       </div>
     </template>
     <template v-else>
-      <div class="btn-group position-absolute" style="top: 0; right: 0;">
+      <div class="btn-group position-absolute top-0 end-0">
         <button @click="setIsEdit" class="btn btn-red p-1"><i class="bi bi-pen"></i></button>
         <button data-bs-toggle="modal" :data-bs-target="`#delete-dispatch-${uniqueKey}`" class="btn btn-red p-1">
           <template v-if="form.processing">
@@ -317,10 +317,9 @@ defineExpose({
       </div>
       <button 
         data-bs-toggle="modal"
-        style="bottom: 0;right: 0;"
         :data-bs-target="`#return-${uniqueKey}`"
         @click="openModalReturnAllocation(dispatch)"
-        class="position-absolute btn btn-black p-1"
+        class="btn btn-black p-1 position-absolute bottom-0 end-0"
         v-text="'Return'"
       />
       <div class="row allocation-items-box">
@@ -343,10 +342,10 @@ defineExpose({
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
           <span>Bin Size: </span>
           <template v-if="dispatch.allocation_id">
-            {{ (dispatch.allocation.bin_size / 1000) }} tonnes
+            {{ getBinSizesValue(dispatch.allocation.bin_size) }}
           </template>
           <template v-else-if="dispatch.reallocation_id">
-            {{ (dispatch.reallocation.allocation.bin_size / 1000) }} tonnes
+            {{ getBinSizesValue(dispatch.reallocation.allocation.bin_size) }}
           </template>
           <template v-else>-</template>
         </div>
@@ -417,15 +416,15 @@ defineExpose({
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <div class="table-responsive">
-            <table class="table mb-0">
+          <div v-if="form.allocation_buyer_id" class="table-responsive">
+            <DataTable class="table mb-0">
               <thead>
               <tr>
                 <th>From</th>
                 <th>Seed Type</th>
-                <th>Seed Variety</th>
+                <th>Seed Var.</th>
                 <th>Seed Class</th>
-                <th>Seed Generation</th>
+                <th>Seed Gen.</th>
                 <th>Grower Group</th>
                 <th>Paddock</th>
                 <th>Bin Size</th>
@@ -448,9 +447,9 @@ defineExpose({
                   <td>{{ getSingleCategoryNameByType(allocation.categories, 'seed-generation') }}</td>
                   <td>{{ getSingleCategoryNameByType(allocation.categories, 'grower-group') }}</td>
                   <td>{{ allocation.paddock }}</td>
-                  <td>{{ allocation.bin_size }} Tonnes</td>
+                  <td>{{ getBinSizesValue(allocation.bin_size) }}</td>
                   <td>{{ allocation.no_of_bins }}</td>
-                  <td>{{ allocation.weight }} Tonnes</td>
+                  <td>{{ allocation.weight }} Kg</td>
                 </tr>
               </template>
               <template v-for="reallocation in reallocations" :key="reallocation.id">
@@ -467,13 +466,13 @@ defineExpose({
                   <td>{{ getSingleCategoryNameByType(reallocation.allocation.categories, 'seed-generation') }}</td>
                   <td>{{ getSingleCategoryNameByType(reallocation.allocation.categories, 'grower-group') }}</td>
                   <td>{{ reallocation.allocation.paddock }}</td>
-                  <td>{{ reallocation.allocation.bin_size }} Tonnes</td>
+                  <td>{{ getBinSizesValue(reallocation.allocation.bin_size) }}</td>
                   <td>{{ reallocation.no_of_bins }}</td>
-                  <td>{{ reallocation.weight }} Tonnes</td>
+                  <td>{{ reallocation.weight }} Kg</td>
                 </tr>
               </template>
               </tbody>
-            </table>
+            </DataTable>
           </div>
         </div>
       </div>
@@ -499,7 +498,7 @@ defineExpose({
               <tr>
                 <th>From</th>
                 <th>Seed Type</th>
-                <th>Seed Variety</th>
+                <th>Seed Var.</th>
                 <th>Seed Class</th>
                 <th>Seed Gen.</th>
                 <th>Grower Group</th>
@@ -516,7 +515,7 @@ defineExpose({
                 <td>{{ getSingleCategoryNameByType(returnForm.dispatch.allocation.categories, 'seed-generation') }}</td>
                 <td>{{ getSingleCategoryNameByType(returnForm.dispatch.allocation.categories, 'grower-group') }}</td>
                 <td>{{ returnForm.dispatch.allocation.paddock }}</td>
-                <td>{{ (returnForm.dispatch.allocation.bin_size / 1000) }} tonnes</td>
+                <td>{{ getBinSizesValue(returnForm.dispatch.allocation.bin_size) }}</td>
               </tr>
               </tbody>
             </table>

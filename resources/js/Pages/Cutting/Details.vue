@@ -4,6 +4,7 @@ import { computed, ref, watch } from "vue";
 import Multiselect from '@vueform/multiselect'
 import DataTable from 'datatables.net-vue3';
 import DataTablesCore from 'datatables.net';
+import { getBinSizesValue } from "@/tonnes.js";
 import TextInput from "@/Components/TextInput.vue";
 import ConfirmedModal from "@/Components/ConfirmedModal.vue";
 import {
@@ -193,7 +194,7 @@ defineExpose({
         </div>
         <div class="col-sm-6 col-md-3 col-lg-6 col-xl-3 mt-md-4">
           <div class="col-12 mb-1 pb-1 mb-md-3 mb-lg-1 mb-xl-3">
-            <span>Bin Size: </span>{{ (selectedAllocation.allocation.bin_size / 1000) }} tonnes
+            <span>Bin Size: </span>{{ getBinSizesValue(selectedAllocation.allocation.bin_size) }}
           </div>
           <div class="col-12 mb-1 pb-1 mb-md-3 mb-lg-1 mb-xl-3">
             <span>Available No of Bins: </span>{{ selectedAllocation.allocation.no_of_bins }}
@@ -292,7 +293,7 @@ defineExpose({
       </div>
     </template>
     <template v-else>
-      <div class="btn-group position-absolute" style="top: 0; right: 0;">
+      <div class="btn-group position-absolute top-0 end-0">
         <button @click="setIsEdit" class="btn btn-red p-1"><i class="bi bi-pen"></i></button>
         <button data-bs-toggle="modal" :data-bs-target="`#delete-cutting-${uniqueKey}`" class="btn btn-red p-1">
           <template v-if="form.processing">
@@ -320,7 +321,7 @@ defineExpose({
             {{ getSingleCategoryNameByType(cuttingAllocation.allocation.categories, 'seed-type') || '-' }}
           </div>
           <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-            <span>Bin Size:</span> {{ (cuttingAllocation.allocation.bin_size / 1000) }} tonnes
+            <span>Bin Size:</span> {{ getBinSizesValue(cuttingAllocation.allocation.bin_size) }}
           </div>
           <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
             <span>Bins before cut:</span> {{ cuttingAllocation.no_of_bins_before_cutting }}
@@ -396,7 +397,7 @@ defineExpose({
                   <td>{{ getSingleCategoryNameByType(allocation.categories, 'seed-generation') || '-' }}</td>
                   <td>{{ getSingleCategoryNameByType(allocation.categories, 'grower-group') || '-' }}</td>
                   <td>{{ allocation.paddock }}</td>
-                  <td>{{ (allocation.bin_size / 1000) }} tonnes</td>
+                  <td>{{ getBinSizesValue(allocation.bin_size) }}</td>
                   <td>{{ allocation.no_of_bins }}</td>
                   <td>{{ allocation.weight.toFixed(2) }} kg</td>
                   <td>

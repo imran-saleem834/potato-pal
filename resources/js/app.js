@@ -5,6 +5,7 @@ import { createApp, h } from 'vue';
 import { createInertiaApp } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy/dist/vue.m';
+// import { VueWindowSizePlugin } from 'vue-window-size/plugin';
 import Toast, { POSITION } from "vue-toastification";
 import PubNub from 'pubnub';
 
@@ -19,6 +20,7 @@ createInertiaApp({
         return createApp({ render: () => h(App, props) })
             .use(plugin)
             .use(ZiggyVue)
+            // .use(VueWindowSizePlugin)
             .use(Toast, {
                 position: POSITION.BOTTOM_RIGHT
             })

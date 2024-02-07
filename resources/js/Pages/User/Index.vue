@@ -6,7 +6,10 @@ import TopBar from '@/Components/TopBar.vue';
 import Details from '@/Pages/User/Details.vue';
 import LeftBar from "@/Components/LeftBar.vue";
 import { useToast } from "vue-toastification";
+import { useWindowSize } from 'vue-window-size';
+
 const toast = useToast();
+const { width, height } = useWindowSize();
 
 const props = defineProps({
   users: Object,
@@ -78,7 +81,7 @@ const deleteUser = (id) => {
   });
 }
 
-if (props.users.current_page === 1) {
+if (width.value > 991) {
   setActiveTab(user.value?.id);
 }
 </script>

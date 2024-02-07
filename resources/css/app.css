@@ -215,6 +215,7 @@ body {
 
 .btn-red:hover,
 .btn-lg-red:hover,
+.btn-transparent.active,
 .btn-transparent:hover,
 .btn-black:hover {
     background: #fff !important;
@@ -225,6 +226,7 @@ body {
 .btn-red:hover i,
 .btn-lg-red:hover i,
 .btn-black:hover i,
+.btn-transparent.active i,
 .btn-transparent:hover i {
     color: #E22827 !important;
 }
@@ -436,8 +438,8 @@ body {
 }
 
 .middle-section .middle-right ul {
-    min-width: 200px;
-    text-align: right;
+    /*min-width: 200px;*/
+    /*text-align: right;*/
 }
 
 .middle-section ul li {

@@ -43,6 +43,7 @@ const access = computed(() => ({
 }));
 
 const keyword = ref(props.search);
+const isSearchVisible = ref(false);
 
 const emit = defineEmits(['search', 'unset', 'edit', 'new', 'store', 'update', 'delete', 'duplicate']);
 
@@ -70,7 +71,10 @@ const search = () => {
             <Link :href="route('dashboard')"><img src="/images/logo.png" alt="logo"></Link>
           </div>
         </div>
-        <div class="col-12 col-md-6 d-none d-md-block order-3 order-md-2">
+        <div
+          :class="{'d-none': !isSearchVisible}"
+          class="col-12 col-md-6 d-md-block order-3 order-md-2"
+        >
           <div class="form-group position-relative">
             <i class="bi bi-search form-control-feedback"></i>
             <input
@@ -93,7 +97,7 @@ const search = () => {
 
   <div class="middle-section mt-3 mt-md-0">
     <div class="row g-0">
-      <div class="col-4  col-lg-5 col-xl-4 d-none d-lg-block">
+      <div class="col-4 col-lg-5 col-xl-4 d-none d-lg-block">
         <div class="d-flex justify-content-between align-items-center middle-left h-100">
           <ul>
             <li>
@@ -120,35 +124,45 @@ const search = () => {
             <template v-if="activeTab || isEditRecordSelected">{{ title }}</template>
             <template v-else>{{ type }}</template>
           </h5>
-          <div class="form-group position-relative d-block d-md-none">
-            <i class="bi bi-search form-control-feedback"></i>
-            <input
-              type="text"
-              class="form-control custom-input"
-              v-model="keyword"
-              @input="search"
-              :placeholder="`Search ${type}`"
-            >
-          </div>
-          <ul>
+          <ul class="text-start d-inline-block d-md-none">
+            <li v-if="activeTab || isNewRecordSelected">
+              <a role="button" @click="$emit('unset')" class="btn btn-transparent" title="Back to list">
+                <i class="bi bi-arrow-90deg-left"></i>
+              </a>
+            </li>
+          </ul>
+          <ul class="text-end">
+            <li class="d-inline-block d-md-none">
+              <a
+                role="button"
+                @click="isSearchVisible = !isSearchVisible"
+                :class="{'active' : isSearchVisible}"
+                class="btn btn-transparent"
+                title="Search"
+              >
+                <i class="bi bi-search"></i>
+              </a>
+            </li>
             <li v-if="!isNewRecordSelected && activeTab && access.delete">
               <a
                 role="button"
                 data-bs-toggle="modal"
                 data-bs-target="#delete-record"
                 class="btn btn-transparent"
+                title="Delete"
               >
                 <i class="bi bi-trash"></i>
               </a>
             </li>
             <li v-if="!isNewRecordSelected && activeTab && !isEditRecordSelected && access.edit">
-              <a role="button" @click="$emit('edit')" class="btn btn-red">
+              <a role="button" @click="$emit('edit')" class="btn btn-red" title="Edit">
                 <i class="bi bi-pen"></i> <span class="d-none d-md-inline-block">Edit</span>
               </a>
             </li>
             <li v-if="!isNewRecordSelected && isEditRecordSelected">
               <a
                 role="button"
+                title="Update"
                 class="btn btn-red"
                 data-bs-toggle="modal"
                 data-bs-target="#update-record"
@@ -159,6 +173,7 @@ const search = () => {
             <li v-if="isNewRecordSelected">
               <a
                 role="button"
+                title="Create"
                 class="btn btn-red"
                 data-bs-toggle="modal"
                 data-bs-target="#store-record"
@@ -166,31 +181,35 @@ const search = () => {
                 <i class="bi bi-check-lg"></i> <span class="d-none d-md-inline-block">Create</span>
               </a>
             </li>
-            <li v-if="!isNewRecordSelected && access.new && access.edit" class="d-inline-block d-lg-none">
+            <li
+              v-if="!isNewRecordSelected && access.new && access.edit"
+              class="d-inline-block d-lg-none"
+              title="Add new"
+            >
               <a role="button" @click="$emit('new')" class="btn btn-red">
                 <i class="bi bi-plus-lg"></i> <span class="d-none d-md-inline-block">Add</span>
               </a>
             </li>
             <li v-if="!isNewRecordSelected && access.new && !access.edit">
-              <a role="button" @click="$emit('new')" class="btn btn-red">
+              <a role="button" @click="$emit('new')" class="btn btn-red" title="Add new">
                 <i class="bi bi-plus-lg"></i> <span class="d-none d-md-inline-block">Add</span>
               </a>
             </li>
-            <li v-if="activeTab || isNewRecordSelected" class="d-inline-block d-lg-none">
-              <a role="button" @click="$emit('unset')" class="btn-transparent">
-                <i class="bi bi-x-circle"></i>
-              </a>
-            </li>
-
             <li v-if="!isNewRecordSelected && activeTab && !isEditRecordSelected && access.duplicate">
               <a
-                role="button"
+                role="button" 
+                title="Duplicate"
                 class="btn btn-black"
                 data-bs-toggle="modal"
                 data-bs-target="#duplicate-details"
                 @click="$emit('duplicate')"
               >
                 <i class="bi bi-copy"></i> <span class="d-none d-md-inline-block">Duplicate</span>
+              </a>
+            </li>
+            <li v-if="activeTab || isNewRecordSelected" class="d-none d-md-inline-block d-lg-none">
+              <a role="button" @click="$emit('unset')" class="btn btn-transparent" title="Back to list">
+                <i class="bi bi-x-lg"></i>
               </a>
             </li>
           </ul>

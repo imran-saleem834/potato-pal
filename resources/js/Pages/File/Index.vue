@@ -2,13 +2,15 @@
 import moment from 'moment';
 import { ref, watch } from "vue";
 import { router, useForm } from '@inertiajs/vue3';
-import { useToast } from "vue-toastification";
 import AppLayout from '@/Layouts/AppLayout.vue';
 import TopBar from '@/Components/TopBar.vue';
 import Details from "@/Pages/File/Details.vue";
 import VueEasyLightbox from "vue-easy-lightbox";
+import { useToast } from "vue-toastification";
+import { useWindowSize } from 'vue-window-size';
 
 const toast = useToast();
+const { width, height } = useWindowSize();
 
 const props = defineProps({
   files: Object,
@@ -84,7 +86,9 @@ const deleteFile = (id) => {
   });
 }
 
-setActiveTab(file.value?.id);
+if (width.value > 991) {
+  setActiveTab(file.value?.id);
+}
 </script>
 
 <template>

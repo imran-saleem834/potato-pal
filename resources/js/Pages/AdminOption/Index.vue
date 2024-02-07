@@ -4,6 +4,9 @@ import AppLayout from '@/Layouts/AppLayout.vue';
 import TopBar from '@/Components/TopBar.vue';
 import Details from '@/Pages/AdminOption/Details.vue';
 import { router } from "@inertiajs/vue3";
+import { useWindowSize } from 'vue-window-size';
+
+const { width, height } = useWindowSize();
 
 const props = defineProps({
   categories: Array,
@@ -45,7 +48,9 @@ const title = computed(() => {
   return props.optionTypes.find(option => option.slug === activeTab.value)?.label;
 })
 
-setActiveTab(props.filters.type);
+if (width.value > 991) {
+  setActiveTab(props.filters.type);
+}
 </script>
 
 <template>

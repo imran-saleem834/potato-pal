@@ -5,6 +5,11 @@ import TopBar from '@/Components/TopBar.vue';
 import Details from '@/Pages/Unload/Details.vue';
 import LeftBar from "@/Components/LeftBar.vue";
 import { router, useForm } from "@inertiajs/vue3";
+import { useToast } from "vue-toastification";
+import { useWindowSize } from 'vue-window-size';
+
+const toast = useToast();
+const { width, height } = useWindowSize();
 
 const props = defineProps({
   receivals: Object,
@@ -61,11 +66,12 @@ const deleteUnload = (id) => {
     preserveState: true,
     onSuccess: () => {
       setActiveTab(receival.value?.id);
+      toast.success('The unload has been deleted successfully!');
     },
   });
 }
 
-if (props.receivals.current_page === 1) {
+if (width.value > 991) {
   setActiveTab(receival.value?.id);
 }
 </script>

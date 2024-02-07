@@ -6,6 +6,7 @@ import TextInput from "@/Components/TextInput.vue";
 import DataTable from 'datatables.net-vue3';
 import DataTablesCore from 'datatables.net';
 import { getSingleCategoryNameByType } from "@/helper.js";
+import { getBinSizesValue } from "@/tonnes.js";
 import { useToast } from "vue-toastification";
 import ConfirmedModal from "@/Components/ConfirmedModal.vue";
 
@@ -200,7 +201,7 @@ defineExpose({
         <tbody>
         <tr>
           <td>{{ getSingleCategoryNameByType(form.selected_allocation.categories, 'seed-type') }}</td>
-          <td>{{ (form.selected_allocation.bin_size / 1000) }} tonnes</td>
+          <td>{{ getBinSizesValue(form.selected_allocation.bin_size) }}</td>
           <td class="text-center text-md-start">{{ form.selected_allocation.no_of_bins }}</td>
           <td>{{ form.selected_allocation.weight }} kg</td>
         </tr>
@@ -245,7 +246,7 @@ defineExpose({
       </div>
     </template>
     <template v-else>
-      <div class="btn-group position-absolute" style="top: 0; right: 0;">
+      <div class="btn-group position-absolute top-0 end-0">
         <button @click="setIsEdit" class="btn btn-red p-1"><i class="bi bi-pen"></i></button>
         <button data-bs-toggle="modal" :data-bs-target="`#delete-reallocation-${uniqueKey}`" class="btn btn-red p-1">
           <template v-if="form.processing">
@@ -265,7 +266,7 @@ defineExpose({
           <span>Seed Type:</span> {{ getSingleCategoryNameByType(reallocation.allocation.categories, 'seed-type') || '-' }}
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Bin Size:</span> {{ (reallocation.allocation.bin_size / 1000) }} tonnes
+          <span>Bin Size:</span> {{ getBinSizesValue(reallocation.allocation.bin_size) }}
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
           <span>Reallocated Bins:</span> {{ reallocation.no_of_bins }}
@@ -303,7 +304,7 @@ defineExpose({
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <div class="table-responsive">
+          <div v-if="form.allocation_buyer_id" class="table-responsive">
             <table class="table mb-0">
               <thead>
               <tr>
@@ -319,7 +320,7 @@ defineExpose({
               </tr>
               </thead>
               <tbody>
-              <template v-for="allocation in allocations" :key="allocation.id">
+              <template v-for="allocation in allocations" :key="`allocations-${allocation.id}`">
                 <tr
                   v-if="form.allocation_buyer_id === allocation.buyer_id && isForm && (allocation.no_of_bins > 0 || allocation.weight > 0)"
                   @click="() => onSelectAllocation(allocation)"
@@ -332,9 +333,9 @@ defineExpose({
                   <td>{{ getSingleCategoryNameByType(allocation.categories, 'seed-generation') }}</td>
                   <td>{{ getSingleCategoryNameByType(allocation.categories, 'grower-group') }}</td>
                   <td>{{ allocation.paddock }}</td>
-                  <td>{{ allocation.bin_size }} Tonnes</td>
+                  <td>{{ getBinSizesValue(allocation.bin_size) }}</td>
                   <td>{{ allocation.no_of_bins }}</td>
-                  <td>{{ allocation.weight }} Tonnes</td>
+                  <td>{{ allocation.weight }} Kg</td>
                 </tr>
               </template>
               </tbody>

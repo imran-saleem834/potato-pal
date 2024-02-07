@@ -6,6 +6,7 @@ import Multiselect from '@vueform/multiselect'
 import TextInput from "@/Components/TextInput.vue";
 import DataTable from 'datatables.net-vue3';
 import DataTablesCore from 'datatables.net';
+import { getBinSizesValue } from "@/tonnes.js";
 import { useToast } from "vue-toastification";
 import ConfirmedModal from "@/Components/ConfirmedModal.vue";
 
@@ -217,7 +218,7 @@ defineExpose({
         <tbody>
         <tr>
           <td>{{ getSingleCategoryNameByType(form.select_receival.unload_categories, 'seed-type') }}</td>
-          <td>{{ (form.select_receival.bin_size / 1000) }} tonnes</td>
+          <td>{{ getBinSizesValue(form.select_receival.bin_size) }}</td>
           <td class="text-center text-md-start">{{ form.select_receival.no_of_bins }}</td>
           <td>{{ form.select_receival.weight }} kg</td>
         </tr>
@@ -262,7 +263,7 @@ defineExpose({
       </div>
     </template>
     <template v-else>
-      <div class="btn-group position-absolute" style="top: 0; right: 0;">
+      <div class="btn-group position-absolute top-0 end-0">
         <button @click="setIsEdit" class="btn btn-red p-1"><i class="bi bi-pen"></i></button>
         <button data-bs-toggle="modal" :data-bs-target="`#delete-allocation-${uniqueKey}`" class="btn btn-red p-1">
           <template v-if="form.processing">
@@ -283,7 +284,7 @@ defineExpose({
           <span>Seed Type:</span> {{ getSingleCategoryNameByType(allocation.categories, 'seed-type') || '-' }}
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Bin Size:</span> {{ (allocation.bin_size / 1000) }} tonnes
+          <span>Bin Size:</span> {{ getBinSizesValue(allocation.bin_size) }}
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
           <span>Allocated Bins:</span> {{ allocation.no_of_bins }}
@@ -323,7 +324,7 @@ defineExpose({
         <div class="modal-body">
           <template v-for="grower in growers" :key="grower.value">
             <div v-if="form.grower_id === grower.value && isForm" class="table-responsive">
-              <table class="table mb-0">
+              <DataTable class="table mb-0">
                 <thead>
                 <tr>
                   <th>Seed Type</th>
@@ -351,13 +352,13 @@ defineExpose({
                     <td>{{ getSingleCategoryNameByType(receival.receival_categories, 'seed-generation') }}</td>
                     <td>{{ getSingleCategoryNameByType(receival.receival_categories, 'grower-group') }}</td>
                     <td>{{ receival.paddock }}</td>
-                    <td>{{ (receival.bin_size / 1000) }} tonnes</td>
+                    <td>{{ getBinSizesValue(receival.bin_size) }}</td>
                     <td>{{ receival.no_of_bins }}</td>
                     <td>{{ receival.weight }} kg</td>
                   </tr>
                 </template>
                 </tbody>
-              </table>
+              </DataTable>
             </div>
           </template>
         </div>

@@ -7,8 +7,10 @@ import Details from '@/Pages/Receival/Details.vue';
 import LeftBar from "@/Components/LeftBar.vue";
 import { getCategoriesByType } from "@/helper.js";
 import { useToast } from "vue-toastification";
+import { useWindowSize } from 'vue-window-size';
 
 const toast = useToast();
+const { width, height } = useWindowSize();
 
 const props = defineProps({
   receivals: Object,
@@ -117,7 +119,7 @@ const deleteReceival = (id) => {
   });
 }
 
-if (props.receivals.current_page === 1) {
+if (width.value > 991) {
   setActiveTab(receival.value?.id);
 }
 </script>

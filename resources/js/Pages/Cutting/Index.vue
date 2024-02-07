@@ -7,6 +7,9 @@ import LeftBar from "@/Components/LeftBar.vue";
 import Details from '@/Pages/Cutting/Details.vue';
 import Pagination from "@/Components/Pagination.vue";
 import { getCategoriesByType } from "@/helper.js";
+import { useWindowSize } from 'vue-window-size';
+
+const { width, height } = useWindowSize();
 
 const props = defineProps({
   cuttingBuyers: Object,
@@ -77,7 +80,9 @@ const setNewRecord = () => {
   activeTab.value = null;
 }
 
-setActiveTab(cuttings.value.data[0]?.buyer_id);
+if (width.value > 991) {
+  setActiveTab(cuttings.value.data[0]?.buyer_id);
+}
 </script>
 
 <template>

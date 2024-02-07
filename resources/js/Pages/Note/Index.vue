@@ -5,6 +5,11 @@ import TopBar from '@/Components/TopBar.vue';
 import Details from '@/Pages/Note/Details.vue';
 import LeftBar from "@/Pages/Note/LeftBar.vue";
 import { router, useForm } from "@inertiajs/vue3";
+import { useToast } from "vue-toastification";
+import { useWindowSize } from 'vue-window-size';
+
+const toast = useToast();
+const { width, height } = useWindowSize();
 
 const props = defineProps({
   notes: Object,
@@ -70,11 +75,12 @@ const deleteNote = (id) => {
     preserveState: true,
     onSuccess: () => {
       setActiveTab(note.value?.id);
+      toast.success('The note has been deleted successfully!');
     },
   });
 }
 
-if (props.notes.current_page === 1) {
+if (width.value > 991) {
   setActiveTab(note.value?.id);
 }
 </script>

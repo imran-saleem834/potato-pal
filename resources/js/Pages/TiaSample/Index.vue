@@ -1,13 +1,15 @@
 <script setup>
 import { router } from '@inertiajs/vue3';
 import { ref, watch } from 'vue';
-import { useToast } from "vue-toastification";
 import AppLayout from '@/Layouts/AppLayout.vue';
 import TopBar from '@/Components/TopBar.vue';
 import Details from '@/Pages/TiaSample/Details.vue';
 import LeftBar from "@/Components/LeftBar.vue";
+import { useToast } from "vue-toastification";
+import { useWindowSize } from 'vue-window-size';
 
 const toast = useToast();
+const { width, height } = useWindowSize();
 
 const props = defineProps({
   tiaSamples: Object,
@@ -77,7 +79,8 @@ const deleteTiaSample = (id) => {
     },
   });
 }
-if (props.tiaSamples.current_page === 1) {
+
+if (width.value > 991) {
   setActiveTab(tiaSample.value?.id);
 }
 </script>
