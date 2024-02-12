@@ -34,8 +34,8 @@ class CategoryController extends Controller
      */
     public function index(Request $request)
     {
-        $type       = $request->input('type', $this->optionTypes[0]['slug']);
-        $categories = Category::where('type', $type)
+        $request->merge(['type' => $request->input('type', $this->optionTypes[0]['slug'])]);
+        $categories = Category::where('type', $request->input('type'))
             ->when($request->input('search'), function (Builder $query, $search) {
                 return $query->where('name', 'LIKE', "%$search%");
             })
@@ -44,7 +44,7 @@ class CategoryController extends Controller
         return Inertia::render('AdminOption/Index', [
             'optionTypes' => $this->optionTypes,
             'categories'  => $categories,
-            'filters'     => array_merge($request->only(['search']), ['type' => $type]),
+            'filters'     => $request->only(['type', 'search']),
         ]);
     }
 

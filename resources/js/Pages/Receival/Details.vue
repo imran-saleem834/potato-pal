@@ -428,7 +428,7 @@ const pushForUnload = () => {
               <Link
                 v-if="receival.status"
                 class="p-0"
-                :href="route('unloading.index', { unloadId: receival.id })"
+                :href="route('unloading.index', { receivalId: receival.id })"
               >
                 {{ receival.id }}
               </Link>

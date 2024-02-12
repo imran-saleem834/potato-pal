@@ -74,13 +74,11 @@ class AllocationController extends Controller
             }
         }
 
-        info($receivals->toArray());
-
         $growers = $users->map(function ($user) use ($receivals) {
             return [
                 'value'     => $user->id,
                 'label'     => $user->grower_name ? "$user->name ($user->grower_name)" : $user->name,
-                'receivals' => $receivals->where('grower_id', $user->id),
+                'receivals' => $receivals->where('grower_id', $user->id)->values(),
             ];
         });
 
@@ -193,6 +191,7 @@ class AllocationController extends Controller
             })
             ->where('buyer_id', $buyerId)
             ->paginate(10)
-            ->withQueryString();
+            ->withQueryString()
+            ->onEachSide(1);
     }
 }

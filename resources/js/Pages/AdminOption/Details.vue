@@ -3,6 +3,7 @@ import { ref, watch } from "vue";
 import { useForm } from "@inertiajs/vue3";
 import { useToast } from "vue-toastification";
 import TextInput from "@/Components/TextInput.vue";
+import ConfirmedModal from "@/Components/ConfirmedModal.vue";
 
 const toast = useToast();
 
@@ -86,7 +87,12 @@ const deleteRecord = () => {
 
     <ul class="mt-4">
       <li v-if="isNew">
-        <button @click="storeRecord" class="btn btn-red" :disabled="form.processing">
+        <button
+          data-bs-toggle="modal"
+          data-bs-target="#store-admin-option-record"
+          class="btn btn-red"
+          :disabled="form.processing"
+        >
           <template v-if="form.processing"><i class="bi bi-arrow-repeat d-inline-block spin"></i></template>
           <template v-else>Create</template>
         </button>
@@ -95,17 +101,50 @@ const deleteRecord = () => {
         <button @click="editRecord" class="btn btn-red">Edit</button>
       </li>
       <li v-if="edit">
-        <button @click="updateRecord" class="btn btn-red" :disabled="form.processing">
+        <button
+          data-bs-toggle="modal"
+          :data-bs-target="`#update-admin-option-record-${category.id}`"
+          class="btn btn-red"
+          :disabled="form.processing"
+        >
           <template v-if="form.processing"><i class="bi bi-arrow-repeat d-inline-block spin"></i></template>
           <template v-else>Update</template>
         </button>
       </li>
       <li v-if="!isNew">
-        <button @click="deleteRecord" class="btn btn-red" :disabled="form.processing">
+        <button
+          data-bs-toggle="modal"
+          :data-bs-target="`#delete-admin-option-record-${category.id}`"
+          class="btn btn-red"
+          :disabled="form.processing"
+        >
           <template v-if="form.processing"><i class="bi bi-arrow-repeat d-inline-block spin"></i></template>
           <template v-else>Delete</template>
         </button>
       </li>
     </ul>
   </div>
+
+  <ConfirmedModal
+    v-if="edit"
+    :id="`update-admin-option-record-${category.id}`"
+    title="You want to update this record?"
+    ok="Yes, Update!"
+    @ok="updateRecord"
+  />
+
+  <ConfirmedModal
+    v-if="isNew"
+    id="store-admin-option-record"
+    title="You want to store this record?"
+    @ok="storeRecord"
+  />
+
+  <ConfirmedModal
+    v-if="!isNew"
+    :id="`delete-admin-option-record-${category.id}`"
+    cancel="No, Keep it"
+    ok="Yes, Delete!"
+    @ok="deleteRecord"
+  />
 </template>

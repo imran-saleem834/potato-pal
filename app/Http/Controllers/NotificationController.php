@@ -23,7 +23,8 @@ class NotificationController extends Controller
                 });
             })
             ->latest()
-            ->paginate(40);
+            ->paginate(40)
+            ->onEachSide(1);
 
         return Inertia::render('Notification/Index', [
             'notifications' => $notifications,

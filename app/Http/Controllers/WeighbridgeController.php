@@ -32,7 +32,8 @@ class WeighbridgeController extends Controller
             })
             ->latest()
             ->paginate(20)
-            ->withQueryString();
+            ->withQueryString()
+            ->onEachSide(1);
 
         return Inertia::render('Weighbridge/Index', [
             'weighbridges' => $weighbridges,

@@ -61,7 +61,7 @@ if (width.value > 991) {
       :active-tab="activeTab"
       :search="search"
       @search="filter"
-      :is-new-record-selected="isNewRecord"
+      :is-new-record-selected="false"
       :access="{
         new: !!activeTab,
         edit: false,

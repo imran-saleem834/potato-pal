@@ -47,9 +47,7 @@ class TiaSampleController extends Controller
 
         $receivals = Receival::query()
             ->with([
-                'grower' => function ($query) {
-                    return $query->select(['id', 'name', 'grower_name']);
-                }
+                'grower' => fn ($query) => $query->select(['id', 'name', 'grower_name'])
             ])
             ->select(['id', 'grower_id'])
             ->get()

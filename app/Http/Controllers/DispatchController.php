@@ -21,7 +21,10 @@ class DispatchController extends Controller
     public function index(Request $request)
     {
         $dispatchBuyers = Dispatch::select('buyer_id')
-            ->with(['buyer' => fn($query) => $query->select(['id', 'name', 'buyer_name']), 'buyer.categories.category'])
+            ->with([
+                'buyer' => fn($query) => $query->select(['id', 'name', 'buyer_name']), 
+                'buyer.categories.category'
+            ])
             ->latest()
             ->groupBy('buyer_id')
             ->get()
@@ -153,6 +156,7 @@ class DispatchController extends Controller
             })
             ->where('buyer_id', $buyerId)
             ->paginate(10)
-            ->withQueryString();
+            ->withQueryString()
+            ->onEachSide(1);
     }
 }

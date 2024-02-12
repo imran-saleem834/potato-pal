@@ -40,7 +40,8 @@ class UserController extends Controller
             })
             ->latest()
             ->paginate(20)
-            ->withQueryString();
+            ->withQueryString()
+            ->onEachSide(1);
 
         $userId = $request->input('userId', $users->items()[0]->id ?? 0);
 

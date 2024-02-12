@@ -23,7 +23,10 @@ class CuttingController extends Controller
     public function index(Request $request)
     {
         $cuttingBuyers = Cutting::select('buyer_id')
-            ->with(['buyer' => fn($query) => $query->select(['id', 'name', 'buyer_name']), 'buyer.categories.category'])
+            ->with([
+                'buyer' => fn($query) => $query->select(['id', 'name', 'buyer_name']), 
+                'buyer.categories.category'
+            ])
             ->latest()
             ->groupBy('buyer_id')
             ->get()
@@ -168,7 +171,8 @@ class CuttingController extends Controller
             })
             ->where('buyer_id', $buyerId)
             ->paginate(10)
-            ->withQueryString();
+            ->withQueryString()
+            ->onEachSide(1);
 
         tap($cuttings)->map(function ($cutting) {
             $cutting->cuttingAllocations = $cutting->cuttingAllocations->map(function ($cuttingAllocation) {
