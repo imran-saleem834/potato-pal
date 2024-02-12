@@ -24,7 +24,7 @@ class WeighbridgeController extends Controller
                         ->orWhere('channel', 'LIKE', "%$search%")
                         ->orWhere('system', 'LIKE', "%$search%")
                         ->orWhere('no_of_bins', 'LIKE', "%$search%")
-                        ->orWhere('weight', 'LIKE', "%$search%")
+                        ->orWhereRaw("CONCAT(`weight`, ' kg') LIKE '%{$search}%'")
                         ->orWhereRelation('categories.category', function (Builder $catQuery) use ($search) {
                             return $catQuery->where('name', 'LIKE', "%{$search}%");
                         });

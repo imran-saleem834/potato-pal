@@ -123,11 +123,11 @@ class ReallocationController extends Controller
                     return $subQuery
                         ->orWhere('comment', 'LIKE', "%{$search}%")
                         ->orWhere('no_of_bins', 'LIKE', "%{$search}%")
-                        ->orWhereRaw("CONCAT(`bin_size`, ' kg') LIKE '%{$search}%'")
+                        ->orWhere('bin_size', 'LIKE', "%{$search}%")
                         ->orWhereRaw("CONCAT(`weight`, ' kg') LIKE '%{$search}%'")
                         ->orWhereRelation('allocation', function (Builder $query) use ($search) {
                             return $query->where('paddock', 'LIKE', "%{$search}%")
-                                ->orWhereRaw("CONCAT(`bin_size`, ' kg') LIKE '%{$search}%'");
+                                ->orWhere('bin_size', 'LIKE', "%{$search}%");
                         })
                         ->orWhereRelation('allocation.categories.category', function (Builder $query) use ($search) {
                             return $query->where('name', 'LIKE', "%{$search}%");
