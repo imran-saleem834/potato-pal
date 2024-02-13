@@ -1,6 +1,7 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
 import LogoutButton from '@/Components/LogoutButton.vue';
+import InstallConfirmedModal from "@/Components/InstallConfirmedModal.vue";
 
 // route('reallocations.index')
 // route('dispatches.index')
@@ -56,4 +57,6 @@ const menus = [
       </div>
     </div>
   </div>
+
+  <InstallConfirmedModal />
 </template>

@@ -32,9 +32,9 @@ const publicIcons = [
 const additionalImages = [];
 
 const pwaConfiguration = {
-    buildBase: '/build/',
-    scope: '/',
-    base: '/',
+    // buildBase: '/build/',
+    // scope: '/',
+    // base: '/',
     // registerType: 'autoUpdate',
     registerType: 'prompt',
     devOptions: {
