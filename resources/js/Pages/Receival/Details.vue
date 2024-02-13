@@ -442,25 +442,29 @@ const pushForUnload = () => {
       <div class="user-boxes">
         <table class="table input-table mb-0">
           <tr>
-            <th>Transport Co.</th>
-            <td :class="{'pb-0' : !isForm}">
-              <Multiselect
+            <th>Grower's Docket No.</th>
+            <td>
+              <TextInput
                 v-if="isForm"
-                v-model="form.transport"
-                mode="tags"
-                placeholder="Choose a transport"
-                :searchable="true"
-                :create-option="true"
-                :options="getCategoriesDropDownByType(categories, 'transport')"
-                :class="{'is-invalid' : form.errors.transport}"
+                v-model="form.grower_docket_no"
+                :error="form.errors.grower_docket_no"
+                type="text"
               />
-              <ul class="p-0" v-else-if="getCategoriesByType(receival.categories, 'transport').length">
-                <li v-for="category in getCategoriesByType(receival.categories, 'transport')" :key="category.id">
-                  <a>{{ category.category.name }}</a>
-                </li>
-              </ul>
+              <template v-else-if="receival.grower_docket_no">{{ receival.grower_docket_no }}</template>
               <template v-else>-</template>
-              <div v-if="form.errors.transport" class="invalid-feedback" v-text="form.errors.transport"/>
+            </td>
+          </tr>
+          <tr>
+            <th>CHC Receival Docket No.</th>
+            <td>
+              <TextInput
+                v-if="isForm"
+                v-model="form.chc_receival_docket_no"
+                :error="form.errors.chc_receival_docket_no"
+                type="text"
+              />
+              <template v-else-if="receival.chc_receival_docket_no">{{ receival.chc_receival_docket_no }}</template>
+              <template v-else>-</template>
             </td>
           </tr>
           <tr>
@@ -486,33 +490,29 @@ const pushForUnload = () => {
             </td>
           </tr>
           <tr>
-            <th>Growers’s Docket No</th>
-            <td>
-              <TextInput
+            <th>Transport Co.</th>
+            <td :class="{'pb-0' : !isForm}">
+              <Multiselect
                 v-if="isForm"
-                v-model="form.grower_docket_no"
-                :error="form.errors.grower_docket_no"
-                type="text"
+                v-model="form.transport"
+                mode="tags"
+                placeholder="Choose a transport"
+                :searchable="true"
+                :create-option="true"
+                :options="getCategoriesDropDownByType(categories, 'transport')"
+                :class="{'is-invalid' : form.errors.transport}"
               />
-              <template v-else-if="receival.grower_docket_no">{{ receival.grower_docket_no }}</template>
+              <ul class="p-0" v-else-if="getCategoriesByType(receival.categories, 'transport').length">
+                <li v-for="category in getCategoriesByType(receival.categories, 'transport')" :key="category.id">
+                  <a>{{ category.category.name }}</a>
+                </li>
+              </ul>
               <template v-else>-</template>
+              <div v-if="form.errors.transport" class="invalid-feedback" v-text="form.errors.transport"/>
             </td>
           </tr>
           <tr>
-            <th>CHC Receival Docket No</th>
-            <td>
-              <TextInput
-                v-if="isForm"
-                v-model="form.chc_receival_docket_no"
-                :error="form.errors.chc_receival_docket_no"
-                type="text"
-              />
-              <template v-else-if="receival.chc_receival_docket_no">{{ receival.chc_receival_docket_no }}</template>
-              <template v-else>-</template>
-            </td>
-          </tr>
-          <tr>
-            <th>Driver’s Name</th>
+            <th>Driver</th>
             <td>
               <TextInput
                 v-if="isForm"
