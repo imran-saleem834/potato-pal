@@ -38,7 +38,7 @@ const pwaConfiguration = {
     // registerType: 'autoUpdate',
     registerType: 'prompt',
     devOptions: {
-        enabled: true,
+        enabled: false,
         // navigateFallbackAllowlist: [/^index.php$/]
     },
     includeAssets: [],
@@ -72,8 +72,12 @@ const pwaConfiguration = {
         id: '/',
         start_url: '/',
         scope: '/',
-        display_override: ["window-controls-overlay", "minimal-ui"],
-        display: 'standalone',
+        display_override: ["window-controls-overlay"],
+        display: 'fullscreen',
+        categories: [
+            "food",
+            "productivity"
+        ],
         icons: [...manifestIcons],
         // icons:  [
         //     {

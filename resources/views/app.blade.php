@@ -5,10 +5,15 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <meta content='yes' name='apple-mobile-web-app-capable'/>
-        <meta content='yes' name='mobile-web-app-capable'/>
+        <meta name="viewport" content="viewport-fit=cover">
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="white">
+        <meta name="apple-mobile-web-app-title" content="Potato Pal">
+        {{--<meta name="apple-touch-startup-image" content="splash.png">--}}
+        <meta name="apple-touch-fullscreen" content="yes">
         
-        <meta name="theme-color" content="#ffffff"/>
+        <meta name="theme-color" content="#000000">
         <link rel="icon" href="{{ asset('images/favicon.ico') }}" sizes="48x48">
         
         {{--<link rel="icon" href="/favicon.svg" sizes="any" type="image/svg+xml">--}}

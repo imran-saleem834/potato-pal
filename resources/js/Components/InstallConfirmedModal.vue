@@ -65,7 +65,7 @@ onMounted(() => {
                 class="border-0 w-100 rounded-1 px-5 p-2 btn-red"
                 data-bs-dismiss="modal"
                 @click="install"
-                v-text="'Yes, Install'"
+                v-text="'Install'"
               />
             </div>
           </div>
