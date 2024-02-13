@@ -4,16 +4,17 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-
+        
+        <meta name="theme-color" content="#ffffff"/>
+        <link rel="icon" href="{{ asset('images/favicon.ico') }}" sizes="48x48">
+        
+        {{--<link rel="icon" href="/favicon.svg" sizes="any" type="image/svg+xml">--}}
+        <link rel="apple-touch-icon" href="{{ asset('images/apple-touch-icon-180x180.png') }}">
+        
         <title inertia>{{ config('app.name', 'Laravel') }}</title>
 
-        <!-- Fonts -->
-{{--        <link rel="preconnect" href="https://fonts.bunny.net">--}}
-{{--        <link rel="stylesheet" type="text/css" href="{{ asset('css/bootstrap.min.css') }}" />--}}
-{{--        <link rel="stylesheet" type="text/css" href="{{ asset('css/style.css') }}" />--}}
-{{--        <link rel="stylesheet" type="text/css" href="{{ asset('css/font-awesome.css') }}" />--}}
-{{--        <link rel="stylesheet" type="text/css" href="{{ asset('css/animate.css') }}" />--}}
-{{--        <link rel="stylesheet" type="text/css" href="{{ asset('css/hover.css') }}" />--}}
+        <link rel="manifest" href="{{ asset('build/manifest.webmanifest') }}" />
+        <script src="{{ asset('build/registerSW.js') }}"></script>
 
         <!-- Scripts -->
         @routes
@@ -24,10 +25,6 @@
         @inertia
     </body>
 
-{{--    <script type="text/javascript" src="{{ asset('js/jquery.js') }}"></script>--}}
-{{--    <script type="text/javascript" src="{{ asset('js/bootstrap.min.js') }}"></script>--}}
-{{--    <script type="text/javascript" src="{{ asset('js/index.js') }}"></script>--}}
-{{--    <script type="text/javascript" src="{{ asset('js/wow.js') }}"></script>--}}
     <script type="text/javascript" src="https://cdn.pubnub.com/sdk/javascript/pubnub.7.4.5.min.js"></script>
     <script src="https://maps.googleapis.com/maps/api/js?key={{ env('GOOGLE_MAPS_API_KEY') }}&libraries=places" defer></script>
 </html>
