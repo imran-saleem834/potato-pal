@@ -485,14 +485,18 @@ body {
     width: 40%;
 }
 
-.nav-left .table tr th {
+.nav-left .table tr th,
+.nav-left .table tr td {
     font-size: 12px;
+    background: inherit;
+}
+
+.nav-left .table tr th {
     font-weight: lighter;
 }
 
 .nav-left .table tr td {
     padding-top: 0;
-    font-size: 12px;
     font-family: 'Montserrat-Medium';
 }
 
