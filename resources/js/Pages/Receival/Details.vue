@@ -104,24 +104,28 @@ updatePaddock(props.receival.grower_id);
 resetGrowerGroups(props.receival.grower_id);
 
 const isForm = computed(() => props.isEdit || props.isNew)
-const isRequireFieldsEmpty = computed(() => {
+const requireFields = computed(() => {
+  const fields = [];
   const growerGroup = getCategoryIdsByType(props.receival.categories, 'grower-group');
   if (growerGroup.length <= 0) {
-    return true;
+    fields.push('Grower Group');
   }
   const seedVariety = getCategoryIdsByType(props.receival.categories, 'seed-variety');
   if (seedVariety.length <= 0) {
-    return true;
+    fields.push('Seed Variety');
   }
   const seedClass = getCategoryIdsByType(props.receival.categories, 'seed-class');
   if (seedClass.length <= 0) {
-    return true;
+    fields.push('Seed Class');
   }
   const seedGeneration = getCategoryIdsByType(props.receival.categories, 'seed-generation');
   if (seedGeneration.length <= 0) {
-    return true;
+    fields.push('Seed Generation');
   }
-  return props.receival.paddocks?.length <= 0;
+  if (props.receival.paddocks?.length <= 0) {
+    fields.push('Paddocks');
+  }
+  return fields;
 });
 
 const updateRecord = () => {
@@ -176,9 +180,9 @@ const pushForUnload = () => {
 
 <template>
   <div class="row">
-    <div v-if="isRequireFieldsEmpty" class="col-12">
+    <div v-if="requireFields.length > 0" class="col-12">
       <div class="alert alert-warning" role="alert">
-        Require these fields (Grower Group, Paddocks, Seed Variety, Class and Generation) to list in the allocations
+        Require these {{ requireFields.join(', ')}} to list in the allocations
       </div>
     </div>
     <div :class="colSize">

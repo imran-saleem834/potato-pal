@@ -1,6 +1,7 @@
 <script setup>
 import { Head, useForm } from '@inertiajs/vue3';
 import LoginCard from '@/Components/LoginCard.vue';
+import InstallConfirmedModal from "@/Components/InstallConfirmedModal.vue";
 
 defineProps({
   canResetPassword: Boolean,
@@ -83,4 +84,6 @@ const submit = () => {
       </LoginCard>
     </div>
   </div>
+
+  <InstallConfirmedModal />
 </template>
