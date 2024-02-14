@@ -39,12 +39,11 @@ class ReceivalController extends Controller
         return Inertia::render('Receival/Index', [
             'receivals'  => $receivals,
             'single'     => $this->getReceival($receivalId),
-            'users'      => User::with(['categories.category'])->select([
-                'id',
-                'name',
-                'grower_name',
-                'paddocks'
-            ])->get(),
+            'users'      => User::query()
+                ->with(['categories.category'])
+                ->select(['id', 'name', 'grower_name', 'paddocks'])
+                ->whereJsonContains('role', 'grower')
+                ->get(),
             'categories' => Category::whereIn('type', Receival::CATEGORY_TYPES)->get(),
             'filters'    => $request->only(['search']),
         ]);

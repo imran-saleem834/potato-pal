@@ -23,8 +23,8 @@ class AllocationController extends Controller
      */
     public function index(Request $request)
     {
-        $allocationBuyers = Allocation::select('buyer_id')
-            ->with(['buyer' => fn($query) => $query->select(['id', 'name', 'buyer_name']), 'buyer.categories.category'])
+        $allocationBuyers = Allocation::select(['buyer_id'])
+            ->with(['buyer:id,buyer_name', 'buyer.categories.category'])
             ->latest()
             ->groupBy('buyer_id')
             ->get()
@@ -41,14 +41,26 @@ class AllocationController extends Controller
             $allocations = $this->getAllocations($firstBuyerId, $request->input('search'));
         }
 
-        $users = User::with([
-            'remainingReceivals',
-            'receivals.categories.category',
-        ])->select(['id', 'name', 'grower_name', 'paddocks'])->get();
+        return Inertia::render('Allocation/Index', [
+            'allocationBuyers' => $allocationBuyers,
+            'single'           => $allocations,
+            'growers'          => fn() => $this->growers(),
+            'buyers'           => fn() => $this->buyers(),
+            'filters'          => $request->only(['search']),
+        ]);
+    }
+
+    private function growers()
+    {
+        $growers = User::query()
+            ->with(['remainingReceivals'])
+            ->select(['id', 'grower_name'])
+            ->whereJsonContains('role', 'grower')
+            ->get();
 
         $receivals = collect([]);
-        foreach ($users as $user) {
-            foreach ($user->remainingReceivals as $remainingReceival) {
+        foreach ($growers as $grower) {
+            foreach ($grower->remainingReceivals as $remainingReceival) {
                 if (empty($remainingReceival->receival_id)) {
                     continue;
                 }
@@ -74,21 +86,22 @@ class AllocationController extends Controller
             }
         }
 
-        $growers = $users->map(function ($user) use ($receivals) {
+        return $growers->map(function ($grower) use ($receivals) {
             return [
-                'value'     => $user->id,
-                'label'     => $user->grower_name ? "$user->name ($user->grower_name)" : $user->name,
-                'receivals' => $receivals->where('grower_id', $user->id)->values(),
+                'value'     => $grower->id,
+                'label'     => $grower->grower_name,
+                'receivals' => $receivals->where('grower_id', $grower->id)->values(),
             ];
         });
+    }
 
-        return Inertia::render('Allocation/Index', [
-            'allocationBuyers' => $allocationBuyers,
-            'single'           => $allocations,
-            'growers'          => fn() => $growers,
-            'buyers'           => fn() => $users->map(fn($user) => ['value' => $user->id, 'label' => $user->name]),
-            'filters'          => $request->only(['search']),
-        ]);
+    private function buyers()
+    {
+        return User::query()
+            ->select(['id', 'buyer_name'])
+            ->whereJsonContains('role', 'buyer')
+            ->get()
+            ->map(fn($user) => ['value' => $user->id, 'label' => $user->buyer_name]);
     }
 
     /**

@@ -6,7 +6,7 @@ export function getDropDownOptions(items, isGrower = false) {
     return (items || []).map(item => {
         return {
             'value': item.id,
-            'label': isGrower && item.grower_name ? `${item.name} (${item.grower_name})` : item.name
+            'label': isGrower ? item.grower_name : item.name
         };
     });
 }

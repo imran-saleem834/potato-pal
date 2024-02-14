@@ -20,7 +20,7 @@ class TiaSampleController extends Controller
         $tiaSamples = TiaSample::query()
             ->with([
                 'receival'        => fn($query) => $query->select(['id', 'grower_id']),
-                'receival.grower' => fn($query) => $query->select(['id', 'name', 'grower_name']),
+                'receival.grower' => fn($query) => $query->select(['id', 'grower_name']),
             ])
             ->select('id', 'receival_id')
             ->when($request->input('search'), function (Builder $query, $search) {
@@ -46,13 +46,14 @@ class TiaSampleController extends Controller
         $tiaSample = TiaSample::with(['receival.grower', 'receival.categories.category'])->find($tiaSampleId);
 
         $receivals = Receival::query()
-            ->with([
-                'grower' => fn ($query) => $query->select(['id', 'name', 'grower_name'])
-            ])
+            ->with(['grower:id,grower_name'])
             ->select(['id', 'grower_id'])
             ->get()
             ->map(function ($receival) {
-                return ['value' => $receival->id, 'label' => "ReceivalId:{$receival->id} {$receival->grower->name} ({$receival->grower->grower_name})"];
+                return [
+                    'value' => $receival->id, 
+                    'label' => "Receival id: {$receival->id}; {$receival->grower->grower_name}"
+                ];
             });
 
         return Inertia::render('TiaSample/Index', [

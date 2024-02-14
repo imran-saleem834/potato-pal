@@ -77,51 +77,6 @@
     display: none;
 }
 
-/*.tia-images > div {*/
-/*    margin-top: 20px;*/
-/*}*/
-
-/*.tia-images .fa-close {*/
-/*    position: absolute;*/
-/*    font-size: 18px;*/
-/*    background: rgba(0, 0, 0, 0.1);*/
-/*    border-radius: 100px;*/
-/*    padding: 6px 8px;*/
-/*    top: -10px;*/
-/*    right: 0;*/
-/*    cursor: pointer;*/
-/*}*/
-
-/*.tia-images .fa-close:hover {*/
-/*    background: rgba(0, 0, 0, 0.3);*/
-/*}*/
-
-/*.tia-images img {*/
-/*    width: 100%;*/
-/*    cursor: pointer;*/
-/*}*/
-
-/*.create-update-btn {*/
-/*    z-index: 9;*/
-/*    margin-top: 0;*/
-/*    position: relative;*/
-/*    margin-bottom: -3rem;*/
-/*}*/
-
-/*@media only screen and (max-width: 991px) {*/
-/*    .create-update-btn {*/
-/*        margin-bottom: 1rem;*/
-/*    }*/
-/*}*/
-
-/*@media only screen and (max-width: 767px) {*/
-/*    .create-update-btn {*/
-/*        margin-top: -5.5rem;*/
-/*        margin-bottom: 2rem;*/
-/*    }*/
-/*}*/
-
-
 .multiselect {
     min-height: 40px;
     padding: 0 !important;
@@ -134,7 +89,9 @@
 }
 
 .multiselect-option.is-selected,
-.multiselect-option.is-selected:hover {
+.multiselect-option.is-selected:hover,
+.multiselect-option.is-selected.is-pointed,
+.multiselect-option.is-selected.is-pointed:hover {
     color: #fff;
     background: #E22827;
 }
@@ -169,6 +126,7 @@ body {
     padding: 0;
     color: #211F1F;
     font-size: 14px;
+    background-color: white;
     font-family: 'Montserrat-Regular';
 }
 
@@ -509,7 +467,7 @@ body {
 .nav-left > a .angle-right {
     position: absolute;
     top: calc(50% - 10px);
-    right: 20px;
+    right: 15px;
     font-size: 20px;
     color: #000000;
 }
@@ -593,7 +551,7 @@ body {
     background: #F2F2F2;
     color: #000000;
     border-radius: 4px;
-    padding: 9px 18px;
+    padding: 5px 0.75rem;
     text-decoration: none;
     margin-bottom: 10px;
     font-family: 'Montserrat-Medium';
@@ -628,6 +586,7 @@ body {
 }
 
 .tab-section .user-boxes ul li .btn-dark,
+.tab-section .user-boxes ul li .btn-pending,
 .tab-section .user-boxes ul li .btn-black {
     border: 0 !important;
     font-size: 15px;
@@ -860,6 +819,16 @@ body {
     .middle-section .middle-left,
     .middle-section .middle-right {
         padding: 10px;
+    }
+    
+    .nav-left > a .angle-right {
+        right: 10px;
+        background: rgba(0, 0, 0, 0.2);
+    }
+
+    .nav-left .table tr > th:last-of-type,
+    .nav-left .table tr > td:last-of-type {
+        padding-right: 15px;
     }
     
     .allocation-items-box span {

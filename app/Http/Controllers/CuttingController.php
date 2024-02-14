@@ -43,7 +43,6 @@ class CuttingController extends Controller
             $cuttings = $this->getCuttings($firstBuyerId, $request->input('search'));
         }
 
-        $users       = User::select(['id', 'name'])->get();
         $allocations = Allocation::with(['dispatches', 'cuttings', 'categories.category'])
             ->get()
             ->map(function ($allocation) {
@@ -64,9 +63,18 @@ class CuttingController extends Controller
             'single'        => $cuttings,
             'allocations'   => $allocations,
             'categories'    => fn() => Category::where('type', 'fungicide')->get(),
-            'buyers'        => $users->map(fn($user) => ['value' => $user->id, 'label' => $user->name]),
+            'buyers'        => fn() => $this->buyers(),
             'filters'       => $request->only(['search']),
         ]);
+    }
+    
+    private function buyers()
+    {
+        return User::query()
+            ->select(['id', 'buyer_name'])
+            ->whereJsonContains('role', 'buyer')
+            ->get()
+            ->map(fn($user) => ['value' => $user->id, 'label' => $user->buyer_name]);
     }
 
     /**

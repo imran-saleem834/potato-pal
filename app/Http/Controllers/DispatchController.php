@@ -41,7 +41,6 @@ class DispatchController extends Controller
             $dispatchs = $this->getDispatchs($firstBuyerId, $request->input('search'));
         }
 
-        $users         = User::select(['id', 'name'])->get();
         $allocations   = Allocation::query()
             ->with(['reallocations', 'dispatches', 'categories.category'])
             ->get()
@@ -72,9 +71,18 @@ class DispatchController extends Controller
             'single'         => $dispatchs,
             'allocations'    => fn() => $allocations,
             'reallocations'  => fn() => $reallocations,
-            'buyers'         => fn() => $users->map(fn($user) => ['value' => $user->id, 'label' => $user->name]),
+            'buyers'         => fn() => $this->buyers(),
             'filters'        => $request->only(['search']),
         ]);
+    }
+
+    private function buyers()
+    {
+        return User::query()
+            ->select(['id', 'buyer_name'])
+            ->whereJsonContains('role', 'buyer')
+            ->get()
+            ->map(fn($user) => ['value' => $user->id, 'label' => $user->buyer_name]);
     }
 
     /**

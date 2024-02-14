@@ -203,8 +203,7 @@ const pushForUnload = () => {
                 class="p-0"
                 :href="route('users.index', { userId: receival.grower_id })"
               >
-                {{ receival.grower?.name }}
-                {{ receival.grower?.grower_name ? ' (' + receival.grower?.grower_name + ')' : '' }}
+                {{ receival.grower?.grower_name }}
               </Link>
               <template v-else>-</template>
               <div v-if="form.errors.grower_id" class="invalid-feedback">{{ form.errors.grower_id }}</div>
@@ -332,7 +331,7 @@ const pushForUnload = () => {
           </tr>
           <tr v-if="!isForm">
             <th>Tia Sample Status</th>
-            <td>
+            <td class="pb-0">
               <ul class="p-0">
                 <li>
                   <button
@@ -399,7 +398,7 @@ const pushForUnload = () => {
           </tr>
           <tr>
             <th>Unloading Status</th>
-            <td>
+            <td class="pb-0">
               <ul class="p-0">
                 <li>
                   <button

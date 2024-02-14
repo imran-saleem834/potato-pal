@@ -137,8 +137,8 @@ class ReceivalHelper
         
         RemainingReceival::query()
             ->where('grower_id', $growerId)
-            ->where('receival_id', [])
-            ->where('unload_id', [])
+            ->whereJsonLength('receival_id', 0)
+            ->whereJsonLength('unload_id', 0)
             ->where('weight', 0)
             ->where('no_of_bins', 0)
             ->delete();

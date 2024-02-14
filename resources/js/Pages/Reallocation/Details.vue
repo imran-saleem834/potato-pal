@@ -259,7 +259,7 @@ defineExpose({
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
           <span>Allocation Buyer Name: </span>
           <Link :href="route('users.index', {userId: reallocation.allocation_buyer_id})">
-            {{ `${reallocation?.allocation_buyer?.name} (${reallocation?.allocation_buyer?.buyer_name})` }}
+            {{ reallocation?.allocation_buyer?.buyer_name }}
           </Link>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">

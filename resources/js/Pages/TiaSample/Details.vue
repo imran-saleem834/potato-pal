@@ -282,10 +282,7 @@ defineExpose({
                   v-if="tiaSample.receival?.id"
                   :href="route('users.index', { userId: tiaSample.receival.grower.id })"
                 >
-                  {{ tiaSample.receival.grower?.name }}
-                  {{
-                    tiaSample.receival.grower?.grower_name ? ' (' + tiaSample.receival.grower?.grower_name + ')' : ''
-                  }}
+                  {{ tiaSample.receival.grower?.grower_name }}
                 </Link>
                 <template v-else>-</template>
               </td>

@@ -7,12 +7,12 @@
 
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="white">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
         <meta name="apple-mobile-web-app-title" content="Potato Pal">
         {{--<meta name="apple-touch-startup-image" content="splash.png">--}}
         <meta name="apple-touch-fullscreen" content="yes">
         
-        <meta name="theme-color" content="#000000">
+        <meta name="theme-color" content="#FFFFFF">
         <link rel="icon" href="{{ asset('images/favicon.ico') }}" sizes="48x48">
         
         {{--<link rel="icon" href="/favicon.svg" sizes="any" type="image/svg+xml">--}}
@@ -21,6 +21,7 @@
         <title inertia>{{ config('app.name', 'Laravel') }}</title>
 
         <link rel="manifest" href="{{ asset('build/manifest.webmanifest') }}" />
+        <link rel="prefetch" href="{{ asset('build/manifest.webmanifest') }}" />
         <script src="{{ asset('build/registerSW.js') }}"></script>
 
         <!-- Scripts -->

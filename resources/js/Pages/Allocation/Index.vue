@@ -143,7 +143,7 @@ if (width.value > 991) {
                     </td>
                     <td class="pb-0 border-0">
                       <Link :href="route('users.index', {userId: activeTab?.buyer_id})">
-                        {{ `${activeTab?.buyer?.name} (${activeTab?.buyer?.buyer_name})` }}
+                        {{ activeTab?.buyer?.buyer_name }}
                       </Link>
                     </td>
                     <td class="pb-0 border-0">

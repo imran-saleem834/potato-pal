@@ -38,7 +38,6 @@ class ReallocationController extends Controller
             $reallocations = $this->getReallocations($firstBuyerId, $request->input('search'));
         }
 
-        $users       = User::select(['id', 'name'])->get();
         $allocations = Allocation::query()
             ->with(['dispatches', 'reallocations', 'categories.category'])
             ->get()
@@ -58,9 +57,18 @@ class ReallocationController extends Controller
             'reallocationBuyers' => $reallocationBuyers,
             'single'             => $reallocations,
             'allocations'        => $allocations,
-            'buyers'             => $users->map(fn($user) => ['value' => $user->id, 'label' => $user->name]),
+            'buyers'             => fn() => $this->buyers(),
             'filters'            => $request->only(['search']),
         ]);
+    }
+
+    private function buyers()
+    {
+        return User::query()
+            ->select(['id', 'buyer_name'])
+            ->whereJsonContains('role', 'buyer')
+            ->get()
+            ->map(fn($user) => ['value' => $user->id, 'label' => $user->buyer_name]);
     }
 
     /**

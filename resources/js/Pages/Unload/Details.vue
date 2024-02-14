@@ -40,6 +40,7 @@ const form = useForm({
 watch(() => props.receival,
   (receival) => {
     form.clearErrors();
+    form.status = receival.status
 
     updateUnloadsOnChangeReceival(receival);
   }
@@ -215,9 +216,6 @@ const rejectWeight = (index) => {
 }
 
 const isForm = computed(() => props.isEdit);
-const growerName = computed(() => {
-  return props.receival.grower.name + (props.receival.grower?.grower_name ? ' (' + props.receival.grower?.grower_name + ')' : '');
-});
 
 const updateRecord = () => {
   form.patch(route('unloading.update', props.receival.id), {
@@ -261,7 +259,7 @@ defineExpose({
                 class="p-0"
                 :href="route('users.index', { userId: receival.grower.id })"
               >
-                {{ growerName }}
+                {{ receival.grower?.grower_name }}
               </Link>
               <template v-else>-</template>
             </td>
@@ -349,8 +347,7 @@ defineExpose({
             <th>Status</th>
             <td class="pb-0">
               <UlLiButton
-                v-if="isForm"
-                :is-form="true"
+                :is-form="isForm"
                 :value="form.status"
                 :error="form.errors.status"
                 :items="[
@@ -359,13 +356,6 @@ defineExpose({
                 ]"
                 @click="(value) => form.status = value"
               />
-              <ul v-else class="p-0">
-                <li>
-                  <a role="button" :class="{'btn-pending' : form.status === 'pending'}">
-                    {{ toCamelCase(form.status) }}
-                  </a>
-                </li>
-              </ul>
             </td>
           </tr>
           <tr>

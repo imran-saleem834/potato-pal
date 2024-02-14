@@ -276,8 +276,7 @@ defineExpose({
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
           <span>Grower: </span>
           <Link :href="route('users.index', {userId: allocation.grower_id})">
-            {{ allocation.grower?.name }}
-            {{ allocation.grower?.grower_name ? ' (' + allocation.grower?.grower_name + ')' : '' }}
+            {{ allocation.grower?.grower_name }}
           </Link>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
