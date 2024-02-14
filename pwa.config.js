@@ -30,6 +30,25 @@ const publicIcons = [
 ]
 
 const additionalImages = [
+    { src: '/images/logo.png' },
+    { src: '/images/carrot.png' },
+    { src: '/images/hourglass-start.png' },
+    { src: '/images/menu1.png' },
+    { src: '/images/menu2.png' },
+    { src: '/images/menu3.png' },
+    { src: '/images/menu4.png' },
+    { src: '/images/menu5.png' },
+    { src: '/images/menu6.png' },
+    { src: '/images/menu7.png' },
+    { src: '/images/menu8.png' },
+    { src: '/images/menu9.png' },
+    { src: '/images/menu10.png' },
+    { src: '/images/menu11.png' },
+    { src: '/images/menu12.png' },
+    { src: '/images/menu13.png' },
+    { src: '/images/menu14.png' },
+    { src: '/images/menu15.png' },
+    { src: '/images/menu16.png' },
     { src: '/images/screenshot-1.webp' },
     { src: '/images/screenshot-2.webp' },
     { src: '/images/screenshot-3.webp' },
@@ -37,10 +56,9 @@ const additionalImages = [
 ];
 
 const pwaConfiguration = {
-    // buildBase: '/build/',
-    // scope: '/',
-    // base: '/',
-    // registerType: 'autoUpdate',
+    buildBase: '/build/',
+    scope: '/',
+    base: '/',
     registerType: 'prompt',
     devOptions: {
         enabled: false,
