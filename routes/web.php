@@ -13,6 +13,7 @@ use App\Http\Controllers\AllocationController;
 use App\Http\Controllers\CuttingController;
 use App\Http\Controllers\ReallocationController;
 use App\Http\Controllers\DispatchController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\WeighbridgeController;
 
 /*
@@ -62,6 +63,9 @@ Route::middleware([
     Route::resource('/dispatches', DispatchController::class)->except(['create', 'edit', 'show']);
 
     Route::get('/weighbridges', [WeighbridgeController::class, 'index'])->name('weighbridges.index');
+    
+    Route::resource('/reports', ReportController::class);
+    Route::get('/reports/{report}/result', [ReportController::class, 'result'])->name('reports.result');
 
     Route::resource('/notifications', NotificationController::class);
 

@@ -26,6 +26,7 @@ const props = defineProps({
   access: {
     type: Object,
     default: {
+      search: true,
       new: true,
       edit: true,
       delete: true,
@@ -35,6 +36,7 @@ const props = defineProps({
 });
 
 const access = computed(() => ({
+  search: true,
   new: true,
   edit: true,
   delete: true,
@@ -56,7 +58,12 @@ const search = () => {
   <div class="main-section">
     <div class="container-fluid">
       <div class="d-flex d-md-none justify-content-between mt-3 mobile-topbar">
-        <Link :href="route('dashboard')"><i class="bi bi-chevron-compact-left"></i></Link>
+        <template v-if="$slots.back">
+          <slot name="back"/>
+        </template>
+        <template v-else>
+          <Link :href="route('dashboard')"><i class="bi bi-chevron-compact-left"></i></Link>
+        </template>
         <h4>
           <template v-if="activeTab || isEditRecordSelected">{{ title }}</template>
           <template v-else>{{ type }}</template>
@@ -75,7 +82,7 @@ const search = () => {
           :class="{'d-none': !isSearchVisible}"
           class="col-12 col-md-6 d-md-block order-3 order-md-2"
         >
-          <div class="form-group position-relative">
+          <div v-if="access.search" class="form-group position-relative">
             <i class="bi bi-search form-control-feedback"></i>
             <input
               type="text"
@@ -99,15 +106,20 @@ const search = () => {
     <div class="row g-0">
       <div class="col-4 col-lg-5 col-xl-4 d-none d-lg-block">
         <div class="d-flex justify-content-between align-items-center middle-left h-100">
-          <ul>
-            <li>
-              <Link :href="route('dashboard')"><span class="fa fa-arrow-left"></span> Menu</Link>
-            </li>
-            <li><i class="bi bi-chevron-right"></i></li>
-            <li>
-              <Link :href="route(route().current())">{{ type }}</Link>
-            </li>
-          </ul>
+          <template v-if="$slots.breadcrumbs">
+            <slot name="breadcrumbs"/>
+          </template>
+          <template v-else>
+            <ul>
+              <li>
+                <Link :href="route('dashboard')"><span class="fa fa-arrow-left"></span> Menu</Link>
+              </li>
+              <li><i class="bi bi-chevron-right"></i></li>
+              <li>
+                <Link :href="route(route().current())">{{ type }}</Link>
+              </li>
+            </ul>
+          </template>
 
           <ul>
             <li v-if="!isNewRecordSelected && access.new && access.edit">
@@ -132,7 +144,7 @@ const search = () => {
             </li>
           </ul>
           <ul class="text-end">
-            <li class="d-inline-block d-md-none">
+            <li v-if="access.search" class="d-inline-block d-md-none">
               <a
                 role="button"
                 @click="isSearchVisible = !isSearchVisible"
@@ -197,7 +209,7 @@ const search = () => {
             </li>
             <li v-if="!isNewRecordSelected && activeTab && !isEditRecordSelected && access.duplicate">
               <a
-                role="button" 
+                role="button"
                 title="Duplicate"
                 class="btn btn-black"
                 data-bs-toggle="modal"

@@ -7,6 +7,7 @@ import InstallConfirmedModal from "@/Components/InstallConfirmedModal.vue";
 // route('dispatches.index')
 // route('cuttings.index')
 // route('weighbridge.index')
+// route('reports.index')
 const menus = [
   { route: route('users.index'), image: 'menu1.png', label: 'Users' },
   { route: route('receivals.index'), image: 'menu2.png', label: 'Receivals' },
