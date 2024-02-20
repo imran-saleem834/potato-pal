@@ -53,17 +53,27 @@ class Report extends Model
     public function getFilterAttribute(): string
     {
         $filter = [];
-        if (!empty($this->filters['grower_ids']) || !empty($this->filters['grower_groups']) || !empty($this->filters['paddocks'])) {
+        if (
+            !empty($this->filters['grower_ids']) || 
+            !empty($this->filters['grower_groups']) || 
+            !empty($this->filters['paddocks'])
+        ) {
             $filter[] = 'Grower';
         }
-        if (!empty($this->filters['start']) || !empty($this->filters['end'])) {
+        if (
+            !empty($this->filters['start']) || 
+            !empty($this->filters['end'])
+        ) {
             $filter[] = 'Range';
         }
-        if (!empty($this->filters['seed_varieties']) || !empty($this->filters['seed_generations']) || !empty($this->filters['seed_classes'])) {
+        if (
+            !empty($this->filters['seed_varieties']) || 
+            !empty($this->filters['seed_generations']) || 
+            !empty($this->filters['seed_classes']) || 
+            !empty($this->filters['transports']) ||
+            !empty($this->filters['delivery_types'])
+        ) {
             $filter[] = 'Seed';
-        }
-        if (!empty($this->filters['fungicides']) || !empty($this->filters['transports'])) {
-            $filter[] = 'Unload';
         }
         if (empty($filter)) {
             $filter[] = 'No Filter';

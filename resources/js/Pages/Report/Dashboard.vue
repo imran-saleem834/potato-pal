@@ -12,7 +12,6 @@ const menus = [
   { route: route('reports.show', 'label'), image: 'menu8.png', label: 'Labels' },
   { route: route('reports.show', 'dispatch'), image: 'menu9.png', label: 'Dispatch' },
   { route: route('reports.show', 'cutting'), image: 'menu11.png', label: 'Cutting' },
-  { route: route('reports.show', 'weighbridge'), image: 'menu12.png', label: 'Weighbridge' },
 ];
 </script>
 

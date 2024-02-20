@@ -3,6 +3,7 @@ import { computed } from "vue";
 import { usePage, useForm } from "@inertiajs/vue3";
 import Multiselect from '@vueform/multiselect';
 import { useToast } from "vue-toastification";
+import { binSizes } from "@/tonnes.js";
 import TextInput from "@/Components/TextInput.vue";
 import { getDropDownOptions, getCategoriesDropDownByType } from "@/helper.js";
 
@@ -27,7 +28,7 @@ const props = defineProps({
 const emit = defineEmits(['update', 'create']);
 
 const form = useForm({
-  name: page.props.name,
+  name: props.report?.name,
   type: page.props.type,
   filters: {
     start: props.report.filters?.start,
@@ -38,13 +39,20 @@ const form = useForm({
     seed_varieties: props.report.filters?.seed_varieties,
     seed_generations: props.report.filters?.seed_generations,
     seed_classes: props.report.filters?.seed_classes,
+    transports: props.report.filters?.transports,
+    delivery_types: props.report.filters?.delivery_types,
+    seed_types: props.report.filters?.seed_types,
     cool_stores: props.report.filters?.cool_stores,
     fungicides: props.report.filters?.fungicides,
-    transports: props.report.filters?.transports,
+    channels: props.report.filters?.channels,
+    bin_sizes: props.report.filters?.bin_sizes,
+    systems: props.report.filters?.systems,
   }
 });
 
-const isForm = computed(() => props.isEdit || props.isNew);
+const isReceivalForm = computed(() => page.props.type === 'receival');
+const isUnloadForm = computed(() => page.props.type === 'unload');
+const isTiaSampleForm = computed(() => page.props.type === 'tia-sample');
 
 const updateRecord = () => {
   form.patch(route('reports.update', props.report.id), {
@@ -205,7 +213,7 @@ defineExpose({
               </div>
             </td>
           </tr>
-          <tr>
+          <tr v-if="isReceivalForm">
             <th>Seed Classes</th>
             <td>
               <Multiselect
@@ -221,13 +229,39 @@ defineExpose({
               </div>
             </td>
           </tr>
-        </table>
-      </div>
-
-      <h4>Unload Filter</h4>
-      <div class="user-boxes">
-        <table class="table input-table mb-0">
-          <tr class="d-none">
+          <tr v-if="isReceivalForm">
+            <th>Transports</th>
+            <td>
+              <Multiselect
+                v-model="form.filters.transports"
+                mode="tags"
+                placeholder="Choose a transports"
+                :searchable="true"
+                :class="{'is-invalid' : form.errors['filters.transports']}"
+                :options="getCategoriesDropDownByType(page.props.categories, 'transport')"
+              />
+              <div v-if="form.errors['filters.transports']" class="invalid-feedback">
+                {{ form.errors['filters.transports'] }}
+              </div>
+            </td>
+          </tr>
+          <tr v-if="isReceivalForm">
+            <th>Delivery Types</th>
+            <td>
+              <Multiselect
+                v-model="form.filters.delivery_types"
+                mode="tags"
+                placeholder="Choose a delivery types"
+                :searchable="true"
+                :class="{'is-invalid' : form.errors['filters.delivery_types']}"
+                :options="getCategoriesDropDownByType(page.props.categories, 'delivery-type')"
+              />
+              <div v-if="form.errors['filters.delivery_types']" class="invalid-feedback">
+                {{ form.errors['filters.delivery_types'] }}
+              </div>
+            </td>
+          </tr>
+          <tr v-if="isReceivalForm" class="d-none">
             <th>Cool Stores</th>
             <td>
               <Multiselect
@@ -240,6 +274,28 @@ defineExpose({
               />
               <div v-if="form.errors['filters.cool_stores']" class="invalid-feedback">
                 {{ form.errors['filters.cool_stores'] }}
+              </div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      
+      <h4 v-if="isUnloadForm">Unload Filter</h4>
+      <div v-if="isUnloadForm" class="user-boxes">
+        <table class="table input-table mb-0">
+          <tr>
+            <th>Seed Types</th>
+            <td>
+              <Multiselect
+                v-model="form.filters.seed_types"
+                mode="tags"
+                placeholder="Choose a seed types"
+                :searchable="true"
+                :class="{'is-invalid' : form.errors['filters.seed_types']}"
+                :options="getCategoriesDropDownByType(page.props.categories, 'seed-type')"
+              />
+              <div v-if="form.errors['filters.seed_types']" class="invalid-feedback">
+                {{ form.errors['filters.seed_types'] }}
               </div>
             </td>
           </tr>
@@ -260,18 +316,115 @@ defineExpose({
             </td>
           </tr>
           <tr>
-            <th>Transports</th>
+            <th>Channels</th>
             <td>
               <Multiselect
-                v-model="form.filters.transports"
+                v-model="form.filters.channels"
                 mode="tags"
-                placeholder="Choose a transports"
+                placeholder="Choose a channels"
                 :searchable="true"
-                :class="{'is-invalid' : form.errors['filters.transports']}"
-                :options="getCategoriesDropDownByType(page.props.categories, 'transport')"
+                :class="{'is-invalid' : form.errors['filters.channels']}"
+                :options="[
+                  { value: 'weighbridge', label: 'BU1' },
+                  { value: 'BU2', label: 'BU2' },
+                  { value: 'BU3', label: 'BU3' },
+                ]"
               />
-              <div v-if="form.errors['filters.transports']" class="invalid-feedback">
-                {{ form.errors['filters.transports'] }}
+              <div v-if="form.errors['filters.channels']" class="invalid-feedback">
+                {{ form.errors['filters.channels'] }}
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <th>Bin Sizes</th>
+            <td>
+              <Multiselect
+                v-model="form.filters.bin_sizes"
+                mode="tags"
+                placeholder="Choose a bin sizes"
+                :searchable="true"
+                :class="{'is-invalid' : form.errors['filters.bin_sizes']}"
+                :options="binSizes"
+              />
+              <div v-if="form.errors['filters.bin_sizes']" class="invalid-feedback">
+                {{ form.errors['filters.bin_sizes'] }}
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <th>Systems</th>
+            <td>
+              <Multiselect
+                v-model="form.filters.systems"
+                mode="tags"
+                placeholder="Choose a systems"
+                :searchable="true"
+                :class="{'is-invalid' : form.errors['filters.systems']}"
+                :options="[ 
+                  { value: 1, label: 'System 1' }, 
+                  { value: 2, label: 'System 2' } 
+                ]"
+              />
+              <div v-if="form.errors['filters.systems']" class="invalid-feedback">
+                {{ form.errors['filters.systems'] }}
+              </div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      
+      <h4 v-if="isTiaSampleForm">Tia Sample Filter</h4>
+      <div v-if="isTiaSampleForm" class="user-boxes">
+        <table class="table input-table mb-0">
+          <tr>
+            <th>Processor</th>
+            <td>
+              <Multiselect
+                v-model="form.filters.processor"
+                mode="tags"
+                placeholder="Choose a processor"
+                :searchable="true"
+                :class="{'is-invalid' : form.errors['filters.processor']}"
+                :options="binSizes"
+              />
+              <div v-if="form.errors['filters.processor']" class="invalid-feedback">
+                {{ form.errors['filters.processor'] }}
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <th>Size</th>
+            <td>
+              <Multiselect
+                v-model="form.filters.size"
+                mode="tags"
+                placeholder="Choose a size"
+                :searchable="true"
+                :class="{'is-invalid' : form.errors['filters.size']}"
+                :options="[
+                  { value: '35-350g', label: '35 - 350g'},
+                  { value: '90mm', label: '90mm'},
+                  { value: '70mm', label: '70mm'},
+                ]"
+              />
+              <div v-if="form.errors['filters.size']" class="invalid-feedback">
+                {{ form.errors['filters.size'] }}
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <th>Disease Scoring Key</th>
+            <td>
+              <Multiselect
+                v-model="form.filters.disease_scoring"
+                mode="tags"
+                placeholder="Choose a disease scoring"
+                :searchable="true"
+                :class="{'is-invalid' : form.errors['filters.disease_scoring']}"
+                :options="[1, 2, 3, 4, 5, 6]"
+              />
+              <div v-if="form.errors['filters.disease_scoring']" class="invalid-feedback">
+                {{ form.errors['filters.disease_scoring'] }}
               </div>
             </td>
           </tr>

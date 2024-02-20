@@ -31,8 +31,8 @@ const deviceId = btoa(userAgent + additionalInfo);
 //   taskStatus: "Pending",
 // });
 const message = reactive({
-  seed: "", 
-  bins: "", 
+  seed: "",
+  bins: "",
   responseChannel: deviceId,
   staffID: '9',
   system: '1',
