@@ -28,13 +28,13 @@ const samples = [
         if (!data) {
             return '';
         }
-        if (data.slice(-1) === '') {
+        if (data.slice(-1)[0] === '') {
             return '';
         }
         if (sample.allow) {
-            return `${data.slice(-1)}% - ${sample.allow}`
+            return `${data.slice(-1)[0]}% - ${sample.allow}`
         }
-        return `${data.slice(-1)}%`
+        return `${data.slice(-1)[0]}%`
     };
     return sample;
 })
@@ -98,42 +98,124 @@ const columns = [
         }
     },
     {
+        title: "Growers’s Docket No",
+        data: 'receival.grower_docket_no',
+        render: function (categories, type, row) {
+            if (getCategoriesByType(categories, 'seed-generation').length) {
+                return getSingleCategoryNameByType(categories, 'seed-generation')
+            }
+            return '';
+        }
+    },
+    {
         title: 'Processor',
         data: 'processor',
         render: function (data, type, row) {
-            return binSizes.find(system => system.value === data)?.label || '';
+            return binSizes.find(binSize => binSize.value === data)?.label || '';
         }
+    },
+    {
+        title: 'Inspection No',
+        data: 'inspection_no'
+    },
+    {
+        title: 'Inspection Date',
+        data: 'inspection_date',
+        render: function (data, type, row) {
+            return data ? moment(data).format('DD/MM/YYYY') : '';
+        }
+    },
+    {
+        title: 'Cool Store',
+        data: 'cool_store'
     },
     {
         title: 'Size',
         data: 'size',
         render: function (data, type, row) {
             const sizes = [
-                { value: '35-350g', label: '35 - 350g'},
-                { value: '90mm', label: '90mm'},
-                { value: '70mm', label: '70mm'},
+                { value: '35-350g', label: '35 - 350g' },
+                { value: '90mm', label: '90mm' },
+                { value: '70mm', label: '70mm' },
             ]
-            return sizes.find(system => system.value === data)?.label || '';
+            return sizes.find(size => size.value === data)?.label || '';
         }
     },
     {
         title: 'No. of tubers',
         data: 'tubers',
         render: function (data, type, row) {
-            return data ? data.slice(-1) : '';
-        }
-    },
-    {
-        title: 'Disease Key',
-        data: 'disease_scoring',
-    },
-    {
-        title: 'Time Added',
-        data: 'created_at',
-        render: function (data, type, row) {
-            return moment(data).format('DD/MM/YYYY hh:mm A')
+            return data ? data.slice(-1)[0] : '';
         }
     },
 ]
 
-export default [...columns, ...samples];
+samples.push(
+    {
+        title: 'Disease Key',
+        data: 'disease_scoring',
+    }
+)
+
+const sample2 = [
+    { title: 'Powdery Scab', data: 'disease_powdery_scab' },
+    { title: 'Rootknot Nematode', data: 'disease_root_knot_nematode' },
+    { title: 'Common Scab', data: 'disease_common_scab' },
+].map((sample2) => {
+    sample2.render = (data, type, row) => {
+        if (!data) {
+            return '';
+        }
+        if (data.slice(-1)[0] === '') {
+            return '';
+        }
+        return `${data.slice(-1)[0]}%`
+    };
+    return sample2;
+});
+
+export default [
+    ...columns,
+    ...samples,
+    ...sample2,
+    ...[
+        {
+            title: 'Excessive Dirt',
+            data: 'excessive_dirt',
+            render: function (data, type, row) {
+                return data ? 'Yes' : 'No';
+            }
+        },
+        {
+            title: 'Minor Skin Cracking',
+            data: 'minor_skin_cracking',
+            render: function (data, type, row) {
+                return data ? 'Yes' : 'No';
+            }
+        },
+        {
+            title: 'Skinning',
+            data: 'skinning',
+            render: function (data, type, row) {
+                return data ? 'Yes' : 'No';
+            }
+        },
+        {
+            title: 'Regarding',
+            data: 'regarding',
+            render: function (data, type, row) {
+                return data ? 'Yes' : 'No';
+            }
+        },
+        {
+            title: 'Comments',
+            data: 'comment'
+        },
+        {
+            title: 'Time Added',
+            data: 'created_at',
+            render: function (data, type, row) {
+                return moment(data).format('DD/MM/YYYY hh:mm A')
+            }
+        },
+    ]];

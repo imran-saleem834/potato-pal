@@ -2,11 +2,11 @@ export function getCategoriesByType(categories, type) {
     return (categories || []).filter(category => category.type === type);
 }
 
-export function getDropDownOptions(items, isGrower = false) {
+export function getDropDownOptions(items, isGrower = false, isBuyer = false) {
     return (items || []).map(item => {
         return {
             'value': item.id,
-            'label': isGrower ? item.grower_name : item.name
+            'label': isGrower ? item.grower_name : (isBuyer ? item.buyer_name : item.name)
         };
     });
 }

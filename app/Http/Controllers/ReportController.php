@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Cutting;
+use App\Models\CuttingAllocation;
+use App\Models\Dispatch;
+use App\Models\Reallocation;
 use App\Models\TiaSample;
 use App\Models\Unload;
 use Inertia\Inertia;
@@ -97,7 +101,7 @@ class ReportController extends Controller
     public function edit(Request $request, $id)
     {
         $report = Report::find($id);
-        
+
         return Inertia::render('Report/Edit', [
             'report'     => $report,
             'name'       => Report::TYPES[$report->type] ?? 'Report',
@@ -151,6 +155,14 @@ class ReportController extends Controller
             $report->setAttribute('data', $this->getFilterUnloads($report));
         } else if ($report->getAttribute('type') === 'tia-sample') {
             $report->setAttribute('data', $this->getFilterTiaSamples($report));
+        } else if ($report->getAttribute('type') === 'allocation') {
+            $report->setAttribute('data', $this->getFilterAllocations($report));
+        } else if ($report->getAttribute('type') === 'reallocation') {
+            $report->setAttribute('data', $this->getFilterReallocations($report));
+        } else if ($report->getAttribute('type') === 'cutting') {
+            $report->setAttribute('data', $this->getFilterCuttings($report));
+        } else if ($report->getAttribute('type') === 'dispatch') {
+            $report->setAttribute('data', $this->getFilterDispatch($report));
         }
 
         return $report;
@@ -202,7 +214,7 @@ class ReportController extends Controller
             $report->filters['seed_generations'] ?? [],
             $report->filters['fungicides'] ?? [],
         );
-        $unloadCategoryIds = $report->filters['seed_type'] ?? [];
+        $unloadCategoryIds   = $report->filters['seed_types'] ?? [];
 
         return Unload::query()
             ->with([
@@ -264,7 +276,7 @@ class ReportController extends Controller
 
         return TiaSample::query()
             ->with([
-                'receival:id,grower_id',
+                'receival:id,grower_id,grower_docket_no',
                 'receival.grower:id,grower_name',
                 'receival.categories.category',
             ])
@@ -290,6 +302,217 @@ class ReportController extends Controller
             })
             ->when($receivalCategoryIds, function (Builder $query, $categoryIds) {
                 return $query->whereRelation('receival.categories', function (Builder $subQuery) use ($categoryIds) {
+                    return $subQuery->whereIn('category_id', $categoryIds);
+                });
+            })
+            ->get();
+    }
+
+    private function getFilterAllocations($report)
+    {
+        $categoryIds = array_merge(
+            $report->filters['seed_types'] ?? [],
+            $report->filters['grower_groups'] ?? [],
+            $report->filters['seed_varieties'] ?? [],
+            $report->filters['seed_generations'] ?? [],
+        );
+
+        return Allocation::query()
+            ->with([
+                'buyer:id,buyer_name',
+                'grower:id,grower_name',
+                'categories.category',
+            ])
+            ->when($report->filters['start'] ?? null, function (Builder $query, $start) {
+                return $query->where('created_at', '>=', $start);
+            })
+            ->when($report->filters['end'] ?? null, function (Builder $query, $end) {
+                return $query->where('created_at', '<=', $end);
+            })
+            ->when($report->filters['grower_ids'] ?? null, function (Builder $query, $growerIds) {
+                return $query->whereIn('grower_id', $growerIds);
+            })
+            ->when($report->filters['buyer_ids'] ?? null, function (Builder $query, $buyerIds) {
+                return $query->whereIn('buyer_id', $buyerIds);
+            })
+            ->when($report->filters['bin_sizes'] ?? null, function (Builder $query, $binSizes) {
+                return $query->whereIn('bin_size', $binSizes);
+            })
+            ->when($report->filters['paddocks'] ?? null, function (Builder $query, $paddocks) {
+                return $query->whereIn('paddock', $paddocks);
+            })
+            ->when($categoryIds, function (Builder $query, $categoryIds) {
+                return $query->whereRelation('categories', function (Builder $subQuery) use ($categoryIds) {
+                    return $subQuery->whereIn('category_id', $categoryIds);
+                });
+            })
+            ->get();
+    }
+
+    private function getFilterReallocations($report)
+    {
+        $categoryIds = array_merge(
+            $report->filters['seed_types'] ?? [],
+            $report->filters['grower_groups'] ?? [],
+            $report->filters['seed_varieties'] ?? [],
+            $report->filters['seed_generations'] ?? [],
+        );
+
+        return Reallocation::query()
+            ->with([
+                'buyer:id,buyer_name',
+                'allocationBuyer:id,buyer_name',
+                'allocation:id,grower_id,bin_size,paddock',
+                'allocation.grower:id,grower_name',
+                'allocation.categories.category',
+            ])
+            ->when($report->filters['start'] ?? null, function (Builder $query, $start) {
+                return $query->where('created_at', '>=', $start);
+            })
+            ->when($report->filters['end'] ?? null, function (Builder $query, $end) {
+                return $query->where('created_at', '<=', $end);
+            })
+            ->when($report->filters['grower_ids'] ?? null, function (Builder $query, $growerIds) {
+                return $query->whereRelation('allocation', function (Builder $subQuery) use ($growerIds) {
+                    return $subQuery->whereIn('grower_id', $growerIds);
+                });
+            })
+            ->when($report->filters['buyer_ids'] ?? null, function (Builder $query, $buyerIds) {
+                return $query->whereIn('buyer_id', $buyerIds);
+            })
+            ->when($report->filters['allocation_buyer_ids'] ?? null, function (Builder $query, $buyerIds) {
+                return $query->whereIn('allocation_buyer_id', $buyerIds);
+            })
+            ->when($report->filters['bin_sizes'] ?? null, function (Builder $query, $binSizes) {
+                return $query->whereIn('bin_size', $binSizes);
+            })
+            ->when($report->filters['paddocks'] ?? null, function (Builder $query, $paddocks) {
+                return $query->whereRelation('allocation', function (Builder $subQuery) use ($paddocks) {
+                    return $subQuery->whereIn('paddock', $paddocks);
+                });
+            })
+            ->when($categoryIds, function (Builder $query, $categoryIds) {
+                return $query->whereRelation('allocation.categories', function (Builder $subQuery) use ($categoryIds) {
+                    return $subQuery->whereIn('category_id', $categoryIds);
+                });
+            })
+            ->get();
+    }
+
+    private function getFilterCuttings($report)
+    {
+        $allocationCategoryIds = array_merge(
+            $report->filters['seed_types'] ?? [],
+            $report->filters['grower_groups'] ?? [],
+            $report->filters['seed_varieties'] ?? [],
+            $report->filters['seed_generations'] ?? [],
+        );
+        $cuttingCategoryIds    = $report->filters['fungicides'] ?? [];
+
+        return CuttingAllocation::query()
+            ->with([
+                'allocation:id,buyer_id,grower_id,bin_size,paddock',
+                'allocation.buyer:id,buyer_name',
+                'allocation.grower:id,grower_name',
+                'cutting.categories.category',
+                'allocation.categories.category',
+            ])
+            ->when($report->filters['start'] ?? null, function (Builder $query, $start) {
+                return $query->where('created_at', '>=', $start);
+            })
+            ->when($report->filters['end'] ?? null, function (Builder $query, $end) {
+                return $query->where('created_at', '<=', $end);
+            })
+            ->when($report->filters['grower_ids'] ?? null, function (Builder $query, $growerIds) {
+                return $query->whereRelation('allocation', function (Builder $subQuery) use ($growerIds) {
+                    return $subQuery->whereIn('grower_id', $growerIds);
+                });
+            })
+            ->when($report->filters['buyer_ids'] ?? null, function (Builder $query, $buyerIds) {
+                return $query->whereRelation('cutting', function (Builder $subQuery) use ($buyerIds) {
+                    return $subQuery->whereIn('buyer_id', $buyerIds);
+                });
+            })
+            ->when($report->filters['bin_sizes'] ?? null, function (Builder $query, $binSizes) {
+                return $query->whereRelation('allocation', function (Builder $subQuery) use ($binSizes) {
+                    return $subQuery->whereIn('bin_size', $binSizes);
+                });
+            })
+            ->when($report->filters['paddocks'] ?? null, function (Builder $query, $paddocks) {
+                return $query->whereRelation('allocation', function (Builder $subQuery) use ($paddocks) {
+                    return $subQuery->whereIn('paddock', $paddocks);
+                });
+            })
+            ->when($cuttingCategoryIds, function (Builder $query, $categoryIds) {
+                return $query->whereRelation('cutting.categories', function (Builder $subQuery) use ($categoryIds) {
+                    return $subQuery->whereIn('category_id', $categoryIds);
+                });
+            })
+            ->when($allocationCategoryIds, function (Builder $query, $categoryIds) {
+                return $query->whereRelation('allocation.categories', function (Builder $subQuery) use ($categoryIds) {
+                    return $subQuery->whereIn('category_id', $categoryIds);
+                });
+            })
+            ->get();
+    }
+
+    private function getFilterDispatch($report)
+    {
+        $allocationCategoryIds = array_merge(
+            $report->filters['seed_types'] ?? [],
+            $report->filters['grower_groups'] ?? [],
+            $report->filters['seed_varieties'] ?? [],
+            $report->filters['seed_generations'] ?? [],
+        );
+
+        return Dispatch::query()
+            ->with([
+                'buyer:id,buyer_name',
+                'allocation:id,buyer_id,grower_id,bin_size,paddock',
+                'reallocation.allocation:id,buyer_id,grower_id,bin_size,paddock',
+                'allocation.grower:id,grower_name',
+                'reallocation.allocation.grower:id,grower_name',
+                'allocation.buyer:id,buyer_name',
+                'reallocation.buyer:id,buyer_name',
+                'allocation.categories.category',
+                'reallocation.allocation.categories.category',
+            ])
+            ->when($report->filters['start'] ?? null, function (Builder $query, $start) {
+                return $query->where('created_at', '>=', $start);
+            })
+            ->when($report->filters['end'] ?? null, function (Builder $query, $end) {
+                return $query->where('created_at', '<=', $end);
+            })
+            ->when($report->filters['grower_ids'] ?? null, function (Builder $query, $growerIds) {
+                return $query->whereRelation('allocation', function (Builder $subQuery) use ($growerIds) {
+                    return $subQuery->whereIn('grower_id', $growerIds);
+                })->orWhereRelation('reallocation.allocation', function (Builder $subQuery) use ($growerIds) {
+                    return $subQuery->whereIn('grower_id', $growerIds);
+                });
+            })
+            ->when($report->filters['buyer_ids'] ?? null, function (Builder $query, $buyerIds) {
+                return $query->whereRelation('cutting', function (Builder $subQuery) use ($buyerIds) {
+                    return $subQuery->whereIn('buyer_id', $buyerIds);
+                });
+            })
+            ->when($report->filters['bin_sizes'] ?? null, function (Builder $query, $binSizes) {
+                return $query->whereRelation('allocation', function (Builder $subQuery) use ($binSizes) {
+                    return $subQuery->whereIn('bin_size', $binSizes);
+                })->orWhereRelation('reallocation.allocation', function (Builder $subQuery) use ($binSizes) {
+                    return $subQuery->whereIn('bin_size', $binSizes);
+                });
+            })
+            ->when($report->filters['paddocks'] ?? null, function (Builder $query, $paddocks) {
+                return $query->whereRelation('allocation', function (Builder $subQuery) use ($paddocks) {
+                    return $subQuery->whereIn('paddock', $paddocks);
+                })->orWhereRelation('reallocation.allocation', function (Builder $subQuery) use ($paddocks) {
+                    return $subQuery->whereIn('paddock', $paddocks);
+                });
+            })
+            ->when($allocationCategoryIds, function (Builder $query, $categoryIds) {
+                return $query->whereRelation('allocation.categories', function (Builder $subQuery) use ($categoryIds) {
+                    return $subQuery->whereIn('category_id', $categoryIds);
+                })->orWhereRelation('reallocation.allocation.categories', function (Builder $subQuery) use ($categoryIds) {
                     return $subQuery->whereIn('category_id', $categoryIds);
                 });
             })

@@ -3,13 +3,15 @@ import { Head, Link } from '@inertiajs/vue3';
 import LogoutButton from '@/Components/LogoutButton.vue';
 import InstallConfirmedModal from "@/Components/InstallConfirmedModal.vue";
 
+// route('reports.show', 'label')
+// route('reports.show', 'dispatch')
 const menus = [
   { route: route('reports.show', 'receival'), image: 'menu2.png', label: 'Receivals' },
   { route: route('reports.show', 'unload'), image: 'menu3.png', label: 'Unloading' },
   { route: route('reports.show', 'tia-sample'), image: 'menu4.png', label: 'TIA Sampling' },
   { route: route('reports.show', 'allocation'), image: 'menu5.png', label: 'Allocations' },
   { route: route('reports.show', 'reallocation'), image: 'menu6.png', label: 'Reallocations' },
-  { route: route('reports.show', 'label'), image: 'menu8.png', label: 'Labels' },
+  { route: '', image: 'menu8.png', label: 'Labels' },
   { route: route('reports.show', 'dispatch'), image: 'menu9.png', label: 'Dispatch' },
   { route: route('reports.show', 'cutting'), image: 'menu11.png', label: 'Cutting' },
 ];

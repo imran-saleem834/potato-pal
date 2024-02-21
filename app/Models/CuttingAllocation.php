@@ -27,4 +27,9 @@ class CuttingAllocation extends Model
     {
         return $this->belongsTo(Allocation::class);
     }
+
+    public function cutting()
+    {
+        return $this->belongsTo(Cutting::class);
+    }
 }

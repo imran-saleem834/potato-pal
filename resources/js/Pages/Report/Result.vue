@@ -6,8 +6,8 @@ import AppLayout from '@/Layouts/AppLayout.vue';
 import TopBar from '@/Components/TopBar.vue';
 
 import DataTable from "datatables.net-vue3";
-import DataTablesCore from 'datatables.net';
-// import DataTablesCore from 'datatables.net-bs5';
+// import DataTablesCore from 'datatables.net';
+import DataTablesCore from 'datatables.net-bs5';
 import 'datatables.net-responsive';
 // import 'datatables.net-responsive-dt';
 // import 'datatables.net-responsive-bs5';
@@ -140,9 +140,9 @@ const setupInertiaLinks = () => {
 </template>
 
 <style>
-@import 'datatables.net-dt';
-/*@import 'datatables.net-bs5';*/
+/*@import 'datatables.net-dt';*/
+@import 'datatables.net-bs5';
 
-@import 'datatables.net-responsive-dt';
-/*@import 'datatables.net-responsive-bs5';*/
+/*@import 'datatables.net-responsive-dt';*/
+@import 'datatables.net-responsive-bs5';
 </style>

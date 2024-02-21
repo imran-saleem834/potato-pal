@@ -47,12 +47,18 @@ const form = useForm({
     channels: props.report.filters?.channels,
     bin_sizes: props.report.filters?.bin_sizes,
     systems: props.report.filters?.systems,
+    buyer_ids: props.report.filters?.buyer_ids,
+    allocation_buyer_ids: props.report.filters?.allocation_buyer_ids,
   }
 });
 
 const isReceivalForm = computed(() => page.props.type === 'receival');
 const isUnloadForm = computed(() => page.props.type === 'unload');
 const isTiaSampleForm = computed(() => page.props.type === 'tia-sample');
+const isAllocationForm = computed(() => page.props.type === 'allocation');
+const isReallocationForm = computed(() => page.props.type === 'reallocation');
+const isCuttingForm = computed(() => page.props.type === 'cutting');
+const isDispatchForm = computed(() => page.props.type === 'dispatch');
 
 const updateRecord = () => {
   form.patch(route('reports.update', props.report.id), {
@@ -425,6 +431,92 @@ defineExpose({
               />
               <div v-if="form.errors['filters.disease_scoring']" class="invalid-feedback">
                 {{ form.errors['filters.disease_scoring'] }}
+              </div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      
+      <h4 v-if="isAllocationForm || isReallocationForm || isCuttingForm || isDispatchForm">Buyer Filter</h4>
+      <div v-if="isAllocationForm || isReallocationForm || isCuttingForm || isDispatchForm" class="user-boxes">
+        <table class="table input-table mb-0">
+          <tr>
+            <th>Buyers</th>
+            <td>
+              <Multiselect
+                v-model="form.filters.buyer_ids"
+                mode="tags"
+                placeholder="Choose a buyers"
+                :searchable="true"
+                :class="{'is-invalid' : form.errors['filters.buyer_ids']}"
+                :options="getDropDownOptions(page.props.buyers, false, true)"
+              />
+              <div v-if="form.errors['filters.buyer_ids']" class="invalid-feedback">
+                {{ form.errors['filters.buyer_ids'] }}
+              </div>
+            </td>
+          </tr>
+          <tr v-if="isCuttingForm">
+            <th>Fungicides</th>
+            <td>
+              <Multiselect
+                v-model="form.filters.fungicides"
+                mode="tags"
+                placeholder="Choose a fungicides"
+                :searchable="true"
+                :class="{'is-invalid' : form.errors['filters.fungicides']}"
+                :options="getCategoriesDropDownByType(page.props.categories, 'fungicide')"
+              />
+              <div v-if="form.errors['filters.fungicides']" class="invalid-feedback">
+                {{ form.errors['filters.fungicides'] }}
+              </div>
+            </td>
+          </tr>
+          <tr v-if="isReallocationForm || isDispatchForm">
+            <th>Allocation Buyers</th>
+            <td>
+              <Multiselect
+                v-model="form.filters.allocation_buyer_ids"
+                mode="tags"
+                placeholder="Choose a buyers"
+                :searchable="true"
+                :class="{'is-invalid' : form.errors['filters.allocation_buyer_ids']}"
+                :options="getDropDownOptions(page.props.buyers, false, true)"
+              />
+              <div v-if="form.errors['filters.allocation_buyer_ids']" class="invalid-feedback">
+                {{ form.errors['filters.allocation_buyer_ids'] }}
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <th>Seed Types</th>
+            <td>
+              <Multiselect
+                v-model="form.filters.seed_types"
+                mode="tags"
+                placeholder="Choose a seed types"
+                :searchable="true"
+                :class="{'is-invalid' : form.errors['filters.seed_types']}"
+                :options="getCategoriesDropDownByType(page.props.categories, 'seed-type')"
+              />
+              <div v-if="form.errors['filters.seed_types']" class="invalid-feedback">
+                {{ form.errors['filters.seed_types'] }}
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <th>Bin Sizes</th>
+            <td>
+              <Multiselect
+                v-model="form.filters.bin_sizes"
+                mode="tags"
+                placeholder="Choose a bin sizes"
+                :searchable="true"
+                :class="{'is-invalid' : form.errors['filters.bin_sizes']}"
+                :options="binSizes"
+              />
+              <div v-if="form.errors['filters.bin_sizes']" class="invalid-feedback">
+                {{ form.errors['filters.bin_sizes'] }}
               </div>
             </td>
           </tr>

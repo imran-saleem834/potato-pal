@@ -42,14 +42,14 @@ export default [
                 { value: 'BU2', label: 'BU2' },
                 { value: 'BU3', label: 'BU3' },
             ];
-            return channels.find(system => system.value === data)?.label;
+            return channels.find(channel => channel.value === data)?.label;
         }
     },
     {
         title: 'Bin Size',
         data: 'bin_size',
         render: function (data, type, row) {
-            return binSizes.find(system => system.value === data)?.label;
+            return binSizes.find(binSize => binSize.value === data)?.label;
         }
     },
     {
