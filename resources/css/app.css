@@ -189,6 +189,11 @@ body {
     color: #E22827 !important;
 }
 
+.invalid-feedback {
+    color: rgb(220, 53, 69) !important;
+}
+
+
 /******* Auth Pages *********/
 .login-section {
     font-size: 14px;

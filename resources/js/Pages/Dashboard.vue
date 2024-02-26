@@ -4,10 +4,13 @@ import LogoutButton from '@/Components/LogoutButton.vue';
 import InstallConfirmedModal from "@/Components/InstallConfirmedModal.vue";
 
 // route('reallocations.index')
+// route('labels.index')
+// route('invoices.index')
 // route('dispatches.index')
 // route('cuttings.index')
 // route('weighbridge.index')
 // route('reports.index')
+// route('gradings.index')
 const menus = [
   { route: route('users.index'), image: 'menu1.png', label: 'Users' },
   { route: route('receivals.index'), image: 'menu2.png', label: 'Receivals' },
@@ -21,6 +24,7 @@ const menus = [
   { route: '', image: 'menu10.png', label: 'Reports' },
   { route: '', image: 'menu11.png', label: 'Cutting' },
   { route: '', image: 'menu12.png', label: 'Weighbridge' },
+  { route: '', image: 'menu13.png', label: 'Grading' },
   { route: route('categories.index'), image: 'menu13.png', label: 'Admin Options' },
   { route: route('notifications.index'), image: 'menu14.png', label: 'Notifications' },
   { route: route('notes.index'), image: 'menu15.png', label: 'Notes' },

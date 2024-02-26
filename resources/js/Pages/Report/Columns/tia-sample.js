@@ -150,12 +150,10 @@ const columns = [
     },
 ]
 
-samples.push(
-    {
-        title: 'Disease Key',
-        data: 'disease_scoring',
-    }
-)
+samples.push({
+    title: 'Disease Key',
+    data: 'disease_scoring',
+})
 
 const sample2 = [
     { title: 'Powdery Scab', data: 'disease_powdery_scab' },
@@ -218,4 +216,5 @@ export default [
                 return moment(data).format('DD/MM/YYYY hh:mm A')
             }
         },
-    ]];
+    ]
+];

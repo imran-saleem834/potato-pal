@@ -15,6 +15,9 @@ use App\Http\Controllers\ReallocationController;
 use App\Http\Controllers\DispatchController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\WeighbridgeController;
+use App\Http\Controllers\GradingController;
+use App\Http\Controllers\LabelController;
+use App\Http\Controllers\InvoiceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -42,10 +45,10 @@ Route::middleware([
 
     Route::resource('/categories', CategoryController::class);
 
-    Route::post('/receivals/{id}/push/unload',
-        [ReceivalController::class, 'pushForUnload'])->name('receivals.push.unload');
-    Route::post('/receivals/{id}/push/tia-sample',
-        [ReceivalController::class, 'pushForTiaSample'])->name('receivals.push.tia-sample');
+    Route::post('/receivals/{id}/push/unload', [ReceivalController::class, 'pushForUnload'])
+        ->name('receivals.push.unload');
+    Route::post('/receivals/{id}/push/tia-sample', [ReceivalController::class, 'pushForTiaSample'])
+        ->name('receivals.push.tia-sample');
     Route::post('/receivals/{id}/duplicate', [ReceivalController::class, 'duplicate'])->name('receivals.duplicate');
     Route::post('/receivals/{id}/upload', [ReceivalController::class, 'upload'])->name('receivals.upload');
     Route::post('/receivals/{id}/delete', [ReceivalController::class, 'delete'])->name('receivals.delete');
@@ -53,6 +56,9 @@ Route::middleware([
 
     Route::resource('/unloading', UnloadingController::class);
     Route::resource('/cuttings', CuttingController::class);
+    Route::resource('/gradings', GradingController::class);
+    Route::resource('/labels', LabelController::class);
+    Route::resource('/invoices', InvoiceController::class);
 
     Route::post('/tia-samples/{id}/upload', [TiaSampleController::class, 'upload'])->name('tia-samples.upload');
     Route::post('/tia-samples/{id}/delete', [TiaSampleController::class, 'delete'])->name('tia-samples.delete');
@@ -78,17 +84,5 @@ Route::middleware([
 });
 
 Route::get('/abc', function () {
-    $a = [
-        'grower_group' => [1, 2, 4],
-        'buyer_group'  => [1, 2, 4],
-        'cool_store'   => [1, 2, 4],
-        'fungis'       => [1, 2, 4],
-    ];
-    echo "<pre>";
-    print_r($a);
-    $keys = array_map(function ($b) {
-        return str_replace('_', '-', $b);
-    }, array_keys($a));
-    print_r($keys);
-    print_r(array_combine($keys, $a));
+   
 });
