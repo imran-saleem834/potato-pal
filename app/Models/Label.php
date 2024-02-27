@@ -17,6 +17,8 @@ class Label extends Model
     protected $fillable = [
         'labelable_id',
         'labelable_type',
+        'grower_id',
+        'paddock',
         'receival_id',
         'type',
         'comments',
@@ -25,5 +27,15 @@ class Label extends Model
     public function labelable()
     {
         return $this->morphTo();
+    }
+
+    public function grower()
+    {
+        return $this->belongsTo(User::class, 'grower_id');
+    }
+
+    public function receival()
+    {
+        return $this->belongsTo(Receival::class, 'receival_id');
     }
 }

@@ -775,7 +775,67 @@ body {
 .carousel-control .glyphicon-chevron-right, .carousel-control .icon-prev {
     color: #000000;
 }
-/****** Files ********/
+
+.rec-id .header > div:first-child {
+    font-size: 22px;
+}
+
+.rec-id .header > div:last-child {
+    font-size: 18px;
+}
+
+.print-body-page {
+    max-width: 1240px; 
+    margin: 0 auto
+}
+
+.rec-id-tia-sample h1 {
+    font-size: 5rem;
+}
+
+.rec-id-tia-sample h2 {
+    font-size: 2rem;
+}
+
+.rec-id-labels h4 {
+    font-size: 1.5rem !important;
+}
+
+.rec-id-labels .input-table tr th,
+.rec-id-labels .input-table tr td,
+.rec-id-tia-sample .input-table tr th, 
+.rec-id-tia-sample .input-table tr td {
+    padding: 5px 0;
+    font-size: 13px;
+}
+
+@media print {
+    * {
+        color-adjust: exact !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+    
+    /* Hide specific elements */
+    /*.header, .footer {*/
+    /*    display: none !important;*/
+    /*}*/
+
+    /* If you need to hide the default header/footer text */
+    @page {
+        margin: 0;
+    }
+    
+    .print-body-page {
+        max-width: 100%;
+        padding: 20px;
+    }
+
+    .page-break {
+        page-break-after: always;
+    }
+}
+
 
 @media only screen and (max-width: 1400px) {
 

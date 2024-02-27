@@ -225,15 +225,19 @@ defineExpose({
             </td>
           </tr>
           <tr v-if="form.fungicide">
-            <th>Amount of fungicide used (litres):</th>
+            <th>Fungicide used:</th>
             <td>
               <TextInput
                 v-if="isForm"
                 v-model="form.fungicide_used"
                 :error="form.errors.fungicide_used"
                 type="text"
-              />
-              <template v-else-if="grade.fungicide_used">{{ grade.fungicide_used }}</template>
+              >
+                <template #addon>
+                  <div class="input-group-text">litres</div>
+                </template>
+              </TextInput>
+              <template v-else-if="grade.fungicide_used">{{ grade.fungicide_used }} litres</template>
               <template v-else>-</template>
             </td>
           </tr>

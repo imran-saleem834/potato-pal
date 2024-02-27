@@ -16,6 +16,7 @@ const props = defineProps({
   single: Object,
   allocations: Object,
   cuttings: Object,
+  receivals: Object,
   filters: Object,
   errors: Object
 });
@@ -97,12 +98,14 @@ if (width.value > 991) {
       @search="filter"
       :is-edit-record-selected="!!edit"
       :is-new-record-selected="isNewRecord"
+      :access="{ print: true }"
       @new="setNewRecord"
       @edit="() => setEdit(label?.id)"
       @unset="() => setActiveTab(null)"
       @store="() => details.storeRecord()"
       @update="() => details.updateRecord()"
       @delete="() => deleteLabel(label?.id)"
+      @print="() => details.printLabels()"
     />
 
     <div class="tab-section">
@@ -112,7 +115,7 @@ if (width.value > 991) {
             :items="labels.data"
             :links="labels.links"
             :active-tab="activeTab"
-            :row-1="{title: 'Grower', value: 'unload.receival.grower.grower_name'}"
+            :row-1="{title: 'Ex Grower', value: 'grower.grower_name'}"
             :row-2="{title: 'Label Id', value: 'id'}"
             @click="getLabel"
           />
@@ -126,6 +129,7 @@ if (width.value > 991) {
               :is-new="isNewRecord"
               :allocations="allocations"
               :cuttings="cuttings"
+              :receivals="receivals"
               @update="() => getLabel(activeTab)"
               @create="() => setActiveTab(label?.id)"
               @unset="() => setActiveTab(null)"

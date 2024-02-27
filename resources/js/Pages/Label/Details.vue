@@ -1,13 +1,16 @@
 <script setup>
-import { computed, watch } from "vue";
+import print from 'vue3-print-nb';
+import { computed, ref, watch } from "vue";
 import { useForm, Link } from "@inertiajs/vue3";
 import Multiselect from '@vueform/multiselect';
 import { useToast } from "vue-toastification";
 import { getBinSizesValue } from "@/tonnes.js";
 import TextInput from "@/Components/TextInput.vue";
 import UlLiButton from "@/Components/UlLiButton.vue";
+import Labels from "@/Pages/Label/Labels.vue";
 
 const toast = useToast();
+const vPrint = print;
 
 const props = defineProps({
   label: Object,
@@ -16,9 +19,11 @@ const props = defineProps({
   isNew: Boolean,
   allocations: Array,
   cuttings: Array,
+  receivals: Array,
 });
 
 const emit = defineEmits(['update', 'create', 'unset']);
+const btnPrintLabel = ref(null);
 
 const form = useForm({
   labelable_type: props.label.labelable_type,
@@ -83,11 +88,17 @@ const onChangeType = (value) => {
   }
 }
 
+const printLabels = () => {
+  btnPrintLabel.value.click()
+}
+
 const exGrowers = computed(() => {
-  if (form.labelable_type === 'cutting') {
+  if (form.labelable_type === 'App\\Models\\CuttingAllocation') {
     return props.cuttings
       .filter((cutting, index, self) => index === self.findIndex((t) => (t.allocation.grower_id === cutting.allocation.grower_id)))
       .map((cutting) => ({ value: cutting.allocation.grower_id, label: cutting.allocation.grower.grower_name }));
+  } else if (form.labelable_type === 'App\\Models\\Reallocation') {
+    return [];
   }
 
   return props.allocations
@@ -96,11 +107,13 @@ const exGrowers = computed(() => {
 });
 
 const paddockOptions = computed(() => {
-  if (form.labelable_type === 'cutting') {
+  if (form.labelable_type === 'App\\Models\\CuttingAllocation') {
     return props.cuttings
       .filter(cutting => cutting.allocation.grower_id === form.grower_id)
       .filter((cutting, index, self) => index === self.findIndex((t) => (t.allocation.paddock === cutting.allocation.paddock)))
       .map((cutting) => ({ value: cutting.allocation.paddock, label: cutting.allocation.paddock }))
+  } else if (form.labelable_type === 'App\\Models\\Reallocation') {
+    return [];
   }
 
   return props.allocations
@@ -110,7 +123,7 @@ const paddockOptions = computed(() => {
 });
 
 const allocationOption = computed(() => {
-  if (form.labelable_type === 'cutting') {
+  if (form.labelable_type === 'App\\Models\\CuttingAllocation') {
     return props.cuttings
       .filter(cutting => cutting.allocation.grower_id === form.grower_id)
       .filter(cutting => cutting.allocation.paddock === form.paddock)
@@ -120,6 +133,8 @@ const allocationOption = computed(() => {
           label: `${cutting.id}; B. Name: ${cutting.allocation.buyer.buyer_name}; Size: ${getBinSizesValue(cutting.allocation.bin_size)}; Bins after cut: ${cutting.no_of_bins_after_cutting}; W after cut: ${cutting.weight_after_cutting}kg`
         }
       ));
+  } else if (form.labelable_type === 'App\\Models\\Reallocation') {
+    return [];
   }
 
   return props.allocations
@@ -135,8 +150,41 @@ const allocationOption = computed(() => {
 
 defineExpose({
   updateRecord,
-  storeRecord
+  storeRecord,
+  printLabels
 });
+
+const printObj = {
+  id: "---",
+  // url: 'http://localhost:8000/users',
+  // extraCss: "http://localhost:8000/build/assets/app-b0f4edb8.css",
+  // extraHead: '<meta http-equiv="Content-Language" content="en-gb" />',
+  preview: true,
+  previewTitle: 'PRINT CHERRY HILL COOLSTORES LABELS',
+  previewPrintBtnLabel: 'Print',
+  asyncUrl (reslove, vue) {
+    setTimeout(() => {
+      reslove(route('labels.print', [props.label.id, form.type]));
+    }, 1000)
+  },
+  // previewBeforeOpenCallback () {
+  //   console.log('previewBeforeOpenCallback')
+  // },
+  // previewOpenCallback () {
+  //   console.log('previewOpenCallback')
+  // },
+  beforeOpenCallback(vue) {
+    // vue.printLoading = true
+    console.log('beforeOpenCallback')
+  },
+  openCallback(vue) {
+    // vue.printLoading = false
+    console.log('openCallback')
+  },
+  closeCallback(vue) {
+    console.log('closeCallback')
+  },
+}
 </script>
 
 <template>
@@ -153,13 +201,12 @@ defineExpose({
                 :value="form.labelable_type"
                 :error="form.errors.labelable_type"
                 :items="[
-                  { value: 'allocation', label: 'Allocation' },
-                  { value: 'reallocation', label: 'Reallocation' },
-                  { value: 'cutting', label: 'Cutting' }
+                  { value: 'App\\Models\\Allocation', label: 'Allocation' },
+                  { value: 'App\\Models\\Reallocation', label: 'Reallocation' },
+                  { value: 'App\\Models\\CuttingAllocation', label: 'Cutting' }
                 ]"
                 @click="onChangeLabelType"
               />
-              <div v-if="form.errors.labelable_type" class="invalid-feedback">{{ form.errors.labelable_type }}</div>
             </td>
           </tr>
           <tr v-if="form.labelable_type">
@@ -228,7 +275,7 @@ defineExpose({
             <th>Type</th>
             <td>
               <UlLiButton
-                :is-form="isForm"
+                :is-form="true"
                 :value="form.type"
                 :error="form.errors.type"
                 :items="[
@@ -239,24 +286,27 @@ defineExpose({
                 ]"
                 @click="onChangeType"
               />
-              <template>-</template>
             </td>
           </tr>
           <tr>
             <th>Receival Id</th>
             <td>
-              <TextInput
+              <Multiselect
                 v-if="isForm"
                 v-model="form.receival_id"
-                :error="form.errors.receival_id"
-                type="text"
+                mode="single"
+                placeholder="Choose a receival"
+                :searchable="true"
+                :class="{'is-invalid' : form.errors.receival_id}"
+                :options="receivals"
               />
-              <template v-else-if="form.receival_id">{{ form.receival_id }}</template>
-              <template>-</template>
+              <template v-else-if="label.receival_id">{{ label.receival_id }}</template>
+              <template v-else>-</template>
+              <div v-if="form.errors.receival_id" class="invalid-feedback">{{ form.errors.receival_id }}</div>
             </td>
           </tr>
           <tr>
-            <th>Comments</th>
+            <th>Override Comments</th>
             <td>
               <TextInput
                 v-if="isForm"
@@ -268,8 +318,22 @@ defineExpose({
               <template>-</template>
             </td>
           </tr>
+          <tr v-if="!isForm">
+            <th>Print</th>
+            <td>
+              <button 
+                class="btn btn-red btn-sm" 
+                v-print="printObj" 
+                ref="btnPrintLabel"
+              >
+                <i class="bi bi-printer"></i>  Print Labels
+              </button>
+            </td>
+          </tr>
         </table>
       </div>
     </div>
   </div>
+
+  <Labels v-if="!isForm" :type="form.type" :label="label" />
 </template>

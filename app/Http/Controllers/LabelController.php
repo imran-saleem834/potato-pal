@@ -3,12 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Allocation;
-use App\Models\Cutting;
 use App\Models\CuttingAllocation;
 use App\Models\Label;
+use App\Models\Receival;
 use Inertia\Inertia;
-use App\Models\Grade;
-use App\Models\Unload;
 use Illuminate\Http\Request;
 use App\Helpers\NotificationHelper;
 use App\Http\Requests\LabelRequest;
@@ -23,12 +21,12 @@ class LabelController extends Controller
     public function index(Request $request)
     {
         $labels = Label::query()
-            ->with(['labelable'])
-             ->when($request->input('search'), function (Builder $query, $search) {
-            //     return $query->where(function (Builder $subQuery) use ($search) {
-            //         return $subQuery->search($search);
-            //     });
-             })
+            ->with(['grower:id,grower_name'])
+            ->when($request->input('search'), function (Builder $query, $search) {
+                //     return $query->where(function (Builder $subQuery) use ($search) {
+                //         return $subQuery->search($search);
+                //     });
+            })
             ->latest()
             ->paginate(20)
             ->withQueryString()
@@ -38,9 +36,10 @@ class LabelController extends Controller
 
         return Inertia::render('Label/Index', [
             'labels'      => $labels,
-            'single'      => $this->getGrade($labelId),
+            'single'      => $this->getLabel($labelId),
             'allocations' => $this->getAllocations(),
             'cuttings'    => $this->getCuttings(),
+            'receivals'   => $this->geReceivals(),
             'filters'     => $request->only(['search']),
         ]);
     }
@@ -49,7 +48,7 @@ class LabelController extends Controller
     {
         return Allocation::query()
             ->with([
-                'buyer' => fn($query) => $query->select(['id', 'buyer_name']),
+                'buyer'  => fn($query) => $query->select(['id', 'buyer_name']),
                 'grower' => fn($query) => $query->select(['id', 'grower_name']),
             ])
             ->get();
@@ -59,11 +58,25 @@ class LabelController extends Controller
     {
         return CuttingAllocation::query()
             ->with([
-                'allocation'        => fn($query) => $query->select(['id', 'buyer_id', 'grower_id', 'bin_size', 'paddock']),
+                'allocation:id,buyer_id,grower_id,bin_size,paddock',
                 'allocation.buyer'  => fn($query) => $query->select(['id', 'buyer_name']),
                 'allocation.grower' => fn($query) => $query->select(['id', 'grower_name']),
             ])
             ->get();
+    }
+
+    private function geReceivals()
+    {
+        return Receival::query()
+            ->select(['id', 'grower_id'])
+            ->with(['grower:id,grower_name'])
+            ->get()
+            ->map(function ($receival) {
+                return [
+                    'value' => $receival->id,
+                    'label' => "{$receival->id} - Grower: {$receival->grower->grower_name}"
+                ];
+            });
     }
 
     /**
@@ -71,9 +84,9 @@ class LabelController extends Controller
      */
     public function show(string $id)
     {
-        $grade = $this->getGrade($id);
+        $label = $this->getLabel($id);
 
-        return response()->json($grade);
+        return response()->json($label);
     }
 
     /**
@@ -81,11 +94,11 @@ class LabelController extends Controller
      */
     public function store(LabelRequest $request)
     {
-        $grade = Label::create($request->validated());
+        $label = Label::create($request->validated());
 
-        NotificationHelper::addedAction('Grade', $grade->id);
+        NotificationHelper::addedAction('Label', $label->id);
 
-        return to_route('gradings.index');
+        return to_route('labels.index');
     }
 
     /**
@@ -93,13 +106,13 @@ class LabelController extends Controller
      */
     public function update(LabelRequest $request, string $id)
     {
-        $grade = Label::find($id);
-        $grade->update($request->validated());
-        $grade->save();
+        $label = Label::find($id);
+        $label->update($request->validated());
+        $label->save();
 
-        NotificationHelper::updatedAction('Grade', $id);
+        NotificationHelper::updatedAction('Label', $id);
 
-        return to_route('gradings.index');
+        return to_route('labels.index');
     }
 
     /**
@@ -107,19 +120,37 @@ class LabelController extends Controller
      */
     public function destroy(string $id)
     {
-        Grade::destroy($id);
+        Label::destroy($id);
 
-        NotificationHelper::deleteAction('Grade', $id);
+        NotificationHelper::deleteAction('Label', $id);
 
-        return to_route('gradings.index');
+        return to_route('labels.index');
     }
 
-    private function getGrade($gradeId)
+    private function getLabel($labelId)
     {
-        return Grade::with([
-            'unload'                 => fn($query) => $query->select(['id', 'receival_id']),
-            'unload.receival'        => fn($query) => $query->select(['id', 'grower_id']),
-            'unload.receival.grower' => fn($query) => $query->select(['id', 'grower_name']),
-        ])->find($gradeId);
+        return Label::with([
+            'labelable' => fn($query) => $query->morphWith([
+                Allocation::class => [
+                    'buyer:id,buyer_name',
+                    'categories.category'
+                ],
+                CuttingAllocation::class => [
+                    'allocation.buyer:id,buyer_name',
+                    'allocation.categories.category'
+                ]
+            ]),
+            'receival:id,driver_name,created_at',
+            'receival.categories.category',
+            'grower:id,grower_name',
+        ])->find($labelId);
+    }
+
+    public function label($id, $type)
+    {
+        return Inertia::render('Label/Labels', [
+            'type'  => $type,
+            'label' => $this->getLabel($id),
+        ]);
     }
 }

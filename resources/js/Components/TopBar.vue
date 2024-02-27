@@ -31,6 +31,7 @@ const props = defineProps({
       edit: true,
       delete: true,
       duplicate: false,
+      print: false,
     }
   }
 });
@@ -47,7 +48,7 @@ const access = computed(() => ({
 const keyword = ref(props.search);
 const isSearchVisible = ref(false);
 
-const emit = defineEmits(['search', 'unset', 'edit', 'new', 'store', 'update', 'delete', 'duplicate']);
+const emit = defineEmits(['search', 'unset', 'edit', 'new', 'store', 'update', 'delete', 'duplicate', 'print']);
 
 const search = () => {
   emit('search', keyword.value);
@@ -147,7 +148,7 @@ const search = () => {
             <li v-if="access.search" class="d-inline-block d-md-none">
               <a
                 role="button"
-                @click="isSearchVisible = !isSearchVisible"
+                @click="() => isSearchVisible = !isSearchVisible"
                 :class="{'active' : isSearchVisible}"
                 class="btn btn-transparent"
                 title="Search"
@@ -217,6 +218,11 @@ const search = () => {
                 @click="$emit('duplicate')"
               >
                 <i class="bi bi-copy"></i> <span class="d-none d-md-inline-block">Duplicate</span>
+              </a>
+            </li>
+            <li v-if="!isNewRecordSelected && !isEditRecordSelected && access.print">
+              <a role="button" @click="$emit('print')" class="btn btn-red" title="Print">
+                <i class="bi bi-printer"></i> <span class="d-none d-md-inline-block">Print</span>
               </a>
             </li>
             <li v-if="activeTab || isNewRecordSelected" class="d-none d-md-inline-block d-lg-none">

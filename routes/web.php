@@ -60,6 +60,8 @@ Route::middleware([
     Route::resource('/labels', LabelController::class);
     Route::resource('/invoices', InvoiceController::class);
 
+    Route::get('/labels/{label}/print/{type}', [LabelController::class, 'label'])->name('labels.print');
+
     Route::post('/tia-samples/{id}/upload', [TiaSampleController::class, 'upload'])->name('tia-samples.upload');
     Route::post('/tia-samples/{id}/delete', [TiaSampleController::class, 'delete'])->name('tia-samples.delete');
     Route::resource('/tia-samples', TiaSampleController::class);
