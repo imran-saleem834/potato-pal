@@ -68,8 +68,14 @@ class UnloadingController extends Controller
 
         foreach ($request->input('unloads') as $unloadInputs) {
             $unloadInputs['receival_id'] = $id;
-            $unload                      = Unload::updateOrCreate(['id' => $unloadInputs['id'] ?? null], $unloadInputs);
+            
+            $unload = Unload::updateOrCreate(['id' => $unloadInputs['id'] ?? null], $unloadInputs);
 
+            if (!empty($unloadInputs['created_at'])) {
+                $unload->created_at = str_replace('T', ' ', $unloadInputs['created_at']) . ':00';
+                $unload->save();
+            }
+            
             CategoriesHelper::createRelationOfTypes(
                 ['seed_type' => [$unloadInputs['seed_type']]],
                 $unload->id,
@@ -94,6 +100,8 @@ class UnloadingController extends Controller
         Unload::where('receival_id', $id)->delete();
 
         $receival = Receival::find($id);
+        $receival->status = null;
+        $receival->save();
 
         ReceivalHelper::calculateRemainingReceivals($receival->grower_id);
 

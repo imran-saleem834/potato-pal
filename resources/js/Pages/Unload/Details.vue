@@ -84,10 +84,11 @@ const setIsSeedTypeOversize = (seedTypeId, index) => {
 
 const updateUnloadsOnChangeReceival = (receival) => {
   form.fungicide = getCategoryIdsByType(receival.categories, 'fungicide')
-  form.unloads = receival.unloads.length <= 0 ? [{ ...defaultUnloadFields }] : receival.unloads;
+  form.unloads = receival.unloads.length <= 0 ? [{ ...defaultUnloadFields }] : [...receival.unloads];
 
   form.unloads.forEach((unload, index) => {
     form.unloads[index].seed_type = getCategoryIdsByType(unload.categories, 'seed-type')[0];
+    form.unloads[index].created_at = unload.created_at ? moment(unload.created_at).utc().format('YYYY-MM-DDThh:mm') : null
     setIsSeedTypeOversize(form.unloads[index].seed_type, index);
 
     bins.value[index] = null;
@@ -273,8 +274,8 @@ defineExpose({
             </td>
           </tr>
           <tr>
-            <th>Time Added</th>
-            <td>{{ moment(receival.created_at).format('DD/MM/YYYY hh:mm A') }}</td>
+            <th>Receival Time</th>
+            <td>{{ moment(receival.created_at).utc().format('DD/MM/YYYY hh:mm A') }}</td>
           </tr>
           <tr>
             <th>Grower Group</th>
@@ -385,6 +386,19 @@ defineExpose({
       <div v-for="(unload, index) in form.unloads" class="user-boxes">
         <table class="table input-table mb-0">
           <tr>
+            <th>Unload Time</th>
+            <td>
+              <TextInput
+                v-if="isForm"
+                v-model="form.unloads[index].created_at"
+                :error="form.errors[`unloads.${index}.created_at`]"
+                type="datetime-local"
+              />
+              <template v-else-if="unload.created_at">{{ moment(unload.created_at).format('DD/MM/YYYY hh:mm A') }}</template>
+              <template v-else>-</template>
+            </td>
+          </tr>
+          <tr>
             <th>Seed Type</th>
             <td class="pb-0">
               <UlLiButton
@@ -480,7 +494,7 @@ defineExpose({
             </td>
           </tr>
           <tr>
-            <th>Weight of total bins</th>
+            <th>Weight of total bins (kg)</th>
             <td>
               <TextInput
                 v-if="isForm && form.unloads[index]"
@@ -494,7 +508,7 @@ defineExpose({
             </td>
           </tr>
           <tr v-if="isForm && form.unloads[index] && !form.unloads[index]?.isSeedTypeOversize">
-            <th>Number of bins</th>
+            <th>No. of bins weighed at a time</th>
             <td class="pb-0">
               <div class="d-inline-block">
                 <UlLiButton
@@ -510,23 +524,26 @@ defineExpose({
               </div>
               <div class="d-inline-block align-top">
                 <button @click="startWeighing(index)" class="btn btn-red me-2">Start Weight</button>
-                <div v-if="weight[index] && bins[index]" class="btn-group">
-                  <button @click="acceptWeight(index)" class="btn btn-black"><i class="bi bi-check-lg"></i></button>
-                  <button @click="rejectWeight(index)" class="btn btn-red"><i class="bi bi-trash"></i></button>
-                </div>
-                <button v-else @click="getWeight(index)" class="btn btn-red">Get Weight</button>
+                <button @click="getWeight(index)" class="btn btn-red">Get Weight</button>
               </div>
             </td>
           </tr>
           <tr v-if="isForm && form.unloads[index] && !form.unloads[index]?.isSeedTypeOversize">
-            <th>Weight of total bins</th>
+            <th>Weight of total bins (kg)</th>
             <td class="pb-0">
-              <input
-                :disabled="true"
-                :value="weight[index]"
-                class="form-control"
+              <TextInput
+                v-model="weight[index]"
                 type="text"
               >
+                <template v-if="weight[index] && bins[index]" #addon>
+                  <a href="javascript:;" class="input-group-text" @click="acceptWeight(index)">
+                    <i class="bi bi-check-lg"></i>
+                  </a>
+                  <a href="javascript:;" class="input-group-text" @click="rejectWeight(index)">
+                    <i class="bi bi-x-lg"></i>
+                  </a>
+                </template>
+              </TextInput>
             </td>
           </tr>
         </table>

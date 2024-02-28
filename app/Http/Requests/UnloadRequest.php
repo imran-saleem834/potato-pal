@@ -32,6 +32,7 @@ class UnloadRequest extends FormRequest
             'unloads.*.system'     => ['required', 'numeric', 'max:2'],
             'unloads.*.no_of_bins' => ['required', 'numeric', 'gt:0'],
             'unloads.*.weight'     => ['required', 'numeric', 'gt:0'],
+            'unloads.*.created_at' => ['nullable', 'date_format:Y-m-d\TH:i'],
         ];
     }
 
@@ -49,6 +50,7 @@ class UnloadRequest extends FormRequest
             'unloads.*.system'     => 'system',
             'unloads.*.no_of_bins' => 'no of bins',
             'unloads.*.weight'     => 'weight',
+            'unloads.*.created_at' => 'unload time',
         ];
     }
 }

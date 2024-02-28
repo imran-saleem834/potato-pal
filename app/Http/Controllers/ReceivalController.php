@@ -58,6 +58,11 @@ class ReceivalController extends Controller
 
         $receival = Receival::create($inputs);
 
+        if (!empty($inputs['created_at'])) {
+            $receival->created_at = str_replace('T', ' ', $inputs['created_at']) . ':00';
+            $receival->save();
+        }
+
         $inputs = $request->only([
             'grower_group',
             'seed_variety',
@@ -93,6 +98,11 @@ class ReceivalController extends Controller
         $receival = Receival::find($id);
         $receival->update($inputs);
         $receival->save();
+
+        if (!empty($inputs['created_at'])) {
+            $receival->created_at = str_replace('T', ' ', $inputs['created_at']) . ':00';
+            $receival->save();
+        }
 
         $inputs = $request->only([
             'grower_group',
@@ -141,6 +151,9 @@ class ReceivalController extends Controller
         $receival         = Receival::find($id);
         $receival->status = 'pending';
         $receival->save();
+
+        $inputs = ['fungicide' => ['Magnate/Vorlon']];
+        CategoriesHelper::createRelationOfTypes($inputs, $receival->id, Receival::class);
 
         return to_route('receivals.index');
     }

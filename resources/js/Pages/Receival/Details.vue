@@ -43,6 +43,7 @@ const form = useForm({
   chc_receival_docket_no: props.receival.chc_receival_docket_no,
   driver_name: props.receival.driver_name,
   comments: props.receival.comments,
+  created_at: props.receival.created_at ? moment(props.receival.created_at).utc().format('YYYY-MM-DDThh:mm') : null,
 });
 
 const statusForm = useForm({});
@@ -62,6 +63,7 @@ watch(() => props.receival,
     form.chc_receival_docket_no = receival.chc_receival_docket_no
     form.driver_name = receival.driver_name
     form.comments = receival.comments
+    form.created_at = receival.created_at ? moment(receival.created_at).utc().format('YYYY-MM-DDThh:mm') : null
 
     updatePaddock(receival.grower_id);
     resetGrowerGroups(receival.grower_id);
@@ -180,7 +182,7 @@ const pushForUnload = () => {
 
 <template>
   <div class="row">
-    <div v-if="requireFields.length > 0" class="col-12">
+    <div v-if="!isForm && requireFields.length > 0" class="col-12">
       <div class="alert alert-warning" role="alert">
         Require these {{ requireFields.join(', ')}} to list in the allocations
       </div>
@@ -235,9 +237,17 @@ const pushForUnload = () => {
               <div v-if="form.errors.grower_group" class="invalid-feedback" v-text="form.errors.grower_group"/>
             </td>
           </tr>
-          <tr v-if="!isForm">
-            <th>Time Added</th>
-            <td>{{ moment(receival.created_at).format('DD/MM/YYYY hh:mm A') }}</td>
+          <tr>
+            <th>Receival Time</th>
+            <td>
+              <TextInput
+                v-if="isForm"
+                v-model="form.created_at"
+                :error="form.errors.created_at"
+                type="datetime-local"
+              />
+              <template v-else>{{ moment(receival.created_at).utc().format('DD/MM/YYYY hh:mm A') }}</template>
+            </td>
           </tr>
           <tr>
             <th>Paddock</th>
