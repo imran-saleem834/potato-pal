@@ -34,7 +34,7 @@ onMounted(() => {
     deferredPrompt = null;
   });
 
-  if (isIOS && window.matchMedia('(display-mode: browser)').matches) {
+  if (isIOS.value && window.matchMedia('(display-mode: browser)').matches) {
     installBtn.value.click();
   }
 });
