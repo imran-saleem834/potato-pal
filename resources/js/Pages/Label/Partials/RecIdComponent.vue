@@ -19,13 +19,16 @@ const allocation = computed(() => {
 
 <template>
   <div class="rec-labels rec-id-labels fw-bold">
-    <div class="p-2 header mb-2" style="background: #e5e5e5">
-      <div>CHERRY HILL COOLSTORES</div>
-      <div class="fw-normal">Leaders in seed potato management</div>
+    <div class="d-flex align-items-center p-3 header mb-2" style="background: #e5e5e5">
+      <img src="/images/black-white-logo.png" alt="logo" class="me-2" style="width: 100px;"/>
+      <div>
+        <div>CHERRY HILL COOLSTORES</div>
+        <div class="fw-normal">Leaders in seed potato management</div>
+      </div>
     </div>
 
     <template v-for="index in [0, 1]" :key="index">
-      <div class="d-flex justify-content-between align-items-center">
+      <div class="d-flex justify-content-between align-items-center" :class="{'pt-5': index === 1}">
         <strong v-if="index === 0">DRIVERS DKT</strong>
         <strong v-if="index === 1">CHC OFFICE COPY</strong>
 
@@ -44,12 +47,12 @@ const allocation = computed(() => {
       </div>
 
       <div>
-        <div class="text-light-emphasis d-inline-block w-25">GROWERS DKT ID</div> 
+        <div class="text-light-emphasis d-inline-block w-25">GROWERS DKT ID</div>
         <div class="text-decoration-underline d-inline-block">{{ label.grower.id }}</div>
       </div>
 
       <h4 class="my-3">Innovator G3</h4>
-      
+
       <table class="table input-table table-borderless">
         <tr>
           <td class="text-light-emphasis">EX GROWER</td>
@@ -86,7 +89,7 @@ const allocation = computed(() => {
       </table>
 
       <template v-if="index === 0">
-        <div class="p-2 mb-2" style="background: #e5e5e5; font-size: 12px;">
+        <div class="p-3 mb-2" style="background: #e5e5e5; font-size: 13px;">
           <div>CHERRY HILL COOLSTORES P/L ABN 36 159 091 228</div>
           <div>
             32 CHERRY HILL ROAD, Latrobe Tasmania 7307 Australia |
@@ -94,13 +97,14 @@ const allocation = computed(() => {
           </div>
           <div>Ph: (03) 6426 1590 | Email: admin@cherryhillcoolstores.net.au | www.cherryhillcoolstores.net.au</div>
         </div>
+        <div class="page-break"></div>
       </template>
     </template>
   </div>
 
   <div class="page-break"></div>
 
-  <div class="rec-labels rec-id-tia-sample row pt-3">
+  <div class="rec-labels rec-id-tia-sample row pt-5">
     <template v-for="index in [0, 1]" :key="index">
       <div class="col-6 fw-bold" :class="{'border border-top-0 border-bottom-0 border-start-0' : index === 0}">
         <h5 class="text-center fw-bold">TIA SAMPLE</h5>
@@ -125,6 +129,9 @@ const allocation = computed(() => {
         </table>
         <h3 class="text-center text-light-emphasis pt-3">RECEIVAL ID</h3>
         <h1 class="text-center">{{ label.receival_id }}</h1>
+        <div class="d-flex justify-content-end">
+          <img src="/images/black-white-logo.png" alt="logo" style="width: 100px;"/>
+        </div>
       </div>
     </template>
   </div>

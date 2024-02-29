@@ -776,17 +776,27 @@ body {
     color: #000000;
 }
 
-.rec-id .header > div:first-child {
-    font-size: 22px;
-}
-
-.rec-id .header > div:last-child {
-    font-size: 18px;
-}
+/******* Labels ********/
 
 .print-body-page {
-    max-width: 1240px; 
-    margin: 0 auto
+    font-size: 18px;
+    margin: 0 auto;
+    max-width: 1240px;
+}
+
+.text-light {
+    color: #777 !important;
+}
+
+.rec-3-labels strong,
+.rec-labels h4 {
+    font-size: 3rem !important;
+}
+
+.rec-labels .input-table tr th,
+.rec-labels .input-table tr td {
+    padding: 5px 0;
+    font-size: 18px;
 }
 
 .rec-id-tia-sample h1 {
@@ -797,19 +807,12 @@ body {
     font-size: 2rem;
 }
 
-.text-light {
-color: #777 !important;
+.rec-id-tia-sample h5 {
+    font-size: 22px;
 }
 
-.rec-3-labels strong,
-.rec-labels h4 {
-    font-size: 1.5rem !important;
-}
-
-.rec-labels .input-table tr th, 
-.rec-labels .input-table tr td {
-    padding: 5px 0;
-    font-size: 13px;
+.rec-id-labels > div:first-child {
+    font-size: 18px;
 }
 
 @media print {
@@ -831,7 +834,7 @@ color: #777 !important;
     
     .print-body-page {
         max-width: 100%;
-        padding: 20px;
+        padding: 30px;
     }
 
     .page-break {

@@ -19,8 +19,11 @@ const allocation = computed(() => {
   <div class="rec-labels rec-3-labels fw-bold">
     <div v-for="index in [0, 1, 2, 3, 4, 5]" :key="index" class="border-bottom" :class="{'page-break': index === 2}">
       <div class="d-flex justify-content-between align-items-center mt-3 mb-1" :class="{'pt-3': index === 3}">
-        <strong v-if="index >= 3">OSize</strong>
-        <strong v-else>&nbsp;</strong>
+        <div>
+          <strong v-if="index >= 3">OSize</strong>
+          <strong v-else>&nbsp;</strong>
+          <h4 class="mb-3">Innovator G3</h4>
+        </div>
 
         <div>
           <table class="table table-borderless">
@@ -29,11 +32,10 @@ const allocation = computed(() => {
               <td>{{ label.receival_id }}</td>
             </tr>
           </table>
+          <img src="/images/black-white-logo.png" alt="logo" style="width: 100px;"/>
         </div>
       </div>
 
-      <h4 class="mb-3">Innovator G3</h4>
-      
       <table class="table input-table table-borderless">
         <tr>
           <td class="text-light-emphasis">EX GROWER</td>
