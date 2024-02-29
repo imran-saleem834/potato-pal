@@ -1,0 +1,43 @@
+<script setup>
+import { computed } from "vue";
+import { getSingleCategoryNameByType } from "@/helper.js";
+
+const props = defineProps({
+  label: Object,
+});
+
+const allocation = computed(() => {
+  if (props.label.labelable.allocation) {
+    return props.label.labelable.allocation;
+  } else {
+    return props.label.labelable;
+  }
+});
+</script>
+
+<template>
+  <div class="rec-labels cut-seed-labels fw-bold">
+    <div v-for="index in [0, 1, 2]" :key="index" class="border-bottom">
+      <div class="d-flex justify-content-between align-items-center mt-3 mb-1">
+        <table class="table input-table table-borderless">
+          <tr>
+            <td class="text-light-emphasis">ISSUED TO</td>
+            <td>{{ allocation.buyer.buyer_name }}</td>
+          </tr>
+          <tr>
+            <td class="text-light-emphasis">EX GROWER</td>
+            <td>{{ label.grower.grower_name }}</td>
+          </tr>
+          <tr>
+            <td class="text-light-emphasis">PADDOCK</td>
+            <td>{{ label.paddock }}</td>
+          </tr>
+          <tr>
+            <td class="text-light-emphasis">SEED TYPE</td>
+            <td>{{ getSingleCategoryNameByType(allocation.categories, 'seed-type') }}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</template>

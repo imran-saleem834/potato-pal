@@ -797,14 +797,17 @@ body {
     font-size: 2rem;
 }
 
-.rec-id-labels h4 {
+.text-light {
+color: #777 !important;
+}
+
+.rec-3-labels strong,
+.rec-labels h4 {
     font-size: 1.5rem !important;
 }
 
-.rec-id-labels .input-table tr th,
-.rec-id-labels .input-table tr td,
-.rec-id-tia-sample .input-table tr th, 
-.rec-id-tia-sample .input-table tr td {
+.rec-labels .input-table tr th, 
+.rec-labels .input-table tr td {
     padding: 5px 0;
     font-size: 13px;
 }

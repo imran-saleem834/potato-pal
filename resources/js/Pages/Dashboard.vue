@@ -7,7 +7,6 @@ import InstallConfirmedModal from "@/Components/InstallConfirmedModal.vue";
 // route('labels.index')
 // route('invoices.index')
 // route('dispatches.index')
-// route('cuttings.index')
 // route('weighbridge.index')
 // route('reports.index')
 // route('gradings.index')
@@ -22,7 +21,7 @@ const menus = [
   { route: '', image: 'menu8.png', label: 'Labels' },
   { route: '', image: 'menu9.png', label: 'Dispatch' },
   { route: '', image: 'menu10.png', label: 'Reports' },
-  { route: '', image: 'menu11.png', label: 'Cutting' },
+  { route: route('cuttings.index'), image: 'menu11.png', label: 'Cutting' },
   { route: '', image: 'menu12.png', label: 'Weighbridge' },
   { route: '', image: 'menu13.png', label: 'Grading' },
   { route: route('categories.index'), image: 'menu13.png', label: 'Admin Options' },
