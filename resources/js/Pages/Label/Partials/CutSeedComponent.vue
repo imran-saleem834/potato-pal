@@ -17,12 +17,16 @@ const allocation = computed(() => {
 
 <template>
   <div class="rec-labels cut-seed-labels fw-bold">
-    <div v-for="index in [0, 1, 2]" :key="index" class="border-bottom">
+    <div v-for="index in [0, 1, 2]" :key="index" class="border-bottom border-bottom-dashed">
       <div class="mt-3 mb-1">
         <table class="table input-table table-borderless mb-0">
           <tr>
             <td class="text-light-emphasis">ISSUED TO</td>
-            <td>{{ allocation.buyer.buyer_name }}</td>
+            <td>{{ label.buyer.buyer_name }}</td>
+          </tr>
+          <tr v-if="allocation.buyer">
+            <td class="text-light-emphasis">EX BUYER</td>
+            <td>{{allocation.buyer.buyer_name }}</td>
           </tr>
           <tr>
             <td class="text-light-emphasis">EX GROWER</td>

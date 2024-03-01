@@ -16,6 +16,7 @@ const props = defineProps({
   single: Object,
   allocations: Object,
   cuttings: Object,
+  reallocations: Object,
   receivals: Object,
   filters: Object,
   errors: Object
@@ -129,6 +130,7 @@ if (width.value > 991) {
               :is-new="isNewRecord"
               :allocations="allocations"
               :cuttings="cuttings"
+              :reallocations="reallocations"
               :receivals="receivals"
               @update="() => getLabel(activeTab)"
               @create="() => setActiveTab(label?.id)"

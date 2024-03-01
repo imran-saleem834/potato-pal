@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('labels', function (Blueprint $table) {
             $table->id();
             $table->foreignId('grower_id')->nullable();
+            $table->foreignId('buyer_id')->nullable();
             $table->string('paddock')->nullable();
             $table->morphs('labelable');
             $table->bigInteger('receival_id')->nullable();

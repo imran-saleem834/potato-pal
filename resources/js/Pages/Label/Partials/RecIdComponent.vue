@@ -58,9 +58,13 @@ const allocation = computed(() => {
           <td class="text-light-emphasis">EX GROWER</td>
           <td>{{ label.grower.grower_name }}</td>
         </tr>
+        <tr v-if="allocation.buyer">
+          <td class="text-light-emphasis">EX BUYER</td>
+          <td>{{allocation.buyer.buyer_name }}</td>
+        </tr>
         <tr>
           <td class="text-light-emphasis">ISSUED TO</td>
-          <td>{{ allocation.buyer.buyer_name }}</td>
+          <td>{{ label.buyer.buyer_name }}</td>
         </tr>
         <tr>
           <td class="text-light-emphasis">PADDOCK</td>
@@ -114,9 +118,13 @@ const allocation = computed(() => {
             <td class="text-light-emphasis">EX GROWER</td>
             <td>{{ label.grower.grower_name }}</td>
           </tr>
+          <tr v-if="allocation.buyer">
+            <td class="text-light-emphasis">EX BUYER</td>
+            <td>{{allocation.buyer.buyer_name }}</td>
+          </tr>
           <tr>
             <td class="text-light-emphasis">ISSUED TO</td>
-            <td>{{ allocation.buyer.buyer_name }}</td>
+            <td>{{ label.buyer.buyer_name }}</td>
           </tr>
           <tr>
             <td class="text-light-emphasis">PADDOCK</td>

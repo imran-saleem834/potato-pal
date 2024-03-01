@@ -11,6 +11,7 @@ defineProps({
 </script>
 
 <template>
+  <div class="border-bottom border-bottom-dashed"></div>
   <div class="print-body-page">
     <Rec1Component
       v-if="type === 'rec-1'"

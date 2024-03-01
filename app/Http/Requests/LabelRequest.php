@@ -28,8 +28,13 @@ class LabelRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'labelable_type' => ['required', 'string', Rule::in([Allocation::class, Reallocation::class, CuttingAllocation::class])],
+            'labelable_type' => [
+                'required',
+                'string',
+                Rule::in([Allocation::class, Reallocation::class, CuttingAllocation::class])
+            ],
             'labelable_id'   => ['required', 'numeric'],
+            'buyer_id'       => ['required', 'numeric', 'exists:users,id'],
             'grower_id'      => ['required', 'numeric', 'exists:users,id'],
             'paddock'        => ['required', 'string', 'max:50'],
             'receival_id'    => ['nullable', 'numeric', 'exists:receivals,id'],
@@ -48,6 +53,7 @@ class LabelRequest extends FormRequest
         return [
             'labelable_type' => 'Label Type',
             'labelable_id'   => 'Label Record',
+            'buyer_id'       => 'Issue to',
         ];
     }
 }

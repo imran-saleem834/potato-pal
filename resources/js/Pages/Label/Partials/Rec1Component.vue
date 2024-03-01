@@ -19,10 +19,14 @@ const allocation = computed(() => {
 
 <template>
   <div class="rec-labels rec-1-labels fw-bold">
-    <div v-for="index in [0, 1]" :key="index" class="border-bottom">
+    <div v-for="index in [0, 1]" :key="index" class="border-bottom border-bottom-dashed">
       <div class="d-flex justify-content-between align-items-center mt-3 mb-1">
-        <strong v-if="index === 0">CHC BULK UNLOAD DKT - SEED</strong>
-        <strong v-else>CHC BULK UNLOAD DKT - OSIZE</strong>
+        <div>
+          <strong v-if="index === 0">CHC BULK UNLOAD DKT - SEED</strong>
+          <strong v-else>CHC BULK UNLOAD DKT - OSIZE</strong>
+          
+          <h4 class="my-3">Innovator G3</h4>
+        </div>
 
         <div>
           <table class="table table-borderless">
@@ -38,16 +42,18 @@ const allocation = computed(() => {
         </div>
       </div>
 
-      <h4 class="mb-3">Innovator G3</h4>
-      
       <table class="table input-table table-borderless">
         <tr>
           <td class="text-light-emphasis">EX GROWER</td>
           <td>{{ label.grower.grower_name }}</td>
         </tr>
+        <tr v-if="allocation.buyer">
+          <td class="text-light-emphasis">EX BUYER</td>
+          <td>{{ allocation.buyer.buyer_name }}</td>
+        </tr>
         <tr>
           <td class="text-light-emphasis">ISSUED TO</td>
-          <td>{{ allocation.buyer.buyer_name }}</td>
+          <td>{{ label.buyer.buyer_name }}</td>
         </tr>
         <tr>
           <td class="text-light-emphasis">PADDOCK</td>

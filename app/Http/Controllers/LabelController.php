@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Allocation;
 use App\Models\CuttingAllocation;
 use App\Models\Label;
+use App\Models\Reallocation;
 use App\Models\Receival;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
@@ -23,9 +24,9 @@ class LabelController extends Controller
         $labels = Label::query()
             ->with(['grower:id,grower_name'])
             ->when($request->input('search'), function (Builder $query, $search) {
-                //     return $query->where(function (Builder $subQuery) use ($search) {
-                //         return $subQuery->search($search);
-                //     });
+                return $query->where(function (Builder $subQuery) use ($search) {
+                    return $subQuery->search($search);
+                });
             })
             ->latest()
             ->paginate(20)
@@ -35,12 +36,13 @@ class LabelController extends Controller
         $labelId = $request->input('labelId', $labels->items()[0]->id ?? 0);
 
         return Inertia::render('Label/Index', [
-            'labels'      => $labels,
-            'single'      => $this->getLabel($labelId),
-            'allocations' => $this->getAllocations(),
-            'cuttings'    => $this->getCuttings(),
-            'receivals'   => $this->geReceivals(),
-            'filters'     => $request->only(['search']),
+            'labels'        => $labels,
+            'single'        => $this->getLabel($labelId),
+            'allocations'   => $this->getAllocations(),
+            'reallocations' => $this->getReallocations(),
+            'cuttings'      => $this->getCuttings(),
+            'receivals'     => $this->geReceivals(),
+            'filters'       => $request->only(['search']),
         ]);
     }
 
@@ -50,6 +52,18 @@ class LabelController extends Controller
             ->with([
                 'buyer'  => fn($query) => $query->select(['id', 'buyer_name']),
                 'grower' => fn($query) => $query->select(['id', 'grower_name']),
+            ])
+            ->get();
+    }
+
+    private function getReallocations()
+    {
+        return Reallocation::query()
+            ->with([
+                'buyer'             => fn($query) => $query->select(['id', 'buyer_name']),
+                'allocation:id,buyer_id,grower_id,bin_size,paddock',
+                'allocation.buyer'  => fn($query) => $query->select(['id', 'buyer_name']),
+                'allocation.grower' => fn($query) => $query->select(['id', 'grower_name']),
             ])
             ->get();
     }
@@ -131,18 +145,14 @@ class LabelController extends Controller
     {
         return Label::with([
             'labelable' => fn($query) => $query->morphWith([
-                Allocation::class => [
-                    'buyer:id,buyer_name',
-                    'categories.category'
-                ],
-                CuttingAllocation::class => [
-                    'allocation.buyer:id,buyer_name',
-                    'allocation.categories.category'
-                ]
+                Allocation::class        => ['categories.category'],
+                Reallocation::class      => ['allocation.categories.category', 'allocation.buyer:id,buyer_name'],
+                CuttingAllocation::class => ['allocation.categories.category']
             ]),
             'receival:id,driver_name,created_at',
             'receival.categories.category',
             'grower:id,grower_name',
+            'buyer:id,buyer_name',
         ])->find($labelId);
     }
 

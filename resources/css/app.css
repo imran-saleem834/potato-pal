@@ -788,6 +788,10 @@ body {
     color: #777 !important;
 }
 
+.border-bottom-dashed {
+    border-bottom-style: dashed !important;
+}
+
 .rec-3-labels strong,
 .rec-labels h4 {
     font-size: 3rem !important;
@@ -821,13 +825,7 @@ body {
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
     }
-    
-    /* Hide specific elements */
-    /*.header, .footer {*/
-    /*    display: none !important;*/
-    /*}*/
 
-    /* If you need to hide the default header/footer text */
     @page {
         margin: 0;
     }
@@ -925,5 +923,29 @@ body {
     .multiple-inputs li:nth-of-type(5) {
         width: 20%;
         margin-right: 0 !important;
+    }
+
+    .rec-3-labels strong,
+    .rec-labels h4 {
+        font-size: 1.5rem !important;
+    }
+
+    .rec-id-tia-sample h1 {
+        font-size: 3rem;
+    }
+
+    .rec-id-tia-sample h2 {
+        font-size: 1rem;
+    }
+
+    .rec-id-tia-sample h5 {
+        font-size: 15px;
+    }
+
+    .print-body-page,
+    .rec-id-labels > div:first-child,
+    .rec-labels .input-table tr th,
+    .rec-labels .input-table tr td {
+        font-size: 13px;
     }
 }
