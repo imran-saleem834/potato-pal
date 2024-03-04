@@ -4,10 +4,11 @@ import { computed, ref, watch } from "vue";
 import Multiselect from '@vueform/multiselect'
 import DataTable from 'datatables.net-vue3';
 import DataTablesCore from 'datatables.net';
-import { getBinSizesValue } from "@/tonnes.js";
 import TextInput from "@/Components/TextInput.vue";
 import ConfirmedModal from "@/Components/ConfirmedModal.vue";
 import {
+  toTonnes,
+  getBinSizesValue,
   getCategoryIdsByType,
   getCategoriesDropDownByType,
   getSingleCategoryNameByType
@@ -44,7 +45,7 @@ const isEdit = ref(false);
 const form = useForm({
   buyer_id: props.cutting.buyer_id,
   cut_date: props.cutting.cut_date,
-  cut_by: props.cutting.cut_by,
+  cool_store: getCategoryIdsByType(props.cutting.categories, 'cool-store'),
   fungicide: getCategoryIdsByType(props.cutting.categories, 'fungicide'),
   comment: props.cutting.comment,
   selected_allocations: props.cutting.cutting_allocations || [],
@@ -58,7 +59,7 @@ watch(() => props.cutting,
     form.clearErrors();
     form.buyer_id = cutting.buyer_id
     form.cut_date = cutting.cut_date
-    form.cut_by = cutting.cut_by
+    form.cool_store = getCategoryIdsByType(cutting.categories, 'cool-store')
     form.fungicide = getCategoryIdsByType(cutting.categories, 'fungicide')
     form.comment = cutting.comment
     form.selected_allocations = cutting.cutting_allocations || []
@@ -179,28 +180,34 @@ defineExpose({
       <div v-for="(selectedAllocation, index) in form.selected_allocations" class="row allocation-items-box">
         <div class="col-sm-6 col-md-3 col-lg-6 col-xl-3 mt-md-4">
           <div class="col-12 mb-1 pb-1 mb-md-3 mb-lg-1 mb-xl-3">
-            <span>Seed Type: </span>{{
-              getSingleCategoryNameByType(selectedAllocation.allocation.categories, 'seed-type') || '-'
-            }}
+            <span>Seed type: </span>
+            <span class="text-danger">
+              {{ getSingleCategoryNameByType(selectedAllocation.allocation.categories, 'seed-type') || '-' }}
+            </span>
           </div>
           <div class="col-12 mb-1 pb-1 mb-md-3 mb-lg-1 mb-xl-3">
-            <span>Seed Variety: </span>{{
-              getSingleCategoryNameByType(selectedAllocation.allocation.categories, 'seed-variety') || '-'
-            }}
+            <span>Variety: </span>
+            <span class="text-danger">
+              {{ getSingleCategoryNameByType(selectedAllocation.allocation.categories, 'seed-variety') || '-' }}
+            </span>
           </div>
           <div class="col-12 mb-1 pb-1 mb-md-3 mb-lg-1 mb-xl-3">
-            <span>Paddock: </span>{{ selectedAllocation.allocation.paddock }}
+            <span>Paddock: </span>
+            <span class="text-danger">{{ selectedAllocation.allocation.paddock }}</span>
           </div>
         </div>
         <div class="col-sm-6 col-md-3 col-lg-6 col-xl-3 mt-md-4">
           <div class="col-12 mb-1 pb-1 mb-md-3 mb-lg-1 mb-xl-3">
-            <span>Bin Size: </span>{{ getBinSizesValue(selectedAllocation.allocation.bin_size) }}
+            <span>Bin size: </span>
+            <span class="text-danger">{{ getBinSizesValue(selectedAllocation.allocation.bin_size) }}</span>
           </div>
           <div class="col-12 mb-1 pb-1 mb-md-3 mb-lg-1 mb-xl-3">
-            <span>Available No of Bins: </span>{{ selectedAllocation.allocation.no_of_bins }}
+            <span>Available no of bins: </span>
+            <span class="text-danger">{{ selectedAllocation.allocation.no_of_bins }}</span>
           </div>
           <div class="col-12 mb-1 pb-1 mb-md-3 mb-lg-1 mb-xl-3">
-            <span>Available Weight: </span>{{ selectedAllocation.allocation.weight }} kg
+            <span>Available weight: </span>
+            <span class="text-danger">{{ toTonnes(selectedAllocation.allocation.weight) }}</span>
           </div>
         </div>
         <div class="col-sm-6 col-md-3 col-lg-6 col-xl-3 mb-3">
@@ -251,7 +258,16 @@ defineExpose({
         </div>
         <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 mb-3">
           <label class="form-label">Cut By</label>
-          <TextInput v-model="form.cut_by" :error="form.errors.cut_by" type="text"/>
+          <Multiselect
+            v-model="form.cool_store"
+            mode="tags"
+            placeholder="Choose a cut by"
+            :searchable="true"
+            :create-option="true"
+            :options="getCategoriesDropDownByType(categories, 'cool-store')"
+            :class="{'is-invalid' : form.errors.cool_store}"
+          />
+          <div v-if="form.errors.cool_store" class="invalid-feedback" v-text="form.errors.cool_store"/>
         </div>
         <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 mb-3">
           <label class="form-label">Fungicide</label>
@@ -304,55 +320,75 @@ defineExpose({
       </div>
       <div class="row allocation-items-box">
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Date of cut:</span> {{ cutting.cut_date }}
+          <span>Date of cut: </span>
+          <span class="text-danger">{{ cutting.cut_date }}</span>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Cut By:</span> {{ cutting.cut_by }}
+          <span>Cut By: </span>
+          <span class="text-danger">{{ getSingleCategoryNameByType(cutting.categories, 'cool-store') || '-' }}</span>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Fungicide:</span> {{ getSingleCategoryNameByType(cutting.categories, 'fungicide') || '-' }}
+          <span>Fungicide: </span>
+          <span class="text-danger">{{ getSingleCategoryNameByType(cutting.categories, 'fungicide') || '-' }}</span>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Comment:</span> {{ cutting.comment }}
+          <span>Comments: </span>
+          <span class="text-danger">{{ cutting.comment }}</span>
         </div>
         <template v-for="cuttingAllocation in cutting.cutting_allocations" :key="cuttingAllocation.id">
           <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-            <span>Seed Type:</span>
-            {{ getSingleCategoryNameByType(cuttingAllocation.allocation.categories, 'seed-type') || '-' }}
+            <span>Seed type: </span>
+            <span class="text-danger">
+              {{ getSingleCategoryNameByType(cuttingAllocation.allocation.categories, 'seed-type') || '-' }}
+            </span>
           </div>
           <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-            <span>Bin Size:</span> {{ getBinSizesValue(cuttingAllocation.allocation.bin_size) }}
+            <span>Bin size: </span>
+            <span class="text-danger">{{ getBinSizesValue(cuttingAllocation.allocation.bin_size) }}</span>
           </div>
           <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-            <span>Bins before cut:</span> {{ cuttingAllocation.no_of_bins_before_cutting }}
+            <span>Bins before cut: </span>
+            <span class="text-danger">{{ cuttingAllocation.no_of_bins_before_cutting }}</span>
           </div>
           <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-            <span>Weight before cut:</span> {{ cuttingAllocation.weight_before_cutting }} kg
+            <span>Weight before cut: </span>
+            <span class="text-danger">{{ toTonnes(cuttingAllocation.weight_before_cutting) }}</span>
           </div>
           <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-            <span>Bins after cut:</span> {{ cuttingAllocation.no_of_bins_after_cutting }}
+            <span>Bins after cut: </span>
+            <span class="text-danger">{{ cuttingAllocation.no_of_bins_after_cutting }}</span>
           </div>
           <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-            <span>Weight after cut:</span> {{ cuttingAllocation.weight_after_cutting }} kg
+            <span>Weight after cut: </span>
+            <span class="text-danger">{{ toTonnes(cuttingAllocation.weight_after_cutting) }}</span>
           </div>
           <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-            <span>Grower. Group:</span>
-            {{ getSingleCategoryNameByType(cuttingAllocation.allocation.categories, 'grower-group') || '-' }}
+            <span>Grower Group: </span>
+            <span class="text-danger">
+              {{ getSingleCategoryNameByType(cuttingAllocation.allocation.categories, 'grower-group') || '-' }}
+            </span>
           </div>
           <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-            <span>Seed Variety:</span>
-            {{ getSingleCategoryNameByType(cuttingAllocation.allocation.categories, 'seed-variety') || '-' }}
+            <span>Variety: </span>
+            <span class="text-danger">
+              {{ getSingleCategoryNameByType(cuttingAllocation.allocation.categories, 'seed-variety') || '-' }}
+            </span>
           </div>
           <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-            <span>Seed Gen.:</span>
-            {{ getSingleCategoryNameByType(cuttingAllocation.allocation.categories, 'seed-generation') || '-' }}
+            <span>Gen: </span>
+            <span class="text-danger">
+              {{ getSingleCategoryNameByType(cuttingAllocation.allocation.categories, 'seed-generation') || '-' }}
+            </span>
           </div>
           <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-            <span>Seed Class:</span>
-            {{ getSingleCategoryNameByType(cuttingAllocation.allocation.categories, 'seed-class') || '-' }}
+            <span>Class: </span>
+            <span class="text-danger">
+              {{ getSingleCategoryNameByType(cuttingAllocation.allocation.categories, 'seed-class') || '-' }}
+            </span>
           </div>
           <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 pb-1">
-            <span>Paddock:</span> {{ cuttingAllocation.allocation.paddock }}
+            <span>Paddock: </span>
+            <span class="text-danger">{{ cuttingAllocation.allocation.paddock }}</span>
           </div>
         </template>
       </div>
@@ -376,14 +412,14 @@ defineExpose({
             <table class="table mb-0">
               <thead>
               <tr>
-                <th>Seed Type</th>
-                <th>Seed Variety</th>
-                <th>Seed Class</th>
-                <th>Seed Generation</th>
+                <th>Seed type</th>
+                <th>Variety</th>
+                <th>Class</th>
+                <th>Gen</th>
                 <th>Grower Group</th>
                 <th>Paddock</th>
-                <th>Bin Size</th>
-                <th>No Of Bins</th>
+                <th>Bin size</th>
+                <th>No of bins</th>
                 <th>Weight</th>
                 <th>Select</th>
               </tr>
@@ -399,7 +435,7 @@ defineExpose({
                   <td>{{ allocation.paddock }}</td>
                   <td>{{ getBinSizesValue(allocation.bin_size) }}</td>
                   <td>{{ allocation.no_of_bins }}</td>
-                  <td>{{ allocation.weight.toFixed(2) }} kg</td>
+                  <td>{{ toTonnes(allocation.weight) }}</td>
                   <td>
                     <input
                       type="checkbox"

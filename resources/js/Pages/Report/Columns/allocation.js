@@ -1,6 +1,6 @@
 import moment from "moment";
-import { getCategoriesByType, getSingleCategoryNameByType } from "@/helper.js";
-import { binSizes } from "@/tonnes.js";
+import { toTonnes, getCategoriesByType, getSingleCategoryNameByType } from "@/helper.js";
+import { binSizes } from "@/const.js";
 
 export default [
     {
@@ -48,7 +48,7 @@ export default [
         title: 'Weight',
         data: 'weight',
         render: function (data, type, row) {
-            return data + ' kg';
+            return toTonnes(data);
         }
     },
     {

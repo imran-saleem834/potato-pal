@@ -35,6 +35,7 @@ class Receival extends Model
         'driver_name',
         'comments',
         'status',
+        'tia_status',
         'images',
     ];
 

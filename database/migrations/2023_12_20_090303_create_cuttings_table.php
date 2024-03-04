@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('buyer_id');
             $table->date('cut_date');
-            $table->string('cut_by', 100);
             $table->string('comment', 255);
             $table->timestamps();
         });

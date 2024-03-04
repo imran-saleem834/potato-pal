@@ -22,7 +22,8 @@ createInertiaApp({
             .use(ZiggyVue)
             // .use(VueWindowSizePlugin)
             .use(Toast, {
-                position: POSITION.BOTTOM_RIGHT
+                position: POSITION.BOTTOM_RIGHT,
+                pauseOnFocusLoss: false
             })
             .mount(el);
     },

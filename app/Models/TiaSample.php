@@ -51,7 +51,6 @@ class TiaSample extends Model
         'skinning',
         'regarding',
         'comment',
-        'status',
         'images',
     ];
 

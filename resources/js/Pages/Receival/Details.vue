@@ -13,6 +13,8 @@ import {
   getCategoryIdsByType,
   getCategoriesByType
 } from "@/helper.js";
+import { tiaStatus, tiaStatusInit } from "@/const.js";
+import UlLiButton from "@/Components/UlLiButton.vue";
 
 const toast = useToast();
 
@@ -127,6 +129,9 @@ const requireFields = computed(() => {
   if (props.receival.paddocks?.length <= 0) {
     fields.push('Paddocks');
   }
+  if (props.receival.status !== 'completed') {
+    fields.push('Unloading should be completed');
+  }
   return fields;
 });
 
@@ -157,13 +162,17 @@ defineExpose({
   storeRecord
 });
 
-const pushForTiaSample = () => {
-  statusForm.post(route('receivals.push.tia-sample', props.receival.id), {
+const pushForTiaSample = (status) => {
+  statusForm.post(route('receivals.push.tia-sample', {id : props.receival.id, status }), {
     preserveScroll: true,
     preserveState: true,
     onSuccess: () => {
-      emit('updateRecord');
-      toast.success('The receival pushed for tia sample successfully!');
+      emit('update');
+      if (status === 'applied') {
+        toast.success('The receival pushed for tia sample successfully!');
+      } else {
+        toast.success('The receival tia sample status updated!');
+      }
     },
   });
 }
@@ -173,7 +182,7 @@ const pushForUnload = () => {
     preserveScroll: true,
     preserveState: true,
     onSuccess: () => {
-      emit('updateRecord');
+      emit('update');
       toast.success('The receival pushed for unloading successfully!');
     },
   });
@@ -184,7 +193,12 @@ const pushForUnload = () => {
   <div class="row">
     <div v-if="!isForm && requireFields.length > 0" class="col-12">
       <div class="alert alert-warning" role="alert">
-        Require these {{ requireFields.join(', ')}} to list in the allocations
+        Complete the following tasks to be eligible for selection in the allocation process.
+        <ul class="mb-0">
+          <li v-for="field in requireFields" :key="field">
+            {{ field }}
+          </li>
+        </ul>
       </div>
     </div>
     <div :class="colSize">
@@ -346,29 +360,15 @@ const pushForUnload = () => {
           <tr v-if="!isForm">
             <th>Tia Sample Status</th>
             <td class="pb-0">
-              <ul class="p-0">
-                <li>
-                  <button
-                    v-if="receival.tia_sample"
-                    :class="receival.tia_sample?.status === 'pending' ? 'btn btn-pending' : 'btn btn-dark'"
-                  >{{ toCamelCase(receival.tia_sample?.status) }}
-                  </button>
-                  <button
-                    v-else
-                    class="btn btn-black"
-                    @click="pushForTiaSample"
-                    :disabled="statusForm.processing"
-                  >
-                    <template v-if="statusForm.processing">
-                      <i class="bi bi-arrow-repeat d-inline-block spin"></i> Loading...
-                    </template>
-                    <template v-else>Push for TIA Sample</template>
-                  </button>
-                </li>
-              </ul>
+              <UlLiButton
+                :is-form="true"
+                :value="receival.tia_status"
+                :items="receival.tia_status && !receival.tia_status.includes('applied') ? tiaStatus : tiaStatusInit"
+                @click="pushForTiaSample"
+              />
             </td>
           </tr>
-          <tr v-if="!isForm">
+          <tr v-if="!isForm && receival.tia_sample">
             <th>TIA Sample ID</th>
             <td>
               <Link

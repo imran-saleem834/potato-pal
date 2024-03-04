@@ -49,7 +49,6 @@ return new class extends Migration
             $table->boolean('skinning')->default(false);
             $table->boolean('regarding')->default(false);
             $table->string('comment', 255)->nullable();
-            $table->string('status', 20)->default('pending');
             $table->text('images')->nullable();
             $table->timestamps();
         });

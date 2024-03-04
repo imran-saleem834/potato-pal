@@ -18,6 +18,7 @@ use App\Http\Controllers\WeighbridgeController;
 use App\Http\Controllers\GradingController;
 use App\Http\Controllers\LabelController;
 use App\Http\Controllers\InvoiceController;
+use Dcblogdev\Xero\Facades\Xero;
 
 /*
 |--------------------------------------------------------------------------
@@ -87,4 +88,16 @@ Route::middleware([
 
 Route::get('/abc', function () {
    
+});
+
+Route::get('xero', function(){
+    if (! Xero::isConnected()) {
+        return redirect('xero/connect');
+    } else {
+        return Xero::getTenantName();
+    }
+});
+
+Route::get('xero/connect', function(){
+    return Xero::connect();
 });

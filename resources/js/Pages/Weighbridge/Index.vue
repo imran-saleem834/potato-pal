@@ -4,8 +4,8 @@ import { router, Link } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import TopBar from '@/Components/TopBar.vue';
 import LeftBar from "@/Components/LeftBar.vue";
-import { getBinSizesValue } from "@/tonnes.js";
 import {
+  getBinSizesValue,
   getSingleCategoryNameByType,
   getCategoriesByType,
 } from "@/helper.js";

@@ -5,8 +5,8 @@ import Multiselect from '@vueform/multiselect'
 import TextInput from "@/Components/TextInput.vue";
 import DataTable from 'datatables.net-vue3';
 import DataTablesCore from 'datatables.net';
-import { binSizes, getBinSizesValue } from "@/tonnes.js";
-import { getSingleCategoryNameByType } from "@/helper.js";
+import { binSizes } from "@/const.js";
+import { toTonnes, getBinSizesValue, getSingleCategoryNameByType } from "@/helper.js";
 import UlLiButton from "@/Components/UlLiButton.vue";
 import ConfirmedModal from "@/Components/ConfirmedModal.vue";
 
@@ -242,7 +242,7 @@ defineExpose({
           <td>{{ getSingleCategoryNameByType(form.selected_allocation.categories, 'seed-type') || '-' }}</td>
           <td>{{ getBinSizesValue(form.selected_allocation.bin_size) }}</td>
           <td>{{ form.selected_allocation.no_of_bins }}</td>
-          <td>{{ form.selected_allocation.weight }} Kg</td>
+          <td>{{ toTonnes(form.selected_allocation.weight) }}</td>
         </tr>
         </tbody>
       </table>
@@ -263,7 +263,7 @@ defineExpose({
           <td>{{ getSingleCategoryNameByType(form.selected_reallocation.allocation.categories, 'seed-type') }}</td>
           <td>{{ getBinSizesValue(form.selected_reallocation.allocation.bin_size) }}</td>
           <td>{{ form.selected_reallocation.no_of_bins }}</td>
-          <td>{{ form.selected_reallocation.weight }} Kg</td>
+          <td>{{ toTonnes(form.selected_reallocation.weight) }}</td>
         </tr>
         </tbody>
       </table>
@@ -353,7 +353,7 @@ defineExpose({
           <span>Dispatch Bins:</span> {{ dispatch.no_of_bins }}
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Dispatch Weight:</span> {{ dispatch.weight.toFixed(2) }} Kg
+          <span>Dispatch Weight:</span> {{ toTonnes(dispatch.weight.toFixed(2)) }}
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
           <span>Receival Group: </span>
@@ -449,7 +449,7 @@ defineExpose({
                   <td>{{ allocation.paddock }}</td>
                   <td>{{ getBinSizesValue(allocation.bin_size) }}</td>
                   <td>{{ allocation.no_of_bins }}</td>
-                  <td>{{ allocation.weight }} Kg</td>
+                  <td>{{ toTonnes(allocation.weight) }}</td>
                 </tr>
               </template>
               <template v-for="reallocation in reallocations" :key="reallocation.id">
@@ -468,7 +468,7 @@ defineExpose({
                   <td>{{ reallocation.allocation.paddock }}</td>
                   <td>{{ getBinSizesValue(reallocation.allocation.bin_size) }}</td>
                   <td>{{ reallocation.no_of_bins }}</td>
-                  <td>{{ reallocation.weight }} Kg</td>
+                  <td>{{ toTonnes(reallocation.weight) }}</td>
                 </tr>
               </template>
               </tbody>

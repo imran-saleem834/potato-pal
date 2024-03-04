@@ -190,6 +190,7 @@ if (width.value > 991) {
           <div class="modal-body">
             <div class="tab-section">
               <div class="user-boxes m-0 p-0 shadow-none">
+                <p>Unselect the item if you do not want to create a duplicate.</p>
                 <ul v-if="duplicateReceival">
                   <template v-for="(value, input) in duplicateForm.inputs" :key="input">
                     <template v-if="input !== 'grower_id'">

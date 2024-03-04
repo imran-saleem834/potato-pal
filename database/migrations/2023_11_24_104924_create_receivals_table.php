@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('driver_name', 80)->nullable();
             $table->string('comments')->nullable();
             $table->string('status', 20)->nullable();
+            $table->string('tia_status', 20)->nullable();
             $table->text('images')->nullable();
             $table->timestamps();
         });

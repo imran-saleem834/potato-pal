@@ -3,7 +3,7 @@ import { computed } from "vue";
 import { usePage, useForm } from "@inertiajs/vue3";
 import Multiselect from '@vueform/multiselect';
 import { useToast } from "vue-toastification";
-import { binSizes } from "@/tonnes.js";
+import { binSizes } from "@/const.js";
 import TextInput from "@/Components/TextInput.vue";
 import { getDropDownOptions, getCategoriesDropDownByType } from "@/helper.js";
 

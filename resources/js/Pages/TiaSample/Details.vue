@@ -7,8 +7,8 @@ import { useToast } from "vue-toastification";
 import TextInput from "@/Components/TextInput.vue";
 import Images from "@/Components/Images.vue";
 import UlLiButton from "@/Components/UlLiButton.vue";
-import { binSizes } from "@/tonnes.js";
-import { getCategoriesByType, toCamelCase } from "@/helper.js";
+import { getCategoriesByType } from "@/helper.js";
+import { binSizes, tiaStatus } from "@/const.js";
 
 const toast = useToast();
 
@@ -188,7 +188,7 @@ const form = useForm({
   skinning: props.tiaSample.skinning,
   regarding: props.tiaSample.regarding,
   comment: props.tiaSample.comment,
-  status: props.tiaSample.status,
+  status: props.tiaSample.receival.tia_status,
 });
 
 watch(() => props.tiaSample,
@@ -206,7 +206,7 @@ watch(() => props.tiaSample,
     form.skinning = tiaSample.skinning
     form.regarding = tiaSample.regarding
     form.comment = tiaSample.comment
-    form.status = tiaSample.status
+    form.status = tiaSample.receival.tia_status
     samples.concat(sample2).forEach(sample => {
       form[sample.name] = addEmptyValues(sample.name, tiaSample[sample.name] || [], sample.inputs || 5);
     });
@@ -288,7 +288,7 @@ defineExpose({
               </td>
             </tr>
             <tr>
-              <th>Receival Id</th>
+              <th>Receival id</th>
               <td>
                 <Link
                   class="p-0"
@@ -302,7 +302,7 @@ defineExpose({
             </tr>
           </template>
           <tr v-if="!isNew">
-            <th>Time Added</th>
+            <th>Time added</th>
             <td>{{ moment(tiaSample.created_at).format('DD/MM/YYYY hh:mm A') }}</td>
           </tr>
           <tr v-if="!isNew">
@@ -321,25 +321,11 @@ defineExpose({
             <th>Status</th>
             <td class="pb-0">
               <UlLiButton
-                v-if="isForm"
-                :is-form="true"
+                :is-form="isForm"
                 :value="form.status"
-                :error="form.errors.status"
-                :items="[
-                  { value: 'pending', label: 'Pending' },
-                  { value: 'certified', label: 'Certified' },
-                  { value: 'not-certified', label: 'Not Certified' },
-                  { value: 'rejected', label: 'Rejected' },
-                ]"
+                :items="tiaStatus"
                 @click="(key) => form.status = key"
               />
-              <ul v-else class="p-0">
-                <li>
-                  <a role="button" :class="{'btn-pending' : tiaSample.status === 'pending'}">
-                    {{ toCamelCase(tiaSample.status || 'pending') }}
-                  </a>
-                </li>
-              </ul>
             </td>
           </tr>
         </table>
@@ -351,7 +337,7 @@ defineExpose({
       <div class="user-boxes">
         <table class="table input-table mb-0">
           <tr v-if="!isNew">
-            <th>Seed Variety</th>
+            <th>Variety</th>
             <td class="pb-0">
               <ul class="p-0" v-if="getCategoriesByType(tiaSample?.receival?.categories, 'seed-variety').length">
                 <li v-for="category in getCategoriesByType(tiaSample?.receival?.categories, 'seed-variety')"
@@ -363,7 +349,7 @@ defineExpose({
             </td>
           </tr>
           <tr v-if="!isNew">
-            <th>Seed Generation</th>
+            <th>Gen</th>
             <td class="pb-0">
               <ul class="p-0" v-if="getCategoriesByType(tiaSample?.receival?.categories, 'seed-generation').length">
                 <li v-for="category in getCategoriesByType(tiaSample?.receival?.categories, 'seed-generation')"

@@ -4,10 +4,10 @@ import { computed, ref, watch } from "vue";
 import { useForm, Link } from "@inertiajs/vue3";
 import Multiselect from '@vueform/multiselect';
 import { useToast } from "vue-toastification";
-import { getBinSizesValue } from "@/tonnes.js";
 import TextInput from "@/Components/TextInput.vue";
 import UlLiButton from "@/Components/UlLiButton.vue";
 import Labels from "@/Pages/Label/Labels.vue";
+import { toTonnes, getBinSizesValue } from "@/helper.js";
 
 const toast = useToast();
 const vPrint = print;
@@ -162,7 +162,7 @@ const allocationOption = computed(() => {
       .map(cutting => (
         {
           value: cutting.id,
-          label: `${cutting.id}; Size: ${getBinSizesValue(cutting.allocation.bin_size)}; Bins after cut: ${cutting.no_of_bins_after_cutting}; W after cut: ${cutting.weight_after_cutting}kg`
+          label: `${cutting.id}; Size: ${getBinSizesValue(cutting.allocation.bin_size)}; Bins after cut: ${cutting.no_of_bins_after_cutting}; W after cut: ${toTonnes(cutting.weight_after_cutting)}`
         }
       ));
   } else if (form.labelable_type === 'App\\Models\\Reallocation') {
@@ -173,7 +173,7 @@ const allocationOption = computed(() => {
       .map(reallocation => (
         {
           value: reallocation.id,
-          label: `${reallocation.id}; Size: ${getBinSizesValue(reallocation.allocation.bin_size)}; Bins: ${reallocation.no_of_bins}; W: ${reallocation.weight}kg`
+          label: `${reallocation.id}; Size: ${getBinSizesValue(reallocation.allocation.bin_size)}; Bins: ${reallocation.no_of_bins}; W: ${toTonnes(reallocation.weight)}`
         }
       ));
   }
@@ -185,7 +185,7 @@ const allocationOption = computed(() => {
     .map(allocation => (
       {
         value: allocation.id,
-        label: `${allocation.id}; Size: ${getBinSizesValue(allocation.bin_size)}; Bins: ${allocation.no_of_bins}; W: ${allocation.weight}kg`
+        label: `${allocation.id}; Size: ${getBinSizesValue(allocation.bin_size)}; Bins: ${allocation.no_of_bins}; W: ${toTonnes(allocation.weight)}`
       }
     ));
 });

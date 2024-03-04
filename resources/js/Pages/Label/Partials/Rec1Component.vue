@@ -1,8 +1,7 @@
 <script setup>
 import moment from 'moment';
 import { computed } from "vue";
-import { getBinSizesValue } from "@/tonnes.js";
-import { getSingleCategoryNameByType } from "@/helper.js";
+import { getBinSizesValue, getSingleCategoryNameByType } from "@/helper.js";
 
 const props = defineProps({
   label: Object,

@@ -161,9 +161,15 @@ class ReceivalController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function pushForTiaSample(string $id)
+    public function pushForTiaSample(Request $request, string $id)
     {
-        TiaSample::firstOrCreate(['receival_id' => $id]);
+        $status = $request->input('status');
+        if ($status === 'applied') {
+            $status = 'pending';
+            TiaSample::firstOrCreate(['receival_id' => $id]);
+        }
+        
+        Receival::find($id)->update(['tia_status' => $status]);
 
         return to_route('receivals.index');
     }

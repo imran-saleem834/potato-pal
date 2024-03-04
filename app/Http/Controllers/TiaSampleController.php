@@ -71,6 +71,9 @@ class TiaSampleController extends Controller
     {
         $tiaSample = TiaSample::create($request->validated());
 
+        $receivalId = $request->input('receival_id');
+        Receival::find($receivalId)->update(['tia_status' => $request->input('status')]);
+
         NotificationHelper::addedAction('Tia Sample', $tiaSample->id);
 
         return to_route('tia-samples.index');
@@ -94,6 +97,9 @@ class TiaSampleController extends Controller
         $tiaSample = TiaSample::find($id);
         $tiaSample->update($request->validated());
         $tiaSample->save();
+
+        $receivalId = $tiaSample->getAttribute('receival_id');
+        Receival::find($receivalId)->update(['tia_status' => $request->input('status')]);
 
         NotificationHelper::updatedAction('Tia Sample', $id);
 

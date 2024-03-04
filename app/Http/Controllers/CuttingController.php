@@ -62,7 +62,7 @@ class CuttingController extends Controller
             'cuttingBuyers' => $cuttingBuyers,
             'single'        => $cuttings,
             'allocations'   => $allocations,
-            'categories'    => fn() => Category::where('type', 'fungicide')->get(),
+            'categories'    => fn() => Category::whereIn('type', ['cool-store', 'fungicide'])->get(),
             'buyers'        => fn() => $this->buyers(),
             'filters'       => $request->only(['search']),
         ]);
@@ -88,7 +88,7 @@ class CuttingController extends Controller
             CuttingAllocation::create(array_merge(['cutting_id' => $cutting->id], $allocation));
         }
 
-        $inputs = $request->only(['fungicide']);
+        $inputs = $request->only(['cool_store', 'fungicide']);
         CategoriesHelper::createRelationOfTypes($inputs, $cutting->id, Cutting::class);
 
         NotificationHelper::addedAction('Cutting', $cutting->id);
@@ -117,7 +117,7 @@ class CuttingController extends Controller
         }
         CuttingAllocation::where('cutting_id', $cutting->id)->whereNotIn('id', $cuttingAllocations)->delete();
 
-        $inputs = $request->only(['fungicide']);
+        $inputs = $request->only(['cool_store', 'fungicide']);
         CategoriesHelper::createRelationOfTypes($inputs, $cutting->id, Cutting::class);
 
         NotificationHelper::updatedAction('Cutting', $id);

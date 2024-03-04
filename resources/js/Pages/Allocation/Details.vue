@@ -1,12 +1,11 @@
 <script setup>
 import { computed, ref, watch } from "vue";
 import { useForm, Link } from "@inertiajs/vue3";
-import { getCategoryIdsByType, getSingleCategoryNameByType } from "@/helper.js";
+import { toTonnes, getBinSizesValue, getCategoryIdsByType, getSingleCategoryNameByType } from "@/helper.js";
 import Multiselect from '@vueform/multiselect'
 import TextInput from "@/Components/TextInput.vue";
 import DataTable from 'datatables.net-vue3';
 import DataTablesCore from 'datatables.net';
-import { getBinSizesValue } from "@/tonnes.js";
 import { useToast } from "vue-toastification";
 import ConfirmedModal from "@/Components/ConfirmedModal.vue";
 
@@ -209,9 +208,9 @@ defineExpose({
       <table class="table table-sm">
         <thead>
         <tr>
-          <th>Seed Type</th>
-          <th>Bin Size</th>
-          <th>Bins Available</th>
+          <th>Seed type</th>
+          <th>Bin size</th>
+          <th>Bins available</th>
           <th>Weight</th>
         </tr>
         </thead>
@@ -220,7 +219,7 @@ defineExpose({
           <td>{{ getSingleCategoryNameByType(form.select_receival.unload_categories, 'seed-type') }}</td>
           <td>{{ getBinSizesValue(form.select_receival.bin_size) }}</td>
           <td class="text-center text-md-start">{{ form.select_receival.no_of_bins }}</td>
-          <td>{{ form.select_receival.weight }} kg</td>
+          <td>{{ toTonnes(form.select_receival.weight) }}</td>
         </tr>
         </tbody>
       </table>
@@ -229,15 +228,15 @@ defineExpose({
     <template v-if="isForm">
       <div class="row">
         <div class="col-6 col-sm-3 mb-3">
-          <label class="form-label">Allocated Bins</label>
+          <label class="form-label">Allocated bins</label>
           <TextInput v-model="form.no_of_bins" :error="form.errors.no_of_bins" type="text"/>
         </div>
         <div class="col-6 col-sm-3 mb-3">
-          <label class="form-label">Allocated Kg</label>
+          <label class="form-label">Allocated kg</label>
           <TextInput v-model="form.weight" :error="form.errors.weight" type="text"/>
         </div>
         <div class="col-12 col-sm-6 mb-3">
-          <label class="form-label">Comment</label>
+          <label class="form-label">Comments</label>
           <TextInput v-model="form.comment" :error="form.errors.comment" type="text"/>
         </div>
       </div>
@@ -275,39 +274,49 @@ defineExpose({
       <div class="row allocation-items-box">
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
           <span>Grower: </span>
-          <Link :href="route('users.index', {userId: allocation.grower_id})">
+          <Link :href="route('users.index', {userId: allocation.grower_id})" class="text-danger">
             {{ allocation.grower?.grower_name }}
           </Link>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Seed Type:</span> {{ getSingleCategoryNameByType(allocation.categories, 'seed-type') || '-' }}
+          <span>Paddock: </span>
+          <span class="text-danger">{{ allocation.paddock }}</span>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Bin Size:</span> {{ getBinSizesValue(allocation.bin_size) }}
+          <span>Variety: </span>
+          <span class="text-danger">{{ getSingleCategoryNameByType(allocation.categories, 'seed-variety') || '-' }}</span>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Allocated Bins:</span> {{ allocation.no_of_bins }}
+          <span>Gen: </span>
+          <span class="text-danger">{{ getSingleCategoryNameByType(allocation.categories, 'seed-generation') || '-' }}</span>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Allocated:</span> {{ allocation.weight.toFixed(2) }} kg
+          <span>Bin size: </span>
+          <span class="text-danger">{{ getBinSizesValue(allocation.bin_size) }}</span>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Rec. Group:</span> {{ getSingleCategoryNameByType(allocation.categories, 'grower-group') || '-' }}
+          <span>Allocated bins: </span>
+          <span class="text-danger">{{ allocation.no_of_bins }}</span>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Seed Variety:</span> {{ getSingleCategoryNameByType(allocation.categories, 'seed-variety') || '-' }}
+          <span>Allocated weight: </span>
+          <span class="text-danger">{{ toTonnes(allocation.weight) }}</span>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Seed Gen.:</span> {{ getSingleCategoryNameByType(allocation.categories, 'seed-generation') || '-' }}
+          <span>Class: </span>
+          <span class="text-danger">{{ getSingleCategoryNameByType(allocation.categories, 'seed-class') || '-' }}</span>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Seed Class:</span> {{ getSingleCategoryNameByType(allocation.categories, 'seed-class') || '-' }}
+          <span>Grower Group: </span>
+          <span class="text-danger">{{ getSingleCategoryNameByType(allocation.categories, 'grower-group') || '-' }}</span>
         </div>
-        <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 pb-1">
-          <span>Paddock:</span> {{ allocation.paddock }}
+        <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+          <span>Seed type: </span>
+          <span class="text-danger">{{ getSingleCategoryNameByType(allocation.categories, 'seed-type') || '-' }}</span>
         </div>
-        <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 pb-1">
-          <span>Comment:</span> {{ allocation.comment }}
+        <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+          <span>Comments: </span>
+          <span class="text-danger">{{ allocation.comment }}</span>
         </div>
       </div>
     </template>
@@ -326,14 +335,14 @@ defineExpose({
               <DataTable class="table mb-0">
                 <thead>
                 <tr>
-                  <th>Seed Type</th>
-                  <th>Seed Variety</th>
-                  <th>Seed Class</th>
-                  <th>Seed Generation</th>
+                  <th>Seed type</th>
+                  <th>Variety</th>
+                  <th>Class</th>
+                  <th>Gen</th>
                   <th>Grower Group</th>
                   <th>Paddock</th>
-                  <th>Bin Size</th>
-                  <th>No Of Bins</th>
+                  <th>Bin size</th>
+                  <th>No of bins</th>
                   <th>Weight</th>
                 </tr>
                 </thead>
@@ -353,7 +362,7 @@ defineExpose({
                     <td>{{ receival.paddock }}</td>
                     <td>{{ getBinSizesValue(receival.bin_size) }}</td>
                     <td>{{ receival.no_of_bins }}</td>
-                    <td>{{ receival.weight }} kg</td>
+                    <td>{{ toTonnes(receival.weight) }}</td>
                   </tr>
                 </template>
                 </tbody>

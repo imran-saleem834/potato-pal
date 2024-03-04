@@ -5,8 +5,7 @@ import Multiselect from '@vueform/multiselect'
 import TextInput from "@/Components/TextInput.vue";
 import DataTable from 'datatables.net-vue3';
 import DataTablesCore from 'datatables.net';
-import { getSingleCategoryNameByType } from "@/helper.js";
-import { getBinSizesValue } from "@/tonnes.js";
+import { toTonnes, getBinSizesValue, getSingleCategoryNameByType } from "@/helper.js";
 import { useToast } from "vue-toastification";
 import ConfirmedModal from "@/Components/ConfirmedModal.vue";
 
@@ -192,9 +191,9 @@ defineExpose({
       <table class="table table-sm">
         <thead>
         <tr>
-          <th>Seed Type</th>
-          <th>Bin Size</th>
-          <th>Bins Available</th>
+          <th>Seed type</th>
+          <th>Bin size</th>
+          <th>Bins available</th>
           <th>Weight</th>
         </tr>
         </thead>
@@ -203,7 +202,7 @@ defineExpose({
           <td>{{ getSingleCategoryNameByType(form.selected_allocation.categories, 'seed-type') }}</td>
           <td>{{ getBinSizesValue(form.selected_allocation.bin_size) }}</td>
           <td class="text-center text-md-start">{{ form.selected_allocation.no_of_bins }}</td>
-          <td>{{ form.selected_allocation.weight }} kg</td>
+          <td>{{ toTonnes(form.selected_allocation.weight) }}</td>
         </tr>
         </tbody>
       </table>
@@ -212,15 +211,15 @@ defineExpose({
     <template v-if="isForm">
       <div class="row">
         <div class="col-6 col-sm-3 mb-3">
-          <label class="form-label">Reallocated Bins</label>
+          <label class="form-label">Reallocated bins</label>
           <TextInput v-model="form.no_of_bins" :error="form.errors.no_of_bins" type="text"/>
         </div>
         <div class="col-6 col-sm-3 mb-3">
-          <label class="form-label">Reallocated Kg</label>
+          <label class="form-label">Reallocated kg</label>
           <TextInput v-model="form.weight" :error="form.errors.weight" type="text"/>
         </div>
         <div class="col-12 col-sm-6 mb-3">
-          <label class="form-label">Comment</label>
+          <label class="form-label">Comments</label>
           <TextInput v-model="form.comment" :error="form.errors.comment" type="text"/>
         </div>
       </div>
@@ -258,39 +257,59 @@ defineExpose({
       <div class="row allocation-items-box">
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
           <span>Allocation Buyer Name: </span>
-          <Link :href="route('users.index', {userId: reallocation.allocation_buyer_id})">
+          <Link :href="route('users.index', {userId: reallocation.allocation_buyer_id})" class="text-danger">
             {{ reallocation?.allocation_buyer?.buyer_name }}
           </Link>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Seed Type:</span> {{ getSingleCategoryNameByType(reallocation.allocation.categories, 'seed-type') || '-' }}
+          <span>Seed type: </span>
+          <span class="text-danger">
+            {{ getSingleCategoryNameByType(reallocation.allocation.categories, 'seed-type') || '-' }}
+          </span>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Bin Size:</span> {{ getBinSizesValue(reallocation.allocation.bin_size) }}
+          <span>Bin size: </span>
+          <span class="text-danger">{{ getBinSizesValue(reallocation.allocation.bin_size) }}</span>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Reallocated Bins:</span> {{ reallocation.no_of_bins }}
+          <span>Reallocated bins: </span>
+          <span class="text-danger">{{ reallocation.no_of_bins }}</span>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Reallocated:</span> {{ reallocation.weight.toFixed(2) }} kg
+          <span>Reallocated weight: </span>
+          <span class="text-danger">{{ toTonnes(reallocation.weight) }}</span>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Grower Group:</span> {{ getSingleCategoryNameByType(reallocation.allocation.categories, 'grower-group') || '-' }}
+          <span>Grower Group: </span>
+          <span class="text-danger">
+            {{ getSingleCategoryNameByType(reallocation.allocation.categories, 'grower-group') || '-' }}
+          </span>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Seed Variety:</span> {{ getSingleCategoryNameByType(reallocation.allocation.categories, 'seed-variety') || '-' }}
+          <span>Variety: </span>
+          <span class="text-danger">
+            {{ getSingleCategoryNameByType(reallocation.allocation.categories, 'seed-variety') || '-' }}
+          </span>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Seed Gen.:</span> {{ getSingleCategoryNameByType(reallocation.allocation.categories, 'seed-generation') || '-' }}
+          <span>Gen: </span>
+          <span class="text-danger">
+            {{ getSingleCategoryNameByType(reallocation.allocation.categories, 'seed-generation') || '-' }}
+          </span>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Seed Class:</span> {{ getSingleCategoryNameByType(reallocation.allocation.categories, 'seed-class') || '-' }}
+          <span>Class: </span>
+          <span class="text-danger">
+            {{ getSingleCategoryNameByType(reallocation.allocation.categories, 'seed-class') || '-' }}
+          </span>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 pb-1">
-          <span>Paddock:</span> {{ reallocation.allocation.paddock }}
+          <span>Paddock: </span>
+          <span class="text-danger">{{ reallocation.allocation.paddock }}</span>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 pb-1">
-          <span>Comment:</span> {{ reallocation.comment }}
+          <span>Comments: </span>
+          <span class="text-danger">{{ reallocation.comment }}</span>
         </div>
       </div>
     </template>
@@ -308,14 +327,14 @@ defineExpose({
             <table class="table mb-0">
               <thead>
               <tr>
-                <th>Seed Type</th>
-                <th>Seed Variety</th>
-                <th>Seed Class</th>
-                <th>Seed Generation</th>
+                <th>Seed type</th>
+                <th>Variety</th>
+                <th>Class</th>
+                <th>Gen</th>
                 <th>Grower Group</th>
                 <th>Paddock</th>
-                <th>Bin Size</th>
-                <th>No Of Bins</th>
+                <th>Bin size</th>
+                <th>No of bins</th>
                 <th>Weight</th>
               </tr>
               </thead>
@@ -335,7 +354,7 @@ defineExpose({
                   <td>{{ allocation.paddock }}</td>
                   <td>{{ getBinSizesValue(allocation.bin_size) }}</td>
                   <td>{{ allocation.no_of_bins }}</td>
-                  <td>{{ allocation.weight }} Kg</td>
+                  <td>{{ toTonnes(allocation.weight) }}</td>
                 </tr>
               </template>
               </tbody>

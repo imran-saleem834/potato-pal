@@ -1,9 +1,9 @@
 <script setup>
-import { router, useForm } from '@inertiajs/vue3';
 import { ref, watch } from 'vue';
+import { router, useForm } from "@inertiajs/vue3";
 import AppLayout from '@/Layouts/AppLayout.vue';
 import TopBar from '@/Components/TopBar.vue';
-import Details from '@/Pages/TiaSample/Details.vue';
+import Details from '@/Pages/Invoice/Details.vue';
 import LeftBar from "@/Components/LeftBar.vue";
 import { useToast } from "vue-toastification";
 import { useWindowSize } from 'vue-window-size';
@@ -12,14 +12,16 @@ const toast = useToast();
 const { width, height } = useWindowSize();
 
 const props = defineProps({
-  tiaSamples: Object,
+  invoices: Object,
   single: Object,
-  receivals: Array,
+  receivals: Object,
+  grades: Object,
+  cuttings: Object,
   filters: Object,
-  errors: Object,
+  errors: Object
 });
 
-const tiaSample = ref(props.single || {});
+const invoice = ref(props.single || {});
 const activeTab = ref(null);
 const edit = ref(null);
 const isNewRecord = ref(false);
@@ -29,14 +31,14 @@ const details = ref(null);
 watch(() => props?.single,
   (single) => {
     if (Object.values(props.errors).length === undefined || Object.values(props.errors).length <= 0) {
-      tiaSample.value = single || {};
+      invoice.value = single || {};
     }
   }
 );
 
 watch(search, (value) => {
   router.get(
-    route('users.index'),
+    route('invoices.index'),
     { search: value },
     { preserveState: true, preserveScroll: true },
   )
@@ -44,9 +46,9 @@ watch(search, (value) => {
 
 const filter = (keyword) => search.value = keyword;
 
-const getTiaSample = (id) => {
-  axios.get(route('tia-samples.show', id)).then(response => {
-    tiaSample.value = response.data;
+const getInvoice = (id) => {
+  axios.get(route('invoices.show', id)).then(response => {
+    invoice.value = response.data;
 
     setActiveTab(response.data.id);
   });
@@ -66,73 +68,75 @@ const setEdit = (id) => {
 const setNewRecord = () => {
   isNewRecord.value = true;
   edit.value = null;
-  tiaSample.value = {};
+  invoice.value = {};
   activeTab.value = null;
 }
 
-const deleteTiaSample = (id) => {
+const deleteInvoice = (id) => {
   const form = useForm({});
-  form.delete(route('tia-samples.destroy', id), {
+  form.delete(route('invoices.destroy', id), {
     preserveState: true,
     onSuccess: () => {
-      setActiveTab(tiaSample.value?.id);
-      toast.success('The tia sample has been deleted successfully!');
+      setActiveTab(invoice.value?.id);
+      toast.success('The invoice has been deleted successfully!');
     },
   });
 }
 
 if (width.value > 991) {
-  setActiveTab(tiaSample.value?.id);
+  setActiveTab(invoice.value?.id);
 }
 </script>
 
 <template>
-  <AppLayout title="Tia Sampling">
+  <AppLayout title="Invoices">
     <TopBar
-      type="Tia Sampling"
-      :title="tiaSample?.receival?.grower?.grower_name || 'New'"
+      type="Invoices"
+      :title="`Invoice`"
       :active-tab="activeTab"
       :search="search"
       @search="filter"
       :is-edit-record-selected="!!edit"
       :is-new-record-selected="isNewRecord"
       @new="setNewRecord"
-      @edit="() => setEdit(tiaSample?.id)"
+      @edit="() => setEdit(invoice?.id)"
       @unset="() => setActiveTab(null)"
       @store="() => details.storeRecord()"
       @update="() => details.updateRecord()"
-      @delete="() => deleteTiaSample(tiaSample?.id)"
+      @delete="() => deleteInvoice(invoice?.id)"
     />
 
-    <div class="tab-section tia-sample-tab-section">
+    <div class="tab-section">
       <div class="row g-0">
         <div class="col-12 col-lg-5 col-xl-4 nav-left d-lg-block" :class="{'d-none' : activeTab || isNewRecord}">
           <LeftBar
-            :items="tiaSamples.data"
-            :links="tiaSamples.links"
+            :items="invoices.data"
+            :links="invoices.links"
             :active-tab="activeTab"
-            :row-1="{title: 'Grower', value: 'receival.grower.grower_name'}"
-            :row-2="{title: 'Tia Sample Id', value: 'id'}"
-            @click="getTiaSample"
+            :row-1="{title: 'Reference Id', value: 'invoiceable_id'}"
+            :row-2="{title: 'Invoice Id', value: 'id'}"
+            @click="getInvoice"
           />
         </div>
         <div class="col-12 col-lg-7 col-xl-8 d-lg-block" :class="{'d-none': !activeTab && !isNewRecord}">
-          <div class="tab-content" v-if="Object.values(tiaSample).length > 0 || isNewRecord">
+          <div class="tab-content" v-if="Object.values(invoice).length > 0 || isNewRecord">
             <Details
               ref="details"
-              :tia-sample="tiaSample"
+              :invoice="invoice"
               :is-edit="!!edit"
               :is-new="isNewRecord"
               :receivals="receivals"
-              @update="() => getTiaSample(activeTab)"
-              @create="() => setActiveTab(tiaSample?.id)"
+              :grades="grades"
+              :cuttings="cuttings"
+              @update="() => getInvoice(activeTab)"
+              @create="() => setActiveTab(invoice?.id)"
+              @unset="() => setActiveTab(null)"
             />
           </div>
-          <div class="col-12" v-if="Object.values(tiaSample).length <= 0 && !isNewRecord">
-            <p class="text-center" style="margin-top: calc(50vh - 120px);">No Records Found</p>
+          <div v-if="Object.values(invoice).length <= 0 && !isNewRecord">
+            <p class="w-100 text-center" style="margin-top: calc(50vh - 120px);">No Records Found</p>
           </div>
         </div>
-        <div class="clearfix"></div>
       </div>
     </div>
   </AppLayout>

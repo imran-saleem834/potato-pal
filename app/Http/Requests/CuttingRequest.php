@@ -25,7 +25,8 @@ class CuttingRequest extends FormRequest
         $rules = [
             'buyer_id'                                         => ['required', 'numeric', 'exists:users,id'],
             'cut_date'                                         => ['nullable', 'date'],
-            'cut_by'                                           => ['nullable', 'string', 'max:100'],
+            'cool_store'                                       => ['nullable', 'array'],
+            'cool_store.*'                                     => ['nullable', 'numeric'],
             'comment'                                          => ['nullable', 'string', 'max:255'],
             'fungicide'                                        => ['nullable', 'array'],
             'fungicide.*'                                      => ['nullable', 'numeric'],

@@ -1,6 +1,6 @@
 import moment from "moment";
 import { getCategoriesByType, getSingleCategoryNameByType } from "@/helper.js";
-import { binSizes } from "@/tonnes.js";
+import { binSizes } from "@/const.js";
 
 const samples = [
     { title: 'Dry Rot', data: 'dry_rot', allow: '2%' },

@@ -6,14 +6,14 @@ import TextInput from "@/Components/TextInput.vue";
 import UlLiButton from "@/Components/UlLiButton.vue";
 import Multiselect from '@vueform/multiselect';
 import { useToast } from "vue-toastification";
-import { binSizes, getBinSizesValue } from "@/tonnes.js";
 import {
-  toCamelCase,
+  getBinSizesValue,
   getSingleCategoryNameByType,
   getCategoriesDropDownByType,
   getCategoriesByType,
   getCategoryIdsByType,
 } from "@/helper.js";
+import { binSizes, tiaStatus, tiaStatusInit } from "@/const.js";
 
 const toast = useToast();
 
@@ -46,7 +46,15 @@ watch(() => props.receival,
   }
 );
 
+const getDefaultSeedType = () => {
+  const category = getCategoriesByType(props.categories, 'seed-type')
+    .find(category => category.name.includes('Standard'));
+  
+  return [{ category_id: category.id, type: 'seed-type', category }];
+}
+
 const defaultUnloadFields = {
+  categories: getDefaultSeedType(),
   seed_type: null,
   bin_size: null,
   no_of_bins: 0,
@@ -82,10 +90,7 @@ const setIsSeedTypeOversize = (seedTypeId, index) => {
   form.unloads[index].isSeedTypeOversize = (selectedCategoryLabel === 'Oversize');
 }
 
-const updateUnloadsOnChangeReceival = (receival) => {
-  form.fungicide = getCategoryIdsByType(receival.categories, 'fungicide')
-  form.unloads = receival.unloads.length <= 0 ? [{ ...defaultUnloadFields }] : [...receival.unloads];
-
+const updateUnloadForm = () => {
   form.unloads.forEach((unload, index) => {
     form.unloads[index].seed_type = getCategoryIdsByType(unload.categories, 'seed-type')[0];
     form.unloads[index].created_at = unload.created_at ? moment(unload.created_at).utc().format('YYYY-MM-DDThh:mm') : null
@@ -95,6 +100,13 @@ const updateUnloadsOnChangeReceival = (receival) => {
     weight.value[index] = null;
     weightError.value[index] = null;
   });
+}
+
+const updateUnloadsOnChangeReceival = (receival) => {
+  form.fungicide = getCategoryIdsByType(receival.categories, 'fungicide')
+  form.unloads = receival.unloads.length <= 0 ? [{ ...defaultUnloadFields }] : [...receival.unloads];
+
+  updateUnloadForm();
 }
 
 const onChangeTotalBins = (index) => {
@@ -131,7 +143,11 @@ const onChangeSystem = (value, index) => {
 
 updateUnloadsOnChangeReceival(props.receival);
 
-const addMoreUnload = () => form.unloads.push({ ...defaultUnloadFields });
+const addMoreUnload = () => {
+  form.unloads.push({ ...defaultUnloadFields });
+
+  updateUnloadForm();
+};
 
 const page = usePage();
 const getWeightMessage = reactive({
@@ -266,7 +282,7 @@ defineExpose({
             </td>
           </tr>
           <tr>
-            <th>Receival Id</th>
+            <th>Receival id</th>
             <td>
               <Link class="p-0" :href="route('receivals.index', {receivalId: receival.id})">
                 {{ receival.id }}
@@ -274,7 +290,7 @@ defineExpose({
             </td>
           </tr>
           <tr>
-            <th>Receival Time</th>
+            <th>Receival time</th>
             <td>{{ moment(receival.created_at).utc().format('DD/MM/YYYY hh:mm A') }}</td>
           </tr>
           <tr>
@@ -300,7 +316,7 @@ defineExpose({
             </td>
           </tr>
           <tr>
-            <th>Seed Variety</th>
+            <th>Variety</th>
             <td class="pb-0">
               <ul class="p-0" v-if="getCategoriesByType(receival.categories, 'seed-variety').length">
                 <li v-for="category in getCategoriesByType(receival.categories, 'seed-variety')" :key="category.id">
@@ -311,7 +327,7 @@ defineExpose({
             </td>
           </tr>
           <tr>
-            <th>Seed Generation</th>
+            <th>Gen</th>
             <td class="pb-0">
               <ul class="p-0" v-if="getCategoriesByType(receival.categories, 'seed-generation').length">
                 <li v-for="category in getCategoriesByType(receival.categories, 'seed-generation')" :key="category.id">
@@ -322,19 +338,13 @@ defineExpose({
             </td>
           </tr>
           <tr>
-            <th>TIA Sampling</th>
+            <th>TIA sampling</th>
             <td class="pb-0">
-              <ul class="p-0">
-                <li>
-                  <button
-                    v-if="receival.tia_sample"
-                    :class="(receival.tia_sample?.status || 'pending') === 'pending' ? 'btn btn-pending' : 'btn btn-dark'"
-                  >
-                    {{ toCamelCase(receival.tia_sample?.status || 'pending') }}
-                  </button>
-                  <template v-else>-</template>
-                </li>
-              </ul>
+              <UlLiButton
+                :is-form="false"
+                :value="receival.tia_status"
+                :items="receival.tia_status && !receival.tia_status.includes('applied') ? tiaStatus : tiaStatusInit"
+              />
             </td>
           </tr>
         </table>
@@ -386,7 +396,7 @@ defineExpose({
       <div v-for="(unload, index) in form.unloads" class="user-boxes">
         <table class="table input-table mb-0">
           <tr>
-            <th>Unload Time</th>
+            <th>Unload time</th>
             <td>
               <TextInput
                 v-if="isForm"
@@ -399,20 +409,26 @@ defineExpose({
             </td>
           </tr>
           <tr>
-            <th>Seed Type</th>
-            <td class="pb-0">
-              <UlLiButton
+            <th>Seed type</th>
+            <td :class="{'pb-0' : !isForm}">
+              <Multiselect
                 v-if="isForm && form.unloads[index]"
-                :is-form="true"
-                :value="form.unloads[index].seed_type"
-                :error="form.errors[`unloads.${index}.seed_type`]"
-                :items="getCategoriesDropDownByType(categories, 'seed-type')"
-                @click="(value) => onChangeSeedType(value, index)"
+                v-model="form.unloads[index].seed_type"
+                mode="single"
+                placeholder="Choose a seed type"
+                :searchable="true"
+                @change="(value) => onChangeSeedType(value, index)"
+                :class="{'is-invalid' : form.errors[`unloads.${index}.seed_type`]}"
+                :options="getCategoriesDropDownByType(categories, 'seed-type')"
               />
               <ul class="p-0" v-else-if="getCategoriesByType(unload.categories, 'seed-type').length">
                 <li><a>{{ getSingleCategoryNameByType(unload.categories, 'seed-type') }}</a></li>
               </ul>
               <template v-else>-</template>
+              <div 
+                v-if="form.errors[`unloads.${index}.seed_type`]" 
+                class="invalid-feedback"
+              >{{ form.errors[`unloads.${index}.seed_type`] }}</div>
             </td>
           </tr>
           <tr v-if="!form.unloads[index]?.isSeedTypeOversize">
@@ -437,7 +453,7 @@ defineExpose({
             </td>
           </tr>
           <tr>
-            <th>Bin Size</th>
+            <th>Bin size</th>
             <td class="pb-0">
               <UlLiButton
                 v-if="isForm && form.unloads[index]"
@@ -483,7 +499,6 @@ defineExpose({
                 v-if="isForm && form.unloads[index]"
                 v-model="form.unloads[index].no_of_bins"
                 :class="{'is-invalid' : form.errors[`unloads.${index}.no_of_bins`]}"
-                :disabled="!form.unloads[index]?.isSeedTypeOversize"
                 @keyup="() => onChangeTotalBins(index)"
               >
               <template v-else-if="unload.no_of_bins">{{ unload.no_of_bins }}</template>
@@ -498,7 +513,6 @@ defineExpose({
             <td>
               <TextInput
                 v-if="isForm && form.unloads[index]"
-                :disabled="true"
                 v-model="form.unloads[index].weight"
                 :error="form.errors[`unloads.${index}.weight`]"
                 type="text"

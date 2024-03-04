@@ -1,3 +1,5 @@
+import { binSizes } from "@/const.js";
+
 export function getCategoriesByType(categories, type) {
     return (categories || []).filter(category => category.type === type);
 }
@@ -32,4 +34,13 @@ export function toCamelCase(string) {
         return splitWord.join('');
     });
     return uppercaseWords.join(' ')
+}
+
+export function getBinSizesValue(binSize) {
+    return binSizes.find(bin => bin.value === binSize).label;
+}
+
+export function toTonnes(weight) {
+    const weighted = (weight / 1000).toFixed(2); 
+    return weighted + ((weighted <= 1) ? ' tonne' : ' tonnes');
 }

@@ -1,6 +1,6 @@
 import moment from "moment";
-import { getCategoriesByType, getSingleCategoryNameByType } from "@/helper.js";
-import { binSizes } from "@/tonnes.js";
+import { toTonnes, getCategoriesByType, getSingleCategoryNameByType } from "@/helper.js";
+import { binSizes } from "@/const.js";
 
 export default [
     {
@@ -48,7 +48,7 @@ export default [
         title: 'Weight Before Cutting',
         data: 'weight_before_cutting',
         render: function (data, type, row) {
-            return data + ' kg';
+            return toTonnes(data);
         }
     },
     {
@@ -59,7 +59,7 @@ export default [
         title: 'Weight After Cutting',
         data: 'weight_after_cutting',
         render: function (data, type, row) {
-            return data + ' kg';
+            return toTonnes(data);
         }
     },
     {
