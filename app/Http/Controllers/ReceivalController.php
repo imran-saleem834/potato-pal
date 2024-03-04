@@ -257,7 +257,7 @@ class ReceivalController extends Controller
         return Receival::with([
             'categories.category',
             'grower'    => fn($query) => $query->select(['id', 'name', 'grower_name']),
-            'tiaSample' => fn($query) => $query->select(['id', 'status', 'receival_id']),
+            'tiaSample' => fn($query) => $query->select(['id', 'receival_id']),
             'grower.categories.category',
         ])->find($receivalId);
     }
