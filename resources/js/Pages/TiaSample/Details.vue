@@ -188,7 +188,7 @@ const form = useForm({
   skinning: props.tiaSample.skinning,
   regarding: props.tiaSample.regarding,
   comment: props.tiaSample.comment,
-  status: props.tiaSample.receival.tia_status,
+  status: props.tiaSample.receival?.tia_status,
 });
 
 watch(() => props.tiaSample,
@@ -206,7 +206,7 @@ watch(() => props.tiaSample,
     form.skinning = tiaSample.skinning
     form.regarding = tiaSample.regarding
     form.comment = tiaSample.comment
-    form.status = tiaSample.receival.tia_status
+    form.status = tiaSample.receival?.tia_status
     samples.concat(sample2).forEach(sample => {
       form[sample.name] = addEmptyValues(sample.name, tiaSample[sample.name] || [], sample.inputs || 5);
     });
