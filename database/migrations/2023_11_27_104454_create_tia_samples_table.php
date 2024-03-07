@@ -17,7 +17,6 @@ return new class extends Migration
             $table->float('processor')->nullable();
             $table->string('inspection_no', 20)->nullable();
             $table->date('inspection_date')->nullable();
-            $table->string('cool_store', 100)->nullable();
             $table->string('size', 50)->nullable();
             $table->string('tubers', 255)->nullable();
             $table->string('dry_rot', 255)->nullable();
