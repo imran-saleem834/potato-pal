@@ -1,25 +1,25 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\NoteController;
-use App\Http\Controllers\FileController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\ReceivalController;
-use App\Http\Controllers\UnloadingController;
-use App\Http\Controllers\TiaSampleController;
-use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\AllocationController;
-use App\Http\Controllers\CuttingController;
-use App\Http\Controllers\ReallocationController;
-use App\Http\Controllers\DispatchController;
-use App\Http\Controllers\ReportController;
-use App\Http\Controllers\WeighbridgeController;
-use App\Http\Controllers\GradingController;
-use App\Http\Controllers\LabelController;
-use App\Http\Controllers\InvoiceController;
-use App\Http\Controllers\MediaController;
 use Dcblogdev\Xero\Facades\Xero;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\FileController;
+use App\Http\Controllers\NoteController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\LabelController;
+use App\Http\Controllers\MediaController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\CuttingController;
+use App\Http\Controllers\GradingController;
+use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\DispatchController;
+use App\Http\Controllers\ReceivalController;
+use App\Http\Controllers\TiaSampleController;
+use App\Http\Controllers\UnloadingController;
+use App\Http\Controllers\AllocationController;
+use App\Http\Controllers\WeighbridgeController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\ReallocationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -69,7 +69,7 @@ Route::middleware([
     Route::resource('/dispatches', DispatchController::class)->except(['create', 'edit', 'show']);
 
     Route::get('/weighbridges', [WeighbridgeController::class, 'index'])->name('weighbridges.index');
-    
+
     Route::resource('/reports', ReportController::class);
     Route::get('/reports/{report}/result', [ReportController::class, 'result'])->name('reports.result');
 
@@ -83,15 +83,15 @@ Route::middleware([
     Route::post('/media/{model}/{id}/attach', [MediaController::class, 'attach'])->name('media.attach');
     Route::post('/media/{model}/{id}/upload', [MediaController::class, 'upload'])->name('media.upload');
     Route::post('/media/{model}/{id}/delete', [MediaController::class, 'delete'])->name('media.delete');
-    
+
     Route::inertia('/test', 'Test');
 });
 
 Route::get('/abc', function () {
-   
+
 });
 
-Route::get('xero', function(){
+Route::get('xero', function () {
     if (! Xero::isConnected()) {
         return redirect('xero/connect');
     } else {
@@ -99,6 +99,6 @@ Route::get('xero', function(){
     }
 });
 
-Route::get('xero/connect', function(){
+Route::get('xero/connect', function () {
     return Xero::connect();
 });
