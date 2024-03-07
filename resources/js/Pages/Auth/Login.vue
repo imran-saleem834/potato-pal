@@ -1,7 +1,7 @@
 <script setup>
 import { Head, useForm } from '@inertiajs/vue3';
 import LoginCard from '@/Components/LoginCard.vue';
-import InstallConfirmedModal from "@/Components/InstallConfirmedModal.vue";
+import InstallConfirmedModal from '@/Components/InstallConfirmedModal.vue';
 
 defineProps({
   canResetPassword: Boolean,
@@ -15,12 +15,14 @@ const form = useForm({
 });
 
 const submit = () => {
-  form.transform(data => ({
-    ...data,
-    remember: form.remember ? 'on' : '',
-  })).post(route('login'), {
-    onFinish: () => form.reset('password'),
-  });
+  form
+    .transform((data) => ({
+      ...data,
+      remember: form.remember ? 'on' : '',
+    }))
+    .post(route('login'), {
+      onFinish: () => form.reset('password'),
+    });
 };
 </script>
 
@@ -42,11 +44,11 @@ const submit = () => {
             v-model="form.username"
             type="text"
             class="form-control custom-input"
-            :class="{'is-invalid' : form.errors.username}"
+            :class="{ 'is-invalid': form.errors.username }"
             placeholder="sheharyar"
             required
             autocomplete="username"
-          >
+          />
           <div v-if="form.errors.username" class="invalid-feedback">{{ form.errors.username }}</div>
         </div>
         <div class="mb-3 position-relative">
@@ -56,30 +58,20 @@ const submit = () => {
             v-model="form.password"
             type="password"
             class="form-control custom-input"
-            :class="{'is-invalid' : form.errors.password}"
+            :class="{ 'is-invalid': form.errors.password }"
             placeholder="***************"
             required
             autocomplete="current-password"
-          >
+          />
           <div v-if="form.errors.password" class="invalid-feedback">{{ form.errors.password }}</div>
         </div>
         <div class="mb-3 checkbox">
           <label>
-            <input
-              v-model="form.remember"
-              type="checkbox"
-              name="remember"
-              :value="1"
-            > Remember me
+            <input v-model="form.remember" type="checkbox" name="remember" :value="1" /> Remember me
           </label>
         </div>
         <div class="mb-3">
-          <input
-            type="submit"
-            value="Log in"
-            class="btn btn-lg-red"
-            :disabled="form.processing"
-          >
+          <input type="submit" value="Log in" class="btn btn-lg-red" :disabled="form.processing" />
         </div>
       </LoginCard>
     </div>

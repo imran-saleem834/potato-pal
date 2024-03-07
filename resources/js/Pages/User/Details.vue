@@ -1,10 +1,14 @@
 <script setup>
-import { computed, watch } from "vue";
-import { useForm } from "@inertiajs/vue3";
-import { useToast } from "vue-toastification";
-import { getCategoriesDropDownByType, getCategoryIdsByType, getCategoriesByType } from "@/helper.js";
-import Multiselect from '@vueform/multiselect'
-import TextInput from "@/Components/TextInput.vue";
+import { computed, watch } from 'vue';
+import { useForm } from '@inertiajs/vue3';
+import { useToast } from 'vue-toastification';
+import {
+  getCategoriesDropDownByType,
+  getCategoryIdsByType,
+  getCategoriesByType,
+} from '@/helper.js';
+import Multiselect from '@vueform/multiselect';
+import TextInput from '@/Components/TextInput.vue';
 
 const toast = useToast();
 
@@ -42,38 +46,41 @@ const form = useForm({
   buyer_group: getCategoryIdsByType(props.user.categories, 'buyer-group'),
   buyer_name: props.user.buyer_name,
   buyer_tags: props.user.buyer_tags,
-  paddocks: props.user.paddocks === undefined || props.user.paddocks === null ? [] : props.user.paddocks,
+  paddocks:
+    props.user.paddocks === undefined || props.user.paddocks === null ? [] : props.user.paddocks,
   password: '',
   password_confirmation: '',
 });
 
-watch(() => props.user,
+watch(
+  () => props.user,
   (user) => {
     form.clearErrors();
-    form.name = user.name
-    form.email = user.email
-    form.username = user.username
-    form.phone = user.phone
-    form.role = user.role
-    form.password = ''
-    form.password_confirmation = ''
-    form.cool_store = getCategoryIdsByType(user.categories, 'cool-store')
-    form.grower_group = getCategoryIdsByType(user.categories, 'grower-group')
-    form.grower_name = user.grower_name
-    form.grower_tags = user.grower_tags
-    form.buyer_group = getCategoryIdsByType(user.categories, 'buyer-group')
-    form.buyer_tags = user.buyer_tags
-    form.paddocks = user.paddocks === undefined || user.paddocks === null ? [] : user.paddocks
-  }
+    form.name = user.name;
+    form.email = user.email;
+    form.username = user.username;
+    form.phone = user.phone;
+    form.role = user.role;
+    form.password = '';
+    form.password_confirmation = '';
+    form.cool_store = getCategoryIdsByType(user.categories, 'cool-store');
+    form.grower_group = getCategoryIdsByType(user.categories, 'grower-group');
+    form.grower_name = user.grower_name;
+    form.grower_tags = user.grower_tags;
+    form.buyer_group = getCategoryIdsByType(user.categories, 'buyer-group');
+    form.buyer_tags = user.buyer_tags;
+    form.paddocks = user.paddocks === undefined || user.paddocks === null ? [] : user.paddocks;
+  },
 );
 
 const isForm = computed(() => props.isEdit || props.isNew);
 
-const isBuyerSelected = computed(() => form.role?.find(r => r === 'buyer'));
-const isGrowerSelected = computed(() => form.role?.find(r => r === 'grower'));
+const isBuyerSelected = computed(() => form.role?.find((r) => r === 'buyer'));
+const isGrowerSelected = computed(() => form.role?.find((r) => r === 'grower'));
 
 const addMorePaddocks = () => form.paddocks.push({ name: '', address: '', gps: '', hectares: '' });
-const removePaddocks = (index) => form.paddocks = form.paddocks.filter((paddocks, i) => i !== index);
+const removePaddocks = (index) =>
+  (form.paddocks = form.paddocks.filter((paddocks, i) => i !== index));
 
 const updateRecord = () => {
   form.patch(route('users.update', props.user.id), {
@@ -84,7 +91,7 @@ const updateRecord = () => {
       toast.success('The user has been updated successfully!');
     },
   });
-}
+};
 
 const storeRecord = () => {
   form.post(route('users.store'), {
@@ -95,11 +102,11 @@ const storeRecord = () => {
       toast.success('The user has been created successfully!');
     },
   });
-}
+};
 
 defineExpose({
   updateRecord,
-  storeRecord
+  storeRecord,
 });
 
 const getGpsLocation = (index) => {
@@ -112,9 +119,11 @@ const getGpsLocation = (index) => {
         form.paddocks[index].gps = `${userLat}, ${userLng}`;
 
         // Fetch the address using the Geocoding API
-        fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${userLat},${userLng}&key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}`)
-          .then(response => response.json())
-          .then(data => {
+        fetch(
+          `https://maps.googleapis.com/maps/api/geocode/json?latlng=${userLat},${userLng}&key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}`,
+        )
+          .then((response) => response.json())
+          .then((data) => {
             if (data.status === 'OK') {
               if (data.results[0]) {
                 form.paddocks[index].address = data.results[0].formatted_address;
@@ -125,20 +134,20 @@ const getGpsLocation = (index) => {
               form.errors[`paddocks.${index}.address`] = 'Geocoder failed due to: ' + data.status;
             }
           })
-          .catch(error => {
+          .catch((error) => {
             form.errors[`paddocks.${index}.address`] = 'Error getting your address';
-            console.log('Error fetching address: ', error)
+            console.log('Error fetching address: ', error);
           });
       },
       (error) => {
         form.errors[`paddocks.${index}.gps`] = 'Error getting your location';
-        console.log('Error getting your location: ', error.message)
-      }
+        console.log('Error getting your location: ', error.message);
+      },
     );
   } else {
     form.errors[`paddocks.${index}.gps`] = 'Geolocation is not supported by this browser.';
   }
-}
+};
 
 const autocompleteInput = (index) => {
   const input = document.getElementById(`autocomplete-input-${index}`);
@@ -157,7 +166,7 @@ const autocompleteInput = (index) => {
     const longitude = place.geometry.location.lng();
 
     form.paddocks[index].address = place.formatted_address;
-    form.paddocks[index].gps = `${latitude}, ${longitude}`
+    form.paddocks[index].gps = `${latitude}, ${longitude}`;
   });
 };
 </script>
@@ -171,7 +180,7 @@ const autocompleteInput = (index) => {
           <tr>
             <th>Name</th>
             <td>
-              <TextInput v-if="isForm" v-model="form.name" :error="form.errors.name" type="text"/>
+              <TextInput v-if="isForm" v-model="form.name" :error="form.errors.name" type="text" />
               <template v-else-if="user.name">{{ user.name }}</template>
               <template v-else>-</template>
             </td>
@@ -179,7 +188,12 @@ const autocompleteInput = (index) => {
           <tr>
             <th>Email</th>
             <td>
-              <TextInput v-if="isForm" v-model="form.email" :error="form.errors.email" type="text"/>
+              <TextInput
+                v-if="isForm"
+                v-model="form.email"
+                :error="form.errors.email"
+                type="text"
+              />
               <template v-else-if="user.email">{{ user.email }}</template>
               <template v-else>-</template>
             </td>
@@ -187,7 +201,12 @@ const autocompleteInput = (index) => {
           <tr>
             <th>Username</th>
             <td>
-              <TextInput v-if="isForm" v-model="form.username" :error="form.errors.username" type="text"/>
+              <TextInput
+                v-if="isForm"
+                v-model="form.username"
+                :error="form.errors.username"
+                type="text"
+              />
               <template v-else-if="user.username">{{ user.username }}</template>
               <template v-else>-</template>
             </td>
@@ -195,7 +214,12 @@ const autocompleteInput = (index) => {
           <tr>
             <th>Phone</th>
             <td>
-              <TextInput v-if="isForm" v-model="form.phone" :error="form.errors.phone" type="text"/>
+              <TextInput
+                v-if="isForm"
+                v-model="form.phone"
+                :error="form.errors.phone"
+                type="text"
+              />
               <template v-else-if="user.phone">{{ user.phone }}</template>
               <template v-else>-</template>
             </td>
@@ -203,7 +227,7 @@ const autocompleteInput = (index) => {
           <tr v-if="isForm">
             <th>Password</th>
             <td>
-              <TextInput v-model="form.password" :error="form.errors.password" type="password"/>
+              <TextInput v-model="form.password" :error="form.errors.password" type="password" />
             </td>
           </tr>
           <tr v-if="isForm">
@@ -218,7 +242,7 @@ const autocompleteInput = (index) => {
           </tr>
           <tr>
             <th>User Access</th>
-            <td :class="{'pb-0' : !isForm}">
+            <td :class="{ 'pb-0': !isForm }">
               <Multiselect
                 v-if="isForm"
                 v-model="form.role"
@@ -229,7 +253,7 @@ const autocompleteInput = (index) => {
               />
               <ul class="p-0" v-else-if="user.role">
                 <li v-for="role in user.role" :key="role">
-                  <a>{{ UserAccess.find(access => access.value === role)?.label }}</a>
+                  <a>{{ UserAccess.find((access) => access.value === role)?.label }}</a>
                 </li>
               </ul>
               <template v-else>-</template>
@@ -237,7 +261,7 @@ const autocompleteInput = (index) => {
           </tr>
           <tr>
             <th>Cool Store</th>
-            <td :class="{'pb-0' : !isForm}">
+            <td :class="{ 'pb-0': !isForm }">
               <Multiselect
                 v-if="isForm"
                 v-model="form.cool_store"
@@ -248,7 +272,10 @@ const autocompleteInput = (index) => {
                 :options="getCategoriesDropDownByType(categories, 'cool-store')"
               />
               <ul class="p-0" v-else-if="getCategoriesByType(user.categories, 'cool-store').length">
-                <li v-for="category in getCategoriesByType(user.categories, 'cool-store')" :key="category.id">
+                <li
+                  v-for="category in getCategoriesByType(user.categories, 'cool-store')"
+                  :key="category.id"
+                >
                   <a>{{ category.category?.name }}</a>
                 </li>
               </ul>
@@ -263,7 +290,7 @@ const autocompleteInput = (index) => {
         <table class="table input-table mb-0">
           <tr>
             <th>Buyer Group</th>
-            <td :class="{'pb-0' : !isForm}">
+            <td :class="{ 'pb-0': !isForm }">
               <Multiselect
                 v-if="isForm"
                 v-model="form.buyer_group"
@@ -273,8 +300,14 @@ const autocompleteInput = (index) => {
                 :create-option="true"
                 :options="getCategoriesDropDownByType(categories, 'buyer-group')"
               />
-              <ul class="p-0" v-else-if="getCategoriesByType(user.categories, 'buyer-group').length">
-                <li v-for="category in getCategoriesByType(user.categories, 'buyer-group')" :key="category.id">
+              <ul
+                class="p-0"
+                v-else-if="getCategoriesByType(user.categories, 'buyer-group').length"
+              >
+                <li
+                  v-for="category in getCategoriesByType(user.categories, 'buyer-group')"
+                  :key="category.id"
+                >
                   <a>{{ category.category?.name }}</a>
                 </li>
               </ul>
@@ -284,14 +317,19 @@ const autocompleteInput = (index) => {
           <tr>
             <th>Buyer</th>
             <td>
-              <TextInput v-if="isForm" v-model="form.buyer_name" :error="form.errors.buyer_name" type="text"/>
+              <TextInput
+                v-if="isForm"
+                v-model="form.buyer_name"
+                :error="form.errors.buyer_name"
+                type="text"
+              />
               <template v-else-if="user.buyer_name">{{ user.buyer_name }}</template>
               <template v-else>-</template>
             </td>
           </tr>
           <tr>
             <th>Unique Tags</th>
-            <td :class="{'pb-0' : !isForm}">
+            <td :class="{ 'pb-0': !isForm }">
               <Multiselect
                 v-if="isForm"
                 v-model="form.buyer_tags"
@@ -302,7 +340,9 @@ const autocompleteInput = (index) => {
                 :options="form.buyer_tags"
               />
               <ul class="p-0" v-else-if="user.buyer_tags">
-                <li v-for="tag in user.buyer_tags" :key="tag"><a>{{ tag }}</a></li>
+                <li v-for="tag in user.buyer_tags" :key="tag">
+                  <a>{{ tag }}</a>
+                </li>
               </ul>
               <template v-else>-</template>
             </td>
@@ -317,7 +357,7 @@ const autocompleteInput = (index) => {
         <table class="table input-table mb-0">
           <tr>
             <th>Grower Group</th>
-            <td :class="{'pb-0' : !isForm}">
+            <td :class="{ 'pb-0': !isForm }">
               <Multiselect
                 v-if="isForm"
                 v-model="form.grower_group"
@@ -327,8 +367,14 @@ const autocompleteInput = (index) => {
                 :create-option="true"
                 :options="getCategoriesDropDownByType(categories, 'grower-group')"
               />
-              <ul class="p-0" v-else-if="getCategoriesByType(user.categories, 'grower-group').length">
-                <li v-for="category in getCategoriesByType(user.categories, 'grower-group')" :key="category.id">
+              <ul
+                class="p-0"
+                v-else-if="getCategoriesByType(user.categories, 'grower-group').length"
+              >
+                <li
+                  v-for="category in getCategoriesByType(user.categories, 'grower-group')"
+                  :key="category.id"
+                >
                   <a>{{ category.category?.name }}</a>
                 </li>
               </ul>
@@ -338,14 +384,19 @@ const autocompleteInput = (index) => {
           <tr>
             <th>Grower</th>
             <td>
-              <TextInput v-if="isForm" v-model="form.grower_name" :error="form.errors.grower_name" type="text"/>
+              <TextInput
+                v-if="isForm"
+                v-model="form.grower_name"
+                :error="form.errors.grower_name"
+                type="text"
+              />
               <template v-else-if="user.grower_name">{{ user.grower_name }}</template>
               <template v-else>-</template>
             </td>
           </tr>
           <tr>
             <th>Unique Tags</th>
-            <td :class="{'pb-0' : !isForm}">
+            <td :class="{ 'pb-0': !isForm }">
               <Multiselect
                 v-if="isForm"
                 v-model="form.grower_tags"
@@ -356,7 +407,9 @@ const autocompleteInput = (index) => {
                 :options="form.grower_tags"
               />
               <ul class="p-0" v-else-if="user.grower_tags">
-                <li v-for="tag in user.grower_tags" :key="tag"><a>{{ tag }}</a></li>
+                <li v-for="tag in user.grower_tags" :key="tag">
+                  <a>{{ tag }}</a>
+                </li>
               </ul>
               <template v-else>-</template>
             </td>
@@ -421,11 +474,7 @@ const autocompleteInput = (index) => {
             </td>
           </tr>
         </table>
-        <div
-          v-if="form.paddocks.length <= 0"
-          class="text-center"
-          style="margin: 50px 0;"
-        >
+        <div v-if="form.paddocks.length <= 0" class="text-center" style="margin: 50px 0">
           No Records Found
         </div>
         <div v-if="isForm" class="d-flex justify-content-end mt-3">

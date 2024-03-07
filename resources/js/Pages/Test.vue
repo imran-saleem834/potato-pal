@@ -1,6 +1,6 @@
 <script setup>
-import { reactive, ref } from "vue";
-import { usePage } from "@inertiajs/vue3";
+import { reactive, ref } from 'vue';
+import { usePage } from '@inertiajs/vue3';
 
 const page = usePage();
 const channel = ref('BU1');
@@ -31,12 +31,12 @@ const deviceId = btoa(userAgent + additionalInfo);
 //   taskStatus: "Pending",
 // });
 const message = reactive({
-  seed: "",
-  bins: "",
+  seed: '',
+  bins: '',
   responseChannel: deviceId,
   staffID: '9',
   system: '1',
-  terminalCommand: "S",
+  terminalCommand: 'S',
 });
 
 const buttonClick = () => {
@@ -53,17 +53,17 @@ let pubnub;
 const setupPubNub = () => {
   // Update this block with your publish/subscribe keys
   pubnub = new PubNub({
-    publishKey: "pub-c-09c14f75-bf91-4ab3-898c-ab220acf76ce",
-    subscribeKey: "sub-c-a7835d02-324e-11e9-b681-be2e977db94e",
+    publishKey: 'pub-c-09c14f75-bf91-4ab3-898c-ab220acf76ce',
+    subscribeKey: 'sub-c-a7835d02-324e-11e9-b681-be2e977db94e',
     // userId: `${page.props.auth.user.id}`,
-    uuid: deviceId
+    uuid: deviceId,
   });
 
   const listener = {
     status: (statusEvent) => {
       console.log('statusEvent', statusEvent);
-      if (statusEvent.category === "PNConnectedCategory") {
-        console.log("Connected");
+      if (statusEvent.category === 'PNConnectedCategory') {
+        console.log('Connected');
       }
     },
     message: (messageEvent) => {
@@ -73,12 +73,12 @@ const setupPubNub = () => {
     },
     presence: (presenceEvent) => {
       // handle presence
-    }
+    },
   };
   pubnub.addListener(listener);
 
   pubnub.subscribe({
-    channels: [deviceId, 'BU2']
+    channels: [deviceId, 'BU2'],
   });
 };
 
@@ -89,10 +89,10 @@ const publishMessage = async (message) => {
     // channel: 'weighbridge', // 51
     channel: 'BU2', // System 1: 20, System 2: 20
     // channel: 'BU3', // System 1: 12-12, System 2: 36
-    message
+    message,
   };
   await pubnub.publish(publishPayload);
-}
+};
 
 // run after page is loaded
 window.onload = setupPubNub;
@@ -101,20 +101,32 @@ window.onload = setupPubNub;
 <template>
   <div>
     <div style="padding: 50px">
-      <br/>
-      <br/>
-      <button class="btn btn-primary" :class="{'btn-success' : channel === 'BU1'}" @click="() => channel = 'BU1'">
+      <br />
+      <br />
+      <button
+        class="btn btn-primary"
+        :class="{ 'btn-success': channel === 'BU1' }"
+        @click="() => (channel = 'BU1')"
+      >
         BU1
       </button>
-      <button class="btn btn-primary" :class="{'btn-success' : channel === 'BU2'}" @click="() => channel = 'BU2'">
+      <button
+        class="btn btn-primary"
+        :class="{ 'btn-success': channel === 'BU2' }"
+        @click="() => (channel = 'BU2')"
+      >
         BU2
       </button>
-      <button class="btn btn-primary" :class="{'btn-success' : channel === 'BU3'}" @click="() => channel = 'BU3'">
+      <button
+        class="btn btn-primary"
+        :class="{ 'btn-success': channel === 'BU3' }"
+        @click="() => (channel = 'BU3')"
+      >
         BU3
       </button>
-      <br/>
-      <br/>
-      <br/>
+      <br />
+      <br />
+      <br />
       <div>{{ message }}</div>
       <button @click="buttonClick">Send</button>
     </div>

@@ -1,7 +1,7 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
 import LogoutButton from '@/Components/LogoutButton.vue';
-import InstallConfirmedModal from "@/Components/InstallConfirmedModal.vue";
+import InstallConfirmedModal from '@/Components/InstallConfirmedModal.vue';
 
 // route('reports.show', 'label')
 // route('reports.show', 'dispatch')
@@ -19,13 +19,13 @@ const menus = [
 
 <template>
   <Head><title>Report</title></Head>
-  
+
   <div class="admin-access">
     <div class="container-fluid">
       <div class="d-flex d-md-none justify-content-between px-3 mobile-topbar">
         <Link :href="route('dashboard')"><i class="bi bi-chevron-compact-left"></i></Link>
         <div class="mt-1">
-          <LogoutButton/>
+          <LogoutButton />
         </div>
       </div>
       <Link :href="route('dashboard')" class="d-block text-center">
@@ -34,14 +34,10 @@ const menus = [
       <div class="admin-menu">
         <h5 class="ms-4">Report</h5>
         <div class="row">
-          <div
-            v-for="menu in menus"
-            :key="menu.image"
-            class="col-6 col-sm-2"
-          >
-            <div class="menu-icon" :class="{ 'opacity-50' : menu.route === '' }">
+          <div v-for="menu in menus" :key="menu.image" class="col-6 col-sm-2">
+            <div class="menu-icon" :class="{ 'opacity-50': menu.route === '' }">
               <Link :href="menu.route">
-                <img :src="`/images/${menu.image}`" :alt="menu.label">
+                <img :src="`/images/${menu.image}`" :alt="menu.label" />
                 <span>{{ menu.label }}</span>
               </Link>
             </div>

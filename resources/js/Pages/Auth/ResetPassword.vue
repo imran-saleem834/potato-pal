@@ -26,10 +26,7 @@ const submit = () => {
 
   <div class="login-section">
     <div class="container-fluid">
-      <LoginCard
-        type="reset-password"
-        @submit="submit"
-      >
+      <LoginCard type="reset-password" @submit="submit">
         <div class="mb-3 position-relative">
           <i class="bi bi-envelope form-control-feedback"></i>
           <input
@@ -38,10 +35,10 @@ const submit = () => {
             type="email"
             class="form-control custom-input"
             placeholder="shehar@next-x.com.au"
-            :class="{'is-invalid' : form.errors.email}"
+            :class="{ 'is-invalid': form.errors.email }"
             required
             autocomplete="username"
-          >
+          />
           <div v-if="form.errors.email" class="invalid-feedback">{{ form.errors.email }}</div>
         </div>
         <div class="mb-3 position-relative">
@@ -51,11 +48,11 @@ const submit = () => {
             v-model="form.password"
             type="password"
             class="form-control custom-input"
-            :class="{'is-invalid' : form.errors.password}"
+            :class="{ 'is-invalid': form.errors.password }"
             placeholder="***************"
             required
             autocomplete="new-password"
-          >
+          />
           <div v-if="form.errors.password" class="invalid-feedback">{{ form.errors.password }}</div>
         </div>
         <div class="mb-3 position-relative">
@@ -64,12 +61,12 @@ const submit = () => {
             id="password"
             v-model="form.password_confirmation"
             type="password"
-            :class="{'is-invalid' : form.errors.password_confirmation}"
+            :class="{ 'is-invalid': form.errors.password_confirmation }"
             class="form-control custom-input"
             placeholder="***************"
             required
             autocomplete="new-password"
-          >
+          />
           <div v-if="form.errors.password_confirmation" class="invalid-feedback">
             {{ form.errors.password_confirmation }}
           </div>
@@ -80,7 +77,7 @@ const submit = () => {
             value="Reset Password"
             class="btn btn-lg-red"
             :disabled="form.processing"
-          >
+          />
         </div>
       </LoginCard>
     </div>

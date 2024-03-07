@@ -1,12 +1,12 @@
 <script setup>
 import { ref, watch } from 'vue';
-import { router, useForm } from "@inertiajs/vue3";
+import { router, useForm } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import TopBar from '@/Components/TopBar.vue';
 import Details from '@/Pages/Receival/Details.vue';
-import LeftBar from "@/Components/LeftBar.vue";
-import { getCategoriesByType } from "@/helper.js";
-import { useToast } from "vue-toastification";
+import LeftBar from '@/Components/LeftBar.vue';
+import { getCategoriesByType } from '@/helper.js';
+import { useToast } from 'vue-toastification';
 import { useWindowSize } from 'vue-window-size';
 
 const toast = useToast();
@@ -18,7 +18,7 @@ const props = defineProps({
   users: Object,
   categories: Object,
   filters: Object,
-  errors: Object
+  errors: Object,
 });
 
 const duplicateForm = useForm({
@@ -36,7 +36,7 @@ const duplicateForm = useForm({
     chc_receival_docket_no: true,
     driver_name: true,
     comments: true,
-  }
+  },
 });
 
 const receival = ref(props.single || {});
@@ -47,12 +47,16 @@ const search = ref(props.filters.search);
 const duplicateReceival = ref(null);
 const details = ref(null);
 
-watch(() => props?.single,
+watch(
+  () => props?.single,
   (single) => {
-    if (Object.values(props.errors).length === undefined || Object.values(props.errors).length <= 0) {
+    if (
+      Object.values(props.errors).length === undefined ||
+      Object.values(props.errors).length <= 0
+    ) {
       receival.value = single || {};
     }
-  }
+  },
 );
 
 watch(search, (value) => {
@@ -60,13 +64,13 @@ watch(search, (value) => {
     route('receivals.index'),
     { search: value },
     { preserveState: true, preserveScroll: true },
-  )
+  );
 });
 
-const filter = (keyword) => search.value = keyword;
+const filter = (keyword) => (search.value = keyword);
 
 const getReceival = (id) => {
-  axios.get(route('receivals.show', id)).then(response => {
+  axios.get(route('receivals.show', id)).then((response) => {
     receival.value = response.data;
 
     setActiveTab(response.data.id);
@@ -82,19 +86,19 @@ const setActiveTab = (id) => {
 const setEdit = (id) => {
   edit.value = edit.value === id ? null : id;
   isNewRecord.value = false;
-}
+};
 
 const setNewRecord = () => {
   isNewRecord.value = true;
   edit.value = null;
   receival.value = {};
   activeTab.value = null;
-}
+};
 
 const showDuplicateModal = (receival) => {
   duplicateReceival.value = receival;
   duplicateForm.receival_id = receival.id;
-}
+};
 
 const duplicateRecord = () => {
   duplicateForm.post(route('receivals.duplicate', duplicateForm.receival_id), {
@@ -106,7 +110,7 @@ const duplicateRecord = () => {
       toast.success('The receival has been duplicated successfully!');
     },
   });
-}
+};
 
 const deleteReceival = (id) => {
   const form = useForm({});
@@ -117,7 +121,7 @@ const deleteReceival = (id) => {
       toast.success('The receival has been deleted successfully!');
     },
   });
-}
+};
 
 if (width.value > 991) {
   setActiveTab(receival.value?.id);
@@ -147,17 +151,23 @@ if (width.value > 991) {
     <!-- tab-section -->
     <div class="tab-section">
       <div class="row g-0">
-        <div class="col-12 col-lg-5 col-xl-4 nav-left d-lg-block" :class="{'d-none' : activeTab || isNewRecord}">
+        <div
+          class="col-12 col-lg-5 col-xl-4 nav-left d-lg-block"
+          :class="{ 'd-none': activeTab || isNewRecord }"
+        >
           <LeftBar
             :items="receivals.data"
             :links="receivals.links"
             :active-tab="activeTab"
-            :row-1="{title: 'Grower', value: 'grower.grower_name'}"
-            :row-2="{title: 'Receival Id', value: 'id'}"
+            :row-1="{ title: 'Grower', value: 'grower.grower_name' }"
+            :row-2="{ title: 'Receival Id', value: 'id' }"
             @click="getReceival"
           />
         </div>
-        <div class="col-12 col-lg-7 col-xl-8 d-lg-block" :class="{'d-none': !activeTab && !isNewRecord}">
+        <div
+          class="col-12 col-lg-7 col-xl-8 d-lg-block"
+          :class="{ 'd-none': !activeTab && !isNewRecord }"
+        >
           <div class="tab-content" v-if="Object.values(receival).length > 0 || isNewRecord">
             <Details
               ref="details"
@@ -173,7 +183,7 @@ if (width.value > 991) {
             />
           </div>
           <div v-if="Object.values(receival).length <= 0 && !isNewRecord">
-            <p class="w-100 text-center" style="margin-top: calc(50vh - 120px);">No Records Found</p>
+            <p class="w-100 text-center" style="margin-top: calc(50vh - 120px)">No Records Found</p>
           </div>
         </div>
       </div>
@@ -185,7 +195,12 @@ if (width.value > 991) {
         <div class="modal-content">
           <div class="modal-header">
             <h1 class="modal-title fs-5" id="exampleModalLabel">Duplicate</h1>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
           </div>
           <div class="modal-body">
             <div class="tab-section">
@@ -197,27 +212,44 @@ if (width.value > 991) {
                       <template v-if="duplicateReceival[input]">
                         <li class="mb-2">
                           <button
-                            @click="() => duplicateForm.inputs[input] = !duplicateForm.inputs[input]"
+                            @click="
+                              () => (duplicateForm.inputs[input] = !duplicateForm.inputs[input])
+                            "
                             :class="duplicateForm.inputs[input] ? 'btn btn-black' : 'btn btn-dark'"
                           >
-                            <template v-if="input === 'paddocks'">{{ duplicateReceival[input][0] }}</template>
+                            <template v-if="input === 'paddocks'">{{
+                              duplicateReceival[input][0]
+                            }}</template>
                             <template v-else>{{ duplicateReceival[input] }}</template>
                           </button>
                         </li>
                       </template>
                       <template
-                        v-else-if="getCategoriesByType(duplicateReceival.categories, input.replaceAll('_', '-')).length"
+                        v-else-if="
+                          getCategoriesByType(
+                            duplicateReceival.categories,
+                            input.replaceAll('_', '-'),
+                          ).length
+                        "
                       >
                         <li class="mb-2">
                           <button
-                            @click="() => duplicateForm.inputs[input] = !duplicateForm.inputs[input]"
+                            @click="
+                              () => (duplicateForm.inputs[input] = !duplicateForm.inputs[input])
+                            "
                             :class="duplicateForm.inputs[input] ? 'btn btn-black' : 'btn btn-dark'"
                           >
                             <template
-                              v-for="(category, key) in getCategoriesByType(duplicateReceival.categories, input.replaceAll('_', '-'))"
+                              v-for="(category, key) in getCategoriesByType(
+                                duplicateReceival.categories,
+                                input.replaceAll('_', '-'),
+                              )"
                               :key="category.id"
                             >
-                              <template v-if="key > 0 && ['delivery_type', 'transport'].includes(input)">,</template>
+                              <template
+                                v-if="key > 0 && ['delivery_type', 'transport'].includes(input)"
+                                >,</template
+                              >
                               {{ category.category.name }}
                             </template>
                           </button>
@@ -231,7 +263,14 @@ if (width.value > 991) {
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-red" data-bs-dismiss="modal" @click="duplicateRecord">Create</button>
+            <button
+              type="button"
+              class="btn btn-red"
+              data-bs-dismiss="modal"
+              @click="duplicateRecord"
+            >
+              Create
+            </button>
           </div>
         </div>
       </div>

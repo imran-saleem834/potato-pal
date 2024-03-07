@@ -3,9 +3,9 @@ import { ref, watch } from 'vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import TopBar from '@/Components/TopBar.vue';
 import Details from '@/Pages/Unload/Details.vue';
-import LeftBar from "@/Components/LeftBar.vue";
-import { router, useForm } from "@inertiajs/vue3";
-import { useToast } from "vue-toastification";
+import LeftBar from '@/Components/LeftBar.vue';
+import { router, useForm } from '@inertiajs/vue3';
+import { useToast } from 'vue-toastification';
 import { useWindowSize } from 'vue-window-size';
 
 const toast = useToast();
@@ -16,7 +16,7 @@ const props = defineProps({
   single: Object,
   categories: Array,
   filters: Object,
-  errors: Object
+  errors: Object,
 });
 
 const receival = ref(props.single || {});
@@ -25,12 +25,16 @@ const edit = ref(null);
 const search = ref(props.filters.search);
 const details = ref(null);
 
-watch(() => props?.single,
+watch(
+  () => props?.single,
   (single) => {
-    if (Object.values(props.errors).length === undefined || Object.values(props.errors).length <= 0) {
+    if (
+      Object.values(props.errors).length === undefined ||
+      Object.values(props.errors).length <= 0
+    ) {
       receival.value = single || {};
     }
-  }
+  },
 );
 
 watch(search, (value) => {
@@ -38,13 +42,13 @@ watch(search, (value) => {
     route('unloading.index'),
     { search: value },
     { preserveState: true, preserveScroll: true },
-  )
+  );
 });
 
-const filter = (keyword) => search.value = keyword;
+const filter = (keyword) => (search.value = keyword);
 
 const getUnload = (id) => {
-  axios.get(route('unloading.show', id)).then(response => {
+  axios.get(route('unloading.show', id)).then((response) => {
     receival.value = response.data;
 
     setActiveTab(response.data.id);
@@ -58,7 +62,7 @@ const setActiveTab = (id) => {
 
 const setEdit = (id) => {
   edit.value = edit.value === id ? null : id;
-}
+};
 
 const deleteUnload = (id) => {
   const form = useForm({});
@@ -69,7 +73,7 @@ const deleteUnload = (id) => {
       toast.success('The unload has been deleted successfully!');
     },
   });
-}
+};
 
 if (width.value > 991) {
   setActiveTab(receival.value?.id);
@@ -96,30 +100,30 @@ if (width.value > 991) {
 
     <div class="tab-section">
       <div class="row g-0">
-        <div class="col-12 col-lg-5 col-xl-4 nav-left d-lg-block" :class="{'d-none' : activeTab}">
+        <div class="col-12 col-lg-5 col-xl-4 nav-left d-lg-block" :class="{ 'd-none': activeTab }">
           <LeftBar
             :items="receivals.data"
             :links="receivals.links"
             :active-tab="activeTab"
-            :row-1="{title: 'Grower', value: 'grower.grower_name'}"
-            :row-2="{title: 'Receival Id', value: 'id'}"
+            :row-1="{ title: 'Grower', value: 'grower.grower_name' }"
+            :row-2="{ title: 'Receival Id', value: 'id' }"
             @click="getUnload"
           />
         </div>
-        <div class="col-12 col-lg-7 col-xl-8 d-lg-block" :class="{'d-none': !activeTab}">
+        <div class="col-12 col-lg-7 col-xl-8 d-lg-block" :class="{ 'd-none': !activeTab }">
           <div class="tab-content" v-if="Object.values(receival).length > 0">
-              <Details
-                ref="details"
-                :receival="receival"
-                :categories="categories"
-                :is-edit="!!edit"
-                @update="() => getUnload(activeTab)"
-                @create="() => setActiveTab(receival?.id)"
-                col-size="col-12 col-xl-6"
-              />
+            <Details
+              ref="details"
+              :receival="receival"
+              :categories="categories"
+              :is-edit="!!edit"
+              @update="() => getUnload(activeTab)"
+              @create="() => setActiveTab(receival?.id)"
+              col-size="col-12 col-xl-6"
+            />
           </div>
           <div class="col-sm-12" v-if="Object.values(receival).length <= 0">
-            <p class="text-center" style="margin-top: calc(50vh - 120px);">No Records Found</p>
+            <p class="text-center" style="margin-top: calc(50vh - 120px)">No Records Found</p>
           </div>
         </div>
         <div class="clearfix"></div>

@@ -1,11 +1,11 @@
 <script setup>
 import { ref } from 'vue';
-import { Link } from "@inertiajs/vue3";
+import { Link } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import TopBar from '@/Components/TopBar.vue';
-import { useToast } from "vue-toastification";
+import { useToast } from 'vue-toastification';
 import { useWindowSize } from 'vue-window-size';
-import Form from "@/Pages/Report/Form.vue";
+import Form from '@/Pages/Report/Form.vue';
 
 const toast = useToast();
 const { width, height } = useWindowSize();
@@ -38,7 +38,9 @@ const reportForm = ref(null);
           </li>
           <li><i class="bi bi-chevron-right"></i></li>
           <li>
-            <Link :href="route('reports.index')"><span class="fa fa-arrow-left"></span> Reports</Link>
+            <Link :href="route('reports.index')">
+              <span class="fa fa-arrow-left"></span> Reports
+            </Link>
           </li>
           <li><i class="bi bi-chevron-right"></i></li>
           <li>

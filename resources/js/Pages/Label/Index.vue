@@ -1,11 +1,11 @@
 <script setup>
 import { ref, watch } from 'vue';
-import { router, useForm } from "@inertiajs/vue3";
+import { router, useForm } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import TopBar from '@/Components/TopBar.vue';
 import Details from '@/Pages/Label/Details.vue';
-import LeftBar from "@/Components/LeftBar.vue";
-import { useToast } from "vue-toastification";
+import LeftBar from '@/Components/LeftBar.vue';
+import { useToast } from 'vue-toastification';
 import { useWindowSize } from 'vue-window-size';
 
 const toast = useToast();
@@ -19,7 +19,7 @@ const props = defineProps({
   reallocations: Object,
   receivals: Object,
   filters: Object,
-  errors: Object
+  errors: Object,
 });
 
 const label = ref(props.single || {});
@@ -29,12 +29,16 @@ const isNewRecord = ref(false);
 const search = ref(props.filters.search);
 const details = ref(null);
 
-watch(() => props?.single,
+watch(
+  () => props?.single,
   (single) => {
-    if (Object.values(props.errors).length === undefined || Object.values(props.errors).length <= 0) {
+    if (
+      Object.values(props.errors).length === undefined ||
+      Object.values(props.errors).length <= 0
+    ) {
       label.value = single || {};
     }
-  }
+  },
 );
 
 watch(search, (value) => {
@@ -42,13 +46,13 @@ watch(search, (value) => {
     route('labels.index'),
     { search: value },
     { preserveState: true, preserveScroll: true },
-  )
+  );
 });
 
-const filter = (keyword) => search.value = keyword;
+const filter = (keyword) => (search.value = keyword);
 
 const getLabel = (id) => {
-  axios.get(route('labels.show', id)).then(response => {
+  axios.get(route('labels.show', id)).then((response) => {
     label.value = response.data;
 
     setActiveTab(response.data.id);
@@ -64,14 +68,14 @@ const setActiveTab = (id) => {
 const setEdit = (id) => {
   edit.value = edit.value === id ? null : id;
   isNewRecord.value = false;
-}
+};
 
 const setNewRecord = () => {
   isNewRecord.value = true;
   edit.value = null;
   label.value = {};
   activeTab.value = null;
-}
+};
 
 const deleteLabel = (id) => {
   const form = useForm({});
@@ -82,7 +86,7 @@ const deleteLabel = (id) => {
       toast.success('The label has been deleted successfully!');
     },
   });
-}
+};
 
 if (width.value > 991) {
   setActiveTab(label.value?.id);
@@ -111,17 +115,23 @@ if (width.value > 991) {
 
     <div class="tab-section">
       <div class="row g-0">
-        <div class="col-12 col-lg-5 col-xl-4 nav-left d-lg-block" :class="{'d-none' : activeTab || isNewRecord}">
+        <div
+          class="col-12 col-lg-5 col-xl-4 nav-left d-lg-block"
+          :class="{ 'd-none': activeTab || isNewRecord }"
+        >
           <LeftBar
             :items="labels.data"
             :links="labels.links"
             :active-tab="activeTab"
-            :row-1="{title: 'Ex Grower', value: 'grower.grower_name'}"
-            :row-2="{title: 'Label Id', value: 'id'}"
+            :row-1="{ title: 'Ex Grower', value: 'grower.grower_name' }"
+            :row-2="{ title: 'Label Id', value: 'id' }"
             @click="getLabel"
           />
         </div>
-        <div class="col-12 col-lg-7 col-xl-8 d-lg-block" :class="{'d-none': !activeTab && !isNewRecord}">
+        <div
+          class="col-12 col-lg-7 col-xl-8 d-lg-block"
+          :class="{ 'd-none': !activeTab && !isNewRecord }"
+        >
           <div class="tab-content" v-if="Object.values(label).length > 0 || isNewRecord">
             <Details
               ref="details"
@@ -139,7 +149,7 @@ if (width.value > 991) {
             />
           </div>
           <div v-if="Object.values(label).length <= 0 && !isNewRecord">
-            <p class="w-100 text-center" style="margin-top: calc(50vh - 120px);">No Records Found</p>
+            <p class="w-100 text-center" style="margin-top: calc(50vh - 120px)">No Records Found</p>
           </div>
         </div>
       </div>

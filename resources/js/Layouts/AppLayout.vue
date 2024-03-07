@@ -1,6 +1,6 @@
 <script setup>
 import { Head, router } from '@inertiajs/vue3';
-import InstallConfirmedModal from "@/Components/InstallConfirmedModal.vue";
+import InstallConfirmedModal from '@/Components/InstallConfirmedModal.vue';
 
 defineProps({
   title: String,
@@ -12,7 +12,9 @@ const logout = () => {
 </script>
 
 <template>
-  <Head><title>{{ title }}</title></Head>
+  <Head>
+    <title>{{ title }}</title>
+  </Head>
 
   <slot />
 

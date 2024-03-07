@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from "vue";
+import { computed } from 'vue';
 
 defineEmits(['click']);
 
@@ -24,11 +24,11 @@ const props = defineProps({
 
 const clickable = computed(() => {
   return props.isForm ? 'btn' : 'btn not-clickable';
-})
+});
 </script>
 
 <template>
-  <ul class="p-0" :class="{'is-invalid' : error}">
+  <ul class="p-0" :class="{ 'is-invalid': error }">
     <li v-for="item in items" :key="item.value">
       <button
         @click="isForm && $emit('click', item.value)"

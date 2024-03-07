@@ -1,11 +1,11 @@
 <script setup>
 import { ref, watch } from 'vue';
-import { router, useForm } from "@inertiajs/vue3";
+import { router, useForm } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import TopBar from '@/Components/TopBar.vue';
 import Details from '@/Pages/Grade/Details.vue';
-import LeftBar from "@/Components/LeftBar.vue";
-import { useToast } from "vue-toastification";
+import LeftBar from '@/Components/LeftBar.vue';
+import { useToast } from 'vue-toastification';
 import { useWindowSize } from 'vue-window-size';
 
 const toast = useToast();
@@ -17,7 +17,7 @@ const props = defineProps({
   unloads: Object,
   categories: Object,
   filters: Object,
-  errors: Object
+  errors: Object,
 });
 
 const grade = ref(props.single || {});
@@ -27,12 +27,16 @@ const isNewRecord = ref(false);
 const search = ref(props.filters.search);
 const details = ref(null);
 
-watch(() => props?.single,
+watch(
+  () => props?.single,
   (single) => {
-    if (Object.values(props.errors).length === undefined || Object.values(props.errors).length <= 0) {
+    if (
+      Object.values(props.errors).length === undefined ||
+      Object.values(props.errors).length <= 0
+    ) {
       grade.value = single || {};
     }
-  }
+  },
 );
 
 watch(search, (value) => {
@@ -40,13 +44,13 @@ watch(search, (value) => {
     route('gradings.index'),
     { search: value },
     { preserveState: true, preserveScroll: true },
-  )
+  );
 });
 
-const filter = (keyword) => search.value = keyword;
+const filter = (keyword) => (search.value = keyword);
 
 const getGrade = (id) => {
-  axios.get(route('gradings.show', id)).then(response => {
+  axios.get(route('gradings.show', id)).then((response) => {
     grade.value = response.data;
 
     setActiveTab(response.data.id);
@@ -62,14 +66,14 @@ const setActiveTab = (id) => {
 const setEdit = (id) => {
   edit.value = edit.value === id ? null : id;
   isNewRecord.value = false;
-}
+};
 
 const setNewRecord = () => {
   isNewRecord.value = true;
   edit.value = null;
   grade.value = {};
   activeTab.value = null;
-}
+};
 
 const deleteGrade = (id) => {
   const form = useForm({});
@@ -80,7 +84,7 @@ const deleteGrade = (id) => {
       toast.success('The grade has been deleted successfully!');
     },
   });
-}
+};
 
 if (width.value > 991) {
   setActiveTab(grade.value?.id);
@@ -107,17 +111,23 @@ if (width.value > 991) {
 
     <div class="tab-section">
       <div class="row g-0">
-        <div class="col-12 col-lg-5 col-xl-4 nav-left d-lg-block" :class="{'d-none' : activeTab || isNewRecord}">
+        <div
+          class="col-12 col-lg-5 col-xl-4 nav-left d-lg-block"
+          :class="{ 'd-none': activeTab || isNewRecord }"
+        >
           <LeftBar
             :items="grades.data"
             :links="grades.links"
             :active-tab="activeTab"
-            :row-1="{title: 'Grower', value: 'unload.receival.grower.grower_name'}"
-            :row-2="{title: 'Grade Id', value: 'id'}"
+            :row-1="{ title: 'Grower', value: 'unload.receival.grower.grower_name' }"
+            :row-2="{ title: 'Grade Id', value: 'id' }"
             @click="getGrade"
           />
         </div>
-        <div class="col-12 col-lg-7 col-xl-8 d-lg-block" :class="{'d-none': !activeTab && !isNewRecord}">
+        <div
+          class="col-12 col-lg-7 col-xl-8 d-lg-block"
+          :class="{ 'd-none': !activeTab && !isNewRecord }"
+        >
           <div class="tab-content" v-if="Object.values(grade).length > 0 || isNewRecord">
             <Details
               ref="details"
@@ -133,7 +143,7 @@ if (width.value > 991) {
             />
           </div>
           <div v-if="Object.values(grade).length <= 0 && !isNewRecord">
-            <p class="w-100 text-center" style="margin-top: calc(50vh - 120px);">No Records Found</p>
+            <p class="w-100 text-center" style="margin-top: calc(50vh - 120px)">No Records Found</p>
           </div>
         </div>
       </div>

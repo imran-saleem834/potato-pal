@@ -1,11 +1,11 @@
 <script setup>
 import { onMounted, ref, watchEffect } from 'vue';
-import Multiselect from '@vueform/multiselect'
-import { router, Link } from "@inertiajs/vue3";
+import Multiselect from '@vueform/multiselect';
+import { router, Link } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import TopBar from '@/Components/TopBar.vue';
 
-import DataTable from "datatables.net-vue3";
+import DataTable from 'datatables.net-vue3';
 // import DataTablesCore from 'datatables.net';
 import DataTablesCore from 'datatables.net-bs5';
 import 'datatables.net-responsive';
@@ -29,18 +29,18 @@ watchEffect(async () => {
     columns.value = module.default;
     visibleColumns.value = columns.value.map((c, index) => index);
   } catch (error) {
-    console.error("Error loading columns:", error);
+    console.error('Error loading columns:', error);
   }
 });
 
 const table = ref(null);
 const onChangeVisibleColumns = (targetVisibleColumns) => {
-  columns.value.forEach((c, index) => table.value.dt.column(index).visible(false))
+  columns.value.forEach((c, index) => table.value.dt.column(index).visible(false));
   targetVisibleColumns.forEach((columnIdx) => {
     let column = table.value.dt.column(columnIdx);
     column.visible(true);
   });
-}
+};
 
 onMounted(() => {
   setupInertiaLinks();
@@ -48,7 +48,7 @@ onMounted(() => {
 
 const setupInertiaLinks = () => {
   const tableContainer = document.querySelectorAll('.inertia-link');
-  tableContainer.forEach(el => {
+  tableContainer.forEach((el) => {
     el.addEventListener('click', (event) => {
       const url = event.target.getAttribute('href');
       if (!url) return;
@@ -57,7 +57,7 @@ const setupInertiaLinks = () => {
       router.visit(url);
     });
   });
-}
+};
 </script>
 
 <template>
@@ -66,7 +66,7 @@ const setupInertiaLinks = () => {
       :type="report?.name"
       :title="report?.name"
       :active-tab="report.id"
-      :access="{ search : false, new: false, delete: false }"
+      :access="{ search: false, new: false, delete: false }"
       @edit="router.visit(route('reports.edit', report.id))"
     >
       <template #back>
@@ -79,7 +79,9 @@ const setupInertiaLinks = () => {
           </li>
           <li><i class="bi bi-chevron-right"></i></li>
           <li>
-            <Link :href="route('reports.index')"><span class="fa fa-arrow-left"></span> Reports</Link>
+            <Link :href="route('reports.index')">
+              <span class="fa fa-arrow-left"></span> Reports
+            </Link>
           </li>
           <li><i class="bi bi-chevron-right"></i></li>
           <li>
@@ -98,7 +100,7 @@ const setupInertiaLinks = () => {
         <div class="user-boxes">
           <table class="table mb-0">
             <tr>
-              <th>Visible Columns: </th>
+              <th>Visible Columns:</th>
               <td>
                 <Multiselect
                   v-model="visibleColumns"
@@ -106,9 +108,11 @@ const setupInertiaLinks = () => {
                   placeholder="Choose a columns"
                   :searchable="true"
                   @change="onChangeVisibleColumns"
-                  :options="columns.map((column, index) => {
-                    return { 'value': index, 'label': column.title }
-                  })"
+                  :options="
+                    columns.map((column, index) => {
+                      return { value: index, label: column.title };
+                    })
+                  "
                 />
               </td>
             </tr>
@@ -126,14 +130,14 @@ const setupInertiaLinks = () => {
         </div>
       </div>
       <div v-else>
-        <div class="w-100 text-center" style="margin-top: calc(50vh - 120px);">
+        <div class="w-100 text-center" style="margin-top: calc(50vh - 120px)">
           <div class="spinner-border" role="status">
             <span class="visually-hidden">Loading...</span>
           </div>
         </div>
       </div>
       <div v-if="Object.values(report.data).length <= 0">
-        <p class="w-100 text-center" style="margin-top: calc(50vh - 120px);">No Records Found</p>
+        <p class="w-100 text-center" style="margin-top: calc(50vh - 120px)">No Records Found</p>
       </div>
     </div>
   </AppLayout>

@@ -1,11 +1,11 @@
 <script setup>
-import { computed } from "vue";
-import { usePage, useForm } from "@inertiajs/vue3";
+import { computed } from 'vue';
+import { usePage, useForm } from '@inertiajs/vue3';
 import Multiselect from '@vueform/multiselect';
-import { useToast } from "vue-toastification";
-import { binSizes } from "@/const.js";
-import TextInput from "@/Components/TextInput.vue";
-import { getDropDownOptions, getCategoriesDropDownByType } from "@/helper.js";
+import { useToast } from 'vue-toastification';
+import { binSizes } from '@/const.js';
+import TextInput from '@/Components/TextInput.vue';
+import { getDropDownOptions, getCategoriesDropDownByType } from '@/helper.js';
 
 const page = usePage();
 const toast = useToast();
@@ -49,7 +49,7 @@ const form = useForm({
     systems: props.report.filters?.systems,
     buyer_ids: props.report.filters?.buyer_ids,
     allocation_buyer_ids: props.report.filters?.allocation_buyer_ids,
-  }
+  },
 });
 
 const isReceivalForm = computed(() => page.props.type === 'receival');
@@ -69,7 +69,7 @@ const updateRecord = () => {
       toast.success('The report has been updated successfully!');
     },
   });
-}
+};
 
 const storeRecord = () => {
   form.post(route('reports.store'), {
@@ -80,11 +80,11 @@ const storeRecord = () => {
       toast.success('The report has been created successfully!');
     },
   });
-}
+};
 
 defineExpose({
   updateRecord,
-  storeRecord
+  storeRecord,
 });
 </script>
 
@@ -112,7 +112,7 @@ defineExpose({
                 mode="tags"
                 placeholder="Choose a growers"
                 :searchable="true"
-                :class="{'is-invalid' : form.errors['filters.grower_ids']}"
+                :class="{ 'is-invalid': form.errors['filters.grower_ids'] }"
                 :options="getDropDownOptions(page.props.growers, true)"
               />
               <div v-if="form.errors['filters.grower_ids']" class="invalid-feedback">
@@ -128,7 +128,7 @@ defineExpose({
                 mode="tags"
                 placeholder="Choose a grower group"
                 :searchable="true"
-                :class="{'is-invalid' : form.errors['filters.grower_groups']}"
+                :class="{ 'is-invalid': form.errors['filters.grower_groups'] }"
                 :options="getCategoriesDropDownByType(page.props.categories, 'grower-group')"
               />
               <div v-if="form.errors['filters.grower_groups']" class="invalid-feedback">
@@ -144,10 +144,15 @@ defineExpose({
                 mode="tags"
                 placeholder="Choose a paddocks"
                 :searchable="true"
-                :class="{'is-invalid' : form.errors['filters.paddocks']}"
-                :options="(page.props.growers || []).map(grower => grower.paddocks).flat().map(item => {
-                    return { 'value': item.name, 'label': item.name };
-                  })"
+                :class="{ 'is-invalid': form.errors['filters.paddocks'] }"
+                :options="
+                  (page.props.growers || [])
+                    .map((grower) => grower.paddocks)
+                    .flat()
+                    .map((item) => {
+                      return { value: item.name, label: item.name };
+                    })
+                "
               />
               <div v-if="form.errors['filters.paddocks']" class="invalid-feedback">
                 {{ form.errors['filters.paddocks'] }}
@@ -195,7 +200,7 @@ defineExpose({
                 mode="tags"
                 placeholder="Choose a seed varieties"
                 :searchable="true"
-                :class="{'is-invalid' : form.errors['filters.seed_varieties']}"
+                :class="{ 'is-invalid': form.errors['filters.seed_varieties'] }"
                 :options="getCategoriesDropDownByType(page.props.categories, 'seed-variety')"
               />
               <div v-if="form.errors['filters.seed_varieties']" class="invalid-feedback">
@@ -211,7 +216,7 @@ defineExpose({
                 mode="tags"
                 placeholder="Choose a seed generations"
                 :searchable="true"
-                :class="{'is-invalid' : form.errors['filters.seed_generations']}"
+                :class="{ 'is-invalid': form.errors['filters.seed_generations'] }"
                 :options="getCategoriesDropDownByType(page.props.categories, 'seed-generation')"
               />
               <div v-if="form.errors['filters.seed_generations']" class="invalid-feedback">
@@ -227,7 +232,7 @@ defineExpose({
                 mode="tags"
                 placeholder="Choose a seed classes"
                 :searchable="true"
-                :class="{'is-invalid' : form.errors['filters.seed_classes']}"
+                :class="{ 'is-invalid': form.errors['filters.seed_classes'] }"
                 :options="getCategoriesDropDownByType(page.props.categories, 'seed-class')"
               />
               <div v-if="form.errors['filters.seed_classes']" class="invalid-feedback">
@@ -243,7 +248,7 @@ defineExpose({
                 mode="tags"
                 placeholder="Choose a transports"
                 :searchable="true"
-                :class="{'is-invalid' : form.errors['filters.transports']}"
+                :class="{ 'is-invalid': form.errors['filters.transports'] }"
                 :options="getCategoriesDropDownByType(page.props.categories, 'transport')"
               />
               <div v-if="form.errors['filters.transports']" class="invalid-feedback">
@@ -259,7 +264,7 @@ defineExpose({
                 mode="tags"
                 placeholder="Choose a delivery types"
                 :searchable="true"
-                :class="{'is-invalid' : form.errors['filters.delivery_types']}"
+                :class="{ 'is-invalid': form.errors['filters.delivery_types'] }"
                 :options="getCategoriesDropDownByType(page.props.categories, 'delivery-type')"
               />
               <div v-if="form.errors['filters.delivery_types']" class="invalid-feedback">
@@ -275,7 +280,7 @@ defineExpose({
                 mode="tags"
                 placeholder="Choose a cool stores"
                 :searchable="true"
-                :class="{'is-invalid' : form.errors['filters.cool_stores']}"
+                :class="{ 'is-invalid': form.errors['filters.cool_stores'] }"
                 :options="getCategoriesDropDownByType(page.props.categories, 'cool-store')"
               />
               <div v-if="form.errors['filters.cool_stores']" class="invalid-feedback">
@@ -285,7 +290,7 @@ defineExpose({
           </tr>
         </table>
       </div>
-      
+
       <h4 v-if="isUnloadForm">Unload Filter</h4>
       <div v-if="isUnloadForm" class="user-boxes">
         <table class="table input-table mb-0">
@@ -297,7 +302,7 @@ defineExpose({
                 mode="tags"
                 placeholder="Choose a seed types"
                 :searchable="true"
-                :class="{'is-invalid' : form.errors['filters.seed_types']}"
+                :class="{ 'is-invalid': form.errors['filters.seed_types'] }"
                 :options="getCategoriesDropDownByType(page.props.categories, 'seed-type')"
               />
               <div v-if="form.errors['filters.seed_types']" class="invalid-feedback">
@@ -313,7 +318,7 @@ defineExpose({
                 mode="tags"
                 placeholder="Choose a fungicides"
                 :searchable="true"
-                :class="{'is-invalid' : form.errors['filters.fungicides']}"
+                :class="{ 'is-invalid': form.errors['filters.fungicides'] }"
                 :options="getCategoriesDropDownByType(page.props.categories, 'fungicide')"
               />
               <div v-if="form.errors['filters.fungicides']" class="invalid-feedback">
@@ -329,7 +334,7 @@ defineExpose({
                 mode="tags"
                 placeholder="Choose a channels"
                 :searchable="true"
-                :class="{'is-invalid' : form.errors['filters.channels']}"
+                :class="{ 'is-invalid': form.errors['filters.channels'] }"
                 :options="[
                   { value: 'weighbridge', label: 'BU1' },
                   { value: 'BU2', label: 'BU2' },
@@ -349,7 +354,7 @@ defineExpose({
                 mode="tags"
                 placeholder="Choose a bin sizes"
                 :searchable="true"
-                :class="{'is-invalid' : form.errors['filters.bin_sizes']}"
+                :class="{ 'is-invalid': form.errors['filters.bin_sizes'] }"
                 :options="binSizes"
               />
               <div v-if="form.errors['filters.bin_sizes']" class="invalid-feedback">
@@ -365,10 +370,10 @@ defineExpose({
                 mode="tags"
                 placeholder="Choose a systems"
                 :searchable="true"
-                :class="{'is-invalid' : form.errors['filters.systems']}"
-                :options="[ 
-                  { value: 1, label: 'System 1' }, 
-                  { value: 2, label: 'System 2' } 
+                :class="{ 'is-invalid': form.errors['filters.systems'] }"
+                :options="[
+                  { value: 1, label: 'System 1' },
+                  { value: 2, label: 'System 2' },
                 ]"
               />
               <div v-if="form.errors['filters.systems']" class="invalid-feedback">
@@ -378,7 +383,7 @@ defineExpose({
           </tr>
         </table>
       </div>
-      
+
       <h4 v-if="isTiaSampleForm">Tia Sample Filter</h4>
       <div v-if="isTiaSampleForm" class="user-boxes">
         <table class="table input-table mb-0">
@@ -390,7 +395,7 @@ defineExpose({
                 mode="tags"
                 placeholder="Choose a processor"
                 :searchable="true"
-                :class="{'is-invalid' : form.errors['filters.processor']}"
+                :class="{ 'is-invalid': form.errors['filters.processor'] }"
                 :options="binSizes"
               />
               <div v-if="form.errors['filters.processor']" class="invalid-feedback">
@@ -406,11 +411,11 @@ defineExpose({
                 mode="tags"
                 placeholder="Choose a size"
                 :searchable="true"
-                :class="{'is-invalid' : form.errors['filters.size']}"
+                :class="{ 'is-invalid': form.errors['filters.size'] }"
                 :options="[
-                  { value: '35-350g', label: '35 - 350g'},
-                  { value: '90mm', label: '90mm'},
-                  { value: '70mm', label: '70mm'},
+                  { value: '35-350g', label: '35 - 350g' },
+                  { value: '90mm', label: '90mm' },
+                  { value: '70mm', label: '70mm' },
                 ]"
               />
               <div v-if="form.errors['filters.size']" class="invalid-feedback">
@@ -426,7 +431,7 @@ defineExpose({
                 mode="tags"
                 placeholder="Choose a disease scoring"
                 :searchable="true"
-                :class="{'is-invalid' : form.errors['filters.disease_scoring']}"
+                :class="{ 'is-invalid': form.errors['filters.disease_scoring'] }"
                 :options="[1, 2, 3, 4, 5, 6]"
               />
               <div v-if="form.errors['filters.disease_scoring']" class="invalid-feedback">
@@ -436,9 +441,14 @@ defineExpose({
           </tr>
         </table>
       </div>
-      
-      <h4 v-if="isAllocationForm || isReallocationForm || isCuttingForm || isDispatchForm">Buyer Filter</h4>
-      <div v-if="isAllocationForm || isReallocationForm || isCuttingForm || isDispatchForm" class="user-boxes">
+
+      <h4 v-if="isAllocationForm || isReallocationForm || isCuttingForm || isDispatchForm">
+        Buyer Filter
+      </h4>
+      <div
+        v-if="isAllocationForm || isReallocationForm || isCuttingForm || isDispatchForm"
+        class="user-boxes"
+      >
         <table class="table input-table mb-0">
           <tr>
             <th>Buyers</th>
@@ -448,7 +458,7 @@ defineExpose({
                 mode="tags"
                 placeholder="Choose a buyers"
                 :searchable="true"
-                :class="{'is-invalid' : form.errors['filters.buyer_ids']}"
+                :class="{ 'is-invalid': form.errors['filters.buyer_ids'] }"
                 :options="getDropDownOptions(page.props.buyers, false, true)"
               />
               <div v-if="form.errors['filters.buyer_ids']" class="invalid-feedback">
@@ -464,7 +474,7 @@ defineExpose({
                 mode="tags"
                 placeholder="Choose a fungicides"
                 :searchable="true"
-                :class="{'is-invalid' : form.errors['filters.fungicides']}"
+                :class="{ 'is-invalid': form.errors['filters.fungicides'] }"
                 :options="getCategoriesDropDownByType(page.props.categories, 'fungicide')"
               />
               <div v-if="form.errors['filters.fungicides']" class="invalid-feedback">
@@ -480,7 +490,7 @@ defineExpose({
                 mode="tags"
                 placeholder="Choose a buyers"
                 :searchable="true"
-                :class="{'is-invalid' : form.errors['filters.allocation_buyer_ids']}"
+                :class="{ 'is-invalid': form.errors['filters.allocation_buyer_ids'] }"
                 :options="getDropDownOptions(page.props.buyers, false, true)"
               />
               <div v-if="form.errors['filters.allocation_buyer_ids']" class="invalid-feedback">
@@ -496,7 +506,7 @@ defineExpose({
                 mode="tags"
                 placeholder="Choose a seed types"
                 :searchable="true"
-                :class="{'is-invalid' : form.errors['filters.seed_types']}"
+                :class="{ 'is-invalid': form.errors['filters.seed_types'] }"
                 :options="getCategoriesDropDownByType(page.props.categories, 'seed-type')"
               />
               <div v-if="form.errors['filters.seed_types']" class="invalid-feedback">
@@ -512,7 +522,7 @@ defineExpose({
                 mode="tags"
                 placeholder="Choose a bin sizes"
                 :searchable="true"
-                :class="{'is-invalid' : form.errors['filters.bin_sizes']}"
+                :class="{ 'is-invalid': form.errors['filters.bin_sizes'] }"
                 :options="binSizes"
               />
               <div v-if="form.errors['filters.bin_sizes']" class="invalid-feedback">

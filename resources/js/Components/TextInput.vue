@@ -13,8 +13,8 @@ defineProps({
   },
   error: {
     type: String,
-    default: ''
-  }
+    default: '',
+  },
 });
 
 defineEmits(['update:modelValue']);
@@ -31,17 +31,17 @@ defineExpose({ focus: () => input.value.focus() });
 </script>
 
 <template>
-  <div class="p-0" :class="{ 'input-group' : $slots.addon, 'is-invalid' : error }">
+  <div class="p-0" :class="{ 'input-group': $slots.addon, 'is-invalid': error }">
     <input
       ref="input"
       :type="type"
       class="form-control"
-      :class="{'is-invalid' : error}"
+      :class="{ 'is-invalid': error }"
       :disabled="disabled"
       :value="modelValue"
       @input="$emit('update:modelValue', $event.target.value)"
-    >
-    <slot name="addon"/>
+    />
+    <slot name="addon" />
   </div>
   <div v-if="error" class="invalid-feedback">{{ error }}</div>
 </template>

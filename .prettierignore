@@ -1,0 +1,23 @@
+# .prettierignore
+
+# Ignore CSS files
+*.css
+
+# Ignore SCSS files
+*.scss
+
+# Ignore YML files
+*.yml
+
+# Ignore JSON files
+*.json
+
+# Ignore MD files
+*.md
+
+# Ignore MD files
+*.md
+
+# Ignore folders
+/public
+/resources/markdown

@@ -3,10 +3,10 @@ import { ref, watch } from 'vue';
 import { router, Link } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import TopBar from '@/Components/TopBar.vue';
-import LeftBar from "@/Components/LeftBar.vue";
+import LeftBar from '@/Components/LeftBar.vue';
 import Details from '@/Pages/Cutting/Details.vue';
-import Pagination from "@/Components/Pagination.vue";
-import { getCategoriesByType } from "@/helper.js";
+import Pagination from '@/Components/Pagination.vue';
+import { getCategoriesByType } from '@/helper.js';
 import { useWindowSize } from 'vue-window-size';
 
 const { width, height } = useWindowSize();
@@ -18,7 +18,7 @@ const props = defineProps({
   categories: Object,
   buyers: Object,
   filters: Object,
-  errors: Object
+  errors: Object,
 });
 
 const cuttings = ref(props.single || []);
@@ -28,12 +28,13 @@ const isNewItemRecord = ref(false);
 const search = ref(props.filters.search);
 const details = ref(null);
 
-watch(() => props?.single,
+watch(
+  () => props?.single,
   (single) => {
     if (props.errors.length === undefined || props.errors.length <= 0) {
       cuttings.value = single || [];
     }
-  }
+  },
 );
 
 watch(search, (value) => {
@@ -43,15 +44,16 @@ watch(search, (value) => {
     {
       preserveState: true,
       preserveScroll: true,
-      only: ['single']
+      only: ['single'],
     },
-  )
+  );
 });
 
-const filter = (keyword) => search.value = keyword;
+const filter = (keyword) => (search.value = keyword);
 
 const getCuttings = (id) => {
-  router.get(route('cuttings.index'),
+  router.get(
+    route('cuttings.index'),
     { buyerId: id },
     {
       preserveState: true,
@@ -62,13 +64,13 @@ const getCuttings = (id) => {
         history.pushState({}, null, newUrl);
 
         setActiveTab(id);
-      }
-    }
-  )
+      },
+    },
+  );
 };
 
 const setActiveTab = (id) => {
-  activeTab.value = props.cuttingBuyers.find(buyer => buyer.id === id);
+  activeTab.value = props.cuttingBuyers.find((buyer) => buyer.id === id);
   isNewRecord.value = false;
   isNewItemRecord.value = false;
 };
@@ -78,7 +80,7 @@ const setNewRecord = () => {
   isNewItemRecord.value = false;
   cuttings.value.data = [];
   activeTab.value = null;
-}
+};
 
 if (width.value > 991) {
   setActiveTab(cuttings.value.data[0]?.buyer_id);
@@ -105,16 +107,22 @@ if (width.value > 991) {
 
     <div class="tab-section">
       <div class="row g-0">
-        <div class="col-12 col-lg-5 col-xl-4 nav-left d-lg-block" :class="{'d-none' : activeTab || isNewRecord}">
+        <div
+          class="col-12 col-lg-5 col-xl-4 nav-left d-lg-block"
+          :class="{ 'd-none': activeTab || isNewRecord }"
+        >
           <LeftBar
             :items="cuttingBuyers"
             :active-tab="activeTab?.id"
-            :row-1="{title: 'Buyer Name', value: 'buyer.buyer_name'}"
-            :row-2="{title: 'Buyer Id', value: 'id'}"
+            :row-1="{ title: 'Buyer Name', value: 'buyer.buyer_name' }"
+            :row-2="{ title: 'Buyer Id', value: 'id' }"
             @click="getCuttings"
           />
         </div>
-        <div class="col-12 col-lg-7 col-xl-8 d-lg-block" :class="{'d-none': !activeTab && !isNewRecord}">
+        <div
+          class="col-12 col-lg-7 col-xl-8 d-lg-block"
+          :class="{ 'd-none': !activeTab && !isNewRecord }"
+        >
           <div class="tab-content">
             <Details
               v-if="isNewRecord"
@@ -130,33 +138,43 @@ if (width.value > 991) {
               <div v-if="activeTab" class="user-boxes">
                 <table class="table input-table mb-0">
                   <thead>
-                  <tr>
-                    <th class="d-none d-sm-table-cell">Buyer ID</th>
-                    <th>Buyer Name</th>
-                    <th>Buyer Group</th>
-                  </tr>
+                    <tr>
+                      <th class="d-none d-sm-table-cell">Buyer ID</th>
+                      <th>Buyer Name</th>
+                      <th>Buyer Group</th>
+                    </tr>
                   </thead>
                   <tbody>
-                  <tr class="align-middle border-0">
-                    <td class="pb-0 d-none d-sm-table-cell border-0">
-                      <Link :href="route('users.index', {userId: activeTab?.buyer_id})">
-                        {{ activeTab?.buyer_id }}
-                      </Link>
-                    </td>
-                    <td class="pb-0 border-0">
-                      <Link :href="route('users.index', {userId: activeTab?.buyer_id})">
-                        {{ activeTab?.buyer?.buyer_name }}
-                      </Link>
-                    </td>
-                    <td class="pb-0 border-0">
-                      <ul v-if="getCategoriesByType(activeTab?.buyer?.categories, 'buyer-group').length > 0">
-                        <li v-for="category in getCategoriesByType(activeTab?.buyer?.categories, 'buyer-group')"
-                            :key="category.id">
-                          <a>{{ category.category.name }}</a>
-                        </li>
-                      </ul>
-                    </td>
-                  </tr>
+                    <tr class="align-middle border-0">
+                      <td class="pb-0 d-none d-sm-table-cell border-0">
+                        <Link :href="route('users.index', { userId: activeTab?.buyer_id })">
+                          {{ activeTab?.buyer_id }}
+                        </Link>
+                      </td>
+                      <td class="pb-0 border-0">
+                        <Link :href="route('users.index', { userId: activeTab?.buyer_id })">
+                          {{ activeTab?.buyer?.buyer_name }}
+                        </Link>
+                      </td>
+                      <td class="pb-0 border-0">
+                        <ul
+                          v-if="
+                            getCategoriesByType(activeTab?.buyer?.categories, 'buyer-group')
+                              .length > 0
+                          "
+                        >
+                          <li
+                            v-for="category in getCategoriesByType(
+                              activeTab?.buyer?.categories,
+                              'buyer-group',
+                            )"
+                            :key="category.id"
+                          >
+                            <a>{{ category.category.name }}</a>
+                          </li>
+                        </ul>
+                      </td>
+                    </tr>
                   </tbody>
                 </table>
               </div>
@@ -170,7 +188,7 @@ if (width.value > 991) {
                     type="text"
                     class="form-control"
                     placeholder="Search cuttings..."
-                  >
+                  />
                 </div>
                 <div class="col-12 col-sm-4 col-lg-4 mb-3 mb-sm-4 text-end">
                   <button
@@ -205,12 +223,12 @@ if (width.value > 991) {
                 />
               </template>
               <div class="float-end">
-                <Pagination :links="cuttings.links"/>
+                <Pagination :links="cuttings.links" />
               </div>
             </template>
           </div>
           <div class="col-sm-12" v-if="cuttings?.data.length <= 0 && !isNewRecord">
-            <p class="text-center" style="margin-top: calc(50vh - 120px);">No Records Found</p>
+            <p class="text-center" style="margin-top: calc(50vh - 120px)">No Records Found</p>
           </div>
         </div>
         <div class="clearfix"></div>

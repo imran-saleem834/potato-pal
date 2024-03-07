@@ -4,8 +4,8 @@ import { ref, watch } from 'vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import TopBar from '@/Components/TopBar.vue';
 import Details from '@/Pages/TiaSample/Details.vue';
-import LeftBar from "@/Components/LeftBar.vue";
-import { useToast } from "vue-toastification";
+import LeftBar from '@/Components/LeftBar.vue';
+import { useToast } from 'vue-toastification';
 import { useWindowSize } from 'vue-window-size';
 
 const toast = useToast();
@@ -26,12 +26,16 @@ const isNewRecord = ref(false);
 const search = ref(props.filters.search);
 const details = ref(null);
 
-watch(() => props?.single,
+watch(
+  () => props?.single,
   (single) => {
-    if (Object.values(props.errors).length === undefined || Object.values(props.errors).length <= 0) {
+    if (
+      Object.values(props.errors).length === undefined ||
+      Object.values(props.errors).length <= 0
+    ) {
       tiaSample.value = single || {};
     }
-  }
+  },
 );
 
 watch(search, (value) => {
@@ -39,13 +43,13 @@ watch(search, (value) => {
     route('users.index'),
     { search: value },
     { preserveState: true, preserveScroll: true },
-  )
+  );
 });
 
-const filter = (keyword) => search.value = keyword;
+const filter = (keyword) => (search.value = keyword);
 
 const getTiaSample = (id) => {
-  axios.get(route('tia-samples.show', id)).then(response => {
+  axios.get(route('tia-samples.show', id)).then((response) => {
     tiaSample.value = response.data;
 
     setActiveTab(response.data.id);
@@ -61,14 +65,14 @@ const setActiveTab = (id) => {
 const setEdit = (id) => {
   edit.value = edit.value === id ? null : id;
   isNewRecord.value = false;
-}
+};
 
 const setNewRecord = () => {
   isNewRecord.value = true;
   edit.value = null;
   tiaSample.value = {};
   activeTab.value = null;
-}
+};
 
 const deleteTiaSample = (id) => {
   const form = useForm({});
@@ -79,7 +83,7 @@ const deleteTiaSample = (id) => {
       toast.success('The tia sample has been deleted successfully!');
     },
   });
-}
+};
 
 if (width.value > 991) {
   setActiveTab(tiaSample.value?.id);
@@ -106,17 +110,23 @@ if (width.value > 991) {
 
     <div class="tab-section tia-sample-tab-section">
       <div class="row g-0">
-        <div class="col-12 col-lg-5 col-xl-4 nav-left d-lg-block" :class="{'d-none' : activeTab || isNewRecord}">
+        <div
+          class="col-12 col-lg-5 col-xl-4 nav-left d-lg-block"
+          :class="{ 'd-none': activeTab || isNewRecord }"
+        >
           <LeftBar
             :items="tiaSamples.data"
             :links="tiaSamples.links"
             :active-tab="activeTab"
-            :row-1="{title: 'Grower', value: 'receival.grower.grower_name'}"
-            :row-2="{title: 'Tia Sample Id', value: 'id'}"
+            :row-1="{ title: 'Grower', value: 'receival.grower.grower_name' }"
+            :row-2="{ title: 'Tia Sample Id', value: 'id' }"
             @click="getTiaSample"
           />
         </div>
-        <div class="col-12 col-lg-7 col-xl-8 d-lg-block" :class="{'d-none': !activeTab && !isNewRecord}">
+        <div
+          class="col-12 col-lg-7 col-xl-8 d-lg-block"
+          :class="{ 'd-none': !activeTab && !isNewRecord }"
+        >
           <div class="tab-content" v-if="Object.values(tiaSample).length > 0 || isNewRecord">
             <Details
               ref="details"
@@ -129,7 +139,7 @@ if (width.value > 991) {
             />
           </div>
           <div class="col-12" v-if="Object.values(tiaSample).length <= 0 && !isNewRecord">
-            <p class="text-center" style="margin-top: calc(50vh - 120px);">No Records Found</p>
+            <p class="text-center" style="margin-top: calc(50vh - 120px)">No Records Found</p>
           </div>
         </div>
         <div class="clearfix"></div>

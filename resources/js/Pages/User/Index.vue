@@ -4,8 +4,8 @@ import { router, useForm } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import TopBar from '@/Components/TopBar.vue';
 import Details from '@/Pages/User/Details.vue';
-import LeftBar from "@/Components/LeftBar.vue";
-import { useToast } from "vue-toastification";
+import LeftBar from '@/Components/LeftBar.vue';
+import { useToast } from 'vue-toastification';
 import { useWindowSize } from 'vue-window-size';
 
 const toast = useToast();
@@ -16,7 +16,7 @@ const props = defineProps({
   single: Object,
   categories: Object,
   filters: Object,
-  errors: Object
+  errors: Object,
 });
 
 const user = ref(props.single || {});
@@ -26,12 +26,16 @@ const isNewRecord = ref(false);
 const search = ref(props.filters.search);
 const details = ref(null);
 
-watch(() => props?.single,
+watch(
+  () => props?.single,
   (single) => {
-    if (Object.values(props.errors).length === undefined || Object.values(props.errors).length <= 0) {
-     user.value = single || {};
+    if (
+      Object.values(props.errors).length === undefined ||
+      Object.values(props.errors).length <= 0
+    ) {
+      user.value = single || {};
     }
-  }
+  },
 );
 
 watch(search, (value) => {
@@ -39,13 +43,13 @@ watch(search, (value) => {
     route('users.index'),
     { search: value },
     { preserveState: true, preserveScroll: true },
-  )
+  );
 });
 
-const filter = (keyword) => search.value = keyword;
+const filter = (keyword) => (search.value = keyword);
 
 const getUser = (id) => {
-  axios.get(route('users.show', id)).then(response => {
+  axios.get(route('users.show', id)).then((response) => {
     user.value = response.data;
 
     setActiveTab(response.data.id);
@@ -61,14 +65,14 @@ const setActiveTab = (id) => {
 const setEdit = (id) => {
   edit.value = edit.value === id ? null : id;
   isNewRecord.value = false;
-}
+};
 
 const setNewRecord = () => {
   isNewRecord.value = true;
   edit.value = null;
   user.value = {};
   activeTab.value = null;
-}
+};
 
 const deleteUser = (id) => {
   const form = useForm({});
@@ -79,7 +83,7 @@ const deleteUser = (id) => {
       toast.success('The user has been deleted successfully!');
     },
   });
-}
+};
 
 if (width.value > 991) {
   setActiveTab(user.value?.id);
@@ -107,17 +111,23 @@ if (width.value > 991) {
     <!-- tab-section -->
     <div class="tab-section">
       <div class="row g-0">
-        <div class="col-12 col-lg-5 col-xl-4 nav-left d-lg-block" :class="{'d-none' : activeTab || isNewRecord}">
+        <div
+          class="col-12 col-lg-5 col-xl-4 nav-left d-lg-block"
+          :class="{ 'd-none': activeTab || isNewRecord }"
+        >
           <LeftBar
             :items="users.data"
             :links="users.links"
             :active-tab="activeTab"
-            :row-1="{title: 'Name', value: 'name'}"
-            :row-2="{title: 'Email', value: 'email'}"
+            :row-1="{ title: 'Name', value: 'name' }"
+            :row-2="{ title: 'Email', value: 'email' }"
             @click="getUser"
           />
         </div>
-        <div class="col-12 col-lg-7 col-xl-8 d-lg-block" :class="{'d-none': !activeTab && !isNewRecord}">
+        <div
+          class="col-12 col-lg-7 col-xl-8 d-lg-block"
+          :class="{ 'd-none': !activeTab && !isNewRecord }"
+        >
           <div class="tab-content" v-if="Object.values(user).length > 0 || isNewRecord">
             <Details
               ref="details"
@@ -131,7 +141,7 @@ if (width.value > 991) {
             />
           </div>
           <div v-if="Object.values(user).length <= 0 && !isNewRecord">
-            <p class="w-100 text-center" style="margin-top: calc(50vh - 120px);">No Records Found</p>
+            <p class="w-100 text-center" style="margin-top: calc(50vh - 120px)">No Records Found</p>
           </div>
         </div>
       </div>

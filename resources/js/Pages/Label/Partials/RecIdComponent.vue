@@ -1,7 +1,7 @@
 <script setup>
 import moment from 'moment';
-import { computed } from "vue";
-import { getBinSizesValue, getSingleCategoryNameByType } from "@/helper.js";
+import { computed } from 'vue';
+import { getBinSizesValue, getSingleCategoryNameByType } from '@/helper.js';
 
 const props = defineProps({
   label: Object,
@@ -19,7 +19,7 @@ const allocation = computed(() => {
 <template>
   <div class="rec-labels rec-id-labels fw-bold">
     <div class="d-flex align-items-center p-3 header mb-2" style="background: #e5e5e5">
-      <img src="/images/black-white-logo.png" alt="logo" class="me-2" style="width: 100px;"/>
+      <img src="/images/black-white-logo.png" alt="logo" class="me-2" style="width: 100px" />
       <div>
         <div>CHERRY HILL COOLSTORES</div>
         <div class="fw-normal">Leaders in seed potato management</div>
@@ -27,18 +27,21 @@ const allocation = computed(() => {
     </div>
 
     <template v-for="index in [0, 1]" :key="index">
-      <div class="d-flex justify-content-between align-items-center" :class="{'pt-5': index === 1}">
+      <div
+        class="d-flex justify-content-between align-items-center"
+        :class="{ 'pt-5': index === 1 }"
+      >
         <strong v-if="index === 0">DRIVERS DKT</strong>
         <strong v-if="index === 1">CHC OFFICE COPY</strong>
 
         <div>
           <table class="table table-borderless">
             <tr>
-              <td class="text-light-emphasis" style="width: 150px;">RECEIVAL ID</td>
+              <td class="text-light-emphasis" style="width: 150px">RECEIVAL ID</td>
               <td>{{ label.receival_id }}</td>
             </tr>
             <tr>
-              <td class="text-light-emphasis" style="width: 150px;">DATE</td>
+              <td class="text-light-emphasis" style="width: 150px">DATE</td>
               <td>{{ moment().format('DD-MM-YYYY') }}</td>
             </tr>
           </table>
@@ -59,7 +62,7 @@ const allocation = computed(() => {
         </tr>
         <tr v-if="allocation.buyer">
           <td class="text-light-emphasis">EX BUYER</td>
-          <td>{{allocation.buyer.buyer_name }}</td>
+          <td>{{ allocation.buyer.buyer_name }}</td>
         </tr>
         <tr>
           <td class="text-light-emphasis">ISSUED TO</td>
@@ -92,13 +95,16 @@ const allocation = computed(() => {
       </table>
 
       <template v-if="index === 0">
-        <div class="p-3 mb-2" style="background: #e5e5e5; font-size: 13px;">
+        <div class="p-3 mb-2" style="background: #e5e5e5; font-size: 13px">
           <div>CHERRY HILL COOLSTORES P/L ABN 36 159 091 228</div>
           <div>
-            32 CHERRY HILL ROAD, Latrobe Tasmania 7307 Australia |
-            PO Box: 167, Latrobe Tasmania 7307 Australia
+            32 CHERRY HILL ROAD, Latrobe Tasmania 7307 Australia | PO Box: 167, Latrobe Tasmania
+            7307 Australia
           </div>
-          <div>Ph: (03) 6426 1590 | Email: admin@cherryhillcoolstores.net.au | www.cherryhillcoolstores.net.au</div>
+          <div>
+            Ph: (03) 6426 1590 | Email: admin@cherryhillcoolstores.net.au |
+            www.cherryhillcoolstores.net.au
+          </div>
         </div>
         <div class="page-break"></div>
       </template>
@@ -109,7 +115,10 @@ const allocation = computed(() => {
 
   <div class="rec-labels rec-id-tia-sample row pt-5">
     <template v-for="index in [0, 1]" :key="index">
-      <div class="col-6 fw-bold" :class="{'border border-top-0 border-bottom-0 border-start-0' : index === 0}">
+      <div
+        class="col-6 fw-bold"
+        :class="{ 'border border-top-0 border-bottom-0 border-start-0': index === 0 }"
+      >
         <h5 class="text-center fw-bold">TIA SAMPLE</h5>
         <h2 class="fw-bold">Innovator G3</h2>
         <table class="table input-table table-borderless">
@@ -119,7 +128,7 @@ const allocation = computed(() => {
           </tr>
           <tr v-if="allocation.buyer">
             <td class="text-light-emphasis">EX BUYER</td>
-            <td>{{allocation.buyer.buyer_name }}</td>
+            <td>{{ allocation.buyer.buyer_name }}</td>
           </tr>
           <tr>
             <td class="text-light-emphasis">ISSUED TO</td>
@@ -137,7 +146,7 @@ const allocation = computed(() => {
         <h3 class="text-center text-light-emphasis pt-3">RECEIVAL ID</h3>
         <h1 class="text-center">{{ label.receival_id }}</h1>
         <div class="d-flex justify-content-end">
-          <img src="/images/black-white-logo.png" alt="logo" style="width: 100px;"/>
+          <img src="/images/black-white-logo.png" alt="logo" style="width: 100px" />
         </div>
       </div>
     </template>

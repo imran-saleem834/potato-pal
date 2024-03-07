@@ -2,14 +2,14 @@
 import { ref, computed } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import LogoutButton from '@/Components/LogoutButton.vue';
-import ConfirmedModal from "@/Components/ConfirmedModal.vue";
+import ConfirmedModal from '@/Components/ConfirmedModal.vue';
 
 const props = defineProps({
   type: String,
   title: String,
   search: {
     type: String,
-    default: ''
+    default: '',
   },
   activeTab: {
     type: [String, Number],
@@ -32,8 +32,8 @@ const props = defineProps({
       delete: true,
       duplicate: false,
       print: false,
-    }
-  }
+    },
+  },
 });
 
 const access = computed(() => ({
@@ -48,7 +48,17 @@ const access = computed(() => ({
 const keyword = ref(props.search);
 const isSearchVisible = ref(false);
 
-const emit = defineEmits(['search', 'unset', 'edit', 'new', 'store', 'update', 'delete', 'duplicate', 'print']);
+const emit = defineEmits([
+  'search',
+  'unset',
+  'edit',
+  'new',
+  'store',
+  'update',
+  'delete',
+  'duplicate',
+  'print',
+]);
 
 const search = () => {
   emit('search', keyword.value);
@@ -60,7 +70,7 @@ const search = () => {
     <div class="container-fluid">
       <div class="d-flex d-md-none justify-content-between mt-3 mobile-topbar">
         <template v-if="$slots.back">
-          <slot name="back"/>
+          <slot name="back" />
         </template>
         <template v-else>
           <Link :href="route('dashboard')"><i class="bi bi-chevron-compact-left"></i></Link>
@@ -70,17 +80,17 @@ const search = () => {
           <template v-else>{{ type }}</template>
         </h4>
         <div class="mt-1">
-          <LogoutButton/>
+          <LogoutButton />
         </div>
       </div>
       <div class="row topbar">
         <div class="col-6 col-md-3 d-none d-md-block order-1">
           <div class="user-logo">
-            <Link :href="route('dashboard')"><img src="/images/logo.png" alt="logo"></Link>
+            <Link :href="route('dashboard')"><img src="/images/logo.png" alt="logo" /></Link>
           </div>
         </div>
         <div
-          :class="{'d-none': !isSearchVisible}"
+          :class="{ 'd-none': !isSearchVisible }"
           class="col-12 col-md-6 d-md-block order-3 order-md-2"
         >
           <div v-if="access.search" class="form-group position-relative">
@@ -91,12 +101,12 @@ const search = () => {
               v-model="keyword"
               @input="search"
               :placeholder="`Search ${type}`"
-            >
+            />
           </div>
         </div>
         <div class="col-6 col-md-3 d-none d-md-block order-2 order-md-3">
           <div class="logout-top">
-            <LogoutButton/>
+            <LogoutButton />
           </div>
         </div>
       </div>
@@ -108,7 +118,7 @@ const search = () => {
       <div class="col-4 col-lg-5 col-xl-4 d-none d-lg-block">
         <div class="d-flex justify-content-between align-items-center middle-left h-100">
           <template v-if="$slots.breadcrumbs">
-            <slot name="breadcrumbs"/>
+            <slot name="breadcrumbs" />
           </template>
           <template v-else>
             <ul>
@@ -139,7 +149,12 @@ const search = () => {
           </h5>
           <ul class="text-start d-inline-block d-md-none">
             <li v-if="activeTab || isNewRecordSelected">
-              <a role="button" @click="$emit('unset')" class="btn btn-transparent" title="Back to list">
+              <a
+                role="button"
+                @click="$emit('unset')"
+                class="btn btn-transparent"
+                title="Back to list"
+              >
                 <i class="bi bi-arrow-90deg-left"></i>
               </a>
             </li>
@@ -148,8 +163,8 @@ const search = () => {
             <li v-if="access.search" class="d-inline-block d-md-none">
               <a
                 role="button"
-                @click="() => isSearchVisible = !isSearchVisible"
-                :class="{'active' : isSearchVisible}"
+                @click="() => (isSearchVisible = !isSearchVisible)"
+                :class="{ active: isSearchVisible }"
                 class="btn btn-transparent"
                 title="Search"
               >
@@ -208,7 +223,9 @@ const search = () => {
                 <i class="bi bi-plus-lg"></i> <span class="d-none d-md-inline-block">Add</span>
               </a>
             </li>
-            <li v-if="!isNewRecordSelected && activeTab && !isEditRecordSelected && access.duplicate">
+            <li
+              v-if="!isNewRecordSelected && activeTab && !isEditRecordSelected && access.duplicate"
+            >
               <a
                 role="button"
                 title="Duplicate"
@@ -226,7 +243,12 @@ const search = () => {
               </a>
             </li>
             <li v-if="activeTab || isNewRecordSelected" class="d-none d-md-inline-block d-lg-none">
-              <a role="button" @click="$emit('unset')" class="btn btn-transparent" title="Back to list">
+              <a
+                role="button"
+                @click="$emit('unset')"
+                class="btn btn-transparent"
+                title="Back to list"
+              >
                 <i class="bi bi-x-lg"></i>
               </a>
             </li>
@@ -236,18 +258,9 @@ const search = () => {
     </div>
   </div>
 
-  <ConfirmedModal
-    id="delete-record"
-    cancel="No, Keep it"
-    ok="Yes, Delete!"
-    @ok="$emit('delete')"
-  />
+  <ConfirmedModal id="delete-record" cancel="No, Keep it" ok="Yes, Delete!" @ok="$emit('delete')" />
 
-  <ConfirmedModal
-    id="store-record"
-    title="You want to store this record?"
-    @ok="$emit('store')"
-  />
+  <ConfirmedModal id="store-record" title="You want to store this record?" @ok="$emit('store')" />
 
   <ConfirmedModal
     id="update-record"

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed } from 'vue';
 
 let deferredPrompt;
 const showInstallModal = ref(true);
@@ -41,14 +41,11 @@ onMounted(() => {
 </script>
 
 <template>
-  <div data-bs-target="#install-app" data-bs-toggle="modal" ref="installBtn" class="d-none">Install</div>
-  
-  <div 
-    class="modal fade" 
-    id="install-app" 
-    tabindex="-1" 
-    role="dialog" 
-  >
+  <div data-bs-target="#install-app" data-bs-toggle="modal" ref="installBtn" class="d-none">
+    Install
+  </div>
+
+  <div class="modal fade" id="install-app" tabindex="-1" role="dialog">
     <div class="modal-dialog">
       <div class="modal-content rounded-1">
         <div class="modal-body">
@@ -58,7 +55,10 @@ onMounted(() => {
             </div>
             <div class="d-flex flex-column align-items-center">
               <h4 class="fw-bold fs-4">Install app?</h4>
-              <p v-if="isIOS">To install the app, tap <strong>Share</strong> then <strong>Add to Home Screen</strong></p>
+              <p v-if="isIOS">
+                To install the app, tap <strong>Share</strong> then
+                <strong>Add to Home Screen</strong>
+              </p>
               <p v-else>Potato Pal Cool Store</p>
             </div>
           </div>

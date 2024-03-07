@@ -1,7 +1,7 @@
 <script setup>
-import { computed, ref } from "vue";
-import VueEasyLightbox from "vue-easy-lightbox";
-import { router, useForm } from "@inertiajs/vue3";
+import { computed, ref } from 'vue';
+import VueEasyLightbox from 'vue-easy-lightbox';
+import { router, useForm } from '@inertiajs/vue3';
 
 const props = defineProps({
   images: {
@@ -32,7 +32,7 @@ const files = ref(0);
 
 const form = useForm({
   images: [],
-  field: props.field
+  field: props.field,
 });
 
 const selectNewPhoto = () => {
@@ -44,7 +44,7 @@ const showImg = (index) => {
   visibleRef.value = true;
 };
 
-const onHide = () => visibleRef.value = false;
+const onHide = () => (visibleRef.value = false);
 
 const updatePhotoPreview = () => {
   const formData = new FormData();
@@ -61,13 +61,17 @@ const updatePhotoPreview = () => {
 };
 
 const deletePhoto = (image) => {
-  router.post(route('media.delete', [props.type, props.id]), { image, field: props.field }, {
-    preserveScroll: true,
-    onSuccess: () => {
-      clearPhotoFileInput();
-      emit('update');
+  router.post(
+    route('media.delete', [props.type, props.id]),
+    { image, field: props.field },
+    {
+      preserveScroll: true,
+      onSuccess: () => {
+        clearPhotoFileInput();
+        emit('update');
+      },
     },
-  });
+  );
 };
 
 const clearPhotoFileInput = () => {
@@ -76,19 +80,17 @@ const clearPhotoFileInput = () => {
   }
 };
 
-const arrayImages = computed(
-  () => Array.from({length: props.images.length + 1}, (x, i) => i)
-);
+const arrayImages = computed(() => Array.from({ length: props.images.length + 1 }, (x, i) => i));
 
 const getFiles = (routeUrl = null) => {
-  if(!routeUrl) {
+  if (!routeUrl) {
     routeUrl = route('media.files', { search: keywords.value });
   }
-  axios.get(routeUrl).then(response => {
+  axios.get(routeUrl).then((response) => {
     files.value = response.data.files;
     keywords.value = response.data.filters.search;
   });
-}
+};
 
 const attachImages = () => {
   form.post(route('media.attach', [props.type, props.id]), {
@@ -98,49 +100,41 @@ const attachImages = () => {
       emit('update');
     },
   });
-}
+};
 </script>
 
 <template>
   <div class="d-flex justify-content-end">
-    <button 
+    <button
       type="button"
       class="btn btn-red"
-      data-bs-toggle="modal" 
+      data-bs-toggle="modal"
       data-bs-target="#existing-files"
       @click="() => getFiles()"
-    >+ Attach from files</button>
+    >
+      + Attach from files
+    </button>
   </div>
 
   <div class="d-flex flex-wrap">
     <div v-for="i in arrayImages" :key="i" class="upload-btn-wrapper m-2">
       <template v-if="images[i]">
-        <img
-          :alt="i"
-          :src="`/storage/${images[i]}`"
-          @click="showImg(i)"
-        >
+        <img :alt="i" :src="`/storage/${images[i]}`" @click="showImg(i)" />
         <i v-if="images[i]" class="bi bi-trash" @click="deletePhoto(images[i])"></i>
       </template>
       <button v-else class="btn" @click="selectNewPhoto">
-        <img :alt="i" src="/images/icon-file.png">
+        <img :alt="i" src="/images/icon-file.png" />
       </button>
     </div>
   </div>
 
   <div class="upload-btn-wrapper">
-    <input
-      id="photo"
-      ref="photoInput"
-      type="file"
-      class="hidden"
-      @change="updatePhotoPreview"
-    >
+    <input id="photo" ref="photoInput" type="file" class="hidden" @change="updatePhotoPreview" />
   </div>
 
   <vue-easy-lightbox
     :visible="visibleRef"
-    :imgs="images?.map(img => `/storage/${img}`)"
+    :imgs="images?.map((img) => `/storage/${img}`)"
     :index="indexRef"
     @hide="onHide"
   />
@@ -150,7 +144,12 @@ const attachImages = () => {
       <div class="modal-content">
         <div class="modal-header">
           <h1 class="modal-title fs-5" id="exampleModalLabel">Files</h1>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
         </div>
         <div v-if="files" class="modal-body">
           <div class="tab-section">
@@ -163,7 +162,7 @@ const attachImages = () => {
                   v-model="keywords"
                   @input="() => getFiles()"
                   placeholder="Search"
-                >
+                />
               </div>
               <div class="d-flex flex-wrap">
                 <div v-for="file in files.data" :key="file.id" class="upload-btn-wrapper m-2">
@@ -171,10 +170,7 @@ const attachImages = () => {
                     <input type="checkbox" v-model="form.images" :value="file.image" class="me-1" />
                     {{ file.title }}
                   </label>
-                  <img
-                    :alt="file.id"
-                    :src="`/storage/${file.image}`"
-                  >
+                  <img :alt="file.id" :src="`/storage/${file.image}`" />
                 </div>
               </div>
               <div v-if="files.links.length > 3" class="float-end mt-1 me-1">
@@ -198,7 +194,9 @@ const attachImages = () => {
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-red" data-bs-dismiss="modal" @click="attachImages">Attach</button>
+          <button type="button" class="btn btn-red" data-bs-dismiss="modal" @click="attachImages">
+            Attach
+          </button>
         </div>
       </div>
     </div>

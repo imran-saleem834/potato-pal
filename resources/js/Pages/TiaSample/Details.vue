@@ -1,14 +1,14 @@
 <script setup>
 import moment from 'moment';
-import { computed, watch } from "vue";
-import { useForm, Link } from "@inertiajs/vue3";
+import { computed, watch } from 'vue';
+import { useForm, Link } from '@inertiajs/vue3';
 import Multiselect from '@vueform/multiselect';
-import { useToast } from "vue-toastification";
-import TextInput from "@/Components/TextInput.vue";
-import Images from "@/Components/Images.vue";
-import UlLiButton from "@/Components/UlLiButton.vue";
-import { getCategoriesByType } from "@/helper.js";
-import { binSizes, tiaStatus } from "@/const.js";
+import { useToast } from 'vue-toastification';
+import TextInput from '@/Components/TextInput.vue';
+import Images from '@/Components/Images.vue';
+import UlLiButton from '@/Components/UlLiButton.vue';
+import { getCategoriesByType } from '@/helper.js';
+import { binSizes, tiaStatus } from '@/const.js';
 
 const toast = useToast();
 
@@ -23,7 +23,7 @@ const props = defineProps({
 const emit = defineEmits(['update', 'create']);
 
 const addEmptyValues = (name, values, noOfValues) => {
-  const length = (noOfValues - 1);
+  const length = noOfValues - 1;
   for (let i = 0; i <= length; i++) {
     values[i] = values[i] || '';
   }
@@ -37,7 +37,7 @@ const addEmptyValues = (name, values, noOfValues) => {
     values[5] = values[5] + '%';
   }
   return values;
-}
+};
 
 const displaySampleValue = (name) => {
   if (name === 'tubers') {
@@ -47,37 +47,48 @@ const displaySampleValue = (name) => {
   const values = props.tiaSample[name];
   if (!values) return '';
 
-  const length = (values.length - 1);
+  const length = values.length - 1;
 
   if (['sub_total', 'total_disease', 'total_defects'].includes(name)) {
     return values[length] || '-';
   }
 
-  return values.slice(0, length)
-    .filter(val => val !== '')
-    .join(',  ') + ' - ' + values.slice(-1);
-}
+  return (
+    values
+      .slice(0, length)
+      .filter((val) => val !== '')
+      .join(',  ') +
+    ' - ' +
+    values.slice(-1)
+  );
+};
 
 const displaySampleValue2 = (name) => {
   const values = props.tiaSample[name];
   if (!values) return '';
 
-  const length = (values.length - 2);
+  const length = values.length - 2;
 
-  return values.slice(0, length)
-    .filter(val => val !== '')
-    .join(',  ') + ' - ' + values[length];
-}
+  return (
+    values
+      .slice(0, length)
+      .filter((val) => val !== '')
+      .join(',  ') +
+    ' - ' +
+    values[length]
+  );
+};
 
 const sum = (accumulator, current) => parseFloat(accumulator) + parseFloat(current);
 const round = (num, decimalPlaces = 2) => {
   const p = Math.pow(10, decimalPlaces);
   return Math.round(num * p) / p;
-}
+};
 
 const changeSampleValue = (name, length) => {
-  const input = form[name].slice(0, length)
-    .filter(val => val !== '')
+  const input = form[name]
+    .slice(0, length)
+    .filter((val) => val !== '')
     .reduce(sum, 0);
 
   if (name === 'tubers') {
@@ -86,18 +97,20 @@ const changeSampleValue = (name, length) => {
   }
 
   const totalTurbers = getTotalTurbersValue();
-  form[name][length] = totalTurbers ? round(input * 100 / getTotalTurbersValue()) + '%' : '';
+  form[name][length] = totalTurbers ? round((input * 100) / getTotalTurbersValue()) + '%' : '';
 
   console.log('changeSampleValue', name, form[name][length]);
 
   updateTotal(length);
-}
+};
 
 const updateTotal = (length) => {
   let addition = 0;
-  ['dry_rot', 'black_scurf', 'powdery_scab', 'root_knot_nematode', 'soft_rots', 'pink_rot'].forEach(name => {
-    addition += parseFloat(form[name][length].replace('%', '') || 0);
-  });
+  ['dry_rot', 'black_scurf', 'powdery_scab', 'root_knot_nematode', 'soft_rots', 'pink_rot'].forEach(
+    (name) => {
+      addition += parseFloat(form[name][length].replace('%', '') || 0);
+    },
+  );
 
   form['sub_total'][length] = round(addition) + '%';
 
@@ -105,16 +118,27 @@ const updateTotal = (length) => {
 
   form['total_disease'][length] = round(addition) + '%';
 
-  ['black_scurf_scatter', 'insect_damage', 'malformed_tubers', 'mechanical_damage', 'stem_end_discolour', 'foreign_cultivars', 'misc_frost'].forEach(name => {
+  [
+    'black_scurf_scatter',
+    'insect_damage',
+    'malformed_tubers',
+    'mechanical_damage',
+    'stem_end_discolour',
+    'foreign_cultivars',
+    'misc_frost',
+  ].forEach((name) => {
     addition += parseFloat(form[name][length].replace('%', '') || 0);
   });
 
   form['total_defects'][length] = round(addition) + '%';
-}
+};
 
 const getTotalTurbersValue = () => {
-  return form.tubers.slice(0, 4).filter(val => val !== '').reduce(sum, 0);
-}
+  return form.tubers
+    .slice(0, 4)
+    .filter((val) => val !== '')
+    .reduce(sum, 0);
+};
 
 const samples = [
   { title: 'No. of tubers Samples', name: 'tubers', allow: 'Allowable tolerances' },
@@ -139,16 +163,20 @@ const samples = [
   { title: 'Minimal Insect Feeding', name: 'minimal_insect_feeding', allow: 'Additional 2%' },
   { title: 'Oversize', name: 'oversize', allow: '' },
   { title: 'Undersize', name: 'undersize', allow: '' },
-]
+];
 
 const sample2 = [
   { title: 'Powdery Scab', name: 'disease_powdery_scab', allow: '', inputs: 6 },
   { title: 'Rootknot Nematode', name: 'disease_root_knot_nematode', allow: '', inputs: 6 },
   { title: 'Common Scab', name: 'disease_common_scab', allow: '', inputs: 6 },
-]
+];
 
-samples.concat(sample2).forEach(sample => {
-  props.tiaSample[sample.name] = addEmptyValues(sample.name, props.tiaSample[sample.name] || [], sample.inputs || 5);
+samples.concat(sample2).forEach((sample) => {
+  props.tiaSample[sample.name] = addEmptyValues(
+    sample.name,
+    props.tiaSample[sample.name] || [],
+    sample.inputs || 5,
+  );
 });
 
 const form = useForm({
@@ -190,38 +218,44 @@ const form = useForm({
   status: props.tiaSample.receival?.tia_status,
 });
 
-watch(() => props.tiaSample,
+watch(
+  () => props.tiaSample,
   (tiaSample) => {
     form.clearErrors();
-    form.receival_id = tiaSample.receival_id
-    form.processor = tiaSample.processor
-    form.inspection_no = tiaSample.inspection_no
-    form.inspection_date = moment(tiaSample.inspection_date).format('YYYY-MM-DD')
-    form.size = tiaSample.size
-    form.disease_scoring = tiaSample.disease_scoring
-    form.excessive_dirt = tiaSample.excessive_dirt
-    form.minor_skin_cracking = tiaSample.minor_skin_cracking
-    form.skinning = tiaSample.skinning
-    form.regarding = tiaSample.regarding
-    form.comment = tiaSample.comment
-    form.status = tiaSample.receival?.tia_status
-    samples.concat(sample2).forEach(sample => {
-      form[sample.name] = addEmptyValues(sample.name, tiaSample[sample.name] || [], sample.inputs || 5);
+    form.receival_id = tiaSample.receival_id;
+    form.processor = tiaSample.processor;
+    form.inspection_no = tiaSample.inspection_no;
+    form.inspection_date = moment(tiaSample.inspection_date).format('YYYY-MM-DD');
+    form.size = tiaSample.size;
+    form.disease_scoring = tiaSample.disease_scoring;
+    form.excessive_dirt = tiaSample.excessive_dirt;
+    form.minor_skin_cracking = tiaSample.minor_skin_cracking;
+    form.skinning = tiaSample.skinning;
+    form.regarding = tiaSample.regarding;
+    form.comment = tiaSample.comment;
+    form.status = tiaSample.receival?.tia_status;
+    samples.concat(sample2).forEach((sample) => {
+      form[sample.name] = addEmptyValues(
+        sample.name,
+        tiaSample[sample.name] || [],
+        sample.inputs || 5,
+      );
     });
-  }
+  },
 );
 
-watch(() => props.isNew,
+watch(
+  () => props.isNew,
   (isNew) => {
     if (isNew) {
-      samples.concat(sample2).forEach(sample => {
+      samples.concat(sample2).forEach((sample) => {
         props.tiaSample[sample.name] = addEmptyValues(sample.name, [], sample.inputs || 5);
       });
     }
-  }
+  },
 );
 
-const isForm = computed(() => props.isEdit || props.isNew)
+const isForm = computed(() => props.isEdit || props.isNew);
 
 const updateRecord = () => {
   form.patch(route('tia-samples.update', props.tiaSample.id), {
@@ -232,7 +266,7 @@ const updateRecord = () => {
       toast.success('The tia sample has been updated successfully!');
     },
   });
-}
+};
 
 const storeRecord = () => {
   form.post(route('tia-samples.store'), {
@@ -243,11 +277,11 @@ const storeRecord = () => {
       toast.success('The tia sample has been created successfully!');
     },
   });
-}
+};
 
 defineExpose({
   updateRecord,
-  storeRecord
+  storeRecord,
 });
 </script>
 
@@ -266,9 +300,13 @@ defineExpose({
                 placeholder="Choose a receival"
                 :searchable="true"
                 :options="receivals"
-                :class="{'is-invalid' : form.errors.receival_id}"
+                :class="{ 'is-invalid': form.errors.receival_id }"
               />
-              <div v-if="form.errors.receival_id" class="invalid-feedback" v-text="form.errors.receival_id"/>
+              <div
+                v-if="form.errors.receival_id"
+                class="invalid-feedback"
+                v-text="form.errors.receival_id"
+              />
             </td>
           </tr>
           <template v-else>
@@ -306,9 +344,17 @@ defineExpose({
           <tr v-if="!isNew">
             <th>Grower Group</th>
             <td class="pb-0">
-              <ul class="p-0" v-if="getCategoriesByType(tiaSample?.receival?.categories, 'grower-group').length">
-                <li v-for="category in getCategoriesByType(tiaSample?.receival?.categories, 'grower-group')"
-                    :key="category.id">
+              <ul
+                class="p-0"
+                v-if="getCategoriesByType(tiaSample?.receival?.categories, 'grower-group').length"
+              >
+                <li
+                  v-for="category in getCategoriesByType(
+                    tiaSample?.receival?.categories,
+                    'grower-group',
+                  )"
+                  :key="category.id"
+                >
                   <a>{{ category.category.name }}</a>
                 </li>
               </ul>
@@ -318,9 +364,19 @@ defineExpose({
           <tr v-if="!isNew">
             <th>Cool Store</th>
             <td class="pb-0">
-              <ul class="p-0" v-if="getCategoriesByType(tiaSample?.receival?.grower?.categories, 'cool-store').length">
-                <li v-for="category in getCategoriesByType(tiaSample?.receival?.grower?.categories, 'cool-store')"
-                    :key="category.id">
+              <ul
+                class="p-0"
+                v-if="
+                  getCategoriesByType(tiaSample?.receival?.grower?.categories, 'cool-store').length
+                "
+              >
+                <li
+                  v-for="category in getCategoriesByType(
+                    tiaSample?.receival?.grower?.categories,
+                    'cool-store',
+                  )"
+                  :key="category.id"
+                >
                   <a>{{ category.category.name }}</a>
                 </li>
               </ul>
@@ -334,7 +390,7 @@ defineExpose({
                 :is-form="isForm"
                 :value="form.status"
                 :items="tiaStatus"
-                @click="(key) => form.status = key"
+                @click="(key) => (form.status = key)"
               />
             </td>
           </tr>
@@ -349,9 +405,17 @@ defineExpose({
           <tr v-if="!isNew">
             <th>Variety</th>
             <td class="pb-0">
-              <ul class="p-0" v-if="getCategoriesByType(tiaSample?.receival?.categories, 'seed-variety').length">
-                <li v-for="category in getCategoriesByType(tiaSample?.receival?.categories, 'seed-variety')"
-                    :key="category.id">
+              <ul
+                class="p-0"
+                v-if="getCategoriesByType(tiaSample?.receival?.categories, 'seed-variety').length"
+              >
+                <li
+                  v-for="category in getCategoriesByType(
+                    tiaSample?.receival?.categories,
+                    'seed-variety',
+                  )"
+                  :key="category.id"
+                >
                   <a>{{ category.category.name }}</a>
                 </li>
               </ul>
@@ -361,9 +425,19 @@ defineExpose({
           <tr v-if="!isNew">
             <th>Gen</th>
             <td class="pb-0">
-              <ul class="p-0" v-if="getCategoriesByType(tiaSample?.receival?.categories, 'seed-generation').length">
-                <li v-for="category in getCategoriesByType(tiaSample?.receival?.categories, 'seed-generation')"
-                    :key="category.id">
+              <ul
+                class="p-0"
+                v-if="
+                  getCategoriesByType(tiaSample?.receival?.categories, 'seed-generation').length
+                "
+              >
+                <li
+                  v-for="category in getCategoriesByType(
+                    tiaSample?.receival?.categories,
+                    'seed-generation',
+                  )"
+                  :key="category.id"
+                >
                   <a>{{ category.category.name }}</a>
                 </li>
               </ul>
@@ -387,14 +461,19 @@ defineExpose({
                 :value="form.processor"
                 :error="form.errors.processor"
                 :items="binSizes"
-                @click="(value) => form.processor = value"
+                @click="(value) => (form.processor = value)"
               />
             </td>
           </tr>
           <tr>
             <th>Inspection No</th>
             <td>
-              <TextInput v-if="isForm" v-model="form.inspection_no" :error="form.errors.inspection_no" type="text"/>
+              <TextInput
+                v-if="isForm"
+                v-model="form.inspection_no"
+                :error="form.errors.inspection_no"
+                type="text"
+              />
               <template v-else-if="tiaSample.inspection_no">{{ tiaSample.inspection_no }}</template>
               <template v-else>-</template>
             </td>
@@ -402,7 +481,12 @@ defineExpose({
           <tr>
             <th>Inspection Date</th>
             <td>
-              <TextInput v-if="isForm" v-model="form.inspection_date" :error="form.errors.inspection_date" type="date"/>
+              <TextInput
+                v-if="isForm"
+                v-model="form.inspection_date"
+                :error="form.errors.inspection_date"
+                type="date"
+              />
               <template v-else-if="tiaSample.inspection_date">
                 {{ moment(tiaSample.inspection_date).format('YYYY-MM-DD') }}
               </template>
@@ -428,11 +512,11 @@ defineExpose({
                 :value="form.size"
                 :error="form.errors.size"
                 :items="[
-                  { value: '35-350g', label: '35 - 350g'},
-                  { value: '90mm', label: '90mm'},
-                  { value: '70mm', label: '70mm'},
+                  { value: '35-350g', label: '35 - 350g' },
+                  { value: '90mm', label: '90mm' },
+                  { value: '70mm', label: '70mm' },
                 ]"
-                @click="(value) => form.size = value"
+                @click="(value) => (form.size = value)"
               />
             </td>
           </tr>
@@ -442,16 +526,21 @@ defineExpose({
                 <td colspan="2" class="p-0 m-0">
                   <table class="table table-borderless p-0 m-0">
                     <tr class="border-0">
-                      <td :class="{'fw-bold' : sample.bold }" class="d-table-cell d-sm-none border-0 pb-0">
+                      <td
+                        :class="{ 'fw-bold': sample.bold }"
+                        class="d-table-cell d-sm-none border-0 pb-0"
+                      >
                         {{ sample.title }}
                       </td>
-                      <td class="pb-0 text-end" style="width: 40%;">{{ sample.allow }}</td>
+                      <td class="pb-0 text-end" style="width: 40%">{{ sample.allow }}</td>
                     </tr>
                   </table>
                 </td>
               </tr>
               <tr>
-                <th :class="{'fw-bold' : sample.bold }" class="d-none d-sm-table-cell">{{ sample.title }}</th>
+                <th :class="{ 'fw-bold': sample.bold }" class="d-none d-sm-table-cell">
+                  {{ sample.title }}
+                </th>
                 <td>
                   <ul v-if="isForm" class="multiple-inputs p-0 m-0">
                     <li
@@ -465,7 +554,7 @@ defineExpose({
                         :disabled="index === 4"
                         v-model="form[sample.name][index]"
                         @keyup="changeSampleValue(sample.name, 4)"
-                      >
+                      />
                     </li>
                     <li class="d-none d-sm-inline-block">{{ sample.allow }}</li>
 
@@ -473,12 +562,11 @@ defineExpose({
                       v-for="(value, index) in tiaSample[sample.name]"
                       :key="`${index}-${sample.name}-error`"
                     >
-                      <div
-                        class="w-100 text-start"
-                        v-if="form.errors[`${sample.name}.${index}`]"
-                      >
+                      <div class="w-100 text-start" v-if="form.errors[`${sample.name}.${index}`]">
                         <div class="is-invalid"></div>
-                        <div class="invalid-feedback m-0 p-0">{{ form.errors[`${sample.name}.${index}`] }}</div>
+                        <div class="invalid-feedback m-0 p-0">
+                          {{ form.errors[`${sample.name}.${index}`] }}
+                        </div>
                       </div>
                     </template>
                   </ul>
@@ -517,7 +605,7 @@ defineExpose({
                   { value: 5, label: '5' },
                   { value: 6, label: '6' },
                 ]"
-                @click="(value) => form.disease_scoring = value"
+                @click="(value) => (form.disease_scoring = value)"
               />
             </td>
           </tr>
@@ -536,19 +624,18 @@ defineExpose({
                     :disabled="index === 4"
                     v-model="form[sample.name][index]"
                     @keyup="changeSampleValue(sample.name, 4)"
-                  >
+                  />
                 </li>
 
                 <template
                   v-for="(value, index) in tiaSample[sample.name]"
                   :key="`${index}-${sample.name}-error`"
                 >
-                  <div
-                    class="w-100 text-start"
-                    v-if="form.errors[`${sample.name}.${index}`]"
-                  >
+                  <div class="w-100 text-start" v-if="form.errors[`${sample.name}.${index}`]">
                     <div class="is-invalid"></div>
-                    <div class="invalid-feedback m-0 p-0">{{ form.errors[`${sample.name}.${index}`] }}</div>
+                    <div class="invalid-feedback m-0 p-0">
+                      {{ form.errors[`${sample.name}.${index}`] }}
+                    </div>
                   </div>
                 </template>
               </ul>
@@ -568,7 +655,7 @@ defineExpose({
                   { value: true, label: 'Yes' },
                   { value: false, label: 'No' },
                 ]"
-                @click="(value) => form.excessive_dirt = value"
+                @click="(value) => (form.excessive_dirt = value)"
               />
             </td>
           </tr>
@@ -583,7 +670,7 @@ defineExpose({
                   { value: true, label: 'Yes' },
                   { value: false, label: 'No' },
                 ]"
-                @click="(value) => form.minor_skin_cracking = value"
+                @click="(value) => (form.minor_skin_cracking = value)"
               />
             </td>
           </tr>
@@ -598,7 +685,7 @@ defineExpose({
                   { value: true, label: 'Yes' },
                   { value: false, label: 'No' },
                 ]"
-                @click="(value) => form.skinning = value"
+                @click="(value) => (form.skinning = value)"
               />
             </td>
           </tr>
@@ -613,14 +700,19 @@ defineExpose({
                   { value: true, label: 'Yes' },
                   { value: false, label: 'No' },
                 ]"
-                @click="(value) => form.regarding = value"
+                @click="(value) => (form.regarding = value)"
               />
             </td>
           </tr>
           <tr>
             <th>Comment</th>
             <td class="pb-0">
-              <TextInput v-if="isForm" v-model="form.comment" :error="form.errors.comment" type="text"/>
+              <TextInput
+                v-if="isForm"
+                v-model="form.comment"
+                :error="form.errors.comment"
+                type="text"
+              />
               <template v-else-if="tiaSample.comment">{{ tiaSample.comment }}</template>
               <template v-else>-</template>
             </td>

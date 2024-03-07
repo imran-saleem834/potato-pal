@@ -1,9 +1,9 @@
 <script setup>
 import moment from 'moment';
-import { computed, watch } from "vue";
-import { useForm } from "@inertiajs/vue3";
-import { useToast } from "vue-toastification";
-import TextInput from "@/Components/TextInput.vue";
+import { computed, watch } from 'vue';
+import { useForm } from '@inertiajs/vue3';
+import { useToast } from 'vue-toastification';
+import TextInput from '@/Components/TextInput.vue';
 
 const toast = useToast();
 
@@ -34,29 +34,31 @@ const prev = () => {
 const isNext = computed(() => {
   const index = props.flatFiles.findIndex((f) => f.id === props.file.id);
   return !!props.flatFiles[index + 1];
-})
+});
 
 const isPrev = computed(() => {
   const index = props.flatFiles.findIndex((f) => f.id === props.file.id);
   return !!props.flatFiles[index - 1];
-})
+});
 
 const isForm = computed(() => props.isEdit || props.isNew);
 
-watch(() => props.file,
+watch(
+  () => props.file,
   (file) => {
     form.clearErrors();
-    form.title = file.title
-  }
+    form.title = file.title;
+  },
 );
 
-watch(() => props.isNew,
+watch(
+  () => props.isNew,
   (isNew) => {
     if (isNew) {
       form.clearErrors();
       form.title = '';
     }
-  }
+  },
 );
 
 const updateRecord = () => {
@@ -84,7 +86,7 @@ const storeRecord = () => {
 
 defineExpose({
   updateRecord,
-  storeRecord
+  storeRecord,
 });
 </script>
 
@@ -94,7 +96,7 @@ defineExpose({
       <table class="table input-table text-start">
         <tr>
           <th>Title</th>
-          <td><TextInput v-model="form.title" :error="form.errors.title" type="text"/></td>
+          <td><TextInput v-model="form.title" :error="form.errors.title" type="text" /></td>
         </tr>
         <tr>
           <th>File</th>
@@ -103,7 +105,7 @@ defineExpose({
               type="file"
               id="select-file"
               class="form-control"
-              :class="{'is-invalid' : form.errors.image}"
+              :class="{ 'is-invalid': form.errors.image }"
               @input="form.image = $event.target?.files[0] || ''"
             />
             <div v-if="form.errors.image" class="invalid-feedback">{{ form.errors.image }}</div>
@@ -115,7 +117,11 @@ defineExpose({
   <template v-else>
     <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
       <div class="carousel-inner">
-        <div v-if="Object.values(file).length > 0" class="carousel-item active" @click="emit('showImg')">
+        <div
+          v-if="Object.values(file).length > 0"
+          class="carousel-item active"
+          @click="emit('showImg')"
+        >
           <img :src="`storage/${file.image}`" :alt="file.title" style="cursor: zoom-in" />
           <h5 class="mt-3">{{ moment(file.created_at).format('DD, MMM YYYY hh:mm') }}</h5>
           <p>{{ file.title }}</p>

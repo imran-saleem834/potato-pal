@@ -1,19 +1,19 @@
 <script setup>
-import { useForm } from "@inertiajs/vue3";
-import { computed, ref, watch } from "vue";
-import Multiselect from '@vueform/multiselect'
+import { useForm } from '@inertiajs/vue3';
+import { computed, ref, watch } from 'vue';
+import Multiselect from '@vueform/multiselect';
 import DataTable from 'datatables.net-vue3';
 import DataTablesCore from 'datatables.net';
-import TextInput from "@/Components/TextInput.vue";
-import ConfirmedModal from "@/Components/ConfirmedModal.vue";
+import TextInput from '@/Components/TextInput.vue';
+import ConfirmedModal from '@/Components/ConfirmedModal.vue';
 import {
   toTonnes,
   getBinSizesValue,
   getCategoryIdsByType,
   getCategoriesDropDownByType,
-  getSingleCategoryNameByType
-} from "@/helper.js";
-import { useToast } from "vue-toastification";
+  getSingleCategoryNameByType,
+} from '@/helper.js';
+import { useToast } from 'vue-toastification';
 
 const toast = useToast();
 
@@ -23,7 +23,7 @@ const props = defineProps({
   uniqueKey: String,
   cutting: {
     type: Object,
-    default: {}
+    default: {},
   },
   isNew: {
     type: Boolean,
@@ -51,48 +51,56 @@ const form = useForm({
   selected_allocations: props.cutting.cutting_allocations || [],
 });
 
-watch(() => props.cutting,
+watch(
+  () => props.cutting,
   (cutting) => {
     if (props.isNewItem || isEdit.value) {
       return;
     }
     form.clearErrors();
-    form.buyer_id = cutting.buyer_id
-    form.cut_date = cutting.cut_date
-    form.cool_store = getCategoryIdsByType(cutting.categories, 'cool-store')
-    form.fungicide = getCategoryIdsByType(cutting.categories, 'fungicide')
-    form.comment = cutting.comment
-    form.selected_allocations = cutting.cutting_allocations || []
-  }
+    form.buyer_id = cutting.buyer_id;
+    form.cut_date = cutting.cut_date;
+    form.cool_store = getCategoryIdsByType(cutting.categories, 'cool-store');
+    form.fungicide = getCategoryIdsByType(cutting.categories, 'fungicide');
+    form.comment = cutting.comment;
+    form.selected_allocations = cutting.cutting_allocations || [];
+  },
 );
 
 const onSelectAllocation = (allocation) => {
-  const allocationExists = form.selected_allocations.find(alloc => alloc.allocation_id === allocation.id);
+  const allocationExists = form.selected_allocations.find(
+    (alloc) => alloc.allocation_id === allocation.id,
+  );
   if (allocationExists !== undefined) {
-    form.selected_allocations = form.selected_allocations.filter(alloc => alloc.allocation_id !== allocation.id);
+    form.selected_allocations = form.selected_allocations.filter(
+      (alloc) => alloc.allocation_id !== allocation.id,
+    );
   } else {
-    form.selected_allocations = [...form.selected_allocations, {
-      allocation_id: allocation.id,
-      no_of_bins_before_cutting: '',
-      weight_before_cutting: '',
-      no_of_bins_after_cutting: '',
-      weight_after_cutting: '',
-      allocation
-    }];
+    form.selected_allocations = [
+      ...form.selected_allocations,
+      {
+        allocation_id: allocation.id,
+        no_of_bins_before_cutting: '',
+        weight_before_cutting: '',
+        no_of_bins_after_cutting: '',
+        weight_after_cutting: '',
+        allocation,
+      },
+    ];
   }
-}
+};
 
 const onChangeBuyers = () => {
   form.selected_allocations = [];
-}
+};
 
 const isForm = computed(() => {
   return isEdit.value || props.isNew || props.isNewItem;
-})
+});
 
 const setIsEdit = () => {
-  isEdit.value = true
-}
+  isEdit.value = true;
+};
 
 const updateRecord = () => {
   form.patch(route('cuttings.update', props.cutting.id), {
@@ -103,7 +111,7 @@ const updateRecord = () => {
       toast.success('The cutting information has been updated successfully!');
     },
   });
-}
+};
 
 const storeRecord = () => {
   form.post(route('cuttings.store'), {
@@ -114,7 +122,7 @@ const storeRecord = () => {
       toast.success('The cutting information has been saved successfully!');
     },
   });
-}
+};
 
 const deleteCutting = () => {
   const form = useForm({});
@@ -126,21 +134,21 @@ const deleteCutting = () => {
       toast.success('The cutting record has been deleted successfully!');
     },
   });
-}
+};
 
 defineExpose({
-  storeRecord
+  storeRecord,
 });
 </script>
 
 <template>
   <h4 v-if="isNew">Cutting Details</h4>
-  <div class="user-boxes position-relative" :class="{'pe-5': !isForm}">
+  <div class="user-boxes position-relative" :class="{ 'pe-5': !isForm }">
     <table v-if="isForm" class="table input-table">
       <tr>
         <th class="d-none d-sm-table-cell">Buyer Name</th>
         <td>
-          <div class="p-0" :class="{'input-group': form.buyer_id}">
+          <div class="p-0" :class="{ 'input-group': form.buyer_id }">
             <Multiselect
               v-if="isNew"
               v-model="form.buyer_id"
@@ -149,15 +157,15 @@ defineExpose({
               placeholder="Choose a buyer"
               :searchable="true"
               :options="buyers"
-              :class="{'is-invalid' : form.errors.buyer_id || form.errors.selected_allocations}"
+              :class="{ 'is-invalid': form.errors.buyer_id || form.errors.selected_allocations }"
             />
             <input
               v-else
               type="text"
               class="form-control"
               :disabled="true"
-              v-model="buyers.find(buyer => buyer.value === form.buyer_id).label"
-            >
+              v-model="buyers.find((buyer) => buyer.value === form.buyer_id).label"
+            />
             <button
               v-if="form.buyer_id"
               class="btn btn-red input-group-text px-1 px-sm-2"
@@ -166,7 +174,11 @@ defineExpose({
               v-text="'Select Allocations'"
             />
           </div>
-          <div v-if="form.errors.buyer_id" class="invalid-feedback p-0 m-0" v-text="form.errors.buyer_id"/>
+          <div
+            v-if="form.errors.buyer_id"
+            class="invalid-feedback p-0 m-0"
+            v-text="form.errors.buyer_id"
+          />
           <div
             v-if="form.errors.selected_allocations"
             class="invalid-feedback p-0 m-0"
@@ -177,18 +189,31 @@ defineExpose({
     </table>
 
     <template v-if="isForm">
-      <div v-for="(selectedAllocation, index) in form.selected_allocations" class="row allocation-items-box">
+      <div
+        v-for="(selectedAllocation, index) in form.selected_allocations"
+        class="row allocation-items-box"
+      >
         <div class="col-sm-6 col-md-3 col-lg-6 col-xl-3 mt-md-4">
           <div class="col-12 mb-1 pb-1 mb-md-3 mb-lg-1 mb-xl-3">
             <span>Seed type: </span>
             <span class="text-danger">
-              {{ getSingleCategoryNameByType(selectedAllocation.allocation.categories, 'seed-type') || '-' }}
+              {{
+                getSingleCategoryNameByType(
+                  selectedAllocation.allocation.categories,
+                  'seed-type',
+                ) || '-'
+              }}
             </span>
           </div>
           <div class="col-12 mb-1 pb-1 mb-md-3 mb-lg-1 mb-xl-3">
             <span>Variety: </span>
             <span class="text-danger">
-              {{ getSingleCategoryNameByType(selectedAllocation.allocation.categories, 'seed-variety') || '-' }}
+              {{
+                getSingleCategoryNameByType(
+                  selectedAllocation.allocation.categories,
+                  'seed-variety',
+                ) || '-'
+              }}
             </span>
           </div>
           <div class="col-12 mb-1 pb-1 mb-md-3 mb-lg-1 mb-xl-3">
@@ -199,7 +224,9 @@ defineExpose({
         <div class="col-sm-6 col-md-3 col-lg-6 col-xl-3 mt-md-4">
           <div class="col-12 mb-1 pb-1 mb-md-3 mb-lg-1 mb-xl-3">
             <span>Bin size: </span>
-            <span class="text-danger">{{ getBinSizesValue(selectedAllocation.allocation.bin_size) }}</span>
+            <span class="text-danger">
+              {{ getBinSizesValue(selectedAllocation.allocation.bin_size) }}
+            </span>
           </div>
           <div class="col-12 mb-1 pb-1 mb-md-3 mb-lg-1 mb-xl-3">
             <span>Available no of bins: </span>
@@ -254,7 +281,7 @@ defineExpose({
       <div class="row">
         <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 mb-3">
           <label class="form-label">Date of Cutting</label>
-          <TextInput v-model="form.cut_date" :error="form.errors.cut_date" type="date"/>
+          <TextInput v-model="form.cut_date" :error="form.errors.cut_date" type="date" />
         </div>
         <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 mb-3">
           <label class="form-label">Cut By</label>
@@ -265,9 +292,13 @@ defineExpose({
             :searchable="true"
             :create-option="true"
             :options="getCategoriesDropDownByType(categories, 'cool-store')"
-            :class="{'is-invalid' : form.errors.cool_store}"
+            :class="{ 'is-invalid': form.errors.cool_store }"
           />
-          <div v-if="form.errors.cool_store" class="invalid-feedback" v-text="form.errors.cool_store"/>
+          <div
+            v-if="form.errors.cool_store"
+            class="invalid-feedback"
+            v-text="form.errors.cool_store"
+          />
         </div>
         <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 mb-3">
           <label class="form-label">Fungicide</label>
@@ -278,13 +309,17 @@ defineExpose({
             :searchable="true"
             :create-option="true"
             :options="getCategoriesDropDownByType(categories, 'fungicide')"
-            :class="{'is-invalid' : form.errors.fungicide}"
+            :class="{ 'is-invalid': form.errors.fungicide }"
           />
-          <div v-if="form.errors.fungicide" class="invalid-feedback" v-text="form.errors.fungicide"/>
+          <div
+            v-if="form.errors.fungicide"
+            class="invalid-feedback"
+            v-text="form.errors.fungicide"
+          />
         </div>
         <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 mb-3">
           <label class="form-label">Comment</label>
-          <TextInput v-model="form.comment" :error="form.errors.comment" type="text"/>
+          <TextInput v-model="form.comment" :error="form.errors.comment" type="text" />
         </div>
       </div>
       <div v-if="isEdit || isNewItem" class="w-100 text-end">
@@ -294,7 +329,9 @@ defineExpose({
           :data-bs-target="`#update-cutting-${uniqueKey}`"
           class="btn btn-red"
         >
-          <template v-if="form.processing"><i class="bi bi-arrow-repeat d-inline-block spin"></i></template>
+          <template v-if="form.processing">
+            <i class="bi bi-arrow-repeat d-inline-block spin"></i>
+          </template>
           <template v-else>Update</template>
         </button>
         <button
@@ -303,7 +340,9 @@ defineExpose({
           :data-bs-target="`#store-cutting-${uniqueKey}`"
           class="btn btn-red"
         >
-          <template v-if="form.processing"><i class="bi bi-arrow-repeat d-inline-block spin"></i></template>
+          <template v-if="form.processing">
+            <i class="bi bi-arrow-repeat d-inline-block spin"></i>
+          </template>
           <template v-else>Create</template>
         </button>
       </div>
@@ -311,7 +350,11 @@ defineExpose({
     <template v-else>
       <div class="btn-group position-absolute top-0 end-0">
         <button @click="setIsEdit" class="btn btn-red p-1"><i class="bi bi-pen"></i></button>
-        <button data-bs-toggle="modal" :data-bs-target="`#delete-cutting-${uniqueKey}`" class="btn btn-red p-1">
+        <button
+          data-bs-toggle="modal"
+          :data-bs-target="`#delete-cutting-${uniqueKey}`"
+          class="btn btn-red p-1"
+        >
           <template v-if="form.processing">
             <i class="bi bi-arrow-repeat d-inline-block spin"></i>
           </template>
@@ -325,17 +368,24 @@ defineExpose({
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
           <span>Cut By: </span>
-          <span class="text-danger">{{ getSingleCategoryNameByType(cutting.categories, 'cool-store') || '-' }}</span>
+          <span class="text-danger">
+            {{ getSingleCategoryNameByType(cutting.categories, 'cool-store') || '-' }}
+          </span>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
           <span>Fungicide: </span>
-          <span class="text-danger">{{ getSingleCategoryNameByType(cutting.categories, 'fungicide') || '-' }}</span>
+          <span class="text-danger">
+            {{ getSingleCategoryNameByType(cutting.categories, 'fungicide') || '-' }}
+          </span>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
           <span>Comments: </span>
           <span class="text-danger">{{ cutting.comment }}</span>
         </div>
-        <template v-for="cuttingAllocation in cutting.cutting_allocations" :key="cuttingAllocation.id">
+        <template
+          v-for="cuttingAllocation in cutting.cutting_allocations"
+          :key="cuttingAllocation.id"
+        >
           <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
             <span>Seed type: </span>
             <span class="text-danger">
@@ -344,7 +394,9 @@ defineExpose({
           </div>
           <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
             <span>Bin size: </span>
-            <span class="text-danger">{{ getBinSizesValue(cuttingAllocation.allocation.bin_size) }}</span>
+            <span class="text-danger">
+              {{ getBinSizesValue(cuttingAllocation.allocation.bin_size) }}
+            </span>
           </div>
           <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
             <span>Bins before cut: </span>
@@ -365,25 +417,45 @@ defineExpose({
           <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
             <span>Grower Group: </span>
             <span class="text-danger">
-              {{ getSingleCategoryNameByType(cuttingAllocation.allocation.categories, 'grower-group') || '-' }}
+              {{
+                getSingleCategoryNameByType(
+                  cuttingAllocation.allocation.categories,
+                  'grower-group',
+                ) || '-'
+              }}
             </span>
           </div>
           <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
             <span>Variety: </span>
             <span class="text-danger">
-              {{ getSingleCategoryNameByType(cuttingAllocation.allocation.categories, 'seed-variety') || '-' }}
+              {{
+                getSingleCategoryNameByType(
+                  cuttingAllocation.allocation.categories,
+                  'seed-variety',
+                ) || '-'
+              }}
             </span>
           </div>
           <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
             <span>Gen: </span>
             <span class="text-danger">
-              {{ getSingleCategoryNameByType(cuttingAllocation.allocation.categories, 'seed-generation') || '-' }}
+              {{
+                getSingleCategoryNameByType(
+                  cuttingAllocation.allocation.categories,
+                  'seed-generation',
+                ) || '-'
+              }}
             </span>
           </div>
           <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
             <span>Class: </span>
             <span class="text-danger">
-              {{ getSingleCategoryNameByType(cuttingAllocation.allocation.categories, 'seed-class') || '-' }}
+              {{
+                getSingleCategoryNameByType(
+                  cuttingAllocation.allocation.categories,
+                  'seed-class',
+                ) || '-'
+              }}
             </span>
           </div>
           <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 pb-1">
@@ -405,46 +477,65 @@ defineExpose({
             </template>
             <template v-else>Select Allocations</template>
           </h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
         </div>
         <div class="modal-body">
           <div class="table-responsive">
             <table class="table mb-0">
               <thead>
-              <tr>
-                <th>Seed type</th>
-                <th>Variety</th>
-                <th>Class</th>
-                <th>Gen</th>
-                <th>Grower Group</th>
-                <th>Paddock</th>
-                <th>Bin size</th>
-                <th>No of bins</th>
-                <th>Weight</th>
-                <th>Select</th>
-              </tr>
+                <tr>
+                  <th>Seed type</th>
+                  <th>Variety</th>
+                  <th>Class</th>
+                  <th>Gen</th>
+                  <th>Grower Group</th>
+                  <th>Paddock</th>
+                  <th>Bin size</th>
+                  <th>No of bins</th>
+                  <th>Weight</th>
+                  <th>Select</th>
+                </tr>
               </thead>
               <tbody>
-              <template v-for="allocation in allocations" :key="allocation.id">
-                <tr v-if="form.buyer_id === allocation.buyer_id && isForm">
-                  <td>{{ getSingleCategoryNameByType(allocation.categories, 'seed-type') || '-' }}</td>
-                  <td>{{ getSingleCategoryNameByType(allocation.categories, 'seed-variety') || '-' }}</td>
-                  <td>{{ getSingleCategoryNameByType(allocation.categories, 'seed-class') || '-' }}</td>
-                  <td>{{ getSingleCategoryNameByType(allocation.categories, 'seed-generation') || '-' }}</td>
-                  <td>{{ getSingleCategoryNameByType(allocation.categories, 'grower-group') || '-' }}</td>
-                  <td>{{ allocation.paddock }}</td>
-                  <td>{{ getBinSizesValue(allocation.bin_size) }}</td>
-                  <td>{{ allocation.no_of_bins }}</td>
-                  <td>{{ toTonnes(allocation.weight) }}</td>
-                  <td>
-                    <input
-                      type="checkbox"
-                      :checked="form.selected_allocations.find(cutting_allocation => cutting_allocation.allocation_id === allocation.id)"
-                      @click="onSelectAllocation(allocation)"
-                    >
-                  </td>
-                </tr>
-              </template>
+                <template v-for="allocation in allocations" :key="allocation.id">
+                  <tr v-if="form.buyer_id === allocation.buyer_id && isForm">
+                    <td>
+                      {{ getSingleCategoryNameByType(allocation.categories, 'seed-type') || '-' }}
+                    </td>
+                    <td>
+                      {{ getSingleCategoryNameByType(allocation.categories, 'seed-variety') || '-' }}
+                    </td>
+                    <td>
+                      {{ getSingleCategoryNameByType(allocation.categories, 'seed-class') || '-' }}
+                    </td>
+                    <td>
+                      {{ getSingleCategoryNameByType(allocation.categories, 'seed-generation') || '-' }}
+                    </td>
+                    <td>
+                      {{ getSingleCategoryNameByType(allocation.categories, 'grower-group') || '-' }}
+                    </td>
+                    <td>{{ allocation.paddock }}</td>
+                    <td>{{ getBinSizesValue(allocation.bin_size) }}</td>
+                    <td>{{ allocation.no_of_bins }}</td>
+                    <td>{{ toTonnes(allocation.weight) }}</td>
+                    <td>
+                      <input
+                        type="checkbox"
+                        :checked="
+                          form.selected_allocations.find(
+                            (cutting_allocation) => cutting_allocation.allocation_id === allocation.id,
+                          )
+                        "
+                        @click="onSelectAllocation(allocation)"
+                      />
+                    </td>
+                  </tr>
+                </template>
               </tbody>
             </table>
           </div>

@@ -1,21 +1,21 @@
 <script setup>
-import { ref, watch } from "vue";
-import { useForm } from "@inertiajs/vue3";
-import { useToast } from "vue-toastification";
-import TextInput from "@/Components/TextInput.vue";
-import ConfirmedModal from "@/Components/ConfirmedModal.vue";
+import { ref, watch } from 'vue';
+import { useForm } from '@inertiajs/vue3';
+import { useToast } from 'vue-toastification';
+import TextInput from '@/Components/TextInput.vue';
+import ConfirmedModal from '@/Components/ConfirmedModal.vue';
 
 const toast = useToast();
 
 const props = defineProps({
   category: {
     type: Object,
-    default: {}
+    default: {},
   },
   type: String,
   isNew: {
     type: Boolean,
-    default: false
+    default: false,
   },
 });
 
@@ -28,16 +28,17 @@ const form = useForm({
 
 const edit = ref(false);
 
-watch(() => props.category,
+watch(
+  () => props.category,
   (category) => {
     form.clearErrors();
-    form.category = category.name
-  }
+    form.category = category.name;
+  },
 );
 
 const editRecord = () => {
   edit.value = props.category.id;
-}
+};
 
 const updateRecord = () => {
   form.patch(route('categories.update', props.category.id), {
@@ -48,7 +49,7 @@ const updateRecord = () => {
       toast.success('The option has been updated successfully!');
     },
   });
-}
+};
 
 const storeRecord = () => {
   form.post(route('categories.store'), {
@@ -59,7 +60,7 @@ const storeRecord = () => {
       toast.success('The option has been created successfully!');
     },
   });
-}
+};
 
 const deleteRecord = () => {
   form.delete(route('categories.destroy', props.category.id), {
@@ -70,7 +71,7 @@ const deleteRecord = () => {
       toast.success('The option has been deleted successfully!');
     },
   });
-}
+};
 </script>
 
 <template>
@@ -79,8 +80,15 @@ const deleteRecord = () => {
       <tr>
         <th>Name</th>
         <td>
-          <TextInput v-if="edit || isNew" v-model="form.name" :error="form.errors.name" type="text"/>
-          <template v-else><span class="fw-bold">{{ category.name }}</span></template>
+          <TextInput
+            v-if="edit || isNew"
+            v-model="form.name"
+            :error="form.errors.name"
+            type="text"
+          />
+          <template v-else>
+            <span class="fw-bold">{{ category.name }}</span>
+          </template>
         </td>
       </tr>
     </table>
@@ -93,7 +101,9 @@ const deleteRecord = () => {
           class="btn btn-red"
           :disabled="form.processing"
         >
-          <template v-if="form.processing"><i class="bi bi-arrow-repeat d-inline-block spin"></i></template>
+          <template v-if="form.processing">
+            <i class="bi bi-arrow-repeat d-inline-block spin"></i>
+          </template>
           <template v-else>Create</template>
         </button>
       </li>
@@ -107,7 +117,9 @@ const deleteRecord = () => {
           class="btn btn-red"
           :disabled="form.processing"
         >
-          <template v-if="form.processing"><i class="bi bi-arrow-repeat d-inline-block spin"></i></template>
+          <template v-if="form.processing">
+            <i class="bi bi-arrow-repeat d-inline-block spin"></i>
+          </template>
           <template v-else>Update</template>
         </button>
       </li>
@@ -118,7 +130,9 @@ const deleteRecord = () => {
           class="btn btn-red"
           :disabled="form.processing"
         >
-          <template v-if="form.processing"><i class="bi bi-arrow-repeat d-inline-block spin"></i></template>
+          <template v-if="form.processing">
+            <i class="bi bi-arrow-repeat d-inline-block spin"></i>
+          </template>
           <template v-else>Delete</template>
         </button>
       </li>

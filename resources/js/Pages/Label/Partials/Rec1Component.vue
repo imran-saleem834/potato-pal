@@ -1,7 +1,7 @@
 <script setup>
 import moment from 'moment';
-import { computed } from "vue";
-import { getBinSizesValue, getSingleCategoryNameByType } from "@/helper.js";
+import { computed } from 'vue';
+import { getBinSizesValue, getSingleCategoryNameByType } from '@/helper.js';
 
 const props = defineProps({
   label: Object,
@@ -23,18 +23,18 @@ const allocation = computed(() => {
         <div>
           <strong v-if="index === 0">CHC BULK UNLOAD DKT - SEED</strong>
           <strong v-else>CHC BULK UNLOAD DKT - OSIZE</strong>
-          
+
           <h4 class="my-3">Innovator G3</h4>
         </div>
 
         <div>
           <table class="table table-borderless">
             <tr>
-              <td class="text-light-emphasis" style="width: 150px;">RECEIVAL ID</td>
+              <td class="text-light-emphasis" style="width: 150px">RECEIVAL ID</td>
               <td>{{ label.receival_id }}</td>
             </tr>
             <tr>
-              <td class="text-light-emphasis" style="width: 150px;">DATE</td>
+              <td class="text-light-emphasis" style="width: 150px">DATE</td>
               <td>{{ moment().format('DD-MM-YYYY') }}</td>
             </tr>
           </table>

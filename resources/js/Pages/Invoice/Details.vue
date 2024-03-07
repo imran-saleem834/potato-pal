@@ -1,11 +1,11 @@
 <script setup>
 import moment from 'moment';
-import { computed, watch } from "vue";
-import { useForm, Link } from "@inertiajs/vue3";
+import { computed, watch } from 'vue';
+import { useForm, Link } from '@inertiajs/vue3';
 import Multiselect from '@vueform/multiselect';
-import { useToast } from "vue-toastification";
-import { toCamelCase } from "@/helper.js";
-import UlLiButton from "@/Components/UlLiButton.vue";
+import { useToast } from 'vue-toastification';
+import { toCamelCase } from '@/helper.js';
+import UlLiButton from '@/Components/UlLiButton.vue';
 
 const toast = useToast();
 
@@ -25,12 +25,13 @@ const form = useForm({
   invoiceable_id: props.invoice.invoiceable_id,
 });
 
-watch(() => props.invoice,
+watch(
+  () => props.invoice,
   (invoice) => {
     form.clearErrors();
-    form.invoiceable_type = invoice.invoiceable_type
-    form.invoiceable_id = invoice.invoiceable_id
-  }
+    form.invoiceable_type = invoice.invoiceable_type;
+    form.invoiceable_id = invoice.invoiceable_id;
+  },
 );
 
 const isForm = computed(() => props.isEdit || props.isNew);
@@ -52,25 +53,25 @@ const onChangeInvoiceType = (value) => {
     form.invoiceable_type = value;
     form.invoiceable_id = null;
   }
-}
+};
 
 const options = computed(() => {
   if (invoiceableLabel.value === 'Cutting') {
-    return props.cuttings
-      .map((cutting) => ({
-        value: cutting.buyer_id,
-        label: `${cutting.id}; Buyer: ${cutting.buyer.buyer_name}`
-      }));
+    return props.cuttings.map((cutting) => ({
+      value: cutting.buyer_id,
+      label: `${cutting.id}; Buyer: ${cutting.buyer.buyer_name}`,
+    }));
   } else if (invoiceableLabel.value === 'Grade') {
-    return props.grades
-      .map((grade) => ({
-        value: grade.id,
-        label: `${grade.id}; Category: ${toCamelCase(grade.category.replace('-', ' '))}; Grower: ${grade.unload?.receival?.grower?.grower_name}`
-      }));
+    return props.grades.map((grade) => ({
+      value: grade.id,
+      label: `${grade.id}; Category: ${toCamelCase(grade.category.replace('-', ' '))}; Grower: ${grade.unload?.receival?.grower?.grower_name}`,
+    }));
   }
 
-  return props.receivals
-    .map((receival) => ({ value: receival.id, label: `${receival.id}; Grower: ${receival.grower.grower_name}` }));
+  return props.receivals.map((receival) => ({
+    value: receival.id,
+    label: `${receival.id}; Grower: ${receival.grower.grower_name}`,
+  }));
 });
 
 const updateRecord = () => {
@@ -82,7 +83,7 @@ const updateRecord = () => {
       toast.success('The invoice has been updated successfully!');
     },
   });
-}
+};
 
 const storeRecord = () => {
   form.post(route('invoices.store'), {
@@ -93,11 +94,11 @@ const storeRecord = () => {
       toast.success('The invoice has been created successfully!');
     },
   });
-}
+};
 
 defineExpose({
   updateRecord,
-  storeRecord
+  storeRecord,
 });
 </script>
 
@@ -115,7 +116,7 @@ defineExpose({
             :items="[
               { value: 'App\\Models\\Receival', label: 'Receival' },
               { value: 'App\\Models\\Grade', label: 'Grade' },
-              { value: 'App\\Models\\Cutting', label: 'Cutting' }
+              { value: 'App\\Models\\Cutting', label: 'Cutting' },
             ]"
             @click="onChangeInvoiceType"
           />
@@ -130,27 +131,28 @@ defineExpose({
             mode="single"
             placeholder="Choose a label record"
             :searchable="true"
-            :class="{'is-invalid' : form.errors.invoiceable_id}"
+            :class="{ 'is-invalid': form.errors.invoiceable_id }"
             :options="options"
           />
           <template v-else-if="invoice.invoiceable_id">
-            <Link
-              class="p-0"
-              :href="invoiceableRoute"
-            >
+            <Link class="p-0" :href="invoiceableRoute">
               <template v-if="invoiceableLabel === 'Grade'">
                 {{ invoiceableLabel }} Id: {{ invoice.invoiceable_id }}
               </template>
               <template v-else-if="invoiceableLabel === 'Cutting'">
-                {{ invoiceableLabel }} Id: {{ invoice.invoiceable_id }}; Buyer Id: {{ invoice.invoiceable.buyer_id }}
+                {{ invoiceableLabel }} Id: {{ invoice.invoiceable_id }}; Buyer Id:
+                {{ invoice.invoiceable.buyer_id }}
               </template>
               <template v-else>
-                {{ invoiceableLabel }} Id: {{ invoice.invoiceable_id }}; Grower Id: {{ invoice.invoiceable.grower_id }}
+                {{ invoiceableLabel }} Id: {{ invoice.invoiceable_id }}; Grower Id:
+                {{ invoice.invoiceable.grower_id }}
               </template>
             </Link>
           </template>
           <template v-else>-</template>
-          <div v-if="form.errors.invoiceable_id" class="invalid-feedback">{{ form.errors.invoiceable_id }}</div>
+          <div v-if="form.errors.invoiceable_id" class="invalid-feedback">
+            {{ form.errors.invoiceable_id }}
+          </div>
         </td>
       </tr>
       <tr v-if="!isForm">

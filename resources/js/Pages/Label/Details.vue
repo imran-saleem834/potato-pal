@@ -1,13 +1,13 @@
 <script setup>
 import print from 'vue3-print-nb';
-import { computed, ref, watch } from "vue";
-import { useForm, Link } from "@inertiajs/vue3";
+import { computed, ref, watch } from 'vue';
+import { useForm, Link } from '@inertiajs/vue3';
 import Multiselect from '@vueform/multiselect';
-import { useToast } from "vue-toastification";
-import TextInput from "@/Components/TextInput.vue";
-import UlLiButton from "@/Components/UlLiButton.vue";
-import Labels from "@/Pages/Label/Labels.vue";
-import { toTonnes, getBinSizesValue } from "@/helper.js";
+import { useToast } from 'vue-toastification';
+import TextInput from '@/Components/TextInput.vue';
+import UlLiButton from '@/Components/UlLiButton.vue';
+import Labels from '@/Pages/Label/Labels.vue';
+import { toTonnes, getBinSizesValue } from '@/helper.js';
 
 const toast = useToast();
 const vPrint = print;
@@ -37,18 +37,19 @@ const form = useForm({
   comments: props.label.comments,
 });
 
-watch(() => props.label,
+watch(
+  () => props.label,
   (label) => {
     form.clearErrors();
-    form.labelable_type = label.labelable_type
-    form.labelable_id = label.labelable_id
-    form.buyer_id = label.buyer_id
-    form.grower_id = label.grower_id
-    form.paddock = label.paddock
-    form.receival_id = label.receival_id
-    form.type = label.type
-    form.comments = label.comments
-  }
+    form.labelable_type = label.labelable_type;
+    form.labelable_id = label.labelable_id;
+    form.buyer_id = label.buyer_id;
+    form.grower_id = label.grower_id;
+    form.paddock = label.paddock;
+    form.receival_id = label.receival_id;
+    form.type = label.type;
+    form.comments = label.comments;
+  },
 );
 
 const isForm = computed(() => props.isEdit || props.isNew);
@@ -62,7 +63,7 @@ const updateRecord = () => {
       toast.success('The label has been updated successfully!');
     },
   });
-}
+};
 
 const storeRecord = () => {
   form.post(route('labels.store'), {
@@ -73,7 +74,7 @@ const storeRecord = () => {
       toast.success('The label has been created successfully!');
     },
   });
-}
+};
 
 const onChangeLabelType = (value) => {
   if (form.labelable_type !== value) {
@@ -83,111 +84,148 @@ const onChangeLabelType = (value) => {
     form.paddock = null;
     form.labelable_id = null;
   }
-}
+};
 
 const onChangeType = (value) => {
   if (form.type !== value) {
     form.type = value;
     // Todo: Will display label below
   }
-}
+};
 
 const printLabels = () => {
-  btnPrintLabel.value.click()
-}
+  btnPrintLabel.value.click();
+};
 
 const buyers = computed(() => {
   if (form.labelable_type === 'App\\Models\\CuttingAllocation') {
     return props.cuttings
-      .filter((cutting, index, self) => index === self.findIndex((t) => (t.allocation.buyer_id === cutting.allocation.buyer_id)))
-      .map((cutting) => ({ value: cutting.allocation.buyer_id, label: cutting.allocation.buyer.buyer_name }));
+      .filter(
+        (cutting, index, self) =>
+          index === self.findIndex((t) => t.allocation.buyer_id === cutting.allocation.buyer_id),
+      )
+      .map((cutting) => ({
+        value: cutting.allocation.buyer_id,
+        label: cutting.allocation.buyer.buyer_name,
+      }));
   } else if (form.labelable_type === 'App\\Models\\Reallocation') {
     return props.reallocations
-      .filter((reallocation, index, self) => index === self.findIndex((t) => (t.buyer_id === reallocation.buyer_id)))
-      .map((reallocation) => ({ value: reallocation.buyer_id, label: reallocation.buyer.buyer_name }));
+      .filter(
+        (reallocation, index, self) =>
+          index === self.findIndex((t) => t.buyer_id === reallocation.buyer_id),
+      )
+      .map((reallocation) => ({
+        value: reallocation.buyer_id,
+        label: reallocation.buyer.buyer_name,
+      }));
   }
-  
+
   return props.allocations
-    .filter((allocation, index, self) => index === self.findIndex((t) => (t.buyer_id === allocation.buyer_id)))
+    .filter(
+      (allocation, index, self) =>
+        index === self.findIndex((t) => t.buyer_id === allocation.buyer_id),
+    )
     .map((allocation) => ({ value: allocation.buyer_id, label: allocation.buyer.buyer_name }));
 });
 
 const exGrowers = computed(() => {
   if (form.labelable_type === 'App\\Models\\CuttingAllocation') {
     return props.cuttings
-      .filter(cutting => cutting.allocation.buyer_id === form.buyer_id)
-      .filter((cutting, index, self) => index === self.findIndex((t) => (t.allocation.grower_id === cutting.allocation.grower_id)))
-      .map((cutting) => ({ value: cutting.allocation.grower_id, label: cutting.allocation.grower.grower_name }));
+      .filter((cutting) => cutting.allocation.buyer_id === form.buyer_id)
+      .filter(
+        (cutting, index, self) =>
+          index === self.findIndex((t) => t.allocation.grower_id === cutting.allocation.grower_id),
+      )
+      .map((cutting) => ({
+        value: cutting.allocation.grower_id,
+        label: cutting.allocation.grower.grower_name,
+      }));
   } else if (form.labelable_type === 'App\\Models\\Reallocation') {
     return props.reallocations
-      .filter(reallocation => reallocation.buyer_id === form.buyer_id)
-      .filter((reallocation, index, self) => index === self.findIndex((t) => (t.allocation.grower_id === reallocation.allocation.grower_id)))
-      .map((reallocation) => ({ value: reallocation.allocation.grower_id, label: reallocation.allocation.grower.grower_name }));
+      .filter((reallocation) => reallocation.buyer_id === form.buyer_id)
+      .filter(
+        (reallocation, index, self) =>
+          index ===
+          self.findIndex((t) => t.allocation.grower_id === reallocation.allocation.grower_id),
+      )
+      .map((reallocation) => ({
+        value: reallocation.allocation.grower_id,
+        label: reallocation.allocation.grower.grower_name,
+      }));
   }
-  
+
   return props.allocations
-    .filter(allocation => allocation.buyer_id === form.buyer_id)
-    .filter((allocation, index, self) => index === self.findIndex((t) => (t.grower_id === allocation.grower_id)))
+    .filter((allocation) => allocation.buyer_id === form.buyer_id)
+    .filter(
+      (allocation, index, self) =>
+        index === self.findIndex((t) => t.grower_id === allocation.grower_id),
+    )
     .map((allocation) => ({ value: allocation.grower_id, label: allocation.grower.grower_name }));
 });
 
 const paddockOptions = computed(() => {
   if (form.labelable_type === 'App\\Models\\CuttingAllocation') {
     return props.cuttings
-      .filter(cutting => cutting.allocation.buyer_id === form.buyer_id)
-      .filter(cutting => cutting.allocation.grower_id === form.grower_id)
-      .filter((cutting, index, self) => index === self.findIndex((t) => (t.allocation.paddock === cutting.allocation.paddock)))
-      .map((cutting) => ({ value: cutting.allocation.paddock, label: cutting.allocation.paddock }))
+      .filter((cutting) => cutting.allocation.buyer_id === form.buyer_id)
+      .filter((cutting) => cutting.allocation.grower_id === form.grower_id)
+      .filter(
+        (cutting, index, self) =>
+          index === self.findIndex((t) => t.allocation.paddock === cutting.allocation.paddock),
+      )
+      .map((cutting) => ({ value: cutting.allocation.paddock, label: cutting.allocation.paddock }));
   } else if (form.labelable_type === 'App\\Models\\Reallocation') {
     return props.reallocations
-      .filter(reallocation => reallocation.buyer_id === form.buyer_id)
-      .filter(reallocation => reallocation.allocation.grower_id === form.grower_id)
-      .filter((reallocation, index, self) => index === self.findIndex((t) => (t.allocation.paddock === reallocation.allocation.paddock)))
-      .map((reallocation) => ({ value: reallocation.allocation.paddock, label: reallocation.allocation.paddock }))
+      .filter((reallocation) => reallocation.buyer_id === form.buyer_id)
+      .filter((reallocation) => reallocation.allocation.grower_id === form.grower_id)
+      .filter(
+        (reallocation, index, self) =>
+          index === self.findIndex((t) => t.allocation.paddock === reallocation.allocation.paddock),
+      )
+      .map((reallocation) => ({
+        value: reallocation.allocation.paddock,
+        label: reallocation.allocation.paddock,
+      }));
   }
-  
+
   return props.allocations
-    .filter(allocation => allocation.buyer_id === form.buyer_id)
-    .filter(allocation => allocation.grower_id === form.grower_id)
-    .filter((allocation, index, self) => index === self.findIndex((t) => (t.paddock === allocation.paddock)))
-    .map((allocation) => ({ value: allocation.paddock, label: allocation.paddock }))
+    .filter((allocation) => allocation.buyer_id === form.buyer_id)
+    .filter((allocation) => allocation.grower_id === form.grower_id)
+    .filter(
+      (allocation, index, self) =>
+        index === self.findIndex((t) => t.paddock === allocation.paddock),
+    )
+    .map((allocation) => ({ value: allocation.paddock, label: allocation.paddock }));
 });
 
 const allocationOption = computed(() => {
   if (form.labelable_type === 'App\\Models\\CuttingAllocation') {
     return props.cuttings
-      .filter(cutting => cutting.allocation.buyer_id === form.buyer_id)
-      .filter(cutting => cutting.allocation.grower_id === form.grower_id)
-      .filter(cutting => cutting.allocation.paddock === form.paddock)
-      .map(cutting => (
-        {
-          value: cutting.id,
-          label: `${cutting.id}; Size: ${getBinSizesValue(cutting.allocation.bin_size)}; Bins after cut: ${cutting.no_of_bins_after_cutting}; W after cut: ${toTonnes(cutting.weight_after_cutting)}`
-        }
-      ));
+      .filter((cutting) => cutting.allocation.buyer_id === form.buyer_id)
+      .filter((cutting) => cutting.allocation.grower_id === form.grower_id)
+      .filter((cutting) => cutting.allocation.paddock === form.paddock)
+      .map((cutting) => ({
+        value: cutting.id,
+        label: `${cutting.id}; Size: ${getBinSizesValue(cutting.allocation.bin_size)}; Bins after cut: ${cutting.no_of_bins_after_cutting}; W after cut: ${toTonnes(cutting.weight_after_cutting)}`,
+      }));
   } else if (form.labelable_type === 'App\\Models\\Reallocation') {
     return props.reallocations
-      .filter(reallocation => reallocation.buyer_id === form.buyer_id)
-      .filter(reallocation => reallocation.allocation.grower_id === form.grower_id)
-      .filter(reallocation => reallocation.allocation.paddock === form.paddock)
-      .map(reallocation => (
-        {
-          value: reallocation.id,
-          label: `${reallocation.id}; Size: ${getBinSizesValue(reallocation.allocation.bin_size)}; Bins: ${reallocation.no_of_bins}; W: ${toTonnes(reallocation.weight)}`
-        }
-      ));
+      .filter((reallocation) => reallocation.buyer_id === form.buyer_id)
+      .filter((reallocation) => reallocation.allocation.grower_id === form.grower_id)
+      .filter((reallocation) => reallocation.allocation.paddock === form.paddock)
+      .map((reallocation) => ({
+        value: reallocation.id,
+        label: `${reallocation.id}; Size: ${getBinSizesValue(reallocation.allocation.bin_size)}; Bins: ${reallocation.no_of_bins}; W: ${toTonnes(reallocation.weight)}`,
+      }));
   }
 
   return props.allocations
-    .filter(allocation => allocation.buyer_id === form.buyer_id)
-    .filter(allocation => allocation.grower_id === form.grower_id)
-    .filter(allocation => allocation.paddock === form.paddock)
-    .map(allocation => (
-      {
-        value: allocation.id,
-        label: `${allocation.id}; Size: ${getBinSizesValue(allocation.bin_size)}; Bins: ${allocation.no_of_bins}; W: ${toTonnes(allocation.weight)}`
-      }
-    ));
+    .filter((allocation) => allocation.buyer_id === form.buyer_id)
+    .filter((allocation) => allocation.grower_id === form.grower_id)
+    .filter((allocation) => allocation.paddock === form.paddock)
+    .map((allocation) => ({
+      value: allocation.id,
+      label: `${allocation.id}; Size: ${getBinSizesValue(allocation.bin_size)}; Bins: ${allocation.no_of_bins}; W: ${toTonnes(allocation.weight)}`,
+    }));
 });
 
 const idSelectionLabel = computed(() => {
@@ -211,11 +249,11 @@ const idSelectionRoute = computed(() => {
 defineExpose({
   updateRecord,
   storeRecord,
-  printLabels
+  printLabels,
 });
 
 const printObj = {
-  id: "---",
+  id: '---',
   // url: 'http://localhost:8000/users',
   // extraCss: "http://localhost:8000/build/assets/app-b0f4edb8.css",
   // extraHead: '<meta http-equiv="Content-Language" content="en-gb" />',
@@ -225,7 +263,7 @@ const printObj = {
   asyncUrl(reslove, vue) {
     setTimeout(() => {
       reslove(route('labels.print', [props.label.id, form.type]));
-    }, 1000)
+    }, 1000);
   },
   // previewBeforeOpenCallback () {
   //   console.log('previewBeforeOpenCallback')
@@ -235,16 +273,16 @@ const printObj = {
   // },
   beforeOpenCallback(vue) {
     // vue.printLoading = true
-    console.log('beforeOpenCallback')
+    console.log('beforeOpenCallback');
   },
   openCallback(vue) {
     // vue.printLoading = false
-    console.log('openCallback')
+    console.log('openCallback');
   },
   closeCallback(vue) {
-    console.log('closeCallback')
+    console.log('closeCallback');
   },
-}
+};
 </script>
 
 <template>
@@ -263,7 +301,7 @@ const printObj = {
                 :items="[
                   { value: 'App\\Models\\Allocation', label: 'Allocation' },
                   { value: 'App\\Models\\Reallocation', label: 'Reallocation' },
-                  { value: 'App\\Models\\CuttingAllocation', label: 'Cutting' }
+                  { value: 'App\\Models\\CuttingAllocation', label: 'Cutting' },
                 ]"
                 @click="onChangeLabelType"
               />
@@ -278,7 +316,7 @@ const printObj = {
                 mode="single"
                 placeholder="Choose a buyer"
                 :searchable="true"
-                :class="{'is-invalid' : form.errors.buyer_id}"
+                :class="{ 'is-invalid': form.errors.buyer_id }"
                 :options="buyers"
               />
               <Link
@@ -289,7 +327,9 @@ const printObj = {
                 {{ label.buyer.buyer_name }}
               </Link>
               <template v-else>-</template>
-              <div v-if="form.errors.buyer_id" class="invalid-feedback">{{ form.errors.buyer_id }}</div>
+              <div v-if="form.errors.buyer_id" class="invalid-feedback">
+                {{ form.errors.buyer_id }}
+              </div>
             </td>
           </tr>
           <tr v-if="form.buyer_id">
@@ -301,7 +341,7 @@ const printObj = {
                 mode="single"
                 placeholder="Choose a grower"
                 :searchable="true"
-                :class="{'is-invalid' : form.errors.grower_id}"
+                :class="{ 'is-invalid': form.errors.grower_id }"
                 :options="exGrowers"
               />
               <Link
@@ -312,7 +352,9 @@ const printObj = {
                 {{ label.grower.grower_name }}
               </Link>
               <template v-else>-</template>
-              <div v-if="form.errors.grower_id" class="invalid-feedback">{{ form.errors.grower_id }}</div>
+              <div v-if="form.errors.grower_id" class="invalid-feedback">
+                {{ form.errors.grower_id }}
+              </div>
             </td>
           </tr>
           <tr v-if="form.grower_id">
@@ -324,12 +366,14 @@ const printObj = {
                 mode="single"
                 placeholder="Choose a paddock"
                 :searchable="true"
-                :class="{'is-invalid' : form.errors.paddock}"
+                :class="{ 'is-invalid': form.errors.paddock }"
                 :options="paddockOptions"
               />
               <template v-else-if="label.paddock">{{ label.paddock }}</template>
               <template v-else>-</template>
-              <div v-if="form.errors.paddock" class="invalid-feedback">{{ form.errors.paddock }}</div>
+              <div v-if="form.errors.paddock" class="invalid-feedback">
+                {{ form.errors.paddock }}
+              </div>
             </td>
           </tr>
           <tr v-if="form.paddock">
@@ -341,20 +385,17 @@ const printObj = {
                 mode="single"
                 placeholder="Choose a label record"
                 :searchable="true"
-                :class="{'is-invalid' : form.errors.labelable_id}"
+                :class="{ 'is-invalid': form.errors.labelable_id }"
                 :options="allocationOption"
               />
               <template v-else-if="label.labelable_id">
                 {{ idSelectionLabel }} Id: {{ label.labelable_id }};
-                <Link
-                  class="p-0"
-                  :href="idSelectionRoute"
-                >
-                  Buyer Id: {{ label.buyer_id }}
-                </Link>
+                <Link class="p-0" :href="idSelectionRoute"> Buyer Id: {{ label.buyer_id }} </Link>
               </template>
               <template v-else>-</template>
-              <div v-if="form.errors.labelable_id" class="invalid-feedback">{{ form.errors.labelable_id }}</div>
+              <div v-if="form.errors.labelable_id" class="invalid-feedback">
+                {{ form.errors.labelable_id }}
+              </div>
             </td>
           </tr>
         </table>
@@ -390,7 +431,7 @@ const printObj = {
                 mode="single"
                 placeholder="Choose a receival"
                 :searchable="true"
-                :class="{'is-invalid' : form.errors.receival_id}"
+                :class="{ 'is-invalid': form.errors.receival_id }"
                 :options="receivals"
               />
               <Link
@@ -401,7 +442,9 @@ const printObj = {
                 {{ label.receival_id }}
               </Link>
               <template v-else>-</template>
-              <div v-if="form.errors.receival_id" class="invalid-feedback">{{ form.errors.receival_id }}</div>
+              <div v-if="form.errors.receival_id" class="invalid-feedback">
+                {{ form.errors.receival_id }}
+              </div>
             </td>
           </tr>
           <tr>
@@ -420,11 +463,7 @@ const printObj = {
           <tr v-if="!isForm">
             <th>Print</th>
             <td>
-              <button
-                class="btn btn-red btn-sm"
-                v-print="printObj"
-                ref="btnPrintLabel"
-              >
+              <button class="btn btn-red btn-sm" v-print="printObj" ref="btnPrintLabel">
                 <i class="bi bi-printer"></i> Print Labels
               </button>
             </td>
@@ -434,5 +473,5 @@ const printObj = {
     </div>
   </div>
 
-  <Labels v-if="!isForm" :type="form.type" :label="label"/>
+  <Labels v-if="!isForm" :type="form.type" :label="label" />
 </template>

@@ -12,7 +12,7 @@ defineProps({
   ok: {
     type: String,
     default: 'Yes',
-  }
+  },
 });
 
 defineEmits(['ok']);
@@ -29,7 +29,7 @@ defineEmits(['ok']);
             </div>
             <div class="d-flex flex-column align-items-center">
               <h4 class="fw-bold fs-4">Are you sure?</h4>
-              <p v-text="title"/>
+              <p v-text="title" />
             </div>
           </div>
           <div class="d-flex justify-content-center pt-3 gap-3">

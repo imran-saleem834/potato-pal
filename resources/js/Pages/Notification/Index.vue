@@ -1,11 +1,10 @@
 <script setup>
 import moment from 'moment';
-import { ref, watch } from "vue";
-import { router } from "@inertiajs/vue3";
+import { ref, watch } from 'vue';
+import { router } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import TopBar from '@/Components/TopBar.vue';
-import MiddleBar from '@/Components/MiddleBar.vue';
-import Pagination from "@/Components/Pagination.vue";
+import Pagination from '@/Components/Pagination.vue';
 
 const props = defineProps({
   notifications: {
@@ -21,13 +20,13 @@ const search = ref(props.filters.search);
 
 watch(search, (value) => {
   router.get(
-    route("notifications.index"),
+    route('notifications.index'),
     { search: value },
     { preserveState: true, preserveScroll: true },
   );
 });
 
-const filter = (keyword) => search.value = keyword;
+const filter = (keyword) => (search.value = keyword);
 
 const getNotificationActionColor = (action) => {
   if (action === 'Deleted') {
@@ -37,7 +36,7 @@ const getNotificationActionColor = (action) => {
   } else {
     return 'text-success';
   }
-}
+};
 </script>
 
 <template>
@@ -71,12 +70,15 @@ const getNotificationActionColor = (action) => {
                   </strong>
                 </h6>
                 <h6>{{ moment(notification.created_at).format('YYYY-MM-DD HH:MM:SS') }}</h6>
-                <h6><br> {{ notification.notification }}</h6>
+                <h6>
+                  <br />
+                  {{ notification.notification }}
+                </h6>
               </div>
             </div>
           </div>
           <div class="col-12" v-if="notifications.data?.length <= 0">
-            <p class="text-center" style="margin-top: calc(50vh - 120px);">No Records Found</p>
+            <p class="text-center" style="margin-top: calc(50vh - 120px)">No Records Found</p>
           </div>
         </div>
         <div class="float-end">

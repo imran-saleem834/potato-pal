@@ -1,6 +1,6 @@
 <script setup>
-import { computed } from "vue";
-import { getSingleCategoryNameByType } from "@/helper.js";
+import { computed } from 'vue';
+import { getSingleCategoryNameByType } from '@/helper.js';
 
 const props = defineProps({
   label: Object,
@@ -26,7 +26,7 @@ const allocation = computed(() => {
           </tr>
           <tr v-if="allocation.buyer">
             <td class="text-light-emphasis">EX BUYER</td>
-            <td>{{allocation.buyer.buyer_name }}</td>
+            <td>{{ allocation.buyer.buyer_name }}</td>
           </tr>
           <tr>
             <td class="text-light-emphasis">EX GROWER</td>
@@ -41,8 +41,8 @@ const allocation = computed(() => {
             <td>{{ getSingleCategoryNameByType(allocation.categories, 'seed-type') }}</td>
           </tr>
         </table>
-        <div class="d-flex justify-content-end mb-3" style="margin-top: -1rem;">
-          <img src="/images/black-white-logo.png" alt="logo" style="width: 100px;" />
+        <div class="d-flex justify-content-end mb-3" style="margin-top: -1rem">
+          <img src="/images/black-white-logo.png" alt="logo" style="width: 100px" />
         </div>
       </div>
     </div>

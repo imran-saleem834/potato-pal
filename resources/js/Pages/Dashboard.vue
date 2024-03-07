@@ -1,7 +1,7 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
 import LogoutButton from '@/Components/LogoutButton.vue';
-import InstallConfirmedModal from "@/Components/InstallConfirmedModal.vue";
+import InstallConfirmedModal from '@/Components/InstallConfirmedModal.vue';
 
 // route('reallocations.index')
 // route('labels.index')
@@ -45,14 +45,10 @@ const menus = [
       <div class="admin-menu">
         <h5>Welcome {{ $page.props.auth.user.name }}</h5>
         <div class="row">
-          <div
-            v-for="menu in menus"
-            :key="menu.image"
-            class="col-6 col-sm-3"
-          >
-            <div class="menu-icon" :class="{ 'opacity-50' : menu.route === '' }">
+          <div v-for="menu in menus" :key="menu.image" class="col-6 col-sm-3">
+            <div class="menu-icon" :class="{ 'opacity-50': menu.route === '' }">
               <Link :href="menu.route">
-                <img :src="`/images/${menu.image}`" :alt="menu.label">
+                <img :src="`/images/${menu.image}`" :alt="menu.label" />
                 <span>{{ menu.label }}</span>
               </Link>
             </div>
