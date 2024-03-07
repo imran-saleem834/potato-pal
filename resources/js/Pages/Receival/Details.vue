@@ -387,10 +387,10 @@ const pushForUnload = () => {
       <h4 v-if="!isNew">Docket Receipts</h4>
       <div v-if="!isNew" class="user-boxes notes-list">
         <Images
-          :images="receival.images"
-          :upload-route="route('receivals.upload', receival.id || 0)"
-          :delete-route="route('receivals.delete', receival.id || 0)"
-          @updateRecord="emit('update')"
+          type="receivals"
+          :id="receival.id || 0"
+          :images="receival.images || []"
+          @update="emit('update')"
         />
       </div>
     </div>

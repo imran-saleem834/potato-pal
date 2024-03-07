@@ -8,7 +8,6 @@ use App\Helpers\ReceivalHelper;
 use App\Helpers\CategoriesHelper;
 use App\Helpers\NotificationHelper;
 use App\Http\Requests\ReceivalRequest;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Builder;
 use App\Models\{Category, Unload, User, Receival, TiaSample};
 
@@ -207,49 +206,6 @@ class ReceivalController extends Controller
         NotificationHelper::duplicatedAction('Receival', $receival->id);
 
         return to_route('receivals.index');
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function upload(Request $request, string $id)
-    {
-        $request->validate([
-            'file' => ['required', 'mimes:jpeg,png,jpg,gif,svg,pdf', 'max:2048'],
-        ]);
-
-        $file     = $request->file('file');
-        $fileName = $file->storePublicly('receivals');
-
-        $receival         = Receival::find($id);
-        $images           = $receival->images ?? [];
-        $images[]         = $fileName;
-        $receival->images = $images;
-        $receival->save();
-
-        return back();
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function delete(Request $request, string $id)
-    {
-        $fileName = $request->input('image');
-
-        $receival = Receival::find($id);
-        $images   = $receival->images ?? [];
-
-        $pos = array_search($fileName, $images);
-        if ($pos !== false) {
-            unset($images[$pos]);
-
-            Storage::disk()->delete($fileName);
-        }
-
-        $receival->images = array_values($images);
-
-        $receival->save();
     }
 
     private function getReceival($receivalId)

@@ -7,7 +7,6 @@ use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Http\Requests\NoteRequest;
 use App\Helpers\NotificationHelper;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Builder;
 
 class NoteController extends Controller
@@ -88,48 +87,5 @@ class NoteController extends Controller
         NotificationHelper::deleteAction('Note', $id);
 
         return to_route('notes.index');
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function upload(Request $request, string $id)
-    {
-        $request->validate([
-            'file' => ['required', 'mimes:jpeg,png,jpg,gif,svg,pdf', 'max:2048'],
-        ]);
-
-        $file     = $request->file('file');
-        $fileName = $file->storePublicly('notes');
-
-        $note         = Note::find($id);
-        $images       = $note->images ?? [];
-        $images[]     = $fileName;
-        $note->images = $images;
-        $note->save();
-
-        return back();
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function delete(Request $request, string $id)
-    {
-        $fileName = $request->input('image');
-
-        $note   = Note::find($id);
-        $images = $note->images ?? [];
-
-        $pos = array_search($fileName, $images);
-        if ($pos !== false) {
-            unset($images[$pos]);
-
-            Storage::disk()->delete($fileName);
-        }
-
-        $note->images = array_values($images);
-
-        $note->save();
     }
 }

@@ -71,6 +71,11 @@
     text-align: center;
 }
 
+.multiple-inputs .tubers + .d-sm-inline-block,
+.multiple-inputs .minimal_insect_feeding + .d-sm-inline-block {
+    vertical-align: bottom;
+}
+
 .multiple-inputs > li.sub_total:nth-of-type(-n + 4) > input,
 .multiple-inputs > li.total_disease:nth-of-type(-n + 4) > input,
 .multiple-inputs > li.total_defects:nth-of-type(-n + 4) > input {
@@ -724,6 +729,51 @@ body {
 
 /**** ModalRight ******/
 
+/****** Attachment ********/
+.upload-btn-wrapper {
+    position: relative;
+    cursor: pointer;
+}
+
+.upload-btn-wrapper .btn {
+    border: 2px solid #707070;
+    background-color: white;
+    padding: 18px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.upload-btn-wrapper > img {
+    height: 88px;
+    max-width: 100%;
+    border-radius: 8px;
+}
+
+.upload-btn-wrapper .bi-trash {
+    position: absolute;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 1px 1px 0 1px;
+    top: 0;
+    right: 0;
+    cursor: pointer;
+    color: white;
+    border-radius: 0 0 0 5px;
+}
+
+.upload-btn-wrapper .bi-trash:hover {
+    color: #dc3545;
+    background: rgba(0, 0, 0, 0.8);
+}
+
+.upload-btn-wrapper input[type=file] {
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+}
 
 /****** Files ********/
 .files-section .files-left {

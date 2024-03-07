@@ -117,10 +117,10 @@ defineExpose({
 
         <Images
           v-if="!isNew"
-          :images="note?.images"
-          :upload-route="route('notes.upload', note?.id || 0)"
-          :delete-route="route('notes.delete', note?.id || 0)"
-          @updateRecord="emit('update')"
+          type="notes"
+          :id="note?.id || 0"
+          :images="note?.images || []"
+          @update="emit('update')"
         />
       </div>
     </div>

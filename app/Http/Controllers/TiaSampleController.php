@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use App\Helpers\NotificationHelper;
 use App\Models\{Receival, TiaSample};
 use App\Http\Requests\TiaSampleRequest;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Builder;
 
 class TiaSampleController extends Controller
@@ -30,7 +29,6 @@ class TiaSampleController extends Controller
                         ->orWhere('processor', 'LIKE', "%$search%")
                         ->orWhere('inspection_no', 'LIKE', "%$search%")
                         ->orWhere('inspection_date', 'LIKE', "%$search%")
-                        ->orWhere('cool_store', 'LIKE', "%$search%")
                         ->orWhere('size', 'LIKE', "%$search%")
                         ->orWhere('status', 'LIKE', "%$search%")
                         ->orWhere('comment', 'LIKE', "%$search%");
@@ -43,7 +41,7 @@ class TiaSampleController extends Controller
 
         $tiaSampleId = $request->input('tiaSampleId', $tiaSamples->items()[0]->id ?? 0);
 
-        $tiaSample = TiaSample::with(['receival.grower', 'receival.categories.category'])->find($tiaSampleId);
+        $tiaSample = $this->getTiaSample($tiaSampleId);
 
         $receivals = Receival::query()
             ->with(['grower:id,grower_name'])
@@ -51,7 +49,7 @@ class TiaSampleController extends Controller
             ->get()
             ->map(function ($receival) {
                 return [
-                    'value' => $receival->id, 
+                    'value' => $receival->id,
                     'label' => "Receival id: {$receival->id}; {$receival->grower->grower_name}"
                 ];
             });
@@ -84,7 +82,7 @@ class TiaSampleController extends Controller
      */
     public function show(string $id)
     {
-        $tiaSample = TiaSample::with(['receival.grower', 'receival.categories.category'])->find($id);
+        $tiaSample = $this->getTiaSample($id);
 
         return response()->json($tiaSample);
     }
@@ -118,46 +116,13 @@ class TiaSampleController extends Controller
         return to_route('tia-samples.index');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function upload(Request $request, string $id)
+    public function getTiaSample(string $id)
     {
-        $request->validate([
-            'file' => ['required', 'mimes:jpeg,png,jpg,gif,svg,pdf', 'max:2048'],
-        ]);
-
-        $file     = $request->file('file');
-        $fileName = $file->storePublicly('tia-samples');
-
-        $tiaSample         = TiaSample::find($id);
-        $images            = $tiaSample->images ?? [];
-        $images[]          = $fileName;
-        $tiaSample->images = $images;
-        $tiaSample->save();
-
-        return back();
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function delete(Request $request, string $id)
-    {
-        $fileName = $request->input('image');
-
-        $tiaSample = TiaSample::find($id);
-        $images    = $tiaSample->images ?? [];
-
-        $pos = array_search($fileName, $images);
-        if ($pos !== false) {
-            unset($images[$pos]);
-
-            Storage::disk()->delete($fileName);
-        }
-
-        $tiaSample->images = array_values($images);
-
-        $tiaSample->save();
+        return TiaSample::query()
+            ->with([
+                'receival.grower.categories.category',
+                'receival.categories.category'
+            ])
+            ->find($id);
     }
 }

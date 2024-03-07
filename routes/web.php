@@ -18,6 +18,7 @@ use App\Http\Controllers\WeighbridgeController;
 use App\Http\Controllers\GradingController;
 use App\Http\Controllers\LabelController;
 use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\MediaController;
 use Dcblogdev\Xero\Facades\Xero;
 
 /*
@@ -51,8 +52,6 @@ Route::middleware([
     Route::post('/receivals/{id}/push/tia-sample', [ReceivalController::class, 'pushForTiaSample'])
         ->name('receivals.push.tia-sample');
     Route::post('/receivals/{id}/duplicate', [ReceivalController::class, 'duplicate'])->name('receivals.duplicate');
-    Route::post('/receivals/{id}/upload', [ReceivalController::class, 'upload'])->name('receivals.upload');
-    Route::post('/receivals/{id}/delete', [ReceivalController::class, 'delete'])->name('receivals.delete');
     Route::resource('/receivals', ReceivalController::class);
 
     Route::resource('/unloading', UnloadingController::class);
@@ -63,8 +62,6 @@ Route::middleware([
 
     Route::get('/labels/{label}/print/{type}', [LabelController::class, 'label'])->name('labels.print');
 
-    Route::post('/tia-samples/{id}/upload', [TiaSampleController::class, 'upload'])->name('tia-samples.upload');
-    Route::post('/tia-samples/{id}/delete', [TiaSampleController::class, 'delete'])->name('tia-samples.delete');
     Route::resource('/tia-samples', TiaSampleController::class);
 
     Route::resource('/allocations', AllocationController::class)->except(['create', 'edit', 'show']);
@@ -78,11 +75,15 @@ Route::middleware([
 
     Route::resource('/notifications', NotificationController::class);
 
-    Route::post('/notes/{id}/upload', [NoteController::class, 'upload'])->name('notes.upload');
-    Route::post('/notes/{id}/delete', [NoteController::class, 'delete'])->name('notes.delete');
     Route::resource('/notes', NoteController::class);
 
     Route::resource('/files', FileController::class);
+
+    Route::get('/media/files', [MediaController::class, 'files'])->name('media.files');
+    Route::post('/media/{model}/{id}/attach', [MediaController::class, 'attach'])->name('media.attach');
+    Route::post('/media/{model}/{id}/upload', [MediaController::class, 'upload'])->name('media.upload');
+    Route::post('/media/{model}/{id}/delete', [MediaController::class, 'delete'])->name('media.delete');
+    
     Route::inertia('/test', 'Test');
 });
 

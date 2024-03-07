@@ -19,7 +19,6 @@ class TiaSample extends Model
         'processor',
         'inspection_no',
         'inspection_date',
-        'cool_store',
         'size',
         'tubers',
         'dry_rot',

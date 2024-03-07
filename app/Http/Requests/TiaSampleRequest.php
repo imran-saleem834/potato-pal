@@ -54,7 +54,6 @@ class TiaSampleRequest extends FormRequest
             'processor'           => ['nullable', Rule::in([500, 1000, 2000])],
             'inspection_no'       => ['nullable', 'string', 'max:20'],
             'inspection_date'     => ['nullable', 'date'],
-            'cool_store'          => ['nullable', 'string', 'max:100'],
             'size'                => ['nullable', 'string', 'max:50'],
             'disease_scoring'     => ['nullable', 'numeric', 'max:6'],
             'excessive_dirt'      => ['nullable', 'boolean'],
@@ -96,6 +95,10 @@ class TiaSampleRequest extends FormRequest
             }
 
             $this->merge([$arrayInput => $values]);
+        }
+
+        if ($this->input('inspection_date') === 'Invalid date') {
+            $this->merge(['inspection_date' => null]);
         }
     }
 

@@ -156,7 +156,6 @@ const form = useForm({
   processor: props.tiaSample.processor,
   inspection_no: props.tiaSample.inspection_no,
   inspection_date: moment(props.tiaSample.inspection_date).format('YYYY-MM-DD'),
-  cool_store: props.tiaSample.cool_store,
   size: props.tiaSample.size,
   tubers: props.tiaSample.tubers,
   dry_rot: props.tiaSample.dry_rot,
@@ -198,7 +197,6 @@ watch(() => props.tiaSample,
     form.processor = tiaSample.processor
     form.inspection_no = tiaSample.inspection_no
     form.inspection_date = moment(tiaSample.inspection_date).format('YYYY-MM-DD')
-    form.cool_store = tiaSample.cool_store
     form.size = tiaSample.size
     form.disease_scoring = tiaSample.disease_scoring
     form.excessive_dirt = tiaSample.excessive_dirt
@@ -317,6 +315,18 @@ defineExpose({
               <template v-else>-</template>
             </td>
           </tr>
+          <tr v-if="!isNew">
+            <th>Cool Store</th>
+            <td class="pb-0">
+              <ul class="p-0" v-if="getCategoriesByType(tiaSample?.receival?.grower?.categories, 'cool-store').length">
+                <li v-for="category in getCategoriesByType(tiaSample?.receival?.grower?.categories, 'cool-store')"
+                    :key="category.id">
+                  <a>{{ category.category.name }}</a>
+                </li>
+              </ul>
+              <template v-else>-</template>
+            </td>
+          </tr>
           <tr>
             <th>Status</th>
             <td class="pb-0">
@@ -396,14 +406,6 @@ defineExpose({
               <template v-else-if="tiaSample.inspection_date">
                 {{ moment(tiaSample.inspection_date).format('YYYY-MM-DD') }}
               </template>
-              <template v-else>-</template>
-            </td>
-          </tr>
-          <tr>
-            <th>Cool Store</th>
-            <td>
-              <TextInput v-if="isForm" v-model="form.cool_store" :error="form.errors.cool_store" type="text"/>
-              <template v-else-if="tiaSample.cool_store">{{ tiaSample.cool_store }}</template>
               <template v-else>-</template>
             </td>
           </tr>
@@ -629,10 +631,10 @@ defineExpose({
       <h4 v-if="!isNew">Images</h4>
       <div v-if="!isNew" class="user-boxes notes-list">
         <Images
-          :images="tiaSample.images"
-          :upload-route="route('tia-samples.upload', tiaSample.id || 0)"
-          :delete-route="route('tia-samples.delete', tiaSample.id || 0)"
-          @updateRecord="emit('update')"
+          type="tia-samples"
+          :id="tiaSample.id || 0"
+          :images="tiaSample.images || []"
+          @update="emit('update')"
         />
       </div>
     </div>
