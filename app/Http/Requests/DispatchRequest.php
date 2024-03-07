@@ -23,13 +23,13 @@ class DispatchRequest extends FormRequest
     public function rules(): array
     {
         $allocation = $this->get('selected_allocation');
-        $noOfBins   = (float)($allocation['no_of_bins'] ?? 0);
-        $weight     = (float)($allocation['weight'] ?? 0);
+        $noOfBins   = (float) ($allocation['no_of_bins'] ?? 0);
+        $weight     = (float) ($allocation['weight'] ?? 0);
 
         $reallocation = $this->get('selected_reallocation');
-        if (!empty($reallocation)) {
-            $noOfBins = (float)($reallocation['no_of_bins'] ?? 0);
-            $weight   = (float)($reallocation['weight'] ?? 0);
+        if (! empty($reallocation)) {
+            $noOfBins = (float) ($reallocation['no_of_bins'] ?? 0);
+            $weight   = (float) ($reallocation['weight'] ?? 0);
         }
 
         $rules = [
@@ -39,13 +39,13 @@ class DispatchRequest extends FormRequest
                 'nullable',
                 'required_without:reallocation_id',
                 'numeric',
-                'exists:allocations,id'
+                'exists:allocations,id',
             ],
             'reallocation_id'     => [
                 'nullable',
                 'required_without:allocation_id',
                 'numeric',
-                'exists:reallocations,id'
+                'exists:reallocations,id',
             ],
             'no_of_bins'          => ['required', 'numeric', 'gt:0', "max:$noOfBins"],
             'weight'              => ['required', 'numeric', 'gt:0', "max:$weight"],

@@ -2,20 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Cutting;
-use App\Models\CuttingAllocation;
-use App\Models\Dispatch;
-use App\Models\Reallocation;
-use App\Models\TiaSample;
-use App\Models\Unload;
-use Inertia\Inertia;
 use App\Models\User;
+use Inertia\Inertia;
 use App\Models\Report;
-use App\Models\Receival;
+use App\Models\Unload;
 use App\Models\Category;
+use App\Models\Dispatch;
+use App\Models\Receival;
+use App\Models\TiaSample;
 use App\Models\Allocation;
+use App\Models\Reallocation;
 use Illuminate\Http\Request;
 use App\Helpers\CategoriesHelper;
+use App\Models\CuttingAllocation;
 use App\Helpers\NotificationHelper;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -30,7 +29,7 @@ class ReportController extends Controller
     }
 
     /**
-     * @param Request $request
+     * @param  Request  $request
      * Display a listing of the resource.
      */
     public function show(Request $request, $type)
@@ -56,6 +55,7 @@ class ReportController extends Controller
     public function create(Request $request)
     {
         $type = $request->input('type');
+
         return Inertia::render('Report/New', [
             'name'       => Report::TYPES[$type] ?? 'Report',
             'type'       => $type,
@@ -151,17 +151,17 @@ class ReportController extends Controller
     {
         if ($report->getAttribute('type') === 'receival') {
             $report->setAttribute('data', $this->getFilterReceivals($report));
-        } else if ($report->getAttribute('type') === 'unload') {
+        } elseif ($report->getAttribute('type') === 'unload') {
             $report->setAttribute('data', $this->getFilterUnloads($report));
-        } else if ($report->getAttribute('type') === 'tia-sample') {
+        } elseif ($report->getAttribute('type') === 'tia-sample') {
             $report->setAttribute('data', $this->getFilterTiaSamples($report));
-        } else if ($report->getAttribute('type') === 'allocation') {
+        } elseif ($report->getAttribute('type') === 'allocation') {
             $report->setAttribute('data', $this->getFilterAllocations($report));
-        } else if ($report->getAttribute('type') === 'reallocation') {
+        } elseif ($report->getAttribute('type') === 'reallocation') {
             $report->setAttribute('data', $this->getFilterReallocations($report));
-        } else if ($report->getAttribute('type') === 'cutting') {
+        } elseif ($report->getAttribute('type') === 'cutting') {
             $report->setAttribute('data', $this->getFilterCuttings($report));
-        } else if ($report->getAttribute('type') === 'dispatch') {
+        } elseif ($report->getAttribute('type') === 'dispatch') {
             $report->setAttribute('data', $this->getFilterDispatch($report));
         }
 
@@ -195,6 +195,7 @@ class ReportController extends Controller
                     foreach ($paddocks as $paddock) {
                         $subQuery->orWhereJsonContains('paddocks', $paddock);
                     }
+
                     return $subQuery;
                 });
             })
@@ -249,6 +250,7 @@ class ReportController extends Controller
                         foreach ($paddocks as $paddock) {
                             $paddockQuery->orWhereJsonContains('paddocks', $paddock);
                         }
+
                         return $paddockQuery;
                     });
                 });

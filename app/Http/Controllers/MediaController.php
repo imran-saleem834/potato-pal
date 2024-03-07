@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Database\Eloquent\Builder;
+use App\Models\File;
+use App\Models\Note;
+use App\Models\Receival;
+use App\Models\TiaSample;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
-use App\Models\{File, Note, Receival, TiaSample};
-use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Builder;
 
 class MediaController extends Controller
 {
@@ -22,7 +25,7 @@ class MediaController extends Controller
         $field    = $request->input('field');
 
         $model = $this->getModel($model, $id);
-        if (!$model) {
+        if (! $model) {
             return back();
         }
 
@@ -40,7 +43,7 @@ class MediaController extends Controller
         $field    = $request->input('field');
 
         $model = $this->getModel($model, $id);
-        if (!$model) {
+        if (! $model) {
             return back();
         }
 
@@ -88,7 +91,7 @@ class MediaController extends Controller
         ]);
 
         $model = $this->getModel($modelName, $id);
-        if (!$model) {
+        if (! $model) {
             return response()->json(['error' => 'unable to locate the modal']);
         }
 
@@ -99,28 +102,29 @@ class MediaController extends Controller
         foreach ($fileImages as $image) {
             $fileName = explode('/', $image);
             $fileName = last($fileName);
-            $fileName = Str::random() . $fileName;
+            $fileName = Str::random().$fileName;
             $fileName = "$modelName/$fileName";
             Storage::disk('public')->copy($image, $fileName);
 
             $images[] = $fileName;
         }
-        
+
         $model[$field] = $images;
         $model->save();
 
         return back();
     }
 
-    private function getModel($model, $id): Model|null
+    private function getModel($model, $id): ?Model
     {
         if ($model === 'receivals') {
             return Receival::select(['id', 'images'])->find($id);
-        } else if ($model === 'tia-samples') {
+        } elseif ($model === 'tia-samples') {
             return TiaSample::select(['id', 'images'])->find($id);
-        } else if ($model === 'notes') {
+        } elseif ($model === 'notes') {
             return Note::find($id);
         }
+
         return null;
     }
 }

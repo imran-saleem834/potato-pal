@@ -34,7 +34,7 @@ class CuttingRequest extends FormRequest
             'selected_allocations.*.id'                        => [
                 'nullable',
                 'numeric',
-                'exists:cutting_allocations,id'
+                'exists:cutting_allocations,id',
             ],
             'selected_allocations.*.allocation_id'             => ['required', 'numeric', 'exists:allocations,id'],
             'selected_allocations.*.no_of_bins_before_cutting' => ['required', 'numeric'],
@@ -57,26 +57,26 @@ class CuttingRequest extends FormRequest
                 'required',
                 'numeric',
                 'gt:0',
-                "max:$allocation->no_of_bins"
+                "max:$allocation->no_of_bins",
             ];
             $rules["selected_allocations.{$key}.weight_before_cutting"]     = [
                 'required',
                 'numeric',
                 'gt:0',
-                "max:$allocation->weight"
+                "max:$allocation->weight",
             ];
 
             $rules["selected_allocations.{$key}.no_of_bins_after_cutting"] = [
                 'required',
                 'numeric',
                 'gt:0',
-                'lte:' . $inputs['no_of_bins_before_cutting']
+                'lte:'.$inputs['no_of_bins_before_cutting'],
             ];
             $rules["selected_allocations.{$key}.weight_after_cutting"]     = [
                 'required',
                 'numeric',
                 'gt:0',
-                'lte:' . $inputs['weight_before_cutting']
+                'lte:'.$inputs['weight_before_cutting'],
             ];
         }
 

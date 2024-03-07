@@ -73,7 +73,7 @@ class TiaSampleRequest extends FormRequest
             $rules['receival_id'] = [
                 'required',
                 'exists:receivals,id',
-                Rule::unique('tia_samples')->ignore($this->route('tia_sample'))
+                Rule::unique('tia_samples')->ignore($this->route('tia_sample')),
             ];
         }
 

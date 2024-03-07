@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Report extends Model
 {
@@ -54,24 +54,24 @@ class Report extends Model
     {
         $filter = [];
         if (
-            !empty($this->filters['grower_ids']) || 
-            !empty($this->filters['grower_groups']) || 
-            !empty($this->filters['paddocks'])
+            ! empty($this->filters['grower_ids']) ||
+            ! empty($this->filters['grower_groups']) ||
+            ! empty($this->filters['paddocks'])
         ) {
             $filter[] = 'Grower';
         }
         if (
-            !empty($this->filters['start']) || 
-            !empty($this->filters['end'])
+            ! empty($this->filters['start']) ||
+            ! empty($this->filters['end'])
         ) {
             $filter[] = 'Range';
         }
         if (
-            !empty($this->filters['seed_varieties']) || 
-            !empty($this->filters['seed_generations']) || 
-            !empty($this->filters['seed_classes']) || 
-            !empty($this->filters['transports']) ||
-            !empty($this->filters['delivery_types'])
+            ! empty($this->filters['seed_varieties']) ||
+            ! empty($this->filters['seed_generations']) ||
+            ! empty($this->filters['seed_classes']) ||
+            ! empty($this->filters['transports']) ||
+            ! empty($this->filters['delivery_types'])
         ) {
             $filter[] = 'Seed';
         }

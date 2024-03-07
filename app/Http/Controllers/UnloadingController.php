@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use Inertia\Inertia;
 use App\Models\Unload;
-use App\Models\Receival;
 use App\Models\Category;
+use App\Models\Receival;
 use Illuminate\Http\Request;
 use App\Helpers\ReceivalHelper;
 use App\Helpers\CategoriesHelper;
@@ -21,7 +21,7 @@ class UnloadingController extends Controller
     public function index(Request $request)
     {
         $receivals = Receival::query()
-            ->with(['grower' => fn($query) => $query->select('id', 'name', 'grower_name')])
+            ->with(['grower' => fn ($query) => $query->select('id', 'name', 'grower_name')])
             ->select('id', 'grower_id')
             ->when($request->input('search'), function (Builder $query, $search) {
                 return $query->where(function (Builder $subQuery) use ($search) {
@@ -68,14 +68,14 @@ class UnloadingController extends Controller
 
         foreach ($request->input('unloads') as $unloadInputs) {
             $unloadInputs['receival_id'] = $id;
-            
+
             $unload = Unload::updateOrCreate(['id' => $unloadInputs['id'] ?? null], $unloadInputs);
 
-            if (!empty($unloadInputs['created_at'])) {
-                $unload->created_at = str_replace('T', ' ', $unloadInputs['created_at']) . ':00';
+            if (! empty($unloadInputs['created_at'])) {
+                $unload->created_at = str_replace('T', ' ', $unloadInputs['created_at']).':00';
                 $unload->save();
             }
-            
+
             CategoriesHelper::createRelationOfTypes(
                 ['seed_type' => [$unloadInputs['seed_type']]],
                 $unload->id,
@@ -84,7 +84,7 @@ class UnloadingController extends Controller
         }
 
         ReceivalHelper::updateUniqueKey($receival);
-        
+
         ReceivalHelper::calculateRemainingReceivals($receival->grower_id);
 
         NotificationHelper::updatedAction('Unload', $id);
@@ -99,7 +99,7 @@ class UnloadingController extends Controller
     {
         Unload::where('receival_id', $id)->delete();
 
-        $receival = Receival::find($id);
+        $receival         = Receival::find($id);
         $receival->status = null;
         $receival->save();
 
@@ -114,9 +114,9 @@ class UnloadingController extends Controller
     {
         return Receival::with([
             'unloads.categories.category',
-            'grower'    => fn($query) => $query->select('id', 'name', 'grower_name'),
-            'tiaSample' => fn($query) => $query->select(['id', 'receival_id']),
-            'categories.category'
+            'grower'    => fn ($query) => $query->select('id', 'name', 'grower_name'),
+            'tiaSample' => fn ($query) => $query->select(['id', 'receival_id']),
+            'categories.category',
         ])->find($receivalId);
     }
 }

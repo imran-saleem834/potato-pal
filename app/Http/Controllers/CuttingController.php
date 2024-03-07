@@ -17,21 +17,22 @@ use Illuminate\Database\Eloquent\Builder;
 class CuttingController extends Controller
 {
     /**
-     * @param Request $request
+     * @param  Request  $request
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
         $cuttingBuyers = Cutting::select('buyer_id')
             ->with([
-                'buyer' => fn($query) => $query->select(['id', 'name', 'buyer_name']), 
-                'buyer.categories.category'
+                'buyer' => fn ($query) => $query->select(['id', 'name', 'buyer_name']),
+                'buyer.categories.category',
             ])
             ->latest()
             ->groupBy('buyer_id')
             ->get()
             ->map(function ($cutting) {
                 $cutting->id = $cutting->buyer_id;
+
                 return $cutting;
             });
 
@@ -39,7 +40,7 @@ class CuttingController extends Controller
         $inputBuyerId = $request->input('buyerId', $firstBuyerId);
 
         $cuttings = $this->getCuttings($inputBuyerId, $request->input('search'));
-        if ($cuttings->isEmpty() && ((int)$inputBuyerId) !== ((int)$firstBuyerId)) {
+        if ($cuttings->isEmpty() && ((int) $inputBuyerId) !== ((int) $firstBuyerId)) {
             $cuttings = $this->getCuttings($firstBuyerId, $request->input('search'));
         }
 
@@ -55,6 +56,7 @@ class CuttingController extends Controller
                     $allocation->no_of_bins -= $cutting->no_of_bins_before_cutting;
                     $allocation->weight     -= $cutting->weight_before_cutting;
                 }
+
                 return $allocation;
             });
 
@@ -62,19 +64,19 @@ class CuttingController extends Controller
             'cuttingBuyers' => $cuttingBuyers,
             'single'        => $cuttings,
             'allocations'   => $allocations,
-            'categories'    => fn() => Category::whereIn('type', ['cool-store', 'fungicide'])->get(),
-            'buyers'        => fn() => $this->buyers(),
+            'categories'    => fn () => Category::whereIn('type', ['cool-store', 'fungicide'])->get(),
+            'buyers'        => fn () => $this->buyers(),
             'filters'       => $request->only(['search']),
         ]);
     }
-    
+
     private function buyers()
     {
         return User::query()
             ->select(['id', 'buyer_name'])
             ->whereJsonContains('role', 'buyer')
             ->get()
-            ->map(fn($user) => ['value' => $user->id, 'label' => $user->buyer_name]);
+            ->map(fn ($user) => ['value' => $user->id, 'label' => $user->buyer_name]);
     }
 
     /**
@@ -154,28 +156,27 @@ class CuttingController extends Controller
         $cuttings = Cutting::query()
             ->with([
                 'categories.category',
-                'cuttingAllocations.allocation.categories.category'
+                'cuttingAllocations.allocation.categories.category',
             ])
             ->when($search, function ($query, $search) {
-                 return $query->where(function ($subQuery) use ($search) {
-                     return $subQuery
-                         ->where('comment', 'LIKE', "%{$search}%")
-                         ->orWhere('cut_by', 'LIKE', "%{$search}%")
-                         ->orWhere('cut_date', 'LIKE', "%{$search}%")
-                         ->orWhereRelation('cuttingAllocations', function (Builder $query) use ($search) {
-                             return $query
-                                 ->where('no_of_bins_before_cutting', 'LIKE', "%{$search}%")
-                                 ->orWhere('no_of_bins_after_cutting', 'LIKE', "%{$search}%")
-                                 ->orWhereRaw("CONCAT(`weight_before_cutting`, ' kg') LIKE '%{$search}%'")
-                                 ->orWhereRaw("CONCAT(`weight_after_cutting`, ' kg') LIKE '%{$search}%'");
-                         })
-                         ->orWhereRelation('categories.category', function (Builder $query) use ($search) {
-                             return $query->where('name', 'LIKE', "%{$search}%");
-                         })
-                         ->orWhereRelation('cuttingAllocations.allocation.categories.category', function (Builder $query) use ($search) {
-                             return $query->where('name', 'LIKE', "%{$search}%");
-                         });
-                 });
+                return $query->where(function ($subQuery) use ($search) {
+                    return $subQuery
+                        ->where('comment', 'LIKE', "%{$search}%")
+                        ->orWhere('cut_date', 'LIKE', "%{$search}%")
+                        ->orWhereRelation('cuttingAllocations', function (Builder $query) use ($search) {
+                            return $query
+                                ->where('no_of_bins_before_cutting', 'LIKE', "%{$search}%")
+                                ->orWhere('no_of_bins_after_cutting', 'LIKE', "%{$search}%")
+                                ->orWhereRaw("CONCAT(`weight_before_cutting`, ' kg') LIKE '%{$search}%'")
+                                ->orWhereRaw("CONCAT(`weight_after_cutting`, ' kg') LIKE '%{$search}%'");
+                        })
+                        ->orWhereRelation('categories.category', function (Builder $query) use ($search) {
+                            return $query->where('name', 'LIKE', "%{$search}%");
+                        })
+                        ->orWhereRelation('cuttingAllocations.allocation.categories.category', function (Builder $query) use ($search) {
+                            return $query->where('name', 'LIKE', "%{$search}%");
+                        });
+                });
             })
             ->where('buyer_id', $buyerId)
             ->paginate(10)
@@ -187,6 +188,7 @@ class CuttingController extends Controller
                 $cuttingAllocation->allocation->no_of_bins -= $cuttingAllocation->no_of_bins_before_cutting;
                 $cuttingAllocation->allocation->weight     -= $cuttingAllocation->weight_before_cutting;
             });
+
             return $cutting;
         });
 

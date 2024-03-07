@@ -4,9 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Receival extends Model
 {
@@ -18,9 +18,10 @@ class Receival extends Model
         'seed-generation',
         'seed-class',
         'delivery-type',
-        'transport'
+        'transport',
     ];
-    CONST CATEGORY_INPUTS = ['buyer_group', 'grower_group', 'cool_store'];
+
+    const CATEGORY_INPUTS = ['buyer_group', 'grower_group', 'cool_store'];
 
     /**
      * The attributes that are mass assignable.

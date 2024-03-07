@@ -13,9 +13,6 @@ use Illuminate\Database\Eloquent\Builder;
 
 class CategoryController extends Controller
 {
-    /**
-     * @var array $optionTypes
-     */
     private array $optionTypes = [
         ['slug' => 'seed-class', 'label' => 'Seed Class'],
         ['slug' => 'delivery-type', 'label' => 'Delivery Type'],

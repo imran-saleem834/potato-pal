@@ -23,8 +23,8 @@ class ReallocationRequest extends FormRequest
     public function rules(): array
     {
         $allocation = $this->get('selected_allocation');
-        $noOfBins   = (float)($allocation['no_of_bins'] ?? 0);
-        $weight     = (float)($allocation['weight'] ?? 0);
+        $noOfBins   = (float) ($allocation['no_of_bins'] ?? 0);
+        $weight     = (float) ($allocation['weight'] ?? 0);
 
         $rules = [
             'buyer_id'            => ['required', 'numeric', 'exists:users,id'],

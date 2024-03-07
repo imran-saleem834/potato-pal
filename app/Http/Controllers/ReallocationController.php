@@ -2,31 +2,32 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers\DeleteRecordsHelper;
 use App\Models\User;
 use Inertia\Inertia;
 use App\Models\Allocation;
-use Illuminate\Http\Request;
 use App\Models\Reallocation;
+use Illuminate\Http\Request;
 use App\Helpers\NotificationHelper;
+use App\Helpers\DeleteRecordsHelper;
 use Illuminate\Database\Eloquent\Builder;
 use App\Http\Requests\ReallocationRequest;
 
 class ReallocationController extends Controller
 {
     /**
-     * @param Request $request
+     * @param  Request  $request
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
         $reallocationBuyers = Reallocation::select('buyer_id')
-            ->with(['buyer' => fn($query) => $query->select(['id', 'name', 'buyer_name']), 'buyer.categories.category'])
+            ->with(['buyer' => fn ($query) => $query->select(['id', 'name', 'buyer_name']), 'buyer.categories.category'])
             ->latest()
             ->groupBy('buyer_id')
             ->get()
             ->map(function ($reallocation) {
                 $reallocation->id = $reallocation->buyer_id;
+
                 return $reallocation;
             });
 
@@ -34,7 +35,7 @@ class ReallocationController extends Controller
         $inputBuyerId = $request->input('buyerId', $firstBuyerId);
 
         $reallocations = $this->getReallocations($inputBuyerId, $request->input('search'));
-        if ($reallocations->isEmpty() && ((int)$inputBuyerId) !== ((int)$firstBuyerId)) {
+        if ($reallocations->isEmpty() && ((int) $inputBuyerId) !== ((int) $firstBuyerId)) {
             $reallocations = $this->getReallocations($firstBuyerId, $request->input('search'));
         }
 
@@ -50,6 +51,7 @@ class ReallocationController extends Controller
                     $allocation->no_of_bins -= $reallocation->no_of_bins;
                     $allocation->weight     -= $reallocation->weight;
                 }
+
                 return $allocation;
             });
 
@@ -57,7 +59,7 @@ class ReallocationController extends Controller
             'reallocationBuyers' => $reallocationBuyers,
             'single'             => $reallocations,
             'allocations'        => $allocations,
-            'buyers'             => fn() => $this->buyers(),
+            'buyers'             => fn () => $this->buyers(),
             'filters'            => $request->only(['search']),
         ]);
     }
@@ -68,7 +70,7 @@ class ReallocationController extends Controller
             ->select(['id', 'buyer_name'])
             ->whereJsonContains('role', 'buyer')
             ->get()
-            ->map(fn($user) => ['value' => $user->id, 'label' => $user->buyer_name]);
+            ->map(fn ($user) => ['value' => $user->id, 'label' => $user->buyer_name]);
     }
 
     /**
@@ -106,7 +108,7 @@ class ReallocationController extends Controller
         $reallocation = Reallocation::find($id);
         $buyerId      = $reallocation->buyer_id;
         $reallocation->delete();
-        
+
         DeleteRecordsHelper::deleteDisaptachByReallocationId($id);
 
         NotificationHelper::deleteAction('Reallocation', $id);
@@ -124,7 +126,7 @@ class ReallocationController extends Controller
         return Reallocation::query()
             ->with([
                 'allocation.categories.category',
-                'allocationBuyer' => fn($query) => $query->select('id', 'name', 'buyer_name'),
+                'allocationBuyer' => fn ($query) => $query->select('id', 'name', 'buyer_name'),
             ])
             ->when($search, function ($query, $search) {
                 return $query->where(function ($subQuery) use ($search) {

@@ -29,7 +29,7 @@ class InvoiceRequest extends FormRequest
             'invoiceable_type' => [
                 'required',
                 'string',
-                Rule::in([Receival::class, Grade::class, Cutting::class])
+                Rule::in([Receival::class, Grade::class, Cutting::class]),
             ],
             'invoiceable_id'   => ['required', 'numeric'],
         ];

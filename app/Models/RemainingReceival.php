@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class RemainingReceival extends Model
 {
@@ -20,7 +20,7 @@ class RemainingReceival extends Model
         'receival_id',
         'unload_id',
         'no_of_bins',
-        'weight'
+        'weight',
     ];
 
     /**

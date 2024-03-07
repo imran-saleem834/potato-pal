@@ -3,7 +3,6 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Laravel\Fortify\Rules\Password;
 
 class FileRequest extends FormRequest
 {

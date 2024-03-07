@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use Inertia\Inertia;
-use Illuminate\Http\Request;
 use App\Models\Notification;
+use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Builder;
 
 class NotificationController extends Controller

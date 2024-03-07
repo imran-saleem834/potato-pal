@@ -11,7 +11,7 @@ class NotificationHelper
         $name = auth()->user()->name;
         static::create('Added', "$model with id $id added by $name");
     }
-    
+
     public static function duplicatedAction(string $model, int $id)
     {
         $name = auth()->user()->name;

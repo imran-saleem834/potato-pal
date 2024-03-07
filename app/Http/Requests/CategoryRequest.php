@@ -2,8 +2,6 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Validation\Rule;
-use Laravel\Fortify\Rules\Password;
 use Illuminate\Foundation\Http\FormRequest;
 
 class CategoryRequest extends FormRequest

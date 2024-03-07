@@ -13,16 +13,16 @@ use Illuminate\Database\Eloquent\Builder;
 class GradingController extends Controller
 {
     /**
-     * @param Request $request
+     * @param  Request  $request
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
         $grades = Grade::query()
             ->with([
-                'unload'                 => fn($query) => $query->select(['id', 'receival_id']),
-                'unload.receival'        => fn($query) => $query->select(['id', 'grower_id']),
-                'unload.receival.grower' => fn($query) => $query->select(['id', 'grower_name']),
+                'unload'                 => fn ($query) => $query->select(['id', 'receival_id']),
+                'unload.receival'        => fn ($query) => $query->select(['id', 'grower_id']),
+                'unload.receival.grower' => fn ($query) => $query->select(['id', 'grower_name']),
             ])
             ->select(['id', 'unload_id'])
             ->when($request->input('search'), function (Builder $query, $search) {
@@ -51,8 +51,8 @@ class GradingController extends Controller
         return Unload::query()
             ->with([
                 'categories.category',
-                'receival'        => fn($query) => $query->select(['id', 'grower_id']),
-                'receival.grower' => fn($query) => $query->select(['id', 'grower_name']),
+                'receival'        => fn ($query) => $query->select(['id', 'grower_id']),
+                'receival.grower' => fn ($query) => $query->select(['id', 'grower_name']),
             ])
             ->select(['id', 'receival_id'])
             ->whereRelation('receival', function ($query) {
@@ -65,9 +65,10 @@ class GradingController extends Controller
                 if ($categoryName) {
                     $label = $categoryName;
                 }
+
                 return [
                     'value' => $unload->id,
-                    'label' => "$label; Receival id: {$unload->receival_id}; {$unload->receival->grower->grower_name}"
+                    'label' => "$label; Receival id: {$unload->receival_id}; {$unload->receival->grower->grower_name}",
                 ];
             });
     }
@@ -123,9 +124,9 @@ class GradingController extends Controller
     private function getGrade($gradeId)
     {
         return Grade::with([
-            'unload'                 => fn($query) => $query->select(['id', 'receival_id']),
-            'unload.receival'        => fn($query) => $query->select(['id', 'grower_id']),
-            'unload.receival.grower' => fn($query) => $query->select(['id', 'grower_name']),
+            'unload'                 => fn ($query) => $query->select(['id', 'receival_id']),
+            'unload.receival'        => fn ($query) => $query->select(['id', 'grower_id']),
+            'unload.receival.grower' => fn ($query) => $query->select(['id', 'grower_name']),
         ])->find($gradeId);
     }
 }

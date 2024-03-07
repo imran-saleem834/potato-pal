@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Inertia\Inertia;
 use App\Models\User;
+use Inertia\Inertia;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Helpers\CategoriesHelper;
@@ -61,7 +61,7 @@ class UserController extends Controller
         $inputs = $request->validated();
         $inputs = array_merge($inputs, [
             'password'          => bcrypt($request->validated('password')),
-            'email_verified_at' => now()
+            'email_verified_at' => now(),
         ]);
         $user = User::create($inputs);
 
@@ -93,7 +93,7 @@ class UserController extends Controller
         } else {
             unset($inputs['password']);
         }
-        
+
         $user = User::find($id);
         $user->update($inputs);
         $user->save();

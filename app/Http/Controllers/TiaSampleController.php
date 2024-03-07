@@ -3,9 +3,10 @@
 namespace App\Http\Controllers;
 
 use Inertia\Inertia;
+use App\Models\Receival;
+use App\Models\TiaSample;
 use Illuminate\Http\Request;
 use App\Helpers\NotificationHelper;
-use App\Models\{Receival, TiaSample};
 use App\Http\Requests\TiaSampleRequest;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -18,8 +19,8 @@ class TiaSampleController extends Controller
     {
         $tiaSamples = TiaSample::query()
             ->with([
-                'receival'        => fn($query) => $query->select(['id', 'grower_id']),
-                'receival.grower' => fn($query) => $query->select(['id', 'grower_name']),
+                'receival'        => fn ($query) => $query->select(['id', 'grower_id']),
+                'receival.grower' => fn ($query) => $query->select(['id', 'grower_name']),
             ])
             ->select('id', 'receival_id')
             ->when($request->input('search'), function (Builder $query, $search) {
@@ -50,7 +51,7 @@ class TiaSampleController extends Controller
             ->map(function ($receival) {
                 return [
                     'value' => $receival->id,
-                    'label' => "Receival id: {$receival->id}; {$receival->grower->grower_name}"
+                    'label' => "Receival id: {$receival->id}; {$receival->grower->grower_name}",
                 ];
             });
 
@@ -121,7 +122,7 @@ class TiaSampleController extends Controller
         return TiaSample::query()
             ->with([
                 'receival.grower.categories.category',
-                'receival.categories.category'
+                'receival.categories.category',
             ])
             ->find($id);
     }

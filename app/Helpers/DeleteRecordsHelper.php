@@ -3,12 +3,10 @@
 namespace App\Helpers;
 
 use App\Models\Cutting;
-use App\Models\Allocation;
-use App\Models\CuttingAllocation;
 use App\Models\Dispatch;
+use App\Models\Allocation;
 use App\Models\Reallocation;
-use App\Models\Receival;
-use App\Models\Unload;
+use App\Models\CuttingAllocation;
 
 class DeleteRecordsHelper
 {
@@ -24,7 +22,7 @@ class DeleteRecordsHelper
     private static function deleteReallocationsByAllocationId($id)
     {
         $reallocations = Reallocation::where('allocation_id', $id)->get();
-        
+
         foreach ($reallocations as $reallocation) {
             static::deleteDisaptachByReallocationId($reallocation->id);
         }
@@ -55,7 +53,7 @@ class DeleteRecordsHelper
         $cuttingIds = array_unique($cuttingIds);
         foreach ($cuttingIds as $cuttingId) {
             $isMoreCuttingAllocationExists = CuttingAllocation::where('cutting_id', $cuttingId)->exists();
-            if (!$isMoreCuttingAllocationExists) {
+            if (! $isMoreCuttingAllocationExists) {
                 Cutting::destroy($cuttingId);
             }
         }

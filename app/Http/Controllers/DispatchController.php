@@ -6,8 +6,8 @@ use App\Models\User;
 use Inertia\Inertia;
 use App\Models\Dispatch;
 use App\Models\Allocation;
-use Illuminate\Http\Request;
 use App\Models\Reallocation;
+use Illuminate\Http\Request;
 use App\Helpers\NotificationHelper;
 use App\Http\Requests\DispatchRequest;
 use Illuminate\Database\Eloquent\Builder;
@@ -15,21 +15,22 @@ use Illuminate\Database\Eloquent\Builder;
 class DispatchController extends Controller
 {
     /**
-     * @param Request $request
+     * @param  Request  $request
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
         $dispatchBuyers = Dispatch::select('buyer_id')
             ->with([
-                'buyer' => fn($query) => $query->select(['id', 'name', 'buyer_name']), 
-                'buyer.categories.category'
+                'buyer' => fn ($query) => $query->select(['id', 'name', 'buyer_name']),
+                'buyer.categories.category',
             ])
             ->latest()
             ->groupBy('buyer_id')
             ->get()
             ->map(function ($dispatch) {
                 $dispatch->id = $dispatch->buyer_id;
+
                 return $dispatch;
             });
 
@@ -37,7 +38,7 @@ class DispatchController extends Controller
         $inputBuyerId = $request->input('buyerId', $firstBuyerId);
 
         $dispatchs = $this->getDispatchs($inputBuyerId, $request->input('search'));
-        if ($dispatchs->isEmpty() && ((int)$inputBuyerId) !== ((int)$firstBuyerId)) {
+        if ($dispatchs->isEmpty() && ((int) $inputBuyerId) !== ((int) $firstBuyerId)) {
             $dispatchs = $this->getDispatchs($firstBuyerId, $request->input('search'));
         }
 
@@ -53,6 +54,7 @@ class DispatchController extends Controller
                     $allocation->no_of_bins -= $dispatch->no_of_bins;
                     $allocation->weight     -= $dispatch->weight;
                 }
+
                 return $allocation;
             });
         $reallocations = Reallocation::query()
@@ -63,15 +65,16 @@ class DispatchController extends Controller
                     $reallocation->no_of_bins -= $dispatch->no_of_bins;
                     $reallocation->weight     -= $dispatch->weight;
                 }
+
                 return $reallocation;
             });
 
         return Inertia::render('Dispatch/Index', [
             'dispatchBuyers' => $dispatchBuyers,
             'single'         => $dispatchs,
-            'allocations'    => fn() => $allocations,
-            'reallocations'  => fn() => $reallocations,
-            'buyers'         => fn() => $this->buyers(),
+            'allocations'    => fn () => $allocations,
+            'reallocations'  => fn () => $reallocations,
+            'buyers'         => fn () => $this->buyers(),
             'filters'        => $request->only(['search']),
         ]);
     }
@@ -82,7 +85,7 @@ class DispatchController extends Controller
             ->select(['id', 'buyer_name'])
             ->whereJsonContains('role', 'buyer')
             ->get()
-            ->map(fn($user) => ['value' => $user->id, 'label' => $user->buyer_name]);
+            ->map(fn ($user) => ['value' => $user->id, 'label' => $user->buyer_name]);
     }
 
     /**
@@ -135,7 +138,7 @@ class DispatchController extends Controller
     {
         return Dispatch::query()
             ->with([
-                'allocationBuyer' => fn($query) => $query->select('id', 'name'),
+                'allocationBuyer' => fn ($query) => $query->select('id', 'name'),
                 'allocation.categories.category',
                 'reallocation.allocation.categories.category',
             ])

@@ -2,20 +2,24 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Inertia\Inertia;
+use App\Models\Unload;
+use App\Models\Category;
+use App\Models\Receival;
+use App\Models\TiaSample;
 use Illuminate\Http\Request;
 use App\Helpers\ReceivalHelper;
 use App\Helpers\CategoriesHelper;
 use App\Helpers\NotificationHelper;
 use App\Http\Requests\ReceivalRequest;
 use Illuminate\Database\Eloquent\Builder;
-use App\Models\{Category, Unload, User, Receival, TiaSample};
 
 class ReceivalController extends Controller
 {
     /**
      * Display a listing of the resource.
-     * @param Request $request
+     *
      * @return \Inertia\Response
      */
     public function index(Request $request)
@@ -57,8 +61,8 @@ class ReceivalController extends Controller
 
         $receival = Receival::create($inputs);
 
-        if (!empty($inputs['created_at'])) {
-            $receival->created_at = str_replace('T', ' ', $inputs['created_at']) . ':00';
+        if (! empty($inputs['created_at'])) {
+            $receival->created_at = str_replace('T', ' ', $inputs['created_at']).':00';
             $receival->save();
         }
 
@@ -68,7 +72,7 @@ class ReceivalController extends Controller
             'seed_generation',
             'seed_class',
             'delivery_type',
-            'transport'
+            'transport',
         ]);
         CategoriesHelper::createRelationOfTypes($inputs, $receival->id, Receival::class);
 
@@ -98,8 +102,8 @@ class ReceivalController extends Controller
         $receival->update($inputs);
         $receival->save();
 
-        if (!empty($inputs['created_at'])) {
-            $receival->created_at = str_replace('T', ' ', $inputs['created_at']) . ':00';
+        if (! empty($inputs['created_at'])) {
+            $receival->created_at = str_replace('T', ' ', $inputs['created_at']).':00';
             $receival->save();
         }
 
@@ -109,7 +113,7 @@ class ReceivalController extends Controller
             'seed_generation',
             'seed_class',
             'delivery_type',
-            'transport'
+            'transport',
         ]);
         CategoriesHelper::createRelationOfTypes($inputs, $receival->id, Receival::class);
 
@@ -167,7 +171,7 @@ class ReceivalController extends Controller
             $status = 'pending';
             TiaSample::firstOrCreate(['receival_id' => $id]);
         }
-        
+
         Receival::find($id)->update(['tia_status' => $status]);
 
         return to_route('receivals.index');
@@ -188,12 +192,12 @@ class ReceivalController extends Controller
             'seed_generation',
             'seed_class',
             'delivery_type',
-            'transport'
+            'transport',
         ];
         foreach ($request->input('inputs') as $field => $isTrue) {
             if ($isTrue && $receival[$field]) {
                 $inputs[$field] = $receival[$field];
-            } else if ($isTrue && in_array($field, $types)) {
+            } elseif ($isTrue && in_array($field, $types)) {
                 $field              = str_replace('_', '-', $field);
                 $categories[$field] = $receival->categories->where('type', $field)->pluck('category_id')->toArray();
             }
@@ -212,8 +216,8 @@ class ReceivalController extends Controller
     {
         return Receival::with([
             'categories.category',
-            'grower'    => fn($query) => $query->select(['id', 'name', 'grower_name']),
-            'tiaSample' => fn($query) => $query->select(['id', 'receival_id']),
+            'grower'    => fn ($query) => $query->select(['id', 'name', 'grower_name']),
+            'tiaSample' => fn ($query) => $query->select(['id', 'receival_id']),
             'grower.categories.category',
         ])->find($receivalId);
     }

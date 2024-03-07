@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 
 class Grade extends Model
 {
@@ -15,7 +15,7 @@ class Grade extends Model
         ['value' => 'grading', 'label' => 'Grading'],
         ['value' => 'sizing', 'label' => 'Sizing'],
         ['value' => 'chemical-applicant', 'label' => 'Chemical Applicant'],
-        ['value' => 'bulk-bagging', 'label' => 'Bulk Bagging']
+        ['value' => 'bulk-bagging', 'label' => 'Bulk Bagging'],
     ];
 
     /**

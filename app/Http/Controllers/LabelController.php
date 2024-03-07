@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Allocation;
-use App\Models\CuttingAllocation;
-use App\Models\Label;
-use App\Models\Reallocation;
-use App\Models\Receival;
 use Inertia\Inertia;
+use App\Models\Label;
+use App\Models\Receival;
+use App\Models\Allocation;
+use App\Models\Reallocation;
 use Illuminate\Http\Request;
+use App\Models\CuttingAllocation;
 use App\Helpers\NotificationHelper;
 use App\Http\Requests\LabelRequest;
 use Illuminate\Database\Eloquent\Builder;
@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Builder;
 class LabelController extends Controller
 {
     /**
-     * @param Request $request
+     * @param  Request  $request
      * Display a listing of the resource.
      */
     public function index(Request $request)
@@ -50,8 +50,8 @@ class LabelController extends Controller
     {
         return Allocation::query()
             ->with([
-                'buyer'  => fn($query) => $query->select(['id', 'buyer_name']),
-                'grower' => fn($query) => $query->select(['id', 'grower_name']),
+                'buyer'  => fn ($query) => $query->select(['id', 'buyer_name']),
+                'grower' => fn ($query) => $query->select(['id', 'grower_name']),
             ])
             ->get();
     }
@@ -60,10 +60,10 @@ class LabelController extends Controller
     {
         return Reallocation::query()
             ->with([
-                'buyer'             => fn($query) => $query->select(['id', 'buyer_name']),
+                'buyer'             => fn ($query) => $query->select(['id', 'buyer_name']),
                 'allocation:id,buyer_id,grower_id,bin_size,paddock',
-                'allocation.buyer'  => fn($query) => $query->select(['id', 'buyer_name']),
-                'allocation.grower' => fn($query) => $query->select(['id', 'grower_name']),
+                'allocation.buyer'  => fn ($query) => $query->select(['id', 'buyer_name']),
+                'allocation.grower' => fn ($query) => $query->select(['id', 'grower_name']),
             ])
             ->get();
     }
@@ -73,8 +73,8 @@ class LabelController extends Controller
         return CuttingAllocation::query()
             ->with([
                 'allocation:id,buyer_id,grower_id,bin_size,paddock',
-                'allocation.buyer'  => fn($query) => $query->select(['id', 'buyer_name']),
-                'allocation.grower' => fn($query) => $query->select(['id', 'grower_name']),
+                'allocation.buyer'  => fn ($query) => $query->select(['id', 'buyer_name']),
+                'allocation.grower' => fn ($query) => $query->select(['id', 'grower_name']),
             ])
             ->get();
     }
@@ -88,7 +88,7 @@ class LabelController extends Controller
             ->map(function ($receival) {
                 return [
                     'value' => $receival->id,
-                    'label' => "{$receival->id} - Grower: {$receival->grower->grower_name}"
+                    'label' => "{$receival->id} - Grower: {$receival->grower->grower_name}",
                 ];
             });
     }
@@ -144,10 +144,10 @@ class LabelController extends Controller
     private function getLabel($labelId)
     {
         return Label::with([
-            'labelable' => fn($query) => $query->morphWith([
+            'labelable' => fn ($query) => $query->morphWith([
                 Allocation::class        => ['categories.category'],
                 Reallocation::class      => ['allocation.categories.category', 'allocation.buyer:id,buyer_name'],
-                CuttingAllocation::class => ['allocation.categories.category']
+                CuttingAllocation::class => ['allocation.categories.category'],
             ]),
             'receival:id,driver_name,created_at',
             'receival.categories.category',

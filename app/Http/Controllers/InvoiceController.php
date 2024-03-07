@@ -2,21 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\InvoiceRequest;
-use App\Models\Cutting;
-use App\Models\Grade;
-use App\Models\Receival;
-use Dcblogdev\Xero\Facades\Xero;
 use Inertia\Inertia;
+use App\Models\Grade;
+use App\Models\Cutting;
 use App\Models\Invoice;
+use App\Models\Receival;
 use Illuminate\Http\Request;
+use Dcblogdev\Xero\Facades\Xero;
 use App\Helpers\NotificationHelper;
+use App\Http\Requests\InvoiceRequest;
 use Illuminate\Database\Eloquent\Builder;
 
 class InvoiceController extends Controller
 {
     /**
-     * @param Request $request
+     * @param  Request  $request
      * Display a listing of the resource.
      */
     public function index(Request $request)
@@ -47,9 +47,7 @@ class InvoiceController extends Controller
     private function getReceivals()
     {
         return Receival::query()
-            ->with([
-                'grower' => fn($query) => $query->select(['id', 'grower_name']),
-            ])
+            ->with(['grower' => fn ($query) => $query->select(['id', 'grower_name'])])
             ->get();
     }
 
@@ -67,7 +65,7 @@ class InvoiceController extends Controller
     private function getCuttings()
     {
         return Cutting::query()
-            ->with(['buyer' => fn($query) => $query->select(['id', 'buyer_name'])])
+            ->with(['buyer' => fn ($query) => $query->select(['id', 'buyer_name'])])
             ->get();
     }
 
@@ -126,7 +124,6 @@ class InvoiceController extends Controller
         return Invoice::with(['invoiceable'])->find($invoiceId);
     }
 
-
     private function createInvoice($invoice)
     {
         // $xeroContact = $this->getOrCreateXeroContact();
@@ -159,7 +156,7 @@ class InvoiceController extends Controller
             $invoice->save();
 
             if (config('xero.emailingInvoiceStatus')) {
-                Xero::post('Invoices/' . $xeroInvoice['InvoiceID'] . '/Email');
+                Xero::post('Invoices/'.$xeroInvoice['InvoiceID'].'/Email');
             }
         }
     }
@@ -168,7 +165,7 @@ class InvoiceController extends Controller
     {
         $user = auth()->user();
 
-        if (!$user->xero_id) {
+        if (! $user->xero_id) {
             $data = [
                 'name'          => $user->name,
                 'ContactStatus' => 'ACTIVE',

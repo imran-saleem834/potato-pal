@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Builder;
 class FileController extends Controller
 {
     /**
-     * @param Request $request
+     * @param  Request  $request
      * Display a listing of the resource.
      */
     public function index(Request $request)

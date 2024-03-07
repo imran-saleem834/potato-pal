@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Unload;
 use App\Models\User;
 use Inertia\Inertia;
+use App\Models\Unload;
 use App\Models\Receival;
 use App\Models\Allocation;
 use Illuminate\Http\Request;
@@ -18,7 +18,7 @@ use Illuminate\Database\Eloquent\Builder;
 class AllocationController extends Controller
 {
     /**
-     * @param Request $request
+     * @param  Request  $request
      * Display a listing of the resource.
      */
     public function index(Request $request)
@@ -30,6 +30,7 @@ class AllocationController extends Controller
             ->get()
             ->map(function ($allocation) {
                 $allocation->id = $allocation->buyer_id;
+
                 return $allocation;
             });
 
@@ -37,15 +38,15 @@ class AllocationController extends Controller
         $inputBuyerId = $request->input('buyerId', $firstBuyerId);
 
         $allocations = $this->getAllocations($inputBuyerId, $request->input('search'));
-        if ($allocations->isEmpty() && ((int)$inputBuyerId) !== ((int)$firstBuyerId)) {
+        if ($allocations->isEmpty() && ((int) $inputBuyerId) !== ((int) $firstBuyerId)) {
             $allocations = $this->getAllocations($firstBuyerId, $request->input('search'));
         }
 
         return Inertia::render('Allocation/Index', [
             'allocationBuyers' => $allocationBuyers,
             'single'           => $allocations,
-            'growers'          => fn() => $this->growers(),
-            'buyers'           => fn() => $this->buyers(),
+            'growers'          => fn () => $this->growers(),
+            'buyers'           => fn () => $this->buyers(),
             'filters'          => $request->only(['search']),
         ]);
     }
@@ -101,7 +102,7 @@ class AllocationController extends Controller
             ->select(['id', 'buyer_name'])
             ->whereJsonContains('role', 'buyer')
             ->get()
-            ->map(fn($user) => ['value' => $user->id, 'label' => $user->buyer_name]);
+            ->map(fn ($user) => ['value' => $user->id, 'label' => $user->buyer_name]);
     }
 
     /**
@@ -183,7 +184,7 @@ class AllocationController extends Controller
         return Allocation::query()
             ->with([
                 'categories.category',
-                'grower' => fn($query) => $query->select('id', 'name', 'grower_name'),
+                'grower' => fn ($query) => $query->select('id', 'name', 'grower_name'),
             ])
             ->when($search, function ($query, $search) {
                 return $query->where(function ($subQuery) use ($search) {

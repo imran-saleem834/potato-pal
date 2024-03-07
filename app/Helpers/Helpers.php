@@ -12,7 +12,7 @@ function prePrint($data)
 
 function createCategoriesRelation($forgingId, $categoryId, $model, $type)
 {
-    if (!is_int($categoryId)) {
+    if (! is_int($categoryId)) {
         $categoryId = getCategoryId($categoryId, $type);
     }
 

@@ -19,7 +19,7 @@ class ReceivalHelper
         }
     }
 
-    public static function getUniqueKey(Unload $unload): string|null
+    public static function getUniqueKey(Unload $unload): ?string
     {
         $uniqueKey = [];
         foreach ($unload->receival->categories as $category) {
@@ -44,11 +44,11 @@ class ReceivalHelper
             }
         }
 
-        if (!empty($unload->bin_size)) {
+        if (! empty($unload->bin_size)) {
             $uniqueKey[] = $unload->bin_size;
         }
 
-        if (isset($unload->receival->paddocks[0]) && !empty($unload->receival->paddocks[0])) {
+        if (isset($unload->receival->paddocks[0]) && ! empty($unload->receival->paddocks[0])) {
             $uniqueKey[] = $unload->receival->paddocks[0];
         }
 
@@ -117,7 +117,7 @@ class ReceivalHelper
                     ->where('unique_key', $unload->unique_key)
                     ->first();
 
-                if (!$remainingReceival) {
+                if (! $remainingReceival) {
                     continue;
                 }
 
@@ -134,7 +134,7 @@ class ReceivalHelper
                 $remainingReceival->save();
             }
         }
-        
+
         RemainingReceival::query()
             ->where('grower_id', $growerId)
             ->whereJsonLength('receival_id', 0)

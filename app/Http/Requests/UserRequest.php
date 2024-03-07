@@ -54,20 +54,20 @@ class UserRequest extends FormRequest
             return [$input => ['nullable', 'array']];
         }));
 
-        if (!$this->isMethod('POST')) {
+        if (! $this->isMethod('POST')) {
             $rules['email']    = [
                 'nullable',
                 'string',
                 'email',
                 'max:90',
-                Rule::unique('users')->ignore($this->route('user'))
+                Rule::unique('users')->ignore($this->route('user')),
             ];
             $rules['username'] = [
                 'required',
                 'string',
                 'alpha_dash',
                 'max:50',
-                Rule::unique('users')->ignore($this->route('user'))
+                Rule::unique('users')->ignore($this->route('user')),
             ];
         }
 

@@ -3,11 +3,9 @@
 namespace App\Http\Requests;
 
 use App\Models\Allocation;
-use App\Models\CuttingAllocation;
-use App\Models\Grade;
 use App\Models\Reallocation;
-use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
+use App\Models\CuttingAllocation;
 use Illuminate\Foundation\Http\FormRequest;
 
 class LabelRequest extends FormRequest
@@ -31,7 +29,7 @@ class LabelRequest extends FormRequest
             'labelable_type' => [
                 'required',
                 'string',
-                Rule::in([Allocation::class, Reallocation::class, CuttingAllocation::class])
+                Rule::in([Allocation::class, Reallocation::class, CuttingAllocation::class]),
             ],
             'labelable_id'   => ['required', 'numeric'],
             'buyer_id'       => ['required', 'numeric', 'exists:users,id'],

@@ -13,7 +13,6 @@ class NoteController extends Controller
 {
     /**
      * Display a listing of the resource.
-     * @param Request $request
      */
     public function index(Request $request)
     {
