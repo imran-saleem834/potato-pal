@@ -15,6 +15,7 @@ import {
 } from '@/helper.js';
 import { tiaStatus, tiaStatusInit } from '@/const.js';
 import UlLiButton from '@/Components/UlLiButton.vue';
+import ItemOfCategories from "@/Components/ItemOfCategories.vue";
 
 const toast = useToast();
 
@@ -248,18 +249,7 @@ const pushForUnload = () => {
                 :options="userGrowerGroups"
                 :class="{ 'is-invalid': form.errors.grower_group }"
               />
-              <ul
-                class="p-0"
-                v-else-if="getCategoriesByType(receival.categories, 'grower-group').length"
-              >
-                <li
-                  v-for="category in getCategoriesByType(receival.categories, 'grower-group')"
-                  :key="category.id"
-                >
-                  <a>{{ category.category.name }}</a>
-                </li>
-              </ul>
-              <template v-else>-</template>
+              <ItemOfCategories v-else :categories="receival.categories" type="grower-group" />
               <div
                 v-if="form.errors.grower_group"
                 class="invalid-feedback"
@@ -276,9 +266,9 @@ const pushForUnload = () => {
                 :error="form.errors.created_at"
                 type="datetime-local"
               />
-              <template v-else>{{
-                moment(receival.created_at).utc().format('DD/MM/YYYY hh:mm A')
-              }}</template>
+              <template v-else>
+                {{ moment(receival.created_at).utc().format('DD/MM/YYYY hh:mm A') }}
+              </template>
             </td>
           </tr>
           <tr>
@@ -326,18 +316,7 @@ const pushForUnload = () => {
                 :options="getCategoriesDropDownByType(categories, 'seed-variety')"
                 :class="{ 'is-invalid': form.errors.seed_variety }"
               />
-              <ul
-                class="p-0"
-                v-else-if="getCategoriesByType(receival.categories, 'seed-variety').length"
-              >
-                <li
-                  v-for="category in getCategoriesByType(receival.categories, 'seed-variety')"
-                  :key="category.id"
-                >
-                  <a>{{ category.category.name }}</a>
-                </li>
-              </ul>
-              <template v-else>-</template>
+              <ItemOfCategories v-else :categories="receival.categories" type="seed-variety" />
               <div
                 v-if="form.errors.seed_variety"
                 class="invalid-feedback"
@@ -358,18 +337,7 @@ const pushForUnload = () => {
                 :options="getCategoriesDropDownByType(categories, 'seed-generation')"
                 :class="{ 'is-invalid': form.errors.seed_generation }"
               />
-              <ul
-                class="p-0"
-                v-else-if="getCategoriesByType(receival.categories, 'seed-generation').length"
-              >
-                <li
-                  v-for="category in getCategoriesByType(receival.categories, 'seed-generation')"
-                  :key="category.id"
-                >
-                  <a>{{ category.category.name }}</a>
-                </li>
-              </ul>
-              <template v-else>-</template>
+              <ItemOfCategories v-else :categories="receival.categories" type="seed-generation" />
               <div
                 v-if="form.errors.seed_generation"
                 class="invalid-feedback"
@@ -390,18 +358,7 @@ const pushForUnload = () => {
                 :options="getCategoriesDropDownByType(categories, 'seed-class')"
                 :class="{ 'is-invalid': form.errors.seed_class }"
               />
-              <ul
-                class="p-0"
-                v-else-if="getCategoriesByType(receival.categories, 'seed-class').length"
-              >
-                <li
-                  v-for="category in getCategoriesByType(receival.categories, 'seed-class')"
-                  :key="category.id"
-                >
-                  <a>{{ category.category.name }}</a>
-                </li>
-              </ul>
-              <template v-else>-</template>
+              <ItemOfCategories v-else :categories="receival.categories" type="seed-class" />
               <div
                 v-if="form.errors.seed_class"
                 class="invalid-feedback"
@@ -454,23 +411,6 @@ const pushForUnload = () => {
       <h4 v-if="!isForm">Unloading Information</h4>
       <div v-if="!isForm" class="user-boxes">
         <table class="table input-table mb-0">
-          <tr>
-            <th>Cool Store</th>
-            <td class="pb-0">
-              <ul
-                class="p-0"
-                v-if="getCategoriesByType(receival.grower.categories, 'cool-store').length"
-              >
-                <li
-                  v-for="category in getCategoriesByType(receival.grower.categories, 'cool-store')"
-                  :key="category.id"
-                >
-                  <a>{{ category.category.name }}</a>
-                </li>
-              </ul>
-              <template v-else>-</template>
-            </td>
-          </tr>
           <tr>
             <th>Unloading Status</th>
             <td class="pb-0">
@@ -559,18 +499,7 @@ const pushForUnload = () => {
                 :options="getCategoriesDropDownByType(categories, 'delivery-type')"
                 :class="{ 'is-invalid': form.errors.delivery_type }"
               />
-              <ul
-                class="p-0"
-                v-else-if="getCategoriesByType(receival.categories, 'delivery-type').length"
-              >
-                <li
-                  v-for="category in getCategoriesByType(receival.categories, 'delivery-type')"
-                  :key="category.id"
-                >
-                  <a>{{ category.category.name }}</a>
-                </li>
-              </ul>
-              <template v-else>-</template>
+              <ItemOfCategories v-else :categories="receival.categories" type="delivery-type" />
               <div
                 v-if="form.errors.delivery_type"
                 class="invalid-feedback"
@@ -591,18 +520,7 @@ const pushForUnload = () => {
                 :options="getCategoriesDropDownByType(categories, 'transport')"
                 :class="{ 'is-invalid': form.errors.transport }"
               />
-              <ul
-                class="p-0"
-                v-else-if="getCategoriesByType(receival.categories, 'transport').length"
-              >
-                <li
-                  v-for="category in getCategoriesByType(receival.categories, 'transport')"
-                  :key="category.id"
-                >
-                  <a>{{ category.category.name }}</a>
-                </li>
-              </ul>
-              <template v-else>-</template>
+              <ItemOfCategories v-else :categories="receival.categories" type="transport" />
               <div
                 v-if="form.errors.transport"
                 class="invalid-feedback"

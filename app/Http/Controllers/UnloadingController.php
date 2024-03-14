@@ -29,7 +29,7 @@ class UnloadingController extends Controller
                 });
             })
             ->whereNotNull('status')
-            ->latest()
+            ->orderBy('id', 'desc')
             ->paginate(20)
             ->withQueryString()
             ->onEachSide(1);

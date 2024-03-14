@@ -260,7 +260,9 @@ defineExpose({
         <tbody>
           <tr>
             <td>
-              {{ getSingleCategoryNameByType(form.selected_allocation.categories, 'seed-type') || '-' }}
+              {{
+                getSingleCategoryNameByType(form.selected_allocation.categories, 'seed-type') || '-'
+              }}
             </td>
             <td>{{ getBinSizesValue(form.selected_allocation.bin_size) }}</td>
             <td>{{ form.selected_allocation.no_of_bins }}</td>
@@ -372,7 +374,9 @@ defineExpose({
             {{ getSingleCategoryNameByType(dispatch.allocation.categories, 'seed-type') }}
           </template>
           <template v-else-if="dispatch.reallocation_id">
-            {{ getSingleCategoryNameByType(dispatch.reallocation.allocation.categories, 'seed-type') }}
+            {{
+              getSingleCategoryNameByType(dispatch.reallocation.allocation.categories, 'seed-type')
+            }}
           </template>
           <template v-else>-</template>
         </div>
@@ -443,7 +447,9 @@ defineExpose({
             {{ getSingleCategoryNameByType(dispatch.allocation.categories, 'seed-class') }}
           </template>
           <template v-else-if="dispatch.reallocation_id">
-            {{ getSingleCategoryNameByType(dispatch.reallocation.allocation.categories, 'seed-class') }}
+            {{
+              getSingleCategoryNameByType(dispatch.reallocation.allocation.categories, 'seed-class')
+            }}
           </template>
           <template v-else>-</template>
         </div>

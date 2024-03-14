@@ -45,6 +45,10 @@
     animation: spin 1s linear infinite;
 }
 
+.cursor-pointer {
+    cursor: pointer;
+}
+
 .input-group-text:hover {
     color: white;
     background: #E22827 !important;

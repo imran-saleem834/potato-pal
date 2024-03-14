@@ -7,8 +7,8 @@ import { useToast } from 'vue-toastification';
 import TextInput from '@/Components/TextInput.vue';
 import Images from '@/Components/Images.vue';
 import UlLiButton from '@/Components/UlLiButton.vue';
-import { getCategoriesByType } from '@/helper.js';
-import { binSizes, tiaStatus } from '@/const.js';
+import TdOfCategories from "@/Components/TdOfCategories.vue";
+import { binSizes, tiaStatus, tiaSampleBoolean } from '@/const.js';
 
 const toast = useToast();
 
@@ -343,45 +343,11 @@ defineExpose({
           </tr>
           <tr v-if="!isNew">
             <th>Grower Group</th>
-            <td class="pb-0">
-              <ul
-                class="p-0"
-                v-if="getCategoriesByType(tiaSample?.receival?.categories, 'grower-group').length"
-              >
-                <li
-                  v-for="category in getCategoriesByType(
-                    tiaSample?.receival?.categories,
-                    'grower-group',
-                  )"
-                  :key="category.id"
-                >
-                  <a>{{ category.category.name }}</a>
-                </li>
-              </ul>
-              <template v-else>-</template>
-            </td>
+            <TdOfCategories :categories="tiaSample?.receival?.categories" type="grower-group" />
           </tr>
           <tr v-if="!isNew">
             <th>Cool Store</th>
-            <td class="pb-0">
-              <ul
-                class="p-0"
-                v-if="
-                  getCategoriesByType(tiaSample?.receival?.grower?.categories, 'cool-store').length
-                "
-              >
-                <li
-                  v-for="category in getCategoriesByType(
-                    tiaSample?.receival?.grower?.categories,
-                    'cool-store',
-                  )"
-                  :key="category.id"
-                >
-                  <a>{{ category.category.name }}</a>
-                </li>
-              </ul>
-              <template v-else>-</template>
-            </td>
+            <TdOfCategories :categories="tiaSample?.receival?.grower?.categories" type="cool-store" />
           </tr>
           <tr>
             <th>Status</th>
@@ -404,45 +370,11 @@ defineExpose({
         <table class="table input-table mb-0">
           <tr v-if="!isNew">
             <th>Variety</th>
-            <td class="pb-0">
-              <ul
-                class="p-0"
-                v-if="getCategoriesByType(tiaSample?.receival?.categories, 'seed-variety').length"
-              >
-                <li
-                  v-for="category in getCategoriesByType(
-                    tiaSample?.receival?.categories,
-                    'seed-variety',
-                  )"
-                  :key="category.id"
-                >
-                  <a>{{ category.category.name }}</a>
-                </li>
-              </ul>
-              <template v-else>-</template>
-            </td>
+            <TdOfCategories :categories="tiaSample?.receival?.categories" type="seed-variety" />
           </tr>
           <tr v-if="!isNew">
             <th>Gen</th>
-            <td class="pb-0">
-              <ul
-                class="p-0"
-                v-if="
-                  getCategoriesByType(tiaSample?.receival?.categories, 'seed-generation').length
-                "
-              >
-                <li
-                  v-for="category in getCategoriesByType(
-                    tiaSample?.receival?.categories,
-                    'seed-generation',
-                  )"
-                  :key="category.id"
-                >
-                  <a>{{ category.category.name }}</a>
-                </li>
-              </ul>
-              <template v-else>-</template>
-            </td>
+            <TdOfCategories :categories="tiaSample?.receival?.categories" type="seed-generation" />
           </tr>
           <tr v-if="!isNew">
             <th>Growers’s Docket No</th>
@@ -651,10 +583,7 @@ defineExpose({
                 :is-form="isForm"
                 :value="form.excessive_dirt"
                 :error="form.errors.excessive_dirt"
-                :items="[
-                  { value: true, label: 'Yes' },
-                  { value: false, label: 'No' },
-                ]"
+                :items="tiaSampleBoolean"
                 @click="(value) => (form.excessive_dirt = value)"
               />
             </td>
@@ -666,10 +595,7 @@ defineExpose({
                 :is-form="isForm"
                 :value="form.minor_skin_cracking"
                 :error="form.errors.minor_skin_cracking"
-                :items="[
-                  { value: true, label: 'Yes' },
-                  { value: false, label: 'No' },
-                ]"
+                :items="tiaSampleBoolean"
                 @click="(value) => (form.minor_skin_cracking = value)"
               />
             </td>
@@ -681,10 +607,7 @@ defineExpose({
                 :is-form="isForm"
                 :value="form.skinning"
                 :error="form.errors.skinning"
-                :items="[
-                  { value: true, label: 'Yes' },
-                  { value: false, label: 'No' },
-                ]"
+                :items="tiaSampleBoolean"
                 @click="(value) => (form.skinning = value)"
               />
             </td>
@@ -696,10 +619,7 @@ defineExpose({
                 :is-form="isForm"
                 :value="form.regarding"
                 :error="form.errors.regarding"
-                :items="[
-                  { value: true, label: 'Yes' },
-                  { value: false, label: 'No' },
-                ]"
+                :items="tiaSampleBoolean"
                 @click="(value) => (form.regarding = value)"
               />
             </td>

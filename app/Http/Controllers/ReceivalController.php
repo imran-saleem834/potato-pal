@@ -32,7 +32,7 @@ class ReceivalController extends Controller
                     return $subQuery->search($search);
                 });
             })
-            ->latest()
+            ->orderBy('id', 'desc')
             ->paginate(20)
             ->withQueryString()
             ->onEachSide(1);
@@ -218,7 +218,6 @@ class ReceivalController extends Controller
             'categories.category',
             'grower'    => fn ($query) => $query->select(['id', 'name', 'grower_name']),
             'tiaSample' => fn ($query) => $query->select(['id', 'receival_id']),
-            'grower.categories.category',
         ])->find($receivalId);
     }
 }

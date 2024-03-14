@@ -75,14 +75,15 @@ class AllocationController extends Controller
                 $unload     = Unload::select(['id', 'bin_size'])->with(['categories.category'])->find($unloadId);
 
                 $receivals[] = [
-                    'grower_id'           => $remainingReceival->grower_id,
-                    'unique_key'          => $remainingReceival->unique_key,
-                    'bin_size'            => $unload->bin_size,
-                    'paddock'             => $receival->paddocks[0] ?? '',
-                    'no_of_bins'          => $remainingReceival->no_of_bins,
-                    'weight'              => $remainingReceival->weight,
-                    'receival_categories' => $receival->categories->toArray(),
-                    'unload_categories'   => $unload->categories->toArray(),
+                    'remaining_receival_id' => $remainingReceival->id,
+                    'grower_id'             => $remainingReceival->grower_id,
+                    'unique_key'            => $remainingReceival->unique_key,
+                    'bin_size'              => $unload->bin_size,
+                    'paddock'               => $receival->paddocks[0] ?? '',
+                    'no_of_bins'            => $remainingReceival->no_of_bins,
+                    'weight'                => $remainingReceival->weight,
+                    'receival_categories'   => $receival->categories->toArray(),
+                    'unload_categories'     => $unload->categories->toArray(),
                 ];
             }
         }

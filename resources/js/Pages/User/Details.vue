@@ -9,6 +9,7 @@ import {
 } from '@/helper.js';
 import Multiselect from '@vueform/multiselect';
 import TextInput from '@/Components/TextInput.vue';
+import ItemOfCategories from "@/Components/ItemOfCategories.vue";
 
 const toast = useToast();
 
@@ -271,15 +272,7 @@ const autocompleteInput = (index) => {
                 :create-option="true"
                 :options="getCategoriesDropDownByType(categories, 'cool-store')"
               />
-              <ul class="p-0" v-else-if="getCategoriesByType(user.categories, 'cool-store').length">
-                <li
-                  v-for="category in getCategoriesByType(user.categories, 'cool-store')"
-                  :key="category.id"
-                >
-                  <a>{{ category.category?.name }}</a>
-                </li>
-              </ul>
-              <template v-else>-</template>
+              <ItemOfCategories v-else :categories="user.categories" type="cool-store" />
             </td>
           </tr>
         </table>
@@ -300,18 +293,7 @@ const autocompleteInput = (index) => {
                 :create-option="true"
                 :options="getCategoriesDropDownByType(categories, 'buyer-group')"
               />
-              <ul
-                class="p-0"
-                v-else-if="getCategoriesByType(user.categories, 'buyer-group').length"
-              >
-                <li
-                  v-for="category in getCategoriesByType(user.categories, 'buyer-group')"
-                  :key="category.id"
-                >
-                  <a>{{ category.category?.name }}</a>
-                </li>
-              </ul>
-              <template v-else>-</template>
+              <ItemOfCategories v-else :categories="user.categories" type="buyer-group" />
             </td>
           </tr>
           <tr>
@@ -367,18 +349,7 @@ const autocompleteInput = (index) => {
                 :create-option="true"
                 :options="getCategoriesDropDownByType(categories, 'grower-group')"
               />
-              <ul
-                class="p-0"
-                v-else-if="getCategoriesByType(user.categories, 'grower-group').length"
-              >
-                <li
-                  v-for="category in getCategoriesByType(user.categories, 'grower-group')"
-                  :key="category.id"
-                >
-                  <a>{{ category.category?.name }}</a>
-                </li>
-              </ul>
-              <template v-else>-</template>
+              <ItemOfCategories v-else :categories="user.categories" type="grower-group" />
             </td>
           </tr>
           <tr>

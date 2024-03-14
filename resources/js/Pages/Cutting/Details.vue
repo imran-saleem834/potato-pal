@@ -389,7 +389,10 @@ defineExpose({
           <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
             <span>Seed type: </span>
             <span class="text-danger">
-              {{ getSingleCategoryNameByType(cuttingAllocation.allocation.categories, 'seed-type') || '-' }}
+              {{
+                getSingleCategoryNameByType(cuttingAllocation.allocation.categories, 'seed-type') ||
+                '-'
+              }}
             </span>
           </div>
           <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
@@ -508,16 +511,22 @@ defineExpose({
                       {{ getSingleCategoryNameByType(allocation.categories, 'seed-type') || '-' }}
                     </td>
                     <td>
-                      {{ getSingleCategoryNameByType(allocation.categories, 'seed-variety') || '-' }}
+                      {{
+                        getSingleCategoryNameByType(allocation.categories, 'seed-variety') || '-'
+                      }}
                     </td>
                     <td>
                       {{ getSingleCategoryNameByType(allocation.categories, 'seed-class') || '-' }}
                     </td>
                     <td>
-                      {{ getSingleCategoryNameByType(allocation.categories, 'seed-generation') || '-' }}
+                      {{
+                        getSingleCategoryNameByType(allocation.categories, 'seed-generation') || '-'
+                      }}
                     </td>
                     <td>
-                      {{ getSingleCategoryNameByType(allocation.categories, 'grower-group') || '-' }}
+                      {{
+                        getSingleCategoryNameByType(allocation.categories, 'grower-group') || '-'
+                      }}
                     </td>
                     <td>{{ allocation.paddock }}</td>
                     <td>{{ getBinSizesValue(allocation.bin_size) }}</td>
@@ -528,7 +537,8 @@ defineExpose({
                         type="checkbox"
                         :checked="
                           form.selected_allocations.find(
-                            (cutting_allocation) => cutting_allocation.allocation_id === allocation.id,
+                            (cutting_allocation) =>
+                              cutting_allocation.allocation_id === allocation.id,
                           )
                         "
                         @click="onSelectAllocation(allocation)"
