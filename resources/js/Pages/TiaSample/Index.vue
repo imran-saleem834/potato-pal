@@ -7,6 +7,7 @@ import Details from '@/Pages/TiaSample/Details.vue';
 import LeftBar from '@/Components/LeftBar.vue';
 import { useToast } from 'vue-toastification';
 import { useWindowSize } from 'vue-window-size';
+import Actions from "@/Components/Actions.vue";
 
 const toast = useToast();
 const { width, height } = useWindowSize();
@@ -137,6 +138,19 @@ if (width.value > 991) {
               @update="() => getTiaSample(activeTab)"
               @create="() => setActiveTab(tiaSample?.id)"
             />
+            <div class="middle-section border-0">
+              <Actions
+                :active-tab="activeTab"
+                :is-edit-record-selected="!!edit"
+                :is-new-record-selected="isNewRecord"
+                @new="setNewRecord"
+                @edit="() => setEdit(tiaSample?.id)"
+                @unset="() => setActiveTab(null)"
+                @store="() => details.storeRecord()"
+                @update="() => details.updateRecord()"
+                @delete="() => deleteTiaSample(tiaSample?.id)"
+              />
+            </div>
           </div>
           <div class="col-12" v-if="Object.values(tiaSample).length <= 0 && !isNewRecord">
             <p class="text-center" style="margin-top: calc(50vh - 120px)">No Records Found</p>

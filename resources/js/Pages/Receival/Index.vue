@@ -8,6 +8,7 @@ import LeftBar from '@/Components/LeftBar.vue';
 import { getCategoriesByType } from '@/helper.js';
 import { useToast } from 'vue-toastification';
 import { useWindowSize } from 'vue-window-size';
+import Actions from "@/Components/Actions.vue";
 
 const toast = useToast();
 const { width, height } = useWindowSize();
@@ -181,6 +182,21 @@ if (width.value > 991) {
               @unset="() => setActiveTab(null)"
               col-size="col-12 col-xl-6"
             />
+            <div class="middle-section border-0">
+              <Actions
+                :active-tab="activeTab"
+                :is-edit-record-selected="!!edit"
+                :is-new-record-selected="isNewRecord"
+                :access="{ duplicate: true }"
+                @new="setNewRecord"
+                @edit="() => setEdit(receival?.id)"
+                @unset="() => setActiveTab(null)"
+                @store="() => details.storeRecord()"
+                @update="() => details.updateRecord()"
+                @delete="() => deleteReceival(receival?.id)"
+                @duplicate="() => showDuplicateModal(receival)"
+              />
+            </div>
           </div>
           <div v-if="Object.values(receival).length <= 0 && !isNewRecord">
             <p class="w-100 text-center" style="margin-top: calc(50vh - 120px)">No Records Found</p>
@@ -217,9 +233,9 @@ if (width.value > 991) {
                             "
                             :class="duplicateForm.inputs[input] ? 'btn btn-black' : 'btn btn-dark'"
                           >
-                            <template v-if="input === 'paddocks'">{{
-                              duplicateReceival[input][0]
-                            }}</template>
+                            <template v-if="input === 'paddocks'">
+                              {{ duplicateReceival[input][0] }}
+                            </template>
                             <template v-else>{{ duplicateReceival[input] }}</template>
                           </button>
                         </li>

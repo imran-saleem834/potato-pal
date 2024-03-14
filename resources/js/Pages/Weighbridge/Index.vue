@@ -119,10 +119,10 @@ if (width.value > 991) {
                         <ul class="p-0">
                           <li>
                             <a>
-                              {{ 
+                              {{
                                 activeTab.channel === 'weighbridge'
-                                ? 'BU1'
-                                : activeTab.channel.toUpperCase() 
+                                  ? 'BU1'
+                                  : activeTab.channel.toUpperCase()
                               }}
                             </a>
                           </li>

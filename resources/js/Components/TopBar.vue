@@ -3,6 +3,7 @@ import { ref, computed } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import LogoutButton from '@/Components/LogoutButton.vue';
 import ConfirmedModal from '@/Components/ConfirmedModal.vue';
+import Actions from "@/Components/Actions.vue";
 
 const props = defineProps({
   type: String,
@@ -159,100 +160,20 @@ const search = () => {
               </a>
             </li>
           </ul>
-          <ul class="text-end">
-            <li v-if="access.search" class="d-inline-block d-md-none">
-              <a
-                role="button"
-                @click="() => (isSearchVisible = !isSearchVisible)"
-                :class="{ active: isSearchVisible }"
-                class="btn btn-transparent"
-                title="Search"
-              >
-                <i class="bi bi-search"></i>
-              </a>
-            </li>
-            <li v-if="!isNewRecordSelected && activeTab && access.delete">
-              <a
-                role="button"
-                data-bs-toggle="modal"
-                data-bs-target="#delete-record"
-                class="btn btn-transparent"
-                title="Delete"
-              >
-                <i class="bi bi-trash"></i>
-              </a>
-            </li>
-            <li v-if="!isNewRecordSelected && activeTab && !isEditRecordSelected && access.edit">
-              <a role="button" @click="$emit('edit')" class="btn btn-red" title="Edit">
-                <i class="bi bi-pen"></i> <span class="d-none d-md-inline-block">Edit</span>
-              </a>
-            </li>
-            <li v-if="!isNewRecordSelected && isEditRecordSelected">
-              <a
-                role="button"
-                title="Update"
-                class="btn btn-red"
-                data-bs-toggle="modal"
-                data-bs-target="#update-record"
-              >
-                <i class="bi bi-check-lg"></i> <span class="d-none d-md-inline-block">Update</span>
-              </a>
-            </li>
-            <li v-if="isNewRecordSelected">
-              <a
-                role="button"
-                title="Create"
-                class="btn btn-red"
-                data-bs-toggle="modal"
-                data-bs-target="#store-record"
-              >
-                <i class="bi bi-check-lg"></i> <span class="d-none d-md-inline-block">Create</span>
-              </a>
-            </li>
-            <li
-              v-if="!isNewRecordSelected && access.new && access.edit"
-              class="d-inline-block d-lg-none"
-              title="Add new"
-            >
-              <a role="button" @click="$emit('new')" class="btn btn-red">
-                <i class="bi bi-plus-lg"></i> <span class="d-none d-md-inline-block">Add</span>
-              </a>
-            </li>
-            <li v-if="!isNewRecordSelected && access.new && !access.edit">
-              <a role="button" @click="$emit('new')" class="btn btn-red" title="Add new">
-                <i class="bi bi-plus-lg"></i> <span class="d-none d-md-inline-block">Add</span>
-              </a>
-            </li>
-            <li
-              v-if="!isNewRecordSelected && activeTab && !isEditRecordSelected && access.duplicate"
-            >
-              <a
-                role="button"
-                title="Duplicate"
-                class="btn btn-black"
-                data-bs-toggle="modal"
-                data-bs-target="#duplicate-details"
-                @click="$emit('duplicate')"
-              >
-                <i class="bi bi-copy"></i> <span class="d-none d-md-inline-block">Duplicate</span>
-              </a>
-            </li>
-            <li v-if="!isNewRecordSelected && !isEditRecordSelected && access.print">
-              <a role="button" @click="$emit('print')" class="btn btn-red" title="Print">
-                <i class="bi bi-printer"></i> <span class="d-none d-md-inline-block">Print</span>
-              </a>
-            </li>
-            <li v-if="activeTab || isNewRecordSelected" class="d-none d-md-inline-block d-lg-none">
-              <a
-                role="button"
-                @click="$emit('unset')"
-                class="btn btn-transparent"
-                title="Back to list"
-              >
-                <i class="bi bi-x-lg"></i>
-              </a>
-            </li>
-          </ul>
+
+          <Actions
+            :active-tab="activeTab"
+            :is-edit-record-selected="isEditRecordSelected"
+            :is-new-record-selected="isNewRecordSelected"
+            :access="access"
+            @new="$emit('new')"
+            @edit="$emit('edit')"
+            @unset="$emit('unset')"
+            @store="$emit('store')"
+            @update="$emit('update')"
+            @delete="$emit('delete')"
+            @duplicate="$emit('duplicate')"
+          />
         </div>
       </div>
     </div>

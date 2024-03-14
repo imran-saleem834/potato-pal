@@ -7,6 +7,7 @@ import LeftBar from '@/Components/LeftBar.vue';
 import { router, useForm } from '@inertiajs/vue3';
 import { useToast } from 'vue-toastification';
 import { useWindowSize } from 'vue-window-size';
+import Actions from "@/Components/Actions.vue";
 
 const toast = useToast();
 const { width, height } = useWindowSize();
@@ -121,6 +122,19 @@ if (width.value > 991) {
               @create="() => setActiveTab(receival?.id)"
               col-size="col-12 col-xl-6"
             />
+            <div class="middle-section border-0">
+              <Actions
+                :active-tab="activeTab"
+                :is-edit-record-selected="!!edit"
+                :is-new-record-selected="false"
+                :access="{ new: false }"
+                @edit="() => setEdit(receival?.id)"
+                @unset="() => setActiveTab(null)"
+                @store="() => details.storeRecord()"
+                @update="() => details.updateRecord()"
+                @delete="() => deleteUnload(receival?.id)"
+              />
+            </div>
           </div>
           <div class="col-sm-12" v-if="Object.values(receival).length <= 0">
             <p class="text-center" style="margin-top: calc(50vh - 120px)">No Records Found</p>
