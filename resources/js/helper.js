@@ -25,6 +25,12 @@ export function getSingleCategoryNameByType(categories, type) {
   return getCategoriesByType(categories, type)[0]?.category?.name;
 }
 
+export function getCategoryByKeyword(categories, type, keyword) {
+  return getCategoriesByType(categories, type).find((category) =>
+      category.name.includes(keyword),
+  );
+}
+
 export function toCamelCase(string) {
   if (!string) return '';
   const words = string.toLowerCase().split(' ');

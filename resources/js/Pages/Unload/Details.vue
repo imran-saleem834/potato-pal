@@ -8,6 +8,7 @@ import Multiselect from '@vueform/multiselect';
 import { useToast } from 'vue-toastification';
 import {
   toTonnes,
+  getCategoryByKeyword,
   getSingleCategoryNameByType,
   getCategoriesDropDownByType,
   getCategoriesByType,
@@ -50,9 +51,7 @@ watch(
 );
 
 const getDefaultSeedType = () => {
-  const category = getCategoriesByType(props.categories, 'seed-type').find((category) =>
-    category.name.includes('Standard'),
-  );
+  const category = getCategoryByKeyword(props.categories, 'seed-type', 'Standard');
 
   return [{ category_id: category.id, type: 'seed-type', category }];
 };

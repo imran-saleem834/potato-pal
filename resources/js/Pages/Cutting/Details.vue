@@ -10,6 +10,7 @@ import {
   toTonnes,
   getBinSizesValue,
   getCategoryIdsByType,
+  getCategoryByKeyword,
   getCategoriesDropDownByType,
   getSingleCategoryNameByType,
 } from '@/helper.js';
@@ -43,14 +44,25 @@ const emit = defineEmits(['create', 'delete']);
 
 const isEdit = ref(false);
 
+const getDefaultCategoryId = (categories, type, keyword) => {
+  let categoriesIds = getCategoryIdsByType(categories, type);
+  if (categoriesIds.length <= 0) {
+    const defaultCategory = getCategoryByKeyword(props.categories, type, keyword);
+    if (defaultCategory) {
+      categoriesIds = [defaultCategory.id];
+    }
+  }
+  return categoriesIds;
+}
+
 const form = useForm({
   buyer_id: props.cutting.buyer_id,
   half_tonnes: props.cutting.half_tonnes,
   one_tonnes: props.cutting.one_tonnes,
   two_tonnes: props.cutting.two_tonnes,
   cut_date: props.cutting.cut_date,
-  cool_store: getCategoryIdsByType(props.cutting.categories, 'cool-store'),
-  fungicide: getCategoryIdsByType(props.cutting.categories, 'fungicide'),
+  cool_store: getDefaultCategoryId(props.cutting.categories, 'cool-store', 'Cherry Hill'),
+  fungicide: getDefaultCategoryId(props.cutting.categories, 'fungicide', 'Mancozeb/Lime'),
   comment: props.cutting.comment,
   selected_allocations: props.cutting.cutting_allocations || [],
 });
@@ -67,8 +79,8 @@ watch(
     form.one_tonnes = cutting.one_tonnes;
     form.two_tonnes = cutting.two_tonnes;
     form.cut_date = cutting.cut_date;
-    form.cool_store = getCategoryIdsByType(cutting.categories, 'cool-store');
-    form.fungicide = getCategoryIdsByType(cutting.categories, 'fungicide');
+    form.cool_store = getDefaultCategoryId(cutting.categories, 'cool-store', 'Cherry Hill');
+    form.fungicide = getDefaultCategoryId(cutting.categories, 'fungicide', 'Mancozeb/Lime');
     form.comment = cutting.comment;
     form.selected_allocations = cutting.cutting_allocations || [];
   },
@@ -162,7 +174,7 @@ defineExpose({
       <tr>
         <th class="d-none d-sm-table-cell">Buyer Name</th>
         <td>
-          <div class="p-0" :class="{ 'input-group': form.buyer_id }">
+          <div class="p-0" :class="{ 'input-group': form.buyer_id, 'is-invalid': form.errors.buyer_id || form.errors.selected_allocations }">
             <Multiselect
               v-if="isNew"
               v-model="form.buyer_id"
@@ -171,7 +183,6 @@ defineExpose({
               placeholder="Choose a buyer"
               :searchable="true"
               :options="buyers"
-              :class="{ 'is-invalid': form.errors.buyer_id || form.errors.selected_allocations }"
             />
             <input
               v-else
