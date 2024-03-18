@@ -7,7 +7,7 @@ import Details from '@/Pages/TiaSample/Details.vue';
 import LeftBar from '@/Components/LeftBar.vue';
 import { useToast } from 'vue-toastification';
 import { useWindowSize } from 'vue-window-size';
-import Actions from "@/Components/Actions.vue";
+import Actions from '@/Components/Actions.vue';
 
 const toast = useToast();
 const { width, height } = useWindowSize();

@@ -26,9 +26,7 @@ export function getSingleCategoryNameByType(categories, type) {
 }
 
 export function getCategoryByKeyword(categories, type, keyword) {
-  return getCategoriesByType(categories, type).find((category) =>
-      category.name.includes(keyword),
-  );
+  return getCategoriesByType(categories, type).find((category) => category.name.includes(keyword));
 }
 
 export function toCamelCase(string) {

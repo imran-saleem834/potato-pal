@@ -255,7 +255,9 @@ defineExpose({
           <label class="form-label">Allocated weight</label>
           <TextInput v-model="form.weight" :error="form.errors.weight" type="text">
             <template #addon>
-              <div class="input-group-text d-none d-md-inline-block d-lg-none d-xl-inline-block">tonnes</div>
+              <div class="input-group-text d-none d-md-inline-block d-lg-none d-xl-inline-block">
+                tonnes
+              </div>
             </template>
           </TextInput>
         </div>

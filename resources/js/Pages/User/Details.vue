@@ -9,7 +9,7 @@ import {
 } from '@/helper.js';
 import Multiselect from '@vueform/multiselect';
 import TextInput from '@/Components/TextInput.vue';
-import ItemOfCategories from "@/Components/ItemOfCategories.vue";
+import ItemOfCategories from '@/Components/ItemOfCategories.vue';
 
 const toast = useToast();
 

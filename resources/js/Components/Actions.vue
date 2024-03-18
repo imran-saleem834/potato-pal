@@ -102,9 +102,7 @@ const emit = defineEmits([
         <i class="bi bi-plus-lg"></i> <span class="d-none d-md-inline-block">Add</span>
       </a>
     </li>
-    <li
-      v-if="!isNewRecordSelected && activeTab && !isEditRecordSelected && access.duplicate"
-    >
+    <li v-if="!isNewRecordSelected && activeTab && !isEditRecordSelected && access.duplicate">
       <a
         role="button"
         title="Duplicate"
@@ -122,12 +120,7 @@ const emit = defineEmits([
       </a>
     </li>
     <li v-if="activeTab || isNewRecordSelected" class="d-none d-md-inline-block d-lg-none">
-      <a
-        role="button"
-        @click="$emit('unset')"
-        class="btn btn-transparent"
-        title="Back to list"
-      >
+      <a role="button" @click="$emit('unset')" class="btn btn-transparent" title="Back to list">
         <i class="bi bi-x-lg"></i>
       </a>
     </li>

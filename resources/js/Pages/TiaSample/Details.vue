@@ -7,7 +7,7 @@ import { useToast } from 'vue-toastification';
 import TextInput from '@/Components/TextInput.vue';
 import Images from '@/Components/Images.vue';
 import UlLiButton from '@/Components/UlLiButton.vue';
-import TdOfCategories from "@/Components/TdOfCategories.vue";
+import TdOfCategories from '@/Components/TdOfCategories.vue';
 import { binSizes, tiaStatus, tiaSampleBoolean } from '@/const.js';
 
 const toast = useToast();
@@ -347,7 +347,10 @@ defineExpose({
           </tr>
           <tr v-if="!isNew">
             <th>Cool Store</th>
-            <TdOfCategories :categories="tiaSample?.receival?.grower?.categories" type="cool-store" />
+            <TdOfCategories
+              :categories="tiaSample?.receival?.grower?.categories"
+              type="cool-store"
+            />
           </tr>
           <tr>
             <th>Status</th>

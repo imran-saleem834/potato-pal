@@ -3,7 +3,7 @@ import { ref, computed } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import LogoutButton from '@/Components/LogoutButton.vue';
 import ConfirmedModal from '@/Components/ConfirmedModal.vue';
-import Actions from "@/Components/Actions.vue";
+import Actions from '@/Components/Actions.vue';
 
 const props = defineProps({
   type: String,

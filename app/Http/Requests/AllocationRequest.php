@@ -30,7 +30,7 @@ class AllocationRequest extends FormRequest
             ->select(['unique_key', 'no_of_bins', 'weight'])
             ->find($remainingReceivalId)
             ->toArray();
-        
+
         $noOfBins = $receival['no_of_bins'] ?? 0;
         $weight   = $receival['weight'] ?? 0;
 
@@ -80,8 +80,6 @@ class AllocationRequest extends FormRequest
 
     /**
      * Get custom messages for validator errors.
-     *
-     * @return array
      */
     public function messages(): array
     {

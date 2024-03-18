@@ -15,8 +15,8 @@ import {
   getCategoryIdsByType,
 } from '@/helper.js';
 import { binSizes, tiaStatus, tiaStatusInit } from '@/const.js';
-import ItemOfCategories from "@/Components/ItemOfCategories.vue";
-import TdOfCategories from "@/Components/TdOfCategories.vue";
+import ItemOfCategories from '@/Components/ItemOfCategories.vue';
+import TdOfCategories from '@/Components/TdOfCategories.vue';
 
 const toast = useToast();
 
@@ -82,7 +82,8 @@ const updateUnloadForm = () => {
 
 const updateUnloadsOnChangeReceival = (receival) => {
   form.fungicide = getCategoryIdsByType(receival.categories, 'fungicide');
-  form.unloads = receival.unloads.length <= 0 ? [{ ...defaultUnloadFields }] : [...receival.unloads];
+  form.unloads =
+    receival.unloads.length <= 0 ? [{ ...defaultUnloadFields }] : [...receival.unloads];
 
   updateUnloadForm();
 };
@@ -102,7 +103,7 @@ const onChangeWeightType = (value, index) => {
   form.unloads[index].type = value;
 
   resetBinsAndWeight(index);
-}
+};
 
 const onChangeChannel = (value, index) => {
   form.unloads[index].channel = value;
@@ -279,7 +280,7 @@ defineExpose({
           </tr>
           <tr>
             <th>Grower Group</th>
-            <TdOfCategories :categories="receival.categories" type="grower-group"/>
+            <TdOfCategories :categories="receival.categories" type="grower-group" />
           </tr>
           <tr>
             <th>Paddock</th>
@@ -294,11 +295,11 @@ defineExpose({
           </tr>
           <tr>
             <th>Variety</th>
-            <TdOfCategories :categories="receival.categories" type="seed-variety"/>
+            <TdOfCategories :categories="receival.categories" type="seed-variety" />
           </tr>
           <tr>
             <th>Gen</th>
-            <TdOfCategories :categories="receival.categories" type="seed-generation"/>
+            <TdOfCategories :categories="receival.categories" type="seed-generation" />
           </tr>
           <tr>
             <th>TIA sampling</th>
@@ -349,7 +350,7 @@ defineExpose({
                 :options="getCategoriesDropDownByType(categories, 'fungicide')"
                 :class="{ 'is-invalid': form.errors.fungicide }"
               />
-              <ItemOfCategories v-else :categories="receival.categories" type="fungicide"/>
+              <ItemOfCategories v-else :categories="receival.categories" type="fungicide" />
               <div
                 v-if="form.errors.fungicide"
                 class="invalid-feedback"
@@ -378,7 +379,11 @@ defineExpose({
           </tr>
           <tr>
             <th>Seed type</th>
-            <td :class="{'pb-0' : !isForm && getCategoriesByType(unload.categories, 'seed-type').length }">
+            <td
+              :class="{
+                'pb-0': !isForm && getCategoriesByType(unload.categories, 'seed-type').length,
+              }"
+            >
               <Multiselect
                 v-if="isForm && form.unloads[index]"
                 v-model="form.unloads[index].seed_type"
@@ -389,7 +394,7 @@ defineExpose({
                 :class="{ 'is-invalid': form.errors[`unloads.${index}.seed_type`] }"
                 :options="getCategoriesDropDownByType(categories, 'seed-type')"
               />
-              <ItemOfCategories v-else :categories="unload.categories" type="seed-type"/>
+              <ItemOfCategories v-else :categories="unload.categories" type="seed-type" />
               <div v-if="form.errors[`unloads.${index}.seed_type`]" class="invalid-feedback">
                 {{ form.errors[`unloads.${index}.seed_type`] }}
               </div>
@@ -450,13 +455,13 @@ defineExpose({
                   :value="form.unloads[index].system"
                   :error="form.errors[`unloads.${index}.system`]"
                   :items="
-                  form.unloads[index].channel === 'weighbridge'
-                    ? [{ value: 1, label: 'System 1' }]
-                    : [
-                        { value: 1, label: 'System 1' },
-                        { value: 2, label: 'System 2' },
-                      ]
-                "
+                    form.unloads[index].channel === 'weighbridge'
+                      ? [{ value: 1, label: 'System 1' }]
+                      : [
+                          { value: 1, label: 'System 1' },
+                          { value: 2, label: 'System 2' },
+                        ]
+                  "
                   @click="(value) => onChangeSystem(value, index)"
                 />
               </td>

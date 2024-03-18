@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Builder;
 class CuttingController extends Controller
 {
     /**
-     * @param Request $request
+     * @param  Request  $request
      * Display a listing of the resource.
      */
     public function index(Request $request)
@@ -40,7 +40,7 @@ class CuttingController extends Controller
         $inputBuyerId = $request->input('buyerId', $firstBuyerId);
 
         $cuttings = $this->getCuttings($inputBuyerId, $request->input('search'));
-        if ($cuttings->isEmpty() && ((int)$inputBuyerId) !== ((int)$firstBuyerId)) {
+        if ($cuttings->isEmpty() && ((int) $inputBuyerId) !== ((int) $firstBuyerId)) {
             $cuttings = $this->getCuttings($firstBuyerId, $request->input('search'));
         }
 
@@ -63,8 +63,8 @@ class CuttingController extends Controller
             'cuttingBuyers' => $cuttingBuyers,
             'single'        => $cuttings,
             'allocations'   => $allocations,
-            'categories'    => fn() => Category::whereIn('type', ['cool-store', 'fungicide'])->get(),
-            'buyers'        => fn() => $this->buyers(),
+            'categories'    => fn () => Category::whereIn('type', ['cool-store', 'fungicide'])->get(),
+            'buyers'        => fn () => $this->buyers(),
             'filters'       => $request->only(['search']),
         ]);
     }
@@ -75,7 +75,7 @@ class CuttingController extends Controller
             ->select(['id', 'buyer_name'])
             ->whereJsonContains('role', 'buyer')
             ->get()
-            ->map(fn($user) => ['value' => $user->id, 'label' => $user->buyer_name]);
+            ->map(fn ($user) => ['value' => $user->id, 'label' => $user->buyer_name]);
     }
 
     /**
@@ -205,11 +205,13 @@ class CuttingController extends Controller
         tap($cuttings)->map(function ($cutting) use (&$availableBins) {
             $cutting->cuttingAllocations = $cutting->cuttingAllocations->map(function ($ca) use (&$availableBins) {
                 $ca->allocation->available_no_of_bins = $availableBins[$ca->allocation->id];
+
                 return $ca;
             });
+
             return $cutting;
         });
-        
+
         return $cuttings;
     }
 }

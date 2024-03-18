@@ -19,4 +19,4 @@ export var tiaStatus = [
 export var tiaSampleBoolean = [
   { value: true, label: 'Yes' },
   { value: false, label: 'No' },
-]
+];

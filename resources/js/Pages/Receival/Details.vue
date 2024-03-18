@@ -15,7 +15,7 @@ import {
 } from '@/helper.js';
 import { tiaStatus, tiaStatusInit } from '@/const.js';
 import UlLiButton from '@/Components/UlLiButton.vue';
-import ItemOfCategories from "@/Components/ItemOfCategories.vue";
+import ItemOfCategories from '@/Components/ItemOfCategories.vue';
 
 const toast = useToast();
 

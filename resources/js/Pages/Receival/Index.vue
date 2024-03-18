@@ -8,7 +8,7 @@ import LeftBar from '@/Components/LeftBar.vue';
 import { getCategoriesByType } from '@/helper.js';
 import { useToast } from 'vue-toastification';
 import { useWindowSize } from 'vue-window-size';
-import Actions from "@/Components/Actions.vue";
+import Actions from '@/Components/Actions.vue';
 
 const toast = useToast();
 const { width, height } = useWindowSize();
