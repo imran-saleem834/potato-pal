@@ -49,7 +49,7 @@
     cursor: pointer;
 }
 
-.input-group-text:hover {
+a.input-group-text:hover {
     color: white;
     background: #E22827 !important;
 }
@@ -939,6 +939,11 @@ body {
 }
 
 @media only screen and (max-width: 575px) {
+    .admin-access .menu-icon img {
+        width: 80px;
+        height: 80px;
+    }
+    
     .middle-section .middle-left,
     .middle-section .middle-right {
         padding: 10px;

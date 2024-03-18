@@ -18,6 +18,7 @@ class Unload extends Model
     protected $fillable = [
         'receival_id',
         'unique_key',
+        'type',
         'bin_size',
         'channel',
         'system',

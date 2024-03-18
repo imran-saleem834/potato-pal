@@ -7,13 +7,15 @@ import UlLiButton from '@/Components/UlLiButton.vue';
 import Multiselect from '@vueform/multiselect';
 import { useToast } from 'vue-toastification';
 import {
-  getBinSizesValue,
+  toTonnes,
   getSingleCategoryNameByType,
   getCategoriesDropDownByType,
   getCategoriesByType,
   getCategoryIdsByType,
 } from '@/helper.js';
 import { binSizes, tiaStatus, tiaStatusInit } from '@/const.js';
+import ItemOfCategories from "@/Components/ItemOfCategories.vue";
+import TdOfCategories from "@/Components/TdOfCategories.vue";
 
 const toast = useToast();
 
@@ -58,39 +60,12 @@ const getDefaultSeedType = () => {
 const defaultUnloadFields = {
   categories: getDefaultSeedType(),
   seed_type: null,
+  type: null,
   bin_size: null,
   no_of_bins: 0,
   weight: 0,
   channel: null,
   system: null,
-  isSeedTypeOversize: false,
-};
-
-const resetBinsAndWeight = (index) => {
-  form.unloads[index].no_of_bins = null;
-  form.unloads[index].weight = null;
-};
-
-const onChangeChannel = (value, index) => {
-  form.unloads[index].channel = value;
-  form.unloads[index].bin_size = value === 'weighbridge' ? 1000 : 2000;
-
-  resetBinsAndWeight(index);
-};
-
-const onChangeSeedType = (value, index) => {
-  form.unloads[index].seed_type = value;
-  setIsSeedTypeOversize(form.unloads[index].seed_type, index);
-
-  resetBinsAndWeight(index);
-};
-
-const setIsSeedTypeOversize = (seedTypeId, index) => {
-  const selectedCategoryLabel = getCategoriesDropDownByType(props.categories, 'seed-type').find(
-    (category) => category.value === seedTypeId,
-  )?.label;
-
-  form.unloads[index].isSeedTypeOversize = selectedCategoryLabel === 'Oversize';
 };
 
 const updateUnloadForm = () => {
@@ -99,7 +74,6 @@ const updateUnloadForm = () => {
     form.unloads[index].created_at = unload.created_at
       ? moment(unload.created_at).utc().format('YYYY-MM-DDThh:mm')
       : null;
-    setIsSeedTypeOversize(form.unloads[index].seed_type, index);
 
     bins.value[index] = null;
     weight.value[index] = null;
@@ -109,36 +83,39 @@ const updateUnloadForm = () => {
 
 const updateUnloadsOnChangeReceival = (receival) => {
   form.fungicide = getCategoryIdsByType(receival.categories, 'fungicide');
-  form.unloads =
-    receival.unloads.length <= 0 ? [{ ...defaultUnloadFields }] : [...receival.unloads];
+  form.unloads = receival.unloads.length <= 0 ? [{ ...defaultUnloadFields }] : [...receival.unloads];
 
   updateUnloadForm();
 };
 
-const onChangeTotalBins = (index) => {
-  if (!form.unloads[index].isSeedTypeOversize) {
-    return;
-  }
-  const oversizeSeedWeightOneTonne = 920;
-  if (form.unloads[index].bin_size === 500) {
-    form.unloads[index].weight = form.unloads[index].no_of_bins * (oversizeSeedWeightOneTonne / 2);
-  }
-  if (form.unloads[index].bin_size === 1000) {
-    form.unloads[index].weight = form.unloads[index].no_of_bins * oversizeSeedWeightOneTonne;
-  }
-  if (form.unloads[index].bin_size === 2000) {
-    form.unloads[index].weight = form.unloads[index].no_of_bins * (oversizeSeedWeightOneTonne * 2);
-  }
+const resetBinsAndWeight = (index) => {
+  form.unloads[index].no_of_bins = null;
+  form.unloads[index].weight = null;
+};
+
+const onChangeSeedType = (value, index) => {
+  form.unloads[index].seed_type = value;
+
+  resetBinsAndWeight(index);
+};
+
+const onChangeWeightType = (value, index) => {
+  form.unloads[index].type = value;
+
+  resetBinsAndWeight(index);
+}
+
+const onChangeChannel = (value, index) => {
+  form.unloads[index].channel = value;
+  form.unloads[index].bin_size = value === 'weighbridge' ? 1000 : 2000;
+
+  resetBinsAndWeight(index);
 };
 
 const onChangeBinSize = (value, index) => {
   form.unloads[index].bin_size = value;
 
-  if (!form.unloads[index].isSeedTypeOversize) {
-    resetBinsAndWeight(index);
-  }
-
-  onChangeTotalBins(index);
+  resetBinsAndWeight(index);
 };
 
 const onChangeSystem = (value, index) => {
@@ -303,20 +280,7 @@ defineExpose({
           </tr>
           <tr>
             <th>Grower Group</th>
-            <td class="pb-0">
-              <ul
-                class="p-0"
-                v-if="getCategoriesByType(receival.categories, 'grower-group').length"
-              >
-                <li
-                  v-for="category in getCategoriesByType(receival.categories, 'grower-group')"
-                  :key="category.id"
-                >
-                  <a>{{ category.category.name }}</a>
-                </li>
-              </ul>
-              <template v-else>-</template>
-            </td>
+            <TdOfCategories :categories="receival.categories" type="grower-group"/>
           </tr>
           <tr>
             <th>Paddock</th>
@@ -331,37 +295,11 @@ defineExpose({
           </tr>
           <tr>
             <th>Variety</th>
-            <td class="pb-0">
-              <ul
-                class="p-0"
-                v-if="getCategoriesByType(receival.categories, 'seed-variety').length"
-              >
-                <li
-                  v-for="category in getCategoriesByType(receival.categories, 'seed-variety')"
-                  :key="category.id"
-                >
-                  <a>{{ category.category.name }}</a>
-                </li>
-              </ul>
-              <template v-else>-</template>
-            </td>
+            <TdOfCategories :categories="receival.categories" type="seed-variety"/>
           </tr>
           <tr>
             <th>Gen</th>
-            <td class="pb-0">
-              <ul
-                class="p-0"
-                v-if="getCategoriesByType(receival.categories, 'seed-generation').length"
-              >
-                <li
-                  v-for="category in getCategoriesByType(receival.categories, 'seed-generation')"
-                  :key="category.id"
-                >
-                  <a>{{ category.category.name }}</a>
-                </li>
-              </ul>
-              <template v-else>-</template>
-            </td>
+            <TdOfCategories :categories="receival.categories" type="seed-generation"/>
           </tr>
           <tr>
             <th>TIA sampling</th>
@@ -412,18 +350,7 @@ defineExpose({
                 :options="getCategoriesDropDownByType(categories, 'fungicide')"
                 :class="{ 'is-invalid': form.errors.fungicide }"
               />
-              <ul
-                class="p-0"
-                v-else-if="getCategoriesByType(receival.categories, 'fungicide').length"
-              >
-                <li
-                  v-for="category in getCategoriesByType(receival.categories, 'fungicide')"
-                  :key="category.id"
-                >
-                  <a>{{ category.category.name }}</a>
-                </li>
-              </ul>
-              <template v-else>-</template>
+              <ItemOfCategories v-else :categories="receival.categories" type="fungicide"/>
               <div
                 v-if="form.errors.fungicide"
                 class="invalid-feedback"
@@ -444,15 +371,15 @@ defineExpose({
                 :error="form.errors[`unloads.${index}.created_at`]"
                 type="datetime-local"
               />
-              <template v-else-if="unload.created_at">{{
-                moment(unload.created_at).format('DD/MM/YYYY hh:mm A')
-              }}</template>
+              <template v-else-if="unload.created_at">
+                {{ moment(unload.created_at).format('DD/MM/YYYY hh:mm A') }}
+              </template>
               <template v-else>-</template>
             </td>
           </tr>
           <tr>
             <th>Seed type</th>
-            <td :class="{ 'pb-0': !isForm }">
+            <td :class="{'pb-0' : !isForm && getCategoriesByType(unload.categories, 'seed-type').length }">
               <Multiselect
                 v-if="isForm && form.unloads[index]"
                 v-model="form.unloads[index].seed_type"
@@ -463,26 +390,34 @@ defineExpose({
                 :class="{ 'is-invalid': form.errors[`unloads.${index}.seed_type`] }"
                 :options="getCategoriesDropDownByType(categories, 'seed-type')"
               />
-              <ul
-                class="p-0"
-                v-else-if="getCategoriesByType(unload.categories, 'seed-type').length"
-              >
-                <li>
-                  <a>{{ getSingleCategoryNameByType(unload.categories, 'seed-type') }}</a>
-                </li>
-              </ul>
-              <template v-else>-</template>
+              <ItemOfCategories v-else :categories="unload.categories" type="seed-type"/>
               <div v-if="form.errors[`unloads.${index}.seed_type`]" class="invalid-feedback">
                 {{ form.errors[`unloads.${index}.seed_type`] }}
               </div>
             </td>
           </tr>
-          <tr v-if="!form.unloads[index]?.isSeedTypeOversize">
+          <tr>
+            <th>Weight Type</th>
+            <td class="pb-0">
+              <UlLiButton
+                v-if="form.unloads[index]"
+                :is-form="isForm"
+                :value="form.unloads[index].type"
+                :error="form.errors[`unloads.${index}.type`]"
+                :items="[
+                  { value: 1, label: 'System' },
+                  { value: 2, label: 'Manual' },
+                ]"
+                @click="(value) => onChangeWeightType(value, index)"
+              />
+            </td>
+          </tr>
+          <tr v-if="form.unloads[index]?.type === 1">
             <th>Channel</th>
             <td class="pb-0">
               <UlLiButton
-                v-if="isForm && form.unloads[index]"
-                :is-form="true"
+                v-if="form.unloads[index]"
+                :is-form="isForm"
                 :value="form.unloads[index].channel"
                 :error="form.errors[`unloads.${index}.channel`]"
                 :items="[
@@ -492,44 +427,30 @@ defineExpose({
                 ]"
                 @click="(value) => onChangeChannel(value, index)"
               />
-              <ul class="p-0" v-else-if="unload.channel">
-                <li>
-                  <a>{{
-                    unload.channel === 'weighbridge' ? 'BU1' : unload.channel.toUpperCase()
-                  }}</a>
-                </li>
-              </ul>
-              <template v-else>-</template>
             </td>
           </tr>
           <tr>
             <th>Bin size</th>
             <td class="pb-0">
               <UlLiButton
-                v-if="isForm && form.unloads[index]"
-                :is-form="true"
+                v-if="form.unloads[index]"
+                :is-form="isForm"
                 :value="form.unloads[index].bin_size"
                 :error="form.errors[`unloads.${index}.bin_size`]"
                 :items="binSizes"
                 @click="(value) => onChangeBinSize(value, index)"
               />
-              <ul class="p-0" v-else-if="unload.bin_size">
-                <li>
-                  <a>{{ getBinSizesValue(unload.bin_size) }}</a>
-                </li>
-              </ul>
-              <template v-else>-</template>
             </td>
           </tr>
-          <tr v-if="!form.unloads[index]?.isSeedTypeOversize">
-            <th>System</th>
-            <td class="pb-0">
-              <UlLiButton
-                v-if="isForm && form.unloads[index]"
-                :is-form="true"
-                :value="form.unloads[index].system"
-                :error="form.errors[`unloads.${index}.system`]"
-                :items="
+          <template v-if="isForm && form.unloads[index] && form.unloads[index]?.type === 1">
+            <tr>
+              <th>System</th>
+              <td class="pb-0">
+                <UlLiButton
+                  :is-form="true"
+                  :value="form.unloads[index].system"
+                  :error="form.errors[`unloads.${index}.system`]"
+                  :items="
                   form.unloads[index].channel === 'weighbridge'
                     ? [{ value: 1, label: 'System 1' }]
                     : [
@@ -537,48 +458,63 @@ defineExpose({
                         { value: 2, label: 'System 2' },
                       ]
                 "
-                @click="(value) => onChangeSystem(value, index)"
-              />
-              <ul class="p-0" v-else-if="unload.system">
-                <li>
-                  <a>{{ `System ${unload.system}` }}</a>
-                </li>
-              </ul>
-              <template v-else>-</template>
-            </td>
-          </tr>
-          <tr>
-            <th>No. of total bins</th>
-            <td>
-              <input
-                type="text"
-                class="form-control"
-                v-if="isForm && form.unloads[index]"
-                v-model="form.unloads[index].no_of_bins"
-                :class="{ 'is-invalid': form.errors[`unloads.${index}.no_of_bins`] }"
-                @keyup="() => onChangeTotalBins(index)"
-              />
-              <template v-else-if="unload.no_of_bins">{{ unload.no_of_bins }}</template>
-              <template v-else>-</template>
-              <div v-if="form.errors[`unloads.${index}.no_of_bins`]" class="invalid-feedback">
-                {{ form.errors[`unloads.${index}.no_of_bins`] }}
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <th>Weight of total bins (kg)</th>
-            <td>
-              <TextInput
-                v-if="isForm && form.unloads[index]"
-                v-model="form.unloads[index].weight"
-                :error="form.errors[`unloads.${index}.weight`]"
-                type="text"
-              />
-              <template v-else-if="unload.weight">{{ unload.weight }} Kg</template>
-              <template v-else>-</template>
-            </td>
-          </tr>
-          <tr v-if="isForm && form.unloads[index] && !form.unloads[index]?.isSeedTypeOversize">
+                  @click="(value) => onChangeSystem(value, index)"
+                />
+              </td>
+            </tr>
+            <tr>
+              <th>No. of total bins</th>
+              <td>{{ form.unloads[index].no_of_bins || '-' }}</td>
+            </tr>
+            <tr>
+              <th>Weight of total bins</th>
+              <td>{{ toTonnes(form.unloads[index].weight) }}</td>
+            </tr>
+          </template>
+          <template v-if="isForm && form.unloads[index] && form.unloads[index]?.type === 2">
+            <tr>
+              <th>No. of total bins</th>
+              <td>
+                <TextInput
+                  v-model="form.unloads[index].no_of_bins"
+                  :error="form.errors[`unloads.${index}.no_of_bins`]"
+                  :disabled="form.unloads[index]?.type === 1"
+                  type="text"
+                />
+              </td>
+            </tr>
+            <tr>
+              <th>Weight of total bins</th>
+              <td>
+                <TextInput
+                  v-model="form.unloads[index].weight"
+                  :error="form.errors[`unloads.${index}.weight`]"
+                  type="text"
+                >
+                  <template #addon>
+                    <div class="input-group-text">kg</div>
+                  </template>
+                </TextInput>
+              </td>
+            </tr>
+          </template>
+          <template v-if="!isForm">
+            <tr>
+              <th>No. of total bins</th>
+              <td>
+                <template v-if="unload.no_of_bins">{{ unload.no_of_bins }}</template>
+                <template v-else>-</template>
+              </td>
+            </tr>
+            <tr>
+              <th>Weight of total bins</th>
+              <td>
+                <template v-if="unload.weight">{{ toTonnes(unload.weight) }}</template>
+                <template v-else>-</template>
+              </td>
+            </tr>
+          </template>
+          <tr v-if="isForm && form.unloads[index] && form.unloads[index]?.type === 1">
             <th>No. of bins weighed at a time</th>
             <td class="pb-0">
               <div class="d-inline-block">
@@ -599,17 +535,26 @@ defineExpose({
               </div>
             </td>
           </tr>
-          <tr v-if="isForm && form.unloads[index] && !form.unloads[index]?.isSeedTypeOversize">
-            <th>Weight of total bins (kg)</th>
+          <tr v-if="isForm && form.unloads[index] && form.unloads[index]?.type === 1">
+            <th>Weight of bins</th>
             <td class="pb-0">
               <TextInput v-model="weight[index]" type="text">
-                <template v-if="weight[index] && bins[index]" #addon>
-                  <a href="javascript:;" class="input-group-text" @click="acceptWeight(index)">
+                <template #addon>
+                  <div class="input-group-text">kg</div>
+                  <div
+                    v-if="weight[index] && bins[index]"
+                    class="input-group-text cursor-pointer"
+                    @click="acceptWeight(index)"
+                  >
                     <i class="bi bi-check-lg"></i>
-                  </a>
-                  <a href="javascript:;" class="input-group-text" @click="rejectWeight(index)">
+                  </div>
+                  <div
+                    v-if="weight[index] && bins[index]"
+                    class="input-group-text cursor-pointer"
+                    @click="rejectWeight(index)"
+                  >
                     <i class="bi bi-x-lg"></i>
-                  </a>
+                  </div>
                 </template>
               </TextInput>
             </td>
@@ -617,7 +562,7 @@ defineExpose({
         </table>
       </div>
 
-      <div v-if="isForm" class="col col-sm-12 mb-2 text-end">
+      <div v-if="isForm" class="col col-sm-12 mb-2 text-start">
         <button @click="addMoreUnload" class="btn btn-red">Add More seed type weighing</button>
       </div>
     </div>

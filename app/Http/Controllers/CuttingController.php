@@ -17,14 +17,14 @@ use Illuminate\Database\Eloquent\Builder;
 class CuttingController extends Controller
 {
     /**
-     * @param  Request  $request
+     * @param Request $request
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
         $cuttingBuyers = Cutting::select('buyer_id')
             ->with([
-                'buyer' => fn ($query) => $query->select(['id', 'name', 'buyer_name']),
+                'buyer:id,name,buyer_name',
                 'buyer.categories.category',
             ])
             ->latest()
@@ -40,21 +40,20 @@ class CuttingController extends Controller
         $inputBuyerId = $request->input('buyerId', $firstBuyerId);
 
         $cuttings = $this->getCuttings($inputBuyerId, $request->input('search'));
-        if ($cuttings->isEmpty() && ((int) $inputBuyerId) !== ((int) $firstBuyerId)) {
+        if ($cuttings->isEmpty() && ((int)$inputBuyerId) !== ((int)$firstBuyerId)) {
             $cuttings = $this->getCuttings($firstBuyerId, $request->input('search'));
         }
 
         $allocations = Allocation::with(['dispatches', 'cuttings', 'categories.category'])
             ->get()
             ->map(function ($allocation) {
-                $allocation->allocation_id = $allocation->id;
+                $allocation->allocation_id        = $allocation->id;
+                $allocation->available_no_of_bins = $allocation->no_of_bins;
                 foreach ($allocation->dispatches as $dispatch) {
-                    $allocation->no_of_bins -= $dispatch->no_of_bins;
-                    $allocation->weight     -= $dispatch->weight;
+                    $allocation->available_no_of_bins -= $dispatch->no_of_bins;
                 }
                 foreach ($allocation->cuttings as $cutting) {
-                    $allocation->no_of_bins -= $cutting->no_of_bins_before_cutting;
-                    $allocation->weight     -= $cutting->weight_before_cutting;
+                    $allocation->available_no_of_bins -= $cutting->no_of_bins;
                 }
 
                 return $allocation;
@@ -64,8 +63,8 @@ class CuttingController extends Controller
             'cuttingBuyers' => $cuttingBuyers,
             'single'        => $cuttings,
             'allocations'   => $allocations,
-            'categories'    => fn () => Category::whereIn('type', ['cool-store', 'fungicide'])->get(),
-            'buyers'        => fn () => $this->buyers(),
+            'categories'    => fn() => Category::whereIn('type', ['cool-store', 'fungicide'])->get(),
+            'buyers'        => fn() => $this->buyers(),
             'filters'       => $request->only(['search']),
         ]);
     }
@@ -76,7 +75,7 @@ class CuttingController extends Controller
             ->select(['id', 'buyer_name'])
             ->whereJsonContains('role', 'buyer')
             ->get()
-            ->map(fn ($user) => ['value' => $user->id, 'label' => $user->buyer_name]);
+            ->map(fn($user) => ['value' => $user->id, 'label' => $user->buyer_name]);
     }
 
     /**
@@ -104,27 +103,34 @@ class CuttingController extends Controller
     public function update(CuttingRequest $request, string $id)
     {
         $cutting = Cutting::find($id);
-        $buyerId = $cutting->buyer_id;
         $cutting->update($request->validated());
         $cutting->save();
 
         $cuttingAllocations = [];
         foreach ($request->validated('selected_allocations') as $cuttingAllocation) {
             if (isset($cuttingAllocation['id'])) {
-                $cuttingAllocations[] = $cuttingAllocation['id'];
-                CuttingAllocation::find($cuttingAllocation['id'])->update($cuttingAllocation);
+                $cutAllocation = CuttingAllocation::find($cuttingAllocation['id']);
+                $cutAllocation->update($cuttingAllocation);
+                $cutAllocation->save();
             } else {
-                CuttingAllocation::create(array_merge(['cutting_id' => $cutting->id], $cuttingAllocation));
+                $cutAllocation = CuttingAllocation::create(array_merge(['cutting_id' => $cutting->id],
+                    $cuttingAllocation));
             }
+            $cuttingAllocations[] = $cutAllocation->id;
         }
-        CuttingAllocation::where('cutting_id', $cutting->id)->whereNotIn('id', $cuttingAllocations)->delete();
+
+        // Delete those who where not comes to update or create
+        CuttingAllocation::query()
+            ->where('cutting_id', $cutting->id)
+            ->whereNotIn('id', $cuttingAllocations)
+            ->delete();
 
         $inputs = $request->only(['cool_store', 'fungicide']);
         CategoriesHelper::createRelationOfTypes($inputs, $cutting->id, Cutting::class);
 
         NotificationHelper::updatedAction('Cutting', $id);
 
-        return to_route('cuttings.index', ['buyerId' => $buyerId]);
+        return to_route('cuttings.index', ['buyerId' => $cutting->buyer_id]);
     }
 
     /**
@@ -157,19 +163,16 @@ class CuttingController extends Controller
             ->with([
                 'categories.category',
                 'cuttingAllocations.allocation.categories.category',
+                'cuttingAllocations.allocation.dispatches:id,allocation_id,no_of_bins',
             ])
             ->when($search, function ($query, $search) {
                 return $query->where(function ($subQuery) use ($search) {
                     return $subQuery
-                        ->where('comment', 'LIKE', "%{$search}%")
+                        ->where('half_tonnes', 'LIKE', "%{$search}%")
+                        ->orWhere('one_tonnes', 'LIKE', "%{$search}%")
+                        ->orWhere('two_tonnes', 'LIKE', "%{$search}%")
                         ->orWhere('cut_date', 'LIKE', "%{$search}%")
-                        ->orWhereRelation('cuttingAllocations', function (Builder $query) use ($search) {
-                            return $query
-                                ->where('no_of_bins_before_cutting', 'LIKE', "%{$search}%")
-                                ->orWhere('no_of_bins_after_cutting', 'LIKE', "%{$search}%")
-                                ->orWhereRaw("CONCAT(`weight_before_cutting`, ' kg') LIKE '%{$search}%'")
-                                ->orWhereRaw("CONCAT(`weight_after_cutting`, ' kg') LIKE '%{$search}%'");
-                        })
+                        ->orWhere('comment', 'LIKE', "%{$search}%")
                         ->orWhereRelation('categories.category', function (Builder $query) use ($search) {
                             return $query->where('name', 'LIKE', "%{$search}%");
                         })
@@ -179,19 +182,34 @@ class CuttingController extends Controller
                 });
             })
             ->where('buyer_id', $buyerId)
+            ->latest()
             ->paginate(10)
             ->withQueryString()
             ->onEachSide(1);
 
-        tap($cuttings)->map(function ($cutting) {
-            $cutting->cuttingAllocations = $cutting->cuttingAllocations->map(function ($cuttingAllocation) {
-                $cuttingAllocation->allocation->no_of_bins -= $cuttingAllocation->no_of_bins_before_cutting;
-                $cuttingAllocation->allocation->weight     -= $cuttingAllocation->weight_before_cutting;
+        $availableBins = [];
+        tap($cuttings)->map(function ($cutting) use (&$availableBins) {
+            $cutting->cuttingAllocations->each(function ($ca) use (&$availableBins) {
+                $availableBins[$ca->allocation->id] = $ca->allocation->no_of_bins;
             });
 
             return $cutting;
         });
+        tap($cuttings)->map(function ($cutting) use (&$availableBins) {
+            $cutting->cuttingAllocations->each(function ($ca) use (&$availableBins) {
+                $availableBins[$ca->allocation->id] -= $ca->no_of_bins;
+            });
 
+            return $cutting;
+        });
+        tap($cuttings)->map(function ($cutting) use (&$availableBins) {
+            $cutting->cuttingAllocations = $cutting->cuttingAllocations->map(function ($ca) use (&$availableBins) {
+                $ca->allocation->available_no_of_bins = $availableBins[$ca->allocation->id];
+                return $ca;
+            });
+            return $cutting;
+        });
+        
         return $cuttings;
     }
 }

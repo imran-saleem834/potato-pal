@@ -49,12 +49,14 @@ const form = useForm({
     systems: props.report.filters?.systems,
     buyer_ids: props.report.filters?.buyer_ids,
     allocation_buyer_ids: props.report.filters?.allocation_buyer_ids,
+    labelable_type: props.report.filters?.labelable_type,
   },
 });
 
 const isReceivalForm = computed(() => page.props.type === 'receival');
 const isUnloadForm = computed(() => page.props.type === 'unload');
 const isTiaSampleForm = computed(() => page.props.type === 'tia-sample');
+const isLabelForm = computed(() => page.props.type === 'label');
 const isAllocationForm = computed(() => page.props.type === 'allocation');
 const isReallocationForm = computed(() => page.props.type === 'reallocation');
 const isCuttingForm = computed(() => page.props.type === 'cutting');
@@ -436,6 +438,48 @@ defineExpose({
               />
               <div v-if="form.errors['filters.disease_scoring']" class="invalid-feedback">
                 {{ form.errors['filters.disease_scoring'] }}
+              </div>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <h4 v-if="isLabelForm">Label Filter</h4>
+      <div v-if="isLabelForm" class="user-boxes">
+        <table class="table input-table mb-0">
+          <tr>
+            <th>Label Type</th>
+            <td>
+              <Multiselect
+                v-model="form.filters.labelable_type"
+                mode="tags"
+                placeholder="Choose a label type"
+                :searchable="true"
+                :class="{ 'is-invalid': form.errors['filters.labelable_type'] }"
+                :options="[
+                  { value: 'App\\Models\\Allocation', label: 'Allocation' },
+                  { value: 'App\\Models\\Reallocation', label: 'Reallocation' },
+                  { value: 'App\\Models\\CuttingAllocation', label: 'Cutting' },
+                ]"
+              />
+              <div v-if="form.errors['filters.labelable_type']" class="invalid-feedback">
+                {{ form.errors['filters.labelable_type'] }}
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <th>Buyers</th>
+            <td>
+              <Multiselect
+                v-model="form.filters.buyer_ids"
+                mode="tags"
+                placeholder="Choose a buyers"
+                :searchable="true"
+                :class="{ 'is-invalid': form.errors['filters.buyer_ids'] }"
+                :options="getDropDownOptions(page.props.buyers, false, true)"
+              />
+              <div v-if="form.errors['filters.buyer_ids']" class="invalid-feedback">
+                {{ form.errors['filters.buyer_ids'] }}
               </div>
             </td>
           </tr>

@@ -408,7 +408,7 @@ const autocompleteInput = (index) => {
               <template v-else>-</template>
             </th>
             <td>
-              <div v-if="isForm && form.paddocks[index]" class="input-group">
+              <div v-if="isForm && form.paddocks[index]" class="input-group py-0">
                 <input
                   type="text"
                   class="form-control"

@@ -205,7 +205,7 @@ const allocationOption = computed(() => {
       .filter((cutting) => cutting.allocation.paddock === form.paddock)
       .map((cutting) => ({
         value: cutting.id,
-        label: `${cutting.id}; Size: ${getBinSizesValue(cutting.allocation.bin_size)}; Bins after cut: ${cutting.no_of_bins_after_cutting}; W after cut: ${toTonnes(cutting.weight_after_cutting)}`,
+        label: `${cutting.id}; Size: ${getBinSizesValue(cutting.allocation.bin_size)}; Bins to cut: ${cutting.no_of_bins}}`,
       }));
   } else if (form.labelable_type === 'App\\Models\\Reallocation') {
     return props.reallocations

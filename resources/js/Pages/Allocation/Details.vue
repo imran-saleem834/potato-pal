@@ -45,7 +45,7 @@ const form = useForm({
   grower_id: props.allocation.grower_id,
   unique_key: props.allocation.unique_key,
   no_of_bins: props.allocation.no_of_bins,
-  weight: props.allocation.weight,
+  weight: props.allocation.weight / 1000,
   bin_size: props.allocation.bin_size,
   paddock: props.allocation.paddock,
   comment: props.allocation.comment,
@@ -68,7 +68,7 @@ watch(
     form.grower_id = allocation.grower_id;
     form.unique_key = allocation.unique_key;
     form.no_of_bins = allocation.no_of_bins;
-    form.weight = allocation.weight;
+    form.weight = allocation.weight / 1000;
     form.bin_size = allocation.bin_size;
     form.paddock = allocation.paddock;
     form.comment = allocation.comment;
@@ -252,8 +252,12 @@ defineExpose({
           <TextInput v-model="form.no_of_bins" :error="form.errors.no_of_bins" type="text" />
         </div>
         <div class="col-6 col-sm-3 mb-3">
-          <label class="form-label">Allocated kg</label>
-          <TextInput v-model="form.weight" :error="form.errors.weight" type="text" />
+          <label class="form-label">Allocated weight</label>
+          <TextInput v-model="form.weight" :error="form.errors.weight" type="text">
+            <template #addon>
+              <div class="input-group-text d-none d-md-inline-block d-lg-none d-xl-inline-block">tonnes</div>
+            </template>
+          </TextInput>
         </div>
         <div class="col-12 col-sm-6 mb-3">
           <label class="form-label">Comments</label>
@@ -335,6 +339,10 @@ defineExpose({
           <span class="text-danger">{{ toTonnes(allocation.weight) }}</span>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+          <span>Cutting bins: </span>
+          <span class="text-danger">{{ allocation.cuttings_sum_no_of_bins || '0' }}</span>
+        </div>
+        <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
           <span>Class: </span>
           <span class="text-danger">
             {{ getSingleCategoryNameByType(allocation.categories, 'seed-class') || '-' }}
@@ -401,16 +409,27 @@ defineExpose({
                         {{ getSingleCategoryNameByType(receival.unload_categories, 'seed-type') }}
                       </td>
                       <td>
-                        {{ getSingleCategoryNameByType(receival.receival_categories, 'seed-variety') }}
+                        {{
+                          getSingleCategoryNameByType(receival.receival_categories, 'seed-variety')
+                        }}
                       </td>
                       <td>
-                        {{ getSingleCategoryNameByType(receival.receival_categories, 'seed-class') }}
+                        {{
+                          getSingleCategoryNameByType(receival.receival_categories, 'seed-class')
+                        }}
                       </td>
                       <td>
-                        {{ getSingleCategoryNameByType(receival.receival_categories, 'seed-generation') }}
+                        {{
+                          getSingleCategoryNameByType(
+                            receival.receival_categories,
+                            'seed-generation',
+                          )
+                        }}
                       </td>
                       <td>
-                        {{ getSingleCategoryNameByType(receival.receival_categories, 'grower-group') }}
+                        {{
+                          getSingleCategoryNameByType(receival.receival_categories, 'grower-group')
+                        }}
                       </td>
                       <td>{{ receival.paddock }}</td>
                       <td>{{ getBinSizesValue(receival.bin_size) }}</td>

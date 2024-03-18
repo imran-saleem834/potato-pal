@@ -17,10 +17,7 @@ class CuttingAllocation extends Model
     protected $fillable = [
         'cutting_id',
         'allocation_id',
-        'no_of_bins_before_cutting',
-        'weight_before_cutting',
-        'no_of_bins_after_cutting',
-        'weight_after_cutting',
+        'no_of_bins',
     ];
 
     public function allocation()

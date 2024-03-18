@@ -32,6 +32,7 @@ defineExpose({ focus: () => input.value.focus() });
 
 <template>
   <div class="p-0" :class="{ 'input-group': $slots.addon, 'is-invalid': error }">
+    <slot name="prefix-addon" />
     <input
       ref="input"
       :type="type"

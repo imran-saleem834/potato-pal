@@ -15,10 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('cutting_id');
             $table->foreignId('allocation_id');
-            $table->float('no_of_bins_before_cutting')->nullable();
-            $table->float('weight_before_cutting')->nullable();
-            $table->float('no_of_bins_after_cutting')->nullable();
-            $table->float('weight_after_cutting')->nullable();
+            $table->float('no_of_bins')->nullable();
             $table->timestamps();
         });
     }

@@ -45,7 +45,7 @@ const menus = [
       <div class="admin-menu">
         <h5>Welcome {{ $page.props.auth.user.name }}</h5>
         <div class="row">
-          <div v-for="menu in menus" :key="menu.image" class="col-6 col-sm-3">
+          <div v-for="menu in menus" :key="menu.image" class="col-4 col-sm-3">
             <div class="menu-icon" :class="{ 'opacity-50': menu.route === '' }">
               <Link :href="menu.route">
                 <img :src="`/images/${menu.image}`" :alt="menu.label" />

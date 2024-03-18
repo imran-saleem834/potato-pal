@@ -15,3 +15,8 @@ export var tiaStatus = [
   { value: 'not-certified', label: 'Not Certified' },
   { value: 'rejected', label: 'Rejected' },
 ];
+
+export var tiaSampleBoolean = [
+  { value: true, label: 'Yes' },
+  { value: false, label: 'No' },
+]

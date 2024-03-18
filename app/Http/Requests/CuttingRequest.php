@@ -23,24 +23,24 @@ class CuttingRequest extends FormRequest
     public function rules(): array
     {
         $rules = [
-            'buyer_id'                                         => ['required', 'numeric', 'exists:users,id'],
-            'cut_date'                                         => ['nullable', 'date'],
-            'cool_store'                                       => ['nullable', 'array'],
-            'cool_store.*'                                     => ['nullable', 'numeric'],
-            'comment'                                          => ['nullable', 'string', 'max:255'],
-            'fungicide'                                        => ['nullable', 'array'],
-            'fungicide.*'                                      => ['nullable', 'numeric'],
-            'selected_allocations'                             => ['required', 'array'],
-            'selected_allocations.*.id'                        => [
+            'buyer_id'                             => ['required', 'numeric', 'exists:users,id'],
+            'half_tonnes'                          => ['nullable', 'required_without_all:one_tonnes,two_tonnes', 'numeric'],
+            'one_tonnes'                           => ['nullable', 'required_without_all:half_tonnes,two_tonnes', 'numeric'],
+            'two_tonnes'                           => ['nullable', 'required_without_all:half_tonnes,half_tonnes', 'numeric'],
+            'cut_date'                             => ['nullable', 'date'],
+            'cool_store'                           => ['nullable', 'array'],
+            'cool_store.*'                         => ['nullable', 'numeric'],
+            'comment'                              => ['nullable', 'string', 'max:255'],
+            'fungicide'                            => ['nullable', 'array'],
+            'fungicide.*'                          => ['nullable', 'numeric'],
+            'selected_allocations'                 => ['required', 'array'],
+            'selected_allocations.*.id'            => [
                 'nullable',
                 'numeric',
                 'exists:cutting_allocations,id',
             ],
-            'selected_allocations.*.allocation_id'             => ['required', 'numeric', 'exists:allocations,id'],
-            'selected_allocations.*.no_of_bins_before_cutting' => ['required', 'numeric'],
-            'selected_allocations.*.weight_before_cutting'     => ['required', 'numeric'],
-            'selected_allocations.*.no_of_bins_after_cutting'  => ['required', 'numeric'],
-            'selected_allocations.*.weight_after_cutting'      => ['required', 'numeric'],
+            'selected_allocations.*.allocation_id' => ['required', 'numeric', 'exists:allocations,id'],
+            'selected_allocations.*.no_of_bins'    => ['required', 'numeric'],
         ];
 
         foreach ($this->input('selected_allocations', []) as $key => $inputs) {
@@ -48,35 +48,15 @@ class CuttingRequest extends FormRequest
 
             foreach ($allocation->cuttings as $cutting) {
                 if ($cutting->id != ($inputs['id'] ?? 0)) {
-                    $allocation->no_of_bins -= $cutting->no_of_bins_before_cutting;
-                    $allocation->weight     -= $cutting->weight_before_cutting;
+                    $allocation->no_of_bins -= $cutting->no_of_bins;
                 }
             }
 
-            $rules["selected_allocations.{$key}.no_of_bins_before_cutting"] = [
+            $rules["selected_allocations.{$key}.no_of_bins"] = [
                 'required',
                 'numeric',
                 'gt:0',
                 "max:$allocation->no_of_bins",
-            ];
-            $rules["selected_allocations.{$key}.weight_before_cutting"]     = [
-                'required',
-                'numeric',
-                'gt:0',
-                "max:$allocation->weight",
-            ];
-
-            $rules["selected_allocations.{$key}.no_of_bins_after_cutting"] = [
-                'required',
-                'numeric',
-                'gt:0',
-                'lte:'.$inputs['no_of_bins_before_cutting'],
-            ];
-            $rules["selected_allocations.{$key}.weight_after_cutting"]     = [
-                'required',
-                'numeric',
-                'gt:0',
-                'lte:'.$inputs['weight_before_cutting'],
             ];
         }
 
@@ -91,13 +71,10 @@ class CuttingRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'fungicide.*'                                      => 'fungicide',
-            'selected_allocations'                             => 'allocation',
-            'selected_allocations.*.allocation_id'             => 'allocation',
-            'selected_allocations.*.no_of_bins_before_cutting' => 'no of bins to cut',
-            'selected_allocations.*.weight_before_cutting'     => 'weight to cut',
-            'selected_allocations.*.no_of_bins_after_cutting'  => 'no of bins after cut',
-            'selected_allocations.*.weight_after_cutting'      => 'weight after cut',
+            'fungicide.*'                          => 'fungicide',
+            'selected_allocations'                 => 'allocation',
+            'selected_allocations.*.allocation_id' => 'allocation',
+            'selected_allocations.*.no_of_bins'    => 'no of bins to cut',
         ];
     }
 }

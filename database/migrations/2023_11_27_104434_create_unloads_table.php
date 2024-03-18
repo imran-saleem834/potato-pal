@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('receival_id');
             $table->string('unique_key', 100)->nullable();
+            $table->tinyInteger('type')->nullable();
             $table->string('channel', 30)->nullable();
             $table->tinyInteger('system')->nullable();
             $table->float('bin_size')->nullable();

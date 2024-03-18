@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Models\Allocation;
 use Illuminate\Validation\Rule;
+use App\Models\RemainingReceival;
 use Illuminate\Foundation\Http\FormRequest;
 
 class AllocationRequest extends FormRequest
@@ -23,7 +24,13 @@ class AllocationRequest extends FormRequest
      */
     public function rules(): array
     {
-        $receival = $this->get('select_receival');
+        $remainingReceivalId = $this->get('select_receival')['remaining_receival_id'];
+
+        $receival = RemainingReceival::query()
+            ->select(['unique_key', 'no_of_bins', 'weight'])
+            ->find($remainingReceivalId)
+            ->toArray();
+        
         $noOfBins = $receival['no_of_bins'] ?? 0;
         $weight   = $receival['weight'] ?? 0;
 
@@ -32,7 +39,7 @@ class AllocationRequest extends FormRequest
             'grower_id'       => ['required', 'numeric', 'exists:users,id'],
             'unique_key'      => ['required', 'string'],
             'no_of_bins'      => ['required', 'numeric', 'gt:0', "max:$noOfBins"],
-            'weight'          => ['required', 'numeric', 'gt:0', "max:$weight"],
+            'weight'          => ['required', 'numeric', 'gte:0', "max:$weight"],
             'bin_size'        => ['required', 'numeric', Rule::in([500, 1000, 2000])],
             'paddock'         => ['required', 'string'],
             'comment'         => ['nullable', 'string', 'max:255'],
@@ -51,7 +58,7 @@ class AllocationRequest extends FormRequest
             }
 
             $rules['no_of_bins'] = ['required', 'numeric', 'gt:0', "max:$noOfBins"];
-            $rules['weight']     = ['required', 'numeric', 'gt:0', "max:$weight"];
+            $rules['weight']     = ['required', 'numeric', 'gte:0', "max:$weight"];
         }
 
         return $rules;
@@ -69,5 +76,29 @@ class AllocationRequest extends FormRequest
             'grower_id'  => 'grower',
             'unique_key' => 'receival',
         ];
+    }
+
+    /**
+     * Get custom messages for validator errors.
+     *
+     * @return array
+     */
+    public function messages(): array
+    {
+        return [
+            'weight.gte'  => 'The :attribute field must be greater than or equal to :value kg.',
+            'weight.max'  => 'The :attribute field must not be greater than :max kg.',
+        ];
+    }
+
+    /**
+     * Prepare the data for validation.
+     *
+     * @return void
+     */
+    public function prepareForValidation()
+    {
+        $weight = max($this->input('weight', 0), 0) * 1000;
+        $this->merge(['weight' => $weight]);
     }
 }

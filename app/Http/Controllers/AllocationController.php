@@ -187,6 +187,7 @@ class AllocationController extends Controller
                 'categories.category',
                 'grower' => fn ($query) => $query->select('id', 'name', 'grower_name'),
             ])
+            ->withSum(['cuttings'], 'no_of_bins')
             ->when($search, function ($query, $search) {
                 return $query->where(function ($subQuery) use ($search) {
                     return $subQuery

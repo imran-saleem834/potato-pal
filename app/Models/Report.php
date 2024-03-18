@@ -16,6 +16,7 @@ class Report extends Model
         'allocation'   => 'Allocation',
         'reallocation' => 'Reallocation',
         'label'        => 'Label',
+        'grade'        => 'Grading',
         'dispatch'     => 'Dispatch',
         'cutting'      => 'Cutting',
         'weighbridge'  => 'Weighbridge',

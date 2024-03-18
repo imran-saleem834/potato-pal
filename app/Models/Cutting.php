@@ -18,6 +18,9 @@ class Cutting extends Model
      */
     protected $fillable = [
         'buyer_id',
+        'half_tonnes',
+        'one_tonnes',
+        'two_tonnes',
         'cut_date',
         'cut_by',
         'comment',

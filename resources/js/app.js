@@ -9,7 +9,7 @@ import { ZiggyVue } from '../../vendor/tightenco/ziggy/dist/vue.m';
 import Toast, { POSITION } from 'vue-toastification';
 import PubNub from 'pubnub';
 
-import 'bootstrap/dist/js/bootstrap.js';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 

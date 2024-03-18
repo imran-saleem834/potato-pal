@@ -41,26 +41,8 @@ export default [
     },
   },
   {
-    title: 'No of Bins Before Cutting',
-    data: 'no_of_bins_before_cutting',
-  },
-  {
-    title: 'Weight Before Cutting',
-    data: 'weight_before_cutting',
-    render: function (data, type, row) {
-      return toTonnes(data);
-    },
-  },
-  {
-    title: 'No of Bins After Cutting',
-    data: 'no_of_bins_after_cutting',
-  },
-  {
-    title: 'Weight After Cutting',
-    data: 'weight_after_cutting',
-    render: function (data, type, row) {
-      return toTonnes(data);
-    },
+    title: 'Bins to cut',
+    data: 'no_of_bins',
   },
   {
     title: 'Fungicide',
