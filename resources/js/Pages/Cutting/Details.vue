@@ -1,4 +1,6 @@
 <script setup>
+import moment from 'moment';
+import { DatePicker } from 'v-calendar';
 import { useForm } from '@inertiajs/vue3';
 import { computed, onMounted, onUpdated, ref, watch } from 'vue';
 import Multiselect from '@vueform/multiselect';
@@ -307,7 +309,24 @@ defineExpose({
         <div class="w-100 d-block"></div>
         <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 mb-3">
           <label class="form-label">Date of Cutting</label>
-          <TextInput v-model="form.cut_date" :error="form.errors.cut_date" type="date" />
+          <DatePicker v-model="form.cut_date" mode="date">
+            <template #default="{ togglePopover }">
+              <div class="position-relative">
+                <input 
+                  type="text" 
+                  class="form-control"
+                  :class="{ 'is-invalid': form.errors.cut_date }"
+                  :value="moment(form.cut_date).format('DD/MM/YYYY')" 
+                  @click="togglePopover"
+                />
+                <div
+                  v-if="form.errors.cut_date"
+                  class="invalid-feedback"
+                  v-text="form.errors.cut_date"
+                />
+              </div>
+            </template>
+          </DatePicker>
         </div>
         <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 mb-3">
           <label class="form-label">Cut By</label>
@@ -402,7 +421,7 @@ defineExpose({
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
           <span>Date of cut: </span>
-          <span class="text-danger">{{ cutting.cut_date }}</span>
+          <span class="text-danger">{{ moment(cutting.cut_date).format('DD/MM/YYYY') }}</span>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
           <span>Cut By: </span>
@@ -416,7 +435,7 @@ defineExpose({
             {{ getSingleCategoryNameByType(cutting.categories, 'fungicide') || '-' }}
           </span>
         </div>
-        <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+        <div class="col-12 col-sm-12 col-md-6 col-lg-12 col-xl-6 mb-1 pb-1">
           <span>Comments: </span>
           <span class="text-danger">{{ cutting.comment }}</span>
         </div>

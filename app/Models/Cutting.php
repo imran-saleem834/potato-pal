@@ -26,6 +26,15 @@ class Cutting extends Model
         'comment',
     ];
 
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'cut_date' => 'date',
+    ];
+
     public function buyer()
     {
         return $this->belongsTo(User::class, 'buyer_id');
