@@ -33,6 +33,8 @@ const additionalImages = [
   { src: '/images/logo.png' },
   { src: '/images/carrot.png' },
   { src: '/images/hourglass-start.png' },
+  { src: '/images/reallocation.png' },
+  { src: '/images/cutting.png' },
   { src: '/images/menu1.png' },
   { src: '/images/menu2.png' },
   { src: '/images/menu3.png' },

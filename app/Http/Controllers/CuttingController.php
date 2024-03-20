@@ -44,7 +44,7 @@ class CuttingController extends Controller
             $cuttings = $this->getCuttings($firstBuyerId, $request->input('search'));
         }
 
-        $allocations = Allocation::with(['dispatches', 'cuttings', 'categories.category'])
+        $allocations = Allocation::with(['dispatches', 'cuttings', 'categories.category', 'grower:id,grower_name'])
             ->get()
             ->map(function ($allocation) {
                 $allocation->allocation_id        = $allocation->id;

@@ -388,12 +388,12 @@ defineExpose({
               <DataTable class="table mb-0">
                 <thead>
                   <tr>
-                    <th>Seed type</th>
-                    <th>Variety</th>
-                    <th>Class</th>
-                    <th>Gen</th>
                     <th>Grower Group</th>
                     <th>Paddock</th>
+                    <th>Variety</th>
+                    <th>Gen</th>
+                    <th>Seed type</th>
+                    <th>Class</th>
                     <th>Bin size</th>
                     <th>No of bins</th>
                     <th>Weight</th>
@@ -408,16 +408,14 @@ defineExpose({
                       data-bs-dismiss="modal"
                     >
                       <td>
-                        {{ getSingleCategoryNameByType(receival.unload_categories, 'seed-type') }}
+                        {{
+                          getSingleCategoryNameByType(receival.receival_categories, 'grower-group')
+                        }}
                       </td>
+                      <td>{{ receival.paddock }}</td>
                       <td>
                         {{
                           getSingleCategoryNameByType(receival.receival_categories, 'seed-variety')
-                        }}
-                      </td>
-                      <td>
-                        {{
-                          getSingleCategoryNameByType(receival.receival_categories, 'seed-class')
                         }}
                       </td>
                       <td>
@@ -429,11 +427,13 @@ defineExpose({
                         }}
                       </td>
                       <td>
+                        {{ getSingleCategoryNameByType(receival.unload_categories, 'seed-type') }}
+                      </td>
+                      <td>
                         {{
-                          getSingleCategoryNameByType(receival.receival_categories, 'grower-group')
+                          getSingleCategoryNameByType(receival.receival_categories, 'seed-class')
                         }}
                       </td>
-                      <td>{{ receival.paddock }}</td>
                       <td>{{ getBinSizesValue(receival.bin_size) }}</td>
                       <td>{{ receival.no_of_bins }}</td>
                       <td>{{ toTonnes(receival.weight) }}</td>

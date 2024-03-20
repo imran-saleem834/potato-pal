@@ -522,12 +522,13 @@ defineExpose({
             <table class="table mb-0">
               <thead>
                 <tr>
-                  <th>Seed type</th>
-                  <th>Variety</th>
-                  <th>Class</th>
-                  <th>Gen</th>
                   <th>Grower Group</th>
+                  <th>Grower</th>
                   <th>Paddock</th>
+                  <th>Variety</th>
+                  <th>Gen</th>
+                  <th>Seed type</th>
+                  <th>Class</th>
                   <th>Bin size</th>
                   <th>Weight</th>
                   <th>Available / No of bins</th>
@@ -538,15 +539,16 @@ defineExpose({
                 <template v-for="allocation in allocations" :key="allocation.id">
                   <tr v-if="form.buyer_id === allocation.buyer_id && isForm">
                     <td>
-                      {{ getSingleCategoryNameByType(allocation.categories, 'seed-type') || '-' }}
+                      {{
+                        getSingleCategoryNameByType(allocation.categories, 'grower-group') || '-'
+                      }}
                     </td>
+                    <td>{{ allocation.grower?.grower_name || '-' }}</td>
+                    <td>{{ allocation.paddock }}</td>
                     <td>
                       {{
                         getSingleCategoryNameByType(allocation.categories, 'seed-variety') || '-'
                       }}
-                    </td>
-                    <td>
-                      {{ getSingleCategoryNameByType(allocation.categories, 'seed-class') || '-' }}
                     </td>
                     <td>
                       {{
@@ -554,11 +556,11 @@ defineExpose({
                       }}
                     </td>
                     <td>
-                      {{
-                        getSingleCategoryNameByType(allocation.categories, 'grower-group') || '-'
-                      }}
+                      {{ getSingleCategoryNameByType(allocation.categories, 'seed-type') || '-' }}
                     </td>
-                    <td>{{ allocation.paddock }}</td>
+                    <td>
+                      {{ getSingleCategoryNameByType(allocation.categories, 'seed-class') || '-' }}
+                    </td>
                     <td>{{ getBinSizesValue(allocation.bin_size) }}</td>
                     <td>{{ toTonnes(allocation.weight) }}</td>
                     <td>{{ `${allocation.available_no_of_bins} / ${allocation.no_of_bins}` }}</td>
