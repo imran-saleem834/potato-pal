@@ -26,7 +26,7 @@ class CuttingRequest extends FormRequest
             'buyer_id'                             => ['required', 'numeric', 'exists:users,id'],
             'half_tonnes'                          => ['nullable', 'required_without_all:one_tonnes,two_tonnes', 'numeric'],
             'one_tonnes'                           => ['nullable', 'required_without_all:half_tonnes,two_tonnes', 'numeric'],
-            'two_tonnes'                           => ['nullable', 'required_without_all:half_tonnes,half_tonnes', 'numeric'],
+            'two_tonnes'                           => ['nullable', 'required_without_all:half_tonnes,one_tonnes', 'numeric'],
             'cut_date'                             => ['required', 'date'],
             'cool_store'                           => ['nullable', 'array'],
             'cool_store.*'                         => ['nullable', 'numeric'],
