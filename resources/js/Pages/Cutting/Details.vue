@@ -1,6 +1,5 @@
 <script setup>
 import moment from 'moment';
-import { DatePicker } from 'v-calendar';
 import { useForm } from '@inertiajs/vue3';
 import { computed, onMounted, onUpdated, ref, watch } from 'vue';
 import Multiselect from '@vueform/multiselect';
@@ -8,6 +7,7 @@ import DataTable from 'datatables.net-vue3';
 import DataTablesCore from 'datatables.net';
 import TextInput from '@/Components/TextInput.vue';
 import ConfirmedModal from '@/Components/ConfirmedModal.vue';
+import CustomDatePicker from '@/Components/CustomDatePicker.vue';
 import {
   toTonnes,
   getBinSizesValue,
@@ -62,7 +62,7 @@ const form = useForm({
   half_tonnes: props.cutting.half_tonnes,
   one_tonnes: props.cutting.one_tonnes,
   two_tonnes: props.cutting.two_tonnes,
-  cut_date: props.cutting.cut_date,
+  cut_date: props.cutting.cut_date ? props.cutting.cut_date.split('T')[0] : null,
   cool_store: getDefaultCategoryId(props.cutting.categories, 'cool-store', 'Cherry Hill'),
   fungicide: getDefaultCategoryId(props.cutting.categories, 'fungicide', 'Mancozeb/Lime'),
   comment: props.cutting.comment,
@@ -80,7 +80,7 @@ watch(
     form.half_tonnes = cutting.half_tonnes;
     form.one_tonnes = cutting.one_tonnes;
     form.two_tonnes = cutting.two_tonnes;
-    form.cut_date = cutting.cut_date;
+    form.cut_date = cutting.cut_date ? cutting.cut_date.split('T')[0] : null;
     form.cool_store = getDefaultCategoryId(cutting.categories, 'cool-store', 'Cherry Hill');
     form.fungicide = getDefaultCategoryId(cutting.categories, 'fungicide', 'Mancozeb/Lime');
     form.comment = cutting.comment;
@@ -309,24 +309,7 @@ defineExpose({
         <div class="w-100 d-block"></div>
         <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 mb-3">
           <label class="form-label">Date of Cutting</label>
-          <DatePicker v-model="form.cut_date" mode="date">
-            <template #default="{ togglePopover }">
-              <div class="position-relative">
-                <input 
-                  type="text" 
-                  class="form-control"
-                  :class="{ 'is-invalid': form.errors.cut_date }"
-                  :value="moment(form.cut_date).format('DD/MM/YYYY')" 
-                  @click="togglePopover"
-                />
-                <div
-                  v-if="form.errors.cut_date"
-                  class="invalid-feedback"
-                  v-text="form.errors.cut_date"
-                />
-              </div>
-            </template>
-          </DatePicker>
+          <CustomDatePicker :form="form" field="cut_date" mode="date" format="YYYY-MM-DD" />
         </div>
         <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 mb-3">
           <label class="form-label">Cut By</label>

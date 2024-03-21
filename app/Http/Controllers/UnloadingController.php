@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use Inertia\Inertia;
 use App\Models\Unload;
 use App\Models\Category;
@@ -72,7 +73,7 @@ class UnloadingController extends Controller
             $unload = Unload::updateOrCreate(['id' => $unloadInputs['id'] ?? null], $unloadInputs);
 
             if (! empty($unloadInputs['created_at'])) {
-                $unload->created_at = str_replace('T', ' ', $unloadInputs['created_at']).':00';
+                $unload->created_at = Carbon::parse($unloadInputs['created_at']);
                 $unload->save();
             }
 
@@ -108,6 +109,23 @@ class UnloadingController extends Controller
         NotificationHelper::deleteAction('Unload', $id);
 
         return to_route('unloading.index');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroySingle(string $id)
+    {
+        $unload     = Unload::with(['receival:id,grower_id'])->select(['id', 'receival_id'])->find($id);
+        $receivalId = $unload->receival->id;
+        $growerId   = $unload->receival->grower_id;
+        $unload->delete();
+
+        ReceivalHelper::calculateRemainingReceivals($growerId);
+
+        NotificationHelper::deleteAction('Seed Type Unload', $id);
+
+        return to_route('unloading.index', ['receivalId' => $receivalId]);
     }
 
     private function getReceivalUnloads($receivalId)

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\Models\User;
 use Inertia\Inertia;
 use App\Models\Unload;
@@ -62,7 +63,7 @@ class ReceivalController extends Controller
         $receival = Receival::create($inputs);
 
         if (! empty($inputs['created_at'])) {
-            $receival->created_at = str_replace('T', ' ', $inputs['created_at']).':00';
+            $receival->created_at = Carbon::parse($inputs['created_at']);
             $receival->save();
         }
 
@@ -103,7 +104,7 @@ class ReceivalController extends Controller
         $receival->save();
 
         if (! empty($inputs['created_at'])) {
-            $receival->created_at = str_replace('T', ' ', $inputs['created_at']).':00';
+            $receival->created_at = Carbon::parse($inputs['created_at']);
             $receival->save();
         }
 

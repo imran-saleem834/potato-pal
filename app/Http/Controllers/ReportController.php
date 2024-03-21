@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Inertia\Inertia;
+use App\Models\Grade;
+use App\Models\Label;
 use App\Models\Report;
 use App\Models\Unload;
 use App\Models\Category;
@@ -159,6 +161,10 @@ class ReportController extends Controller
             $report->setAttribute('data', $this->getFilterAllocations($report));
         } elseif ($report->getAttribute('type') === 'reallocation') {
             $report->setAttribute('data', $this->getFilterReallocations($report));
+        } elseif ($report->getAttribute('type') === 'label') {
+            $report->setAttribute('data', $this->getFilterLabels($report));
+        } elseif ($report->getAttribute('type') === 'grade') {
+            $report->setAttribute('data', $this->getFilterGradings($report));
         } elseif ($report->getAttribute('type') === 'cutting') {
             $report->setAttribute('data', $this->getFilterCuttings($report));
         } elseif ($report->getAttribute('type') === 'dispatch') {
@@ -401,6 +407,81 @@ class ReportController extends Controller
             ->get();
     }
 
+    private function getFilterLabels($report)
+    {
+        $categoryIds = array_merge(
+            $report->filters['seed_types'] ?? [],
+            $report->filters['grower_groups'] ?? [],
+            $report->filters['seed_generations'] ?? [],
+        );
+
+        return Label::query()
+            ->with([
+                'buyer:id,buyer_name',
+                'grower:id,grower_name',
+            ])
+            ->when($report->filters['start'] ?? null, function (Builder $query, $start) {
+                return $query->where('created_at', '>=', $start);
+            })
+            ->when($report->filters['end'] ?? null, function (Builder $query, $end) {
+                return $query->where('created_at', '<=', $end);
+            })
+            ->when($report->filters['labelable_type'] ?? null, function (Builder $query, $types) {
+                return $query->whereIn('labelable_type', $types);
+            })
+            ->when($report->filters['grower_ids'] ?? null, function (Builder $query, $buyerIds) {
+                return $query->whereIn('grower_id', $buyerIds);
+            })
+            ->when($report->filters['buyer_ids'] ?? null, function (Builder $query, $buyerIds) {
+                return $query->whereIn('buyer_id', $buyerIds);
+            })
+            ->when($report->filters['paddocks'] ?? null, function (Builder $query, $paddocks) {
+                return $query->whereIn('paddock', $paddocks);
+            })
+            ->when($categoryIds, function (Builder $query, $categoryIds) {
+                return $query->whereRelation('receivals.categories', function (Builder $subQuery) use ($categoryIds) {
+                    return $subQuery->whereIn('category_id', $categoryIds);
+                });
+            })
+            ->get();
+    }
+
+    private function getFilterGradings($report)
+    {
+        $categoryIds = array_merge(
+            $report->filters['seed_types'] ?? [],
+            $report->filters['grower_groups'] ?? [],
+            $report->filters['seed_generations'] ?? [],
+        );
+
+        return Grade::query()
+//            ->with([
+//                'buyer:id,buyer_name',
+//                'grower:id,grower_name',
+//            ])
+//            ->when($report->filters['start'] ?? null, function (Builder $query, $start) {
+//                return $query->where('created_at', '>=', $start);
+//            })
+//            ->when($report->filters['end'] ?? null, function (Builder $query, $end) {
+//                return $query->where('created_at', '<=', $end);
+//            })
+//            ->when($report->filters['grower_ids'] ?? null, function (Builder $query, $buyerIds) {
+//                return $query->whereIn('grower_id', $buyerIds);
+//            })
+//            ->when($report->filters['buyer_ids'] ?? null, function (Builder $query, $buyerIds) {
+//                return $query->whereIn('buyer_id', $buyerIds);
+//            })
+//            ->when($report->filters['paddocks'] ?? null, function (Builder $query, $paddocks) {
+//                return $query->whereIn('paddock', $paddocks);
+//            })
+//            ->when($categoryIds, function (Builder $query, $categoryIds) {
+//                return $query->whereRelation('receivals.categories', function (Builder $subQuery) use ($categoryIds) {
+//                    return $subQuery->whereIn('category_id', $categoryIds);
+//                });
+//            })
+            ->get();
+    }
+
     private function getFilterCuttings($report)
     {
         $allocationCategoryIds = array_merge(
@@ -514,9 +595,10 @@ class ReportController extends Controller
             ->when($allocationCategoryIds, function (Builder $query, $categoryIds) {
                 return $query->whereRelation('allocation.categories', function (Builder $subQuery) use ($categoryIds) {
                     return $subQuery->whereIn('category_id', $categoryIds);
-                })->orWhereRelation('reallocation.allocation.categories', function (Builder $subQuery) use ($categoryIds) {
-                    return $subQuery->whereIn('category_id', $categoryIds);
-                });
+                })->orWhereRelation('reallocation.allocation.categories',
+                    function (Builder $subQuery) use ($categoryIds) {
+                        return $subQuery->whereIn('category_id', $categoryIds);
+                    });
             })
             ->get();
     }

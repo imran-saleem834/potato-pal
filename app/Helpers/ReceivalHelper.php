@@ -6,6 +6,7 @@ use App\Models\Unload;
 use App\Models\Receival;
 use App\Models\Allocation;
 use App\Models\RemainingReceival;
+use Illuminate\Database\Eloquent\Builder;
 
 class ReceivalHelper
 {
@@ -21,6 +22,10 @@ class ReceivalHelper
 
     public static function getUniqueKey(Unload $unload): ?string
     {
+        if ($unload->receival->status !== 'completed') {
+            return null;
+        }
+
         $uniqueKey = [];
         foreach ($unload->receival->categories as $category) {
             if ($category->type === 'grower-group') {
@@ -52,33 +57,25 @@ class ReceivalHelper
             $uniqueKey[] = $unload->receival->paddocks[0];
         }
 
-        return empty($uniqueKey) ? null : implode('-', $uniqueKey);
+        return count($uniqueKey) == 7 ? implode('-', $uniqueKey) : null;
     }
 
     public static function calculateRemainingReceivals(int $growerId)
     {
-        $receivals = Receival::with(['unloads'])->where('grower_id', $growerId)->get();
+        $receivals = Receival::query()
+            ->with(['unloads' => fn ($query) => $query->whereNotNull('unique_key')])
+            ->where('status', 'completed')
+            ->where('grower_id', $growerId)
+            ->get();
 
-        RemainingReceival::where('grower_id', $growerId)->update([
-            'no_of_bins'  => 0,
-            'weight'      => 0,
-            'receival_id' => [],
-            'unload_id'   => [],
-        ]);
+        static::resetRemainingReceival($growerId);
 
         foreach ($receivals as $receival) {
             if ($receival->unloads->isEmpty()) {
                 continue;
             }
-            if ($receival->status !== 'completed') {
-                continue;
-            }
 
             foreach ($receival->unloads as $unload) {
-                if (empty($unload->unique_key)) {
-                    continue;
-                }
-
                 $remainingReceival = RemainingReceival::firstOrCreate([
                     'grower_id'  => $receival->grower_id,
                     'unique_key' => $unload->unique_key,
@@ -99,42 +96,55 @@ class ReceivalHelper
             }
         }
 
-        foreach ($receivals as $receival) {
-            if ($receival->unloads->isEmpty()) {
+        $uniqueKeys = Unload::query()
+            ->whereNotNull('unique_key')
+            ->whereRelation('receival', function (Builder $query) use ($growerId) {
+                return $query
+                    ->where('grower_id', $growerId)
+                    ->where('status', 'completed');
+            })
+            ->pluck('unique_key')
+            ->unique()
+            ->toArray();
+
+        foreach ($uniqueKeys as $uniqueKey) {
+            $remainingReceival = RemainingReceival::query()
+                ->where('grower_id', $growerId)
+                ->where('unique_key', $uniqueKey)
+                ->first();
+
+            if (! $remainingReceival) {
                 continue;
             }
-            if ($receival->status !== 'completed') {
-                continue;
+
+            $allocations = Allocation::query()
+                ->where('grower_id', $growerId)
+                ->where('unique_key', $uniqueKey)
+                ->get();
+
+            foreach ($allocations as $allocation) {
+                $remainingReceival->no_of_bins -= $allocation->no_of_bins;
+                $remainingReceival->weight     -= $allocation->weight;
             }
 
-            foreach ($receival->unloads->keyBy('unique_key') as $unload) {
-                if (empty($unload->unique_key)) {
-                    continue;
-                }
-
-                $remainingReceival = RemainingReceival::query()
-                    ->where('grower_id', $receival->grower_id)
-                    ->where('unique_key', $unload->unique_key)
-                    ->first();
-
-                if (! $remainingReceival) {
-                    continue;
-                }
-
-                $allocations = Allocation::query()
-                    ->where('grower_id', $receival->grower_id)
-                    ->where('unique_key', $unload->unique_key)
-                    ->get();
-
-                foreach ($allocations as $allocation) {
-                    $remainingReceival->no_of_bins -= $allocation->no_of_bins;
-                    $remainingReceival->weight     -= $allocation->weight;
-                }
-
-                $remainingReceival->save();
-            }
+            $remainingReceival->save();
         }
 
+        static::deleteUnsetRemainingReceival($growerId);
+    }
+
+    private static function resetRemainingReceival($growerId)
+    {
+        RemainingReceival::where('grower_id', $growerId)->update([
+            'no_of_bins'  => 0,
+            'weight'      => 0,
+            'receival_id' => [],
+            'unload_id'   => [],
+        ]);
+    }
+
+    private static function deleteUnsetRemainingReceival($growerId)
+    {
         RemainingReceival::query()
             ->where('grower_id', $growerId)
             ->whereJsonLength('receival_id', 0)

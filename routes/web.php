@@ -54,6 +54,8 @@ Route::middleware([
     Route::post('/receivals/{id}/duplicate', [ReceivalController::class, 'duplicate'])->name('receivals.duplicate');
     Route::resource('/receivals', ReceivalController::class);
 
+    Route::delete('/unloading/{unloading}/single', [UnloadingController::class, 'destroySingle'])
+        ->name('unloading.single.destroy');
     Route::resource('/unloading', UnloadingController::class);
     Route::resource('/cuttings', CuttingController::class);
     Route::resource('/gradings', GradingController::class);
@@ -85,10 +87,39 @@ Route::middleware([
     Route::post('/media/{model}/{id}/delete', [MediaController::class, 'delete'])->name('media.delete');
 
     Route::inertia('/test', 'Test');
+    Route::inertia('/xsl', 'XSL');
+    Route::post('/create-table', [\App\Http\Controllers\TableController::class, 'store'])->name('create.table');
 });
 
 Route::get('/abc', function () {
+    //    $items  = Xero::contacts();
 
+    $params = http_build_query([
+        'page'  => null,
+        'where' => null,
+    ]);
+
+    $result = Xero::get('items?'.$params);
+    //    $result = Xero::get('items/4fb5eaa4-99ef-416b-95ed-a09ec76b0ef8');
+
+    echo '<pre>';
+    //    print_r($items);
+
+    print_r($result);
+
+    // $result['body']['Contacts'];
+
+    //    print_r($result['body']['Items']);
+});
+
+Route::get('/abc2', function () {
+    $receivals = \App\Models\Receival::with('unloads')->get();
+    foreach ($receivals as $receival) {
+        \App\Helpers\ReceivalHelper::updateUniqueKey($receival);
+    }
+    foreach ($receivals->keyBy('grower_id') as $receival) {
+        \App\Helpers\ReceivalHelper::calculateRemainingReceivals($receival->grower_id);
+    }
 });
 
 Route::get('xero', function () {

@@ -21,12 +21,14 @@ class InvoiceController extends Controller
      */
     public function index(Request $request)
     {
+        // 9739F7D32A684FAD8378E3E06BED2D9A
+        // bQecDVAQuQv5d8f7NgG1XSQvzv5qizXGrjUouFHeOZJCphDM
         $invoices = Invoice::query()
-            //            ->when($request->input('search'), function (Builder $query, $search) {
-            //                return $query->where(function (Builder $subQuery) use ($search) {
-            //                    return $subQuery->search($search);
-            //                });
-            //            })
+            // ->when($request->input('search'), function (Builder $query, $search) {
+            //     return $query->where(function (Builder $subQuery) use ($search) {
+            //         return $subQuery->search($search);
+            //     });
+            // })
             ->latest()
             ->paginate(20)
             ->withQueryString()
@@ -126,12 +128,12 @@ class InvoiceController extends Controller
 
     private function createInvoice($invoice)
     {
-        // $xeroContact = $this->getOrCreateXeroContact();
+        // $xeroContactId = $this->getXeroContactId();
         $xeroInvoice = Xero::invoices()->store([
             'Type'            => 'ACCREC',
             // 'CurrencyCode'    => 'USD',
             'Contact'         => [
-                // 'ContactID' => $xeroContact['ContactID'],
+                // 'ContactID' => $xeroContactId,
                 'ContactID' => '70ce1193-fd7e-4fd4-b4da-cf39d19dcf09',
             ],
             'Status'          => 'AUTHORISED',
@@ -145,6 +147,24 @@ class InvoiceController extends Controller
                     'UnitAmount'  => $invoice?->amount ?? 10,
                     'AccountCode' => 200,
                     'TaxType'     => 'NONE',
+
+                    //                            <ItemCode>".$line_item['ItemCode']."</ItemCode>
+                    //					        <Description>".$line_item['Description']."</Description>
+                    //							<UnitAmount>".$line_item['UnitAmount']."</UnitAmount>
+                    //							<TaxType>".$line_item['TaxType']."</TaxType>
+                    //							<TaxAmount>".$line_item['TaxAmount']."</TaxAmount>
+                    //		  					<LineAmount>".$line_item['LineAmount']."</LineAmount>
+                    //		                    <AccountCode>".$line_item['AccountCode']."</AccountCode>
+                    //							<Quantity>".$line_item['Quantity']."</Quantity>
+                    //							<LineItemID>".$line_item['LineItemID']."</LineItemID>
+
+                    //                            <ItemCode>".$Code."</ItemCode>
+                    //					        <Description>".$Description."</Description>
+                    //							<UnitAmount>".$UnitPrice."</UnitAmount>
+                    //							<TaxType>".$TaxType."</TaxType>
+                    //		  					<LineAmount>".$LineAmount."</LineAmount>
+                    //		                    <AccountCode>".$AccountCode."</AccountCode>
+                    //							<Quantity>".$invoice_net_weight."</Quantity>
                 ],
             ],
         ]);
@@ -161,30 +181,26 @@ class InvoiceController extends Controller
         }
     }
 
-    private function getOrCreateXeroContact()
+    private function getXeroContactId()
     {
         $user = auth()->user();
 
-        if (! $user->xero_id) {
-            $data = [
-                'name'          => $user->name,
-                'ContactStatus' => 'ACTIVE',
-                'EmailAddress'  => $user->email,
-                'IsCustomer'    => true,
-                'IsSupplier'    => false,
-            ];
-
-            $xeroContact = Xero::contacts()->store($data);
-
-            if ($xeroContact) {
-                $user->update([
-                    'xero_contact_id' => $xeroContact['ContactID'],
-                ]);
-            }
-
-            return $xeroContact;
+        if ($user->xero_contact_id) {
+            return $user->xero_contact_id;
         }
 
-        return Xero::contacts()->find(auth()->user()->xero_id);
+        $xeroContact = Xero::contacts()->store([
+            'name'          => $user->name,
+            'ContactStatus' => 'ACTIVE',
+            'EmailAddress'  => $user->email,
+            'IsCustomer'    => true,
+            'IsSupplier'    => false,
+        ]);
+
+        if ($xeroContact) {
+            $user->update(['xero_contact_id' => $xeroContact['ContactID']]);
+        }
+
+        return $xeroContact['ContactID'];
     }
 }

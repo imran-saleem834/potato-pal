@@ -16,6 +16,7 @@ import {
 import { tiaStatus, tiaStatusInit } from '@/const.js';
 import UlLiButton from '@/Components/UlLiButton.vue';
 import ItemOfCategories from '@/Components/ItemOfCategories.vue';
+import CustomDatePicker from '@/Components/CustomDatePicker.vue';
 
 const toast = useToast();
 
@@ -47,7 +48,7 @@ const form = useForm({
   driver_name: props.receival.driver_name,
   comments: props.receival.comments,
   created_at: props.receival.created_at
-    ? moment(props.receival.created_at).utc().format('YYYY-MM-DDThh:mm')
+    ? props.receival.created_at.split('.')[0].replace('T', ' ')
     : null,
 });
 
@@ -70,7 +71,7 @@ watch(
     form.driver_name = receival.driver_name;
     form.comments = receival.comments;
     form.created_at = receival.created_at
-      ? moment(receival.created_at).utc().format('YYYY-MM-DDThh:mm')
+      ? receival.created_at.split('.')[0].replace('T', ' ')
       : null;
 
     updatePaddock(receival.grower_id);
@@ -260,14 +261,9 @@ const pushForUnload = () => {
           <tr>
             <th>Receival Time</th>
             <td>
-              <TextInput
-                v-if="isForm"
-                v-model="form.created_at"
-                :error="form.errors.created_at"
-                type="datetime-local"
-              />
+              <CustomDatePicker v-if="isForm" :form="form" field="created_at" />
               <template v-else>
-                {{ moment(receival.created_at).utc().format('DD/MM/YYYY hh:mm A') }}
+                {{ moment(receival.created_at).format('DD/MM/YYYY hh:mm A') }}
               </template>
             </td>
           </tr>

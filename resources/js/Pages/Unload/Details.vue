@@ -14,9 +14,11 @@ import {
   getCategoriesByType,
   getCategoryIdsByType,
 } from '@/helper.js';
+import { DatePicker } from 'v-calendar';
 import { binSizes, tiaStatus, tiaStatusInit } from '@/const.js';
 import ItemOfCategories from '@/Components/ItemOfCategories.vue';
 import TdOfCategories from '@/Components/TdOfCategories.vue';
+import ConfirmedModal from '@/Components/ConfirmedModal.vue';
 
 const toast = useToast();
 
@@ -71,7 +73,7 @@ const updateUnloadForm = () => {
   form.unloads.forEach((unload, index) => {
     form.unloads[index].seed_type = getCategoryIdsByType(unload.categories, 'seed-type')[0];
     form.unloads[index].created_at = unload.created_at
-      ? moment(unload.created_at).utc().format('YYYY-MM-DDThh:mm')
+      ? unload.created_at.split('.')[0].replace('T', ' ')
       : null;
 
     bins.value[index] = null;
@@ -241,6 +243,18 @@ const storeRecord = () => {
   });
 };
 
+const deleteUnload = (id) => {
+  const delForm = useForm({});
+  delForm.delete(route('unloading.single.destroy', id), {
+    preserveScroll: true,
+    preserveState: true,
+    only: ['single'],
+    onSuccess: () => {
+      toast.success('The seed type unload has been deleted successfully!');
+    },
+  });
+};
+
 defineExpose({
   updateRecord,
   storeRecord,
@@ -276,7 +290,7 @@ defineExpose({
           </tr>
           <tr>
             <th>Receival time</th>
-            <td>{{ moment(receival.created_at).utc().format('DD/MM/YYYY hh:mm A') }}</td>
+            <td>{{ moment(receival.created_at).format('DD/MM/YYYY hh:mm A') }}</td>
           </tr>
           <tr>
             <th>Grower Group</th>
@@ -360,21 +374,62 @@ defineExpose({
           </tr>
         </table>
       </div>
-      <div v-for="(unload, index) in form.unloads" class="user-boxes">
+      <div v-for="(unload, index) in form.unloads" class="user-boxes position-relative">
+        <div
+          v-if="!isForm && form.unloads.length > 1"
+          class="btn-group position-absolute top-0 end-0"
+        >
+          <button
+            data-bs-toggle="modal"
+            :data-bs-target="`#delete-unload-${unload.id}`"
+            class="btn btn-red p-1"
+          >
+            <template v-if="form.processing">
+              <i class="bi bi-arrow-repeat d-inline-block spin"></i>
+            </template>
+            <template v-else><i class="bi bi-trash"></i></template>
+          </button>
+
+          <ConfirmedModal
+            :id="`delete-unload-${unload.id}`"
+            cancel="No, Keep it"
+            ok="Yes, Delete!"
+            @ok="() => deleteUnload(unload.id)"
+          />
+        </div>
         <table class="table input-table mb-0">
           <tr>
             <th>Unload time</th>
             <td>
-              <TextInput
-                v-if="isForm"
-                v-model="form.unloads[index].created_at"
-                :error="form.errors[`unloads.${index}.created_at`]"
-                type="datetime-local"
-              />
-              <template v-else-if="unload.created_at">
-                {{ moment(unload.created_at).format('DD/MM/YYYY hh:mm A') }}
-              </template>
-              <template v-else>-</template>
+              <div class="position-relative p-0">
+                <DatePicker
+                  v-if="isForm"
+                  v-model.string="form.unloads[index].created_at"
+                  mode="dateTime"
+                  :masks="{
+                    modelValue: 'YYYY-MM-DD HH:mm:ss',
+                  }"
+                >
+                  <template #default="{ togglePopover }">
+                    <input
+                      type="text"
+                      class="form-control"
+                      :class="{ 'is-invalid': form.errors[`unloads.${index}.created_at`] }"
+                      :value="form.unloads[index].created_at"
+                      @click="togglePopover"
+                    />
+                    <div
+                      v-if="form.errors[`unloads.${index}.created_at`]"
+                      class="invalid-feedback"
+                      v-text="form.errors[`unloads.${index}.created_at`]"
+                    />
+                  </template>
+                </DatePicker>
+                <template v-else-if="unload.created_at">
+                  {{ moment(unload.created_at).format('DD/MM/YYYY hh:mm A') }}
+                </template>
+                <template v-else>-</template>
+              </div>
             </td>
           </tr>
           <tr>

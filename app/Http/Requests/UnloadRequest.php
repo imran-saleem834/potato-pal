@@ -33,7 +33,7 @@ class UnloadRequest extends FormRequest
             'unloads.*.system'     => ['nullable', 'numeric', 'max:2'],
             'unloads.*.no_of_bins' => ['required', 'numeric', 'gt:0'],
             'unloads.*.weight'     => ['required', 'numeric', 'gt:0'],
-            'unloads.*.created_at' => ['nullable', 'date_format:Y-m-d\TH:i'],
+            'unloads.*.created_at' => ['nullable', 'date_format:Y-m-d H:i:s'],
         ];
     }
 

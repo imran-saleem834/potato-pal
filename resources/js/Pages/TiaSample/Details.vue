@@ -8,6 +8,7 @@ import TextInput from '@/Components/TextInput.vue';
 import Images from '@/Components/Images.vue';
 import UlLiButton from '@/Components/UlLiButton.vue';
 import TdOfCategories from '@/Components/TdOfCategories.vue';
+import CustomDatePicker from '@/Components/CustomDatePicker.vue';
 import { binSizes, tiaStatus, tiaSampleBoolean } from '@/const.js';
 
 const toast = useToast();
@@ -183,7 +184,9 @@ const form = useForm({
   receival_id: props.tiaSample.receival_id,
   processor: props.tiaSample.processor,
   inspection_no: props.tiaSample.inspection_no,
-  inspection_date: moment(props.tiaSample.inspection_date).format('YYYY-MM-DD'),
+  inspection_date: props.tiaSample.inspection_date
+    ? props.tiaSample.inspection_date.split('T')[0]
+    : null,
   size: props.tiaSample.size,
   tubers: props.tiaSample.tubers,
   dry_rot: props.tiaSample.dry_rot,
@@ -225,7 +228,9 @@ watch(
     form.receival_id = tiaSample.receival_id;
     form.processor = tiaSample.processor;
     form.inspection_no = tiaSample.inspection_no;
-    form.inspection_date = moment(tiaSample.inspection_date).format('YYYY-MM-DD');
+    form.inspection_date = tiaSample.inspection_date
+      ? tiaSample.inspection_date.split('T')[0]
+      : null;
     form.size = tiaSample.size;
     form.disease_scoring = tiaSample.disease_scoring;
     form.excessive_dirt = tiaSample.excessive_dirt;
@@ -416,14 +421,15 @@ defineExpose({
           <tr>
             <th>Inspection Date</th>
             <td>
-              <TextInput
+              <CustomDatePicker
                 v-if="isForm"
-                v-model="form.inspection_date"
-                :error="form.errors.inspection_date"
-                type="date"
+                :form="form"
+                field="inspection_date"
+                mode="date"
+                format="YYYY-MM-DD"
               />
               <template v-else-if="tiaSample.inspection_date">
-                {{ moment(tiaSample.inspection_date).format('YYYY-MM-DD') }}
+                {{ moment(tiaSample.inspection_date).format('DD/MM/YYYY') }}
               </template>
               <template v-else>-</template>
             </td>

@@ -34,7 +34,7 @@ class ReceivalRequest extends FormRequest
             'chc_receival_docket_no' => ['nullable', 'string', 'max:50'],
             'driver_name'            => ['nullable', 'string', 'max:80'],
             'comments'               => ['nullable', 'string', 'max:191'],
-            'created_at'             => ['nullable', 'date_format:Y-m-d\TH:i'],
+            'created_at'             => ['nullable', 'date_format:Y-m-d H:i:s'],
         ];
     }
 
