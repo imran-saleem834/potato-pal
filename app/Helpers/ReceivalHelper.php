@@ -12,7 +12,7 @@ class ReceivalHelper
 {
     public static function updateUniqueKey(Receival $receival): void
     {
-        $receival->loadMissing('unloads');
+        $receival->loadMissing('unloads.receival.categories.category', 'unloads.categories.category');
 
         foreach ($receival->unloads as $unload) {
             $unload->unique_key = static::getUniqueKey($unload);
@@ -20,42 +20,21 @@ class ReceivalHelper
         }
     }
 
-    public static function getUniqueKey(Unload $unload): ?string
+    private static function getUniqueKey(Unload $unload): ?string
     {
         if ($unload->receival->status !== 'completed') {
             return null;
         }
-
-        $uniqueKey = [];
-        foreach ($unload->receival->categories as $category) {
-            if ($category->type === 'grower-group') {
-                $uniqueKey[] = $category->category->id;
-            }
-            if ($category->type === 'seed-variety') {
-                $uniqueKey[] = $category->category->id;
-            }
-            if ($category->type === 'seed-class') {
-                $uniqueKey[] = $category->category->id;
-            }
-            if ($category->type === 'seed-generation') {
-                $uniqueKey[] = $category->category->id;
-            }
-        }
-        unset($category);
-
-        foreach ($unload->categories as $category) {
-            if ($category->type === 'seed-type') {
-                $uniqueKey[] = $category->category->id;
-            }
-        }
-
-        if (! empty($unload->bin_size)) {
-            $uniqueKey[] = $unload->bin_size;
-        }
-
-        if (isset($unload->receival->paddocks[0]) && ! empty($unload->receival->paddocks[0])) {
-            $uniqueKey[] = $unload->receival->paddocks[0];
-        }
+        
+        $uniqueKey = array_values(array_filter([
+            $unload->receival->categories->firstWhere('type', 'grower-group')?->category?->id,
+            $unload->receival->categories->firstWhere('type', 'seed-variety')?->category?->id,
+            $unload->receival->categories->firstWhere('type', 'seed-class')?->category?->id,
+            $unload->receival->categories->firstWhere('type', 'seed-generation')?->category?->id,
+            $unload->categories->firstWhere('type', 'seed-type')?->category?->id,
+            $unload->bin_size,
+            $unload->receival->paddocks[0] ?? null
+        ]));
 
         return count($uniqueKey) == 7 ? implode('-', $uniqueKey) : null;
     }

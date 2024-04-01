@@ -113,7 +113,7 @@ Route::get('/abc', function () {
 });
 
 Route::get('/abc2', function () {
-    $receivals = \App\Models\Receival::with('unloads')->get();
+    $receivals = \App\Models\Receival::with('unloads.receival.categories.category', 'unloads.categories.category')->get();
     foreach ($receivals as $receival) {
         \App\Helpers\ReceivalHelper::updateUniqueKey($receival);
     }
