@@ -25,18 +25,32 @@ class ReceivalHelper
         if ($unload->receival->status !== 'completed') {
             return null;
         }
-        
-        $uniqueKey = array_values(array_filter([
-            $unload->receival->categories->firstWhere('type', 'grower-group')?->category?->id,
-            $unload->receival->categories->firstWhere('type', 'seed-variety')?->category?->id,
-            $unload->receival->categories->firstWhere('type', 'seed-class')?->category?->id,
-            $unload->receival->categories->firstWhere('type', 'seed-generation')?->category?->id,
-            $unload->categories->firstWhere('type', 'seed-type')?->category?->id,
-            $unload->bin_size,
-            $unload->receival->paddocks[0] ?? null
-        ]));
 
-        return count($uniqueKey) == 7 ? implode('-', $uniqueKey) : null;
+        $seedTypeCategory = $unload->categories->firstWhere('type', 'seed-type')?->category;
+        if ($seedTypeCategory?->name === 'Oversize') {
+            $uniqueKey = array_values(array_filter([
+                $unload->receival->categories->firstWhere('type', 'grower-group')?->category?->id,
+                $unload->receival->categories->firstWhere('type', 'seed-variety')?->category?->id,
+                $unload->receival->categories->firstWhere('type', 'seed-generation')?->category?->id,
+                $seedTypeCategory?->id,
+                $unload->bin_size,
+                $unload->receival->paddocks[0] ?? null
+            ]));
+
+            return count($uniqueKey) == 6 ? implode('-', $uniqueKey) : null;
+        } else {
+            $uniqueKey = array_values(array_filter([
+                $unload->receival->categories->firstWhere('type', 'grower-group')?->category?->id,
+                $unload->receival->categories->firstWhere('type', 'seed-variety')?->category?->id,
+                $unload->receival->categories->firstWhere('type', 'seed-class')?->category?->id,
+                $unload->receival->categories->firstWhere('type', 'seed-generation')?->category?->id,
+                $seedTypeCategory?->id,
+                $unload->bin_size,
+                $unload->receival->paddocks[0] ?? null
+            ]));
+
+            return count($uniqueKey) == 7 ? implode('-', $uniqueKey) : null;
+        }
     }
 
     public static function calculateRemainingReceivals(int $growerId)

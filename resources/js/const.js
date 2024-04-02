@@ -1,7 +1,7 @@
 export var binSizes = [
-  { value: 500, label: 'Half Tone' },
-  { value: 1000, label: 'One Tone' },
-  { value: 2000, label: 'Two Tone' },
+  { value: 500, label: 'Half Tonne' },
+  { value: 1000, label: 'One Tonne' },
+  { value: 2000, label: 'Two Tonne' },
 ];
 
 export var tiaStatusInit = [
