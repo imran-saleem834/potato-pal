@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Allocation;
 use App\Models\Reallocation;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -22,11 +23,22 @@ class ReallocationRequest extends FormRequest
      */
     public function rules(): array
     {
-        $allocation = $this->get('selected_allocation');
-        $noOfBins   = (float) ($allocation['no_of_bins'] ?? 0);
-        $weight     = (float) ($allocation['weight'] ?? 0);
+        $allocation = Allocation::query()
+            ->select(['no_of_bins', 'weight'])
+            ->find($this->get('allocation_id'))
+            ->toArray();
 
-        $rules = [
+        $noOfBins = $allocation['no_of_bins'] ?? 0;
+        $weight   = $allocation['weight'] ?? 0;
+
+        if ($this->isMethod('PATCH')) {
+            $reallocation = Reallocation::select(['no_of_bins', 'weight'])->find($this->route('reallocation'));
+
+            $noOfBins = $reallocation->no_of_bins + $noOfBins;
+            $weight   = $reallocation->weight + $weight;
+        }
+
+        return [
             'buyer_id'            => ['required', 'numeric', 'exists:users,id'],
             'allocation_buyer_id' => ['required', 'numeric', 'exists:users,id'],
             'allocation_id'       => ['required', 'numeric', 'exists:allocations,id'],
@@ -34,18 +46,6 @@ class ReallocationRequest extends FormRequest
             'weight'              => ['required', 'numeric', 'gt:0', "max:$weight"],
             'comment'             => ['nullable', 'string', 'max:255'],
         ];
-
-        if ($this->isMethod('PATCH')) {
-            $reallocation = Reallocation::find($this->route('reallocation'));
-
-            $noOfBins = $reallocation->no_of_bins + $noOfBins;
-            $weight   = $reallocation->weight + $weight;
-
-            $rules['no_of_bins'] = ['required', 'numeric', 'gt:0', "max:$noOfBins"];
-            $rules['weight']     = ['required', 'numeric', 'gt:0', "max:$weight"];
-        }
-
-        return $rules;
     }
 
     /**
@@ -60,5 +60,27 @@ class ReallocationRequest extends FormRequest
             'allocation_buyer_id' => 'allocation buyer',
             'allocation_id'       => 'allocation',
         ];
+    }
+
+    /**
+     * Get custom messages for validator errors.
+     */
+    public function messages(): array
+    {
+        return [
+            'weight.gte' => 'The :attribute field must be greater than or equal to :value kg.',
+            'weight.max' => 'The :attribute field must not be greater than :max kg.',
+        ];
+    }
+
+    /**
+     * Prepare the data for validation.
+     *
+     * @return void
+     */
+    public function prepareForValidation()
+    {
+        $weight = max($this->input('weight', 0), 0) * 1000;
+        $this->merge(['weight' => $weight]);
     }
 }

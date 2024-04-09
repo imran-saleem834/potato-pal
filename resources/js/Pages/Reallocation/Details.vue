@@ -40,7 +40,7 @@ const form = useForm({
   allocation_buyer_id: props.reallocation.allocation_buyer_id,
   allocation_id: props.reallocation.allocation_id,
   no_of_bins: props.reallocation.no_of_bins,
-  weight: props.reallocation.weight,
+  weight: props.reallocation.weight / 1000,
   comment: props.reallocation.comment,
   selected_allocation: {},
 });
@@ -56,7 +56,7 @@ watch(
     form.allocation_buyer_id = reallocation.allocation_buyer_id;
     form.allocation_id = reallocation.allocation_id;
     form.no_of_bins = reallocation.no_of_bins;
-    form.weight = reallocation.weight;
+    form.weight = reallocation.weight / 1000;
     form.comment = reallocation.comment;
 
     selectAllocationOnEdit(reallocation);
@@ -139,7 +139,7 @@ defineExpose({
           <Multiselect
             v-model="form.buyer_id"
             mode="single"
-            placeholder="Choose a buyer"
+            placeholder="Choose a reallocation buyer"
             :searchable="true"
             :options="buyers"
             :class="{ 'is-invalid': form.errors.buyer_id }"
@@ -165,7 +165,7 @@ defineExpose({
               v-model="form.allocation_buyer_id"
               @change="onChangeAllocationBuyer"
               mode="single"
-              placeholder="Choose a grower"
+              placeholder="Choose a allocation buyer"
               :searchable="true"
               :options="buyers"
               :class="{
@@ -224,8 +224,14 @@ defineExpose({
           <TextInput v-model="form.no_of_bins" :error="form.errors.no_of_bins" type="text" />
         </div>
         <div class="col-6 col-sm-3 mb-3">
-          <label class="form-label">Reallocated kg</label>
-          <TextInput v-model="form.weight" :error="form.errors.weight" type="text" />
+          <label class="form-label">Reallocated weight</label>
+          <TextInput v-model="form.weight" :error="form.errors.weight" type="text">
+            <template #addon>
+              <div class="input-group-text d-none d-md-inline-block d-lg-none d-xl-inline-block">
+                tonnes
+              </div>
+            </template>
+          </TextInput>
         </div>
         <div class="col-12 col-sm-6 mb-3">
           <label class="form-label">Comments</label>

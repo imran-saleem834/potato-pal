@@ -145,6 +145,7 @@ class ReallocationController extends Controller
                 });
             })
             ->where('buyer_id', $buyerId)
+            ->latest()
             ->paginate(10)
             ->withQueryString()
             ->onEachSide(1);
