@@ -45,6 +45,6 @@ export function getBinSizesValue(binSize) {
 }
 
 export function toTonnes(weight) {
-  const weighted = (weight / 1000).toFixed(2);
+  const weighted = (weight / 1000).toFixed(3);
   return weighted + (weighted <= 1 ? ' tonne' : ' tonnes');
 }

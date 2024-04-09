@@ -377,11 +377,11 @@ defineExpose({
     </template>
     <template v-else>
       <div class="btn-group position-absolute top-0 end-0">
-        <button @click="setIsEdit" class="btn btn-red p-1"><i class="bi bi-pen"></i></button>
+        <button @click="setIsEdit" class="btn btn-red p-1 z-1"><i class="bi bi-pen"></i></button>
         <button
           data-bs-toggle="modal"
           :data-bs-target="`#delete-cutting-${uniqueKey}`"
-          class="btn btn-red p-1"
+          class="btn btn-red p-1 z-1"
         >
           <template v-if="form.processing">
             <i class="bi bi-arrow-repeat d-inline-block spin"></i>

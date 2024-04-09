@@ -382,7 +382,7 @@ defineExpose({
           <button
             data-bs-toggle="modal"
             :data-bs-target="`#delete-unload-${unload.id}`"
-            class="btn btn-red p-1"
+            class="btn btn-red p-1 z-1"
           >
             <template v-if="form.processing">
               <i class="bi bi-arrow-repeat d-inline-block spin"></i>
