@@ -31,7 +31,6 @@ class TiaSampleController extends Controller
                         ->orWhere('inspection_no', 'LIKE', "%$search%")
                         ->orWhere('inspection_date', 'LIKE', "%$search%")
                         ->orWhere('size', 'LIKE', "%$search%")
-                        ->orWhere('status', 'LIKE', "%$search%")
                         ->orWhere('comment', 'LIKE', "%$search%");
                 });
             })

@@ -41,7 +41,7 @@ watch(
 
 watch(search, (value) => {
   router.get(
-    route('users.index'),
+    route('tia-samples.index'),
     { search: value },
     { preserveState: true, preserveScroll: true },
   );

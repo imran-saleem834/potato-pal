@@ -162,6 +162,7 @@ class CuttingController extends Controller
         $cuttings = Cutting::query()
             ->with([
                 'categories.category',
+                'cuttingAllocations.allocation.grower:id,grower_name',
                 'cuttingAllocations.allocation.categories.category',
                 'cuttingAllocations.allocation.dispatches:id,allocation_id,no_of_bins',
             ])
