@@ -237,6 +237,7 @@ defineExpose({
               <th>Seed type</th>
               <th class="d-none d-md-table-cell">Class</th>
               <th>Bin size</th>
+              <th class="d-none d-md-table-cell">Weight</th>
               <th>Available/No of bins</th>
               <th>Bins to cut</th>
             </tr>
@@ -263,7 +264,8 @@ defineExpose({
                       Paddock: ${sa.allocation.paddock}<br/>
                       Variety: ${getSingleCategoryNameByType(sa.allocation.categories, 'seed-variety') || '-'}<br/>
                       Gen.: ${getSingleCategoryNameByType(sa.allocation.categories, 'seed-generation') || '-'}<br/>
-                      Class: ${getSingleCategoryNameByType(sa.allocation.categories, 'seed-class') || '-'}
+                      Class: ${getSingleCategoryNameByType(sa.allocation.categories, 'seed-class') || '-'}<br/>
+                      Weight: ${toTonnes(sa.allocation.weight)}
                     </div>
                   `"
                 >
@@ -274,6 +276,7 @@ defineExpose({
                 {{ getSingleCategoryNameByType(sa.allocation.categories, 'seed-class') || '-' }}
               </td>
               <td class="text-danger">{{ getBinSizesValue(sa.allocation.bin_size) }}</td>
+              <td class="d-none d-md-table-cell text-danger">{{ toTonnes(sa.allocation.weight) }}</td>
               <td class="text-danger">
                 {{ `${sa.allocation.available_no_of_bins} / ${sa.allocation.no_of_bins}` }}
               </td>
@@ -485,7 +488,7 @@ defineExpose({
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
           <span>Date cut: </span>
-          <span class="text-danger">{{ moment(cutting.cut_date).format('DD MMM YYYY') }}</span>
+          <span v-if="cutting.cut_date" class="text-danger">{{ moment(cutting.cut_date).format('DD MMM YYYY') }}</span>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
           <span>Cut By: </span>

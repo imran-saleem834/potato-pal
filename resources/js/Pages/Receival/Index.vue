@@ -18,6 +18,7 @@ const props = defineProps({
   single: Object,
   users: Object,
   categories: Object,
+  buyers: Object,
   filters: Object,
   errors: Object,
 });
@@ -176,6 +177,7 @@ if (width.value > 991) {
               :is-edit="!!edit"
               :is-new="isNewRecord"
               :users="users"
+              :buyers="buyers"
               :categories="categories"
               @update="() => getReceival(activeTab)"
               @create="() => setActiveTab(receival?.id)"

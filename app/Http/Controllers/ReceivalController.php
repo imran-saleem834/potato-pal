@@ -26,7 +26,7 @@ class ReceivalController extends Controller
     public function index(Request $request)
     {
         $receivals = Receival::query()
-            ->with(['grower' => fn ($query) => $query->select('id', 'name', 'grower_name')])
+            ->with(['grower' => fn($query) => $query->select('id', 'name', 'grower_name')])
             ->select('id', 'grower_id')
             ->when($request->input('search'), function (Builder $query, $search) {
                 return $query->where(function (Builder $subQuery) use ($search) {
@@ -49,8 +49,18 @@ class ReceivalController extends Controller
                 ->whereJsonContains('role', 'grower')
                 ->get(),
             'categories' => Category::whereIn('type', Receival::CATEGORY_TYPES)->get(),
+            'buyers'     => fn() => $this->buyers(),
             'filters'    => $request->only(['search']),
         ]);
+    }
+
+    private function buyers()
+    {
+        return User::query()
+            ->select(['id', 'buyer_name'])
+            ->whereJsonContains('role', 'buyer')
+            ->get()
+            ->map(fn($user) => ['value' => $user->id, 'label' => $user->buyer_name]);
     }
 
     /**
@@ -62,7 +72,7 @@ class ReceivalController extends Controller
 
         $receival = Receival::create($inputs);
 
-        if (! empty($inputs['created_at'])) {
+        if (!empty($inputs['created_at'])) {
             $receival->created_at = Carbon::parse($inputs['created_at']);
             $receival->save();
         }
@@ -103,7 +113,7 @@ class ReceivalController extends Controller
         $receival->update($inputs);
         $receival->save();
 
-        if (! empty($inputs['created_at'])) {
+        if (!empty($inputs['created_at'])) {
             $receival->created_at = Carbon::parse($inputs['created_at']);
             $receival->save();
         }
@@ -198,7 +208,7 @@ class ReceivalController extends Controller
         foreach ($request->input('inputs') as $field => $isTrue) {
             if ($isTrue && $receival[$field]) {
                 $inputs[$field] = $receival[$field];
-            } elseif ($isTrue && in_array($field, $types)) {
+            } else if ($isTrue && in_array($field, $types)) {
                 $field              = str_replace('_', '-', $field);
                 $categories[$field] = $receival->categories->where('type', $field)->pluck('category_id')->toArray();
             }
@@ -217,8 +227,9 @@ class ReceivalController extends Controller
     {
         return Receival::with([
             'categories.category',
-            'grower'    => fn ($query) => $query->select(['id', 'name', 'grower_name']),
-            'tiaSample' => fn ($query) => $query->select(['id', 'receival_id']),
+            'grower'     => fn($query) => $query->select(['id', 'name', 'grower_name']),
+            'dummyBuyer' => fn($query) => $query->select('id', 'buyer_name'),
+            'tiaSample'  => fn($query) => $query->select(['id', 'receival_id']),
         ])->find($receivalId);
     }
 }

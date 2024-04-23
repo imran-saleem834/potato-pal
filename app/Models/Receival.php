@@ -34,6 +34,7 @@ class Receival extends Model
         'grower_docket_no',
         'chc_receival_docket_no',
         'driver_name',
+        'dummy_buyer_id',
         'comments',
         'status',
         'tia_status',
@@ -84,6 +85,11 @@ class Receival extends Model
     public function grower()
     {
         return $this->belongsTo(User::class, 'grower_id');
+    }
+
+    public function dummyBuyer()
+    {
+        return $this->belongsTo(User::class, 'dummy_buyer_id');
     }
 
     public function tiaSample()

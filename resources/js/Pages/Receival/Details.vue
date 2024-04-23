@@ -29,6 +29,7 @@ const props = defineProps({
   isEdit: Boolean,
   isNew: Boolean,
   users: Array,
+  buyers: Array,
   categories: Array,
 });
 
@@ -46,6 +47,7 @@ const form = useForm({
   grower_docket_no: props.receival.grower_docket_no,
   chc_receival_docket_no: props.receival.chc_receival_docket_no,
   driver_name: props.receival.driver_name,
+  dummy_buyer_id: props.receival.dummy_buyer_id,
   comments: props.receival.comments,
   created_at: props.receival.created_at
     ? props.receival.created_at.split('.')[0].replace('T', ' ')
@@ -69,6 +71,7 @@ watch(
     form.grower_docket_no = receival.grower_docket_no;
     form.chc_receival_docket_no = receival.chc_receival_docket_no;
     form.driver_name = receival.driver_name;
+    form.dummy_buyer_id = receival.dummy_buyer_id;
     form.comments = receival.comments;
     form.created_at = receival.created_at
       ? receival.created_at.split('.')[0].replace('T', ' ')
@@ -535,6 +538,27 @@ const pushForUnload = () => {
               />
               <template v-else-if="receival.driver_name">{{ receival.driver_name }}</template>
               <template v-else>-</template>
+            </td>
+          </tr>
+          <tr>
+            <th>Buyer</th>
+            <td>
+              <Multiselect
+                v-if="isForm"
+                v-model="form.dummy_buyer_id"
+                mode="single"
+                placeholder="Choose a buyer"
+                :searchable="true"
+                :options="buyers"
+                :class="{ 'is-invalid': form.errors.dummy_buyer_id }"
+              />
+              <template v-else-if="receival.dummy_buyer">{{ receival.dummy_buyer?.buyer_name }}</template>
+              <template v-else>-</template>
+              <div
+                v-if="form.errors.dummy_buyer_id"
+                class="invalid-feedback"
+                v-text="form.errors.dummy_buyer_id"
+              />
             </td>
           </tr>
           <tr>

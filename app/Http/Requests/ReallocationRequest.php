@@ -3,6 +3,9 @@
 namespace App\Http\Requests;
 
 use App\Models\Allocation;
+use App\Models\Cutting;
+use App\Models\CuttingAllocation;
+use App\Models\Dispatch;
 use App\Models\Reallocation;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -23,19 +26,27 @@ class ReallocationRequest extends FormRequest
      */
     public function rules(): array
     {
-        $allocation = Allocation::query()
-            ->select(['no_of_bins', 'weight'])
-            ->find($this->get('allocation_id'))
-            ->toArray();
+        // $allocation = Allocation::query()
+        //     ->select(['no_of_bins', 'weight'])
+        //     ->find($this->get('allocation_id'))
+        //     ->toArray();
 
-        $noOfBins = $allocation['no_of_bins'] ?? 0;
-        $weight   = $allocation['weight'] ?? 0;
+        // $noOfBins = $cutting['no_of_bins'] ?? 0;
+        // $weight   = $allocation['weight'] ?? 0;
+
+        $noOfBins = CuttingAllocation::query()
+            ->where('allocation_id', $this->get('allocation_id'))
+            ->sum('no_of_bins');
+
+        $dispatchNoOfBins = Dispatch::where('allocation_id', $this->get('allocation_id'))->sum('no_of_bins');
+
+        $noOfBins -= $dispatchNoOfBins;
 
         if ($this->isMethod('PATCH')) {
             $reallocation = Reallocation::select(['no_of_bins', 'weight'])->find($this->route('reallocation'));
 
             $noOfBins = $reallocation->no_of_bins + $noOfBins;
-            $weight   = $reallocation->weight + $weight;
+            // $weight   = $reallocation->weight + $weight;
         }
 
         return [
@@ -43,7 +54,8 @@ class ReallocationRequest extends FormRequest
             'allocation_buyer_id' => ['required', 'numeric', 'exists:users,id'],
             'allocation_id'       => ['required', 'numeric', 'exists:allocations,id'],
             'no_of_bins'          => ['required', 'numeric', 'gt:0', "max:$noOfBins"],
-            'weight'              => ['required', 'numeric', 'gt:0', "max:$weight"],
+            // 'weight'              => ['required', 'numeric', 'gt:0', "max:$weight"],
+            'weight'              => ['nullable'],
             'comment'             => ['nullable', 'string', 'max:255'],
         ];
     }
@@ -56,8 +68,8 @@ class ReallocationRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'buyer_id'            => 'reallocation buyer',
-            'allocation_buyer_id' => 'allocation buyer',
+            'buyer_id'            => 'reallocate to buyer',
+            'allocation_buyer_id' => 'reallocate from buyer',
             'allocation_id'       => 'allocation',
         ];
     }

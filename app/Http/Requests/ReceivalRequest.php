@@ -33,6 +33,7 @@ class ReceivalRequest extends FormRequest
             'grower_docket_no'       => ['nullable', 'string', 'max:50'],
             'chc_receival_docket_no' => ['nullable', 'string', 'max:50'],
             'driver_name'            => ['nullable', 'string', 'max:80'],
+            'dummy_buyer_id'         => ['nullable', 'exists:users,id'],
             'comments'               => ['nullable', 'string', 'max:191'],
             'created_at'             => ['nullable', 'date_format:Y-m-d H:i:s'],
         ];
@@ -46,8 +47,9 @@ class ReceivalRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'grower_id'  => 'grower',
-            'created_at' => 'receival time',
+            'grower_id'      => 'grower',
+            'dummy_buyer_id' => 'buyer',
+            'created_at'     => 'receival time',
         ];
     }
 }

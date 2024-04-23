@@ -134,7 +134,7 @@ defineExpose({
   <div v-if="isNew" class="user-boxes">
     <table class="table input-table mb-0">
       <tr>
-        <th>Reallocation Buyer Name</th>
+        <th>Reallocate to Buyer</th>
         <td>
           <Multiselect
             v-model="form.buyer_id"
@@ -158,7 +158,7 @@ defineExpose({
   <div class="user-boxes position-relative" :class="{ 'pe-5': !isForm }">
     <table v-if="isForm" class="table input-table">
       <tr>
-        <th class="d-none d-sm-table-cell">Allocation Buyer Name</th>
+        <th class="d-none d-sm-table-cell">Reallocate from Buyer</th>
         <td>
           <div class="p-0" :class="{ 'input-group': form.allocation_buyer_id }">
             <Multiselect
@@ -200,8 +200,8 @@ defineExpose({
           <tr>
             <th>Seed type</th>
             <th>Bin size</th>
-            <th>Bins available</th>
-            <th>Weight</th>
+            <th>Available tipped bins</th>
+            <!--<th>Weight</th>-->
           </tr>
         </thead>
         <tbody>
@@ -211,7 +211,7 @@ defineExpose({
             </td>
             <td>{{ getBinSizesValue(form.selected_allocation.bin_size) }}</td>
             <td class="text-center text-md-start">{{ form.selected_allocation.no_of_bins }}</td>
-            <td>{{ toTonnes(form.selected_allocation.weight) }}</td>
+            <!--<td>{{ toTonnes(form.selected_allocation.weight) }}</td>-->
           </tr>
         </tbody>
       </table>
@@ -220,20 +220,20 @@ defineExpose({
     <template v-if="isForm">
       <div class="row">
         <div class="col-6 col-sm-3 mb-3">
-          <label class="form-label">Reallocated bins</label>
+          <label class="form-label">Reallocate tipped bins</label>
           <TextInput v-model="form.no_of_bins" :error="form.errors.no_of_bins" type="text" />
         </div>
-        <div class="col-6 col-sm-3 mb-3">
-          <label class="form-label">Reallocated weight</label>
-          <TextInput v-model="form.weight" :error="form.errors.weight" type="text">
-            <template #addon>
-              <div class="input-group-text d-none d-md-inline-block d-lg-none d-xl-inline-block">
-                tonnes
-              </div>
-            </template>
-          </TextInput>
-        </div>
-        <div class="col-12 col-sm-6 mb-3">
+        <!--<div class="col-6 col-sm-3 mb-3">-->
+        <!--  <label class="form-label">Reallocated weight</label>-->
+        <!--  <TextInput v-model="form.weight" :error="form.errors.weight" type="text">-->
+        <!--    <template #addon>-->
+        <!--      <div class="input-group-text d-none d-md-inline-block d-lg-none d-xl-inline-block">-->
+        <!--        tonnes-->
+        <!--      </div>-->
+        <!--    </template>-->
+        <!--  </TextInput>-->
+        <!--</div>-->
+        <div class="col-12 col-sm-9 mb-3">
           <label class="form-label">Comments</label>
           <TextInput v-model="form.comment" :error="form.errors.comment" type="text" />
         </div>
@@ -279,7 +279,7 @@ defineExpose({
       </div>
       <div class="row allocation-items-box">
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Allocation Buyer Name: </span>
+          <span>Reallocate from Buyer: </span>
           <Link
             :href="route('users.index', { userId: reallocation.allocation_buyer_id })"
             class="text-danger"
@@ -303,10 +303,10 @@ defineExpose({
           <span>Reallocated bins: </span>
           <span class="text-danger">{{ reallocation.no_of_bins }}</span>
         </div>
-        <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Reallocated weight: </span>
-          <span class="text-danger">{{ toTonnes(reallocation.weight) }}</span>
-        </div>
+        <!--<div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">-->
+        <!--  <span>Reallocated weight: </span>-->
+        <!--  <span class="text-danger">{{ toTonnes(reallocation.weight) }}</span>-->
+        <!--</div>-->
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
           <span>Grower Group: </span>
           <span class="text-danger">
@@ -376,8 +376,8 @@ defineExpose({
                   <th>Grower Group</th>
                   <th>Paddock</th>
                   <th>Bin size</th>
-                  <th>No of bins</th>
-                  <th>Weight</th>
+                  <th>Bins Tipped</th>
+                  <!--<th>Weight</th>-->
                 </tr>
               </thead>
               <tbody>
@@ -406,7 +406,7 @@ defineExpose({
                     <td>{{ allocation.paddock }}</td>
                     <td>{{ getBinSizesValue(allocation.bin_size) }}</td>
                     <td>{{ allocation.no_of_bins }}</td>
-                    <td>{{ toTonnes(allocation.weight) }}</td>
+                    <!--<td>{{ toTonnes(allocation.weight) }}</td>-->
                   </tr>
                 </template>
               </tbody>

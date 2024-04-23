@@ -24,10 +24,10 @@ class CuttingRequest extends FormRequest
     {
         $rules = [
             'buyer_id'                             => ['required', 'numeric', 'exists:users,id'],
-            'half_tonnes'                          => ['nullable', 'required_without_all:one_tonnes,two_tonnes', 'numeric'],
-            'one_tonnes'                           => ['nullable', 'required_without_all:half_tonnes,two_tonnes', 'numeric'],
-            'two_tonnes'                           => ['nullable', 'required_without_all:half_tonnes,one_tonnes', 'numeric'],
-            'cut_date'                             => ['required', 'date'],
+            'half_tonnes'                          => ['nullable', 'numeric'],
+            'one_tonnes'                           => ['nullable', 'numeric'],
+            'two_tonnes'                           => ['nullable', 'numeric'],
+            'cut_date'                             => ['nullable', 'date'],
             'cool_store'                           => ['nullable', 'array'],
             'cool_store.*'                         => ['nullable', 'numeric'],
             'comment'                              => ['nullable', 'string', 'max:255'],

@@ -1,3 +1,25 @@
+<script setup>
+import { Link, } from '@inertiajs/vue3';
+
+defineProps({
+  canResetPassword: {
+    type: Boolean,
+    default: false,
+  },
+  status: {
+    type: String,
+    default: '',
+  },
+  type: String,
+});
+
+const emit = defineEmits(['submit']);
+
+const submit = () => {
+  emit('submit');
+};
+</script>
+
 <template>
   <div :class="'register' === type ? 'signup-box' : 'login-box'">
     <p class="text-center">
@@ -25,31 +47,9 @@
     </p>
 
     <p v-if="['login', 'register'].includes(type)" class="text-center mt-4 terms-condition">
-      By logging in to the Cherry Hill Coolstores platform you agree to our
-      <Link :href="route('terms.show')"> Terms & Conditions</Link> &
-      <Link :href="route('policy.show')">Privacy Policy</Link>
+      By logging in to the Cherry Hill Coolstores platform you agree to our 
+      <Link :href="route('terms.show')"> Terms & Conditions</Link>,
+      <Link :href="route('policy.show')">Privacy Policy</Link>, & our End User Licence Agreement.
     </p>
   </div>
 </template>
-
-<script setup>
-import { Link, router } from '@inertiajs/vue3';
-
-defineProps({
-  canResetPassword: {
-    type: Boolean,
-    default: false,
-  },
-  status: {
-    type: String,
-    default: '',
-  },
-  type: String,
-});
-
-const emit = defineEmits(['submit']);
-
-const submit = () => {
-  emit('submit');
-};
-</script>

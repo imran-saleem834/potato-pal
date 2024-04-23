@@ -21,7 +21,7 @@ class ReallocationController extends Controller
     public function index(Request $request)
     {
         $reallocationBuyers = Reallocation::select('buyer_id')
-            ->with(['buyer' => fn ($query) => $query->select(['id', 'name', 'buyer_name']), 'buyer.categories.category'])
+            ->with(['buyer:id,buyer_name', 'buyer.categories.category'])
             ->latest()
             ->groupBy('buyer_id')
             ->get()
@@ -40,16 +40,17 @@ class ReallocationController extends Controller
         }
 
         $allocations = Allocation::query()
-            ->with(['dispatches', 'reallocations', 'categories.category'])
+            ->with(['cuttings', 'dispatches', 'reallocations', 'categories.category'])
             ->get()
             ->map(function ($allocation) {
+                $allocation->no_of_bins = $allocation->cuttings->sum('no_of_bins');
                 foreach ($allocation->dispatches as $dispatch) {
                     $allocation->no_of_bins -= $dispatch->no_of_bins;
-                    $allocation->weight     -= $dispatch->weight;
+                    // $allocation->weight     -= $dispatch->weight;
                 }
                 foreach ($allocation->reallocations as $reallocation) {
                     $allocation->no_of_bins -= $reallocation->no_of_bins;
-                    $allocation->weight     -= $reallocation->weight;
+                    // $allocation->weight     -= $reallocation->weight;
                 }
 
                 return $allocation;
@@ -126,15 +127,14 @@ class ReallocationController extends Controller
         return Reallocation::query()
             ->with([
                 'allocation.categories.category',
-                'allocationBuyer' => fn ($query) => $query->select('id', 'name', 'buyer_name'),
+                'allocationBuyer:id,buyer_name',
             ])
             ->when($search, function ($query, $search) {
                 return $query->where(function ($subQuery) use ($search) {
                     return $subQuery
                         ->orWhere('comment', 'LIKE', "%{$search}%")
                         ->orWhere('no_of_bins', 'LIKE', "%{$search}%")
-                        ->orWhere('bin_size', 'LIKE', "%{$search}%")
-                        ->orWhereRaw("CONCAT(`weight`, ' kg') LIKE '%{$search}%'")
+                        ->orWhere('weight', 'LIKE', "%{$search}%")
                         ->orWhereRelation('allocation', function (Builder $query) use ($search) {
                             return $query->where('paddock', 'LIKE', "%{$search}%")
                                 ->orWhere('bin_size', 'LIKE', "%{$search}%");
