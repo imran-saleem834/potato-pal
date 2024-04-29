@@ -4,7 +4,7 @@ import { router, Link } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import TopBar from '@/Components/TopBar.vue';
 import LeftBar from '@/Components/LeftBar.vue';
-import { getBinSizesValue, getSingleCategoryNameByType, getCategoriesByType } from '@/helper.js';
+import { toTonnes, getBinSizesValue, getSingleCategoryNameByType, getCategoriesByType } from '@/helper.js';
 import { useWindowSize } from 'vue-window-size';
 
 const { width, height } = useWindowSize();
@@ -33,8 +33,8 @@ const setActiveTab = (id) => {
   activeTab.value = props.weighbridges.data.find((weighbridge) => weighbridge.id === id);
 };
 
-const isOversize = computed(() => {
-  return getSingleCategoryNameByType(activeTab.value.categories, 'seed-type') === 'Oversize';
+const isSystemType = computed(() => {
+  return activeTab.value?.type === 1;
 });
 
 if (width.value > 991) {
@@ -46,7 +46,7 @@ if (width.value > 991) {
   <AppLayout title="Weighbridges">
     <TopBar
       type="Weighbridges"
-      :title="`${activeTab?.id}`"
+      :title="`ID - ${activeTab?.id}`"
       :active-tab="activeTab?.id"
       :search="search"
       @search="filter"
@@ -113,7 +113,7 @@ if (width.value > 991) {
                         <template v-else>-</template>
                       </td>
                     </tr>
-                    <tr v-if="activeTab.channel && !isOversize">
+                    <tr v-if="isSystemType">
                       <th>Channel</th>
                       <td class="pb-0">
                         <ul class="p-0">
@@ -140,7 +140,7 @@ if (width.value > 991) {
                         <template v-else>-</template>
                       </td>
                     </tr>
-                    <tr v-if="activeTab.system && !isOversize">
+                    <tr v-if="isSystemType">
                       <th>System</th>
                       <td class="pb-0">
                         <ul class="p-0">
@@ -160,7 +160,7 @@ if (width.value > 991) {
                     <tr>
                       <th>Weight of total bins</th>
                       <td>
-                        <template v-if="activeTab.weight">{{ activeTab.weight }} Kg</template>
+                        <template v-if="activeTab.weight">{{ toTonnes(activeTab.weight) }}</template>
                         <template v-else>-</template>
                       </td>
                     </tr>
