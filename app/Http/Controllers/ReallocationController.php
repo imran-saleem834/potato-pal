@@ -40,7 +40,7 @@ class ReallocationController extends Controller
         }
 
         $allocations = Allocation::query()
-            ->with(['cuttings', 'dispatches', 'reallocations', 'categories.category'])
+            ->with(['grower', 'cuttings', 'dispatches', 'reallocations', 'categories.category'])
             ->get()
             ->map(function ($allocation) {
                 $allocation->no_of_bins = $allocation->cuttings->sum('no_of_bins');

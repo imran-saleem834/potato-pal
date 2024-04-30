@@ -177,7 +177,7 @@ defineExpose({
               class="btn btn-red input-group-text px-1 px-sm-2"
               data-bs-toggle="modal"
               :data-bs-target="`#allocations-${uniqueKey}`"
-              v-text="'Select Allocation'"
+              v-text="'Select Cutting'"
             />
           </div>
           <div
@@ -198,20 +198,44 @@ defineExpose({
       <table class="table table-sm">
         <thead>
           <tr>
+            <th>Grower Group</th>
+            <th>Grower</th>
+            <th>Paddock</th>
+            <th>Variety</th>
+            <th>Gen</th>
             <th>Seed type</th>
+            <th>Class</th>
             <th>Bin size</th>
             <th>Available tipped bins</th>
-            <!--<th>Weight</th>-->
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>
+            <td class="text-primary">
+              {{ getSingleCategoryNameByType(form.selected_allocation.categories, 'grower-group') }}
+            </td>
+            <td class="text-primary">
+              {{ form.selected_allocation.grower?.grower_name || '-' }}
+            </td>
+            <td class="text-primary">
+              {{ form.selected_allocation.paddock }}
+            </td>
+            <td class="text-primary">
+              {{ getSingleCategoryNameByType(form.selected_allocation.categories, 'seed-variety') }}
+            </td>
+            <td class="text-primary">
+              {{ getSingleCategoryNameByType(form.selected_allocation.categories, 'seed-generation') }}
+            </td>
+            <td class="text-primary">
               {{ getSingleCategoryNameByType(form.selected_allocation.categories, 'seed-type') }}
             </td>
-            <td>{{ getBinSizesValue(form.selected_allocation.bin_size) }}</td>
-            <td class="text-center text-md-start">{{ form.selected_allocation.no_of_bins }}</td>
-            <!--<td>{{ toTonnes(form.selected_allocation.weight) }}</td>-->
+            <td class="text-primary">
+              {{ getSingleCategoryNameByType(form.selected_allocation.categories, 'seed-class') }}
+            </td>
+            <td class="text-primary">
+              {{ getBinSizesValue(form.selected_allocation.bin_size) }}
+            </td>
+            <td class="text-center text-primary text-md-start">{{ form.selected_allocation.no_of_bins }}</td>
           </tr>
         </tbody>
       </table>
@@ -356,7 +380,7 @@ defineExpose({
     <div class="modal-dialog modal-xl">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Select Allocation</h5>
+          <h5 class="modal-title" id="exampleModalLabel">Select Cutting Allocation</h5>
           <button
             type="button"
             class="btn-close"
@@ -369,15 +393,16 @@ defineExpose({
             <table class="table mb-0">
               <thead>
                 <tr>
-                  <th>Seed type</th>
-                  <th>Variety</th>
-                  <th>Class</th>
-                  <th>Gen</th>
                   <th>Grower Group</th>
+                  <th>Grower</th>
                   <th>Paddock</th>
+                  <th>Variety</th>
+                  <th>Gen</th>
+                  <th>Seed type</th>
+                  <th>Class</th>
                   <th>Bin size</th>
                   <th>Bins Tipped</th>
-                  <!--<th>Weight</th>-->
+                  <th>Select</th>
                 </tr>
               </thead>
               <tbody>
@@ -388,25 +413,23 @@ defineExpose({
                       isForm &&
                       (allocation.no_of_bins > 0 || allocation.weight > 0)
                     "
-                    @click="() => onSelectAllocation(allocation)"
-                    style="cursor: pointer"
-                    data-bs-dismiss="modal"
                   >
-                    <td>{{ getSingleCategoryNameByType(allocation.categories, 'seed-type') }}</td>
-                    <td>
-                      {{ getSingleCategoryNameByType(allocation.categories, 'seed-variety') }}
-                    </td>
-                    <td>{{ getSingleCategoryNameByType(allocation.categories, 'seed-class') }}</td>
-                    <td>
-                      {{ getSingleCategoryNameByType(allocation.categories, 'seed-generation') }}
-                    </td>
-                    <td>
-                      {{ getSingleCategoryNameByType(allocation.categories, 'grower-group') }}
-                    </td>
+                    <td>{{ getSingleCategoryNameByType(allocation.categories, 'grower-group') }}</td>
+                    <td>{{ allocation.grower?.grower_name || '-' }}</td>
                     <td>{{ allocation.paddock }}</td>
+                    <td>{{ getSingleCategoryNameByType(allocation.categories, 'seed-variety') }}</td>
+                    <td>{{ getSingleCategoryNameByType(allocation.categories, 'seed-generation') }}</td>
+                    <td>{{ getSingleCategoryNameByType(allocation.categories, 'seed-type') }}</td>
+                    <td>{{ getSingleCategoryNameByType(allocation.categories, 'seed-class') }}</td>
                     <td>{{ getBinSizesValue(allocation.bin_size) }}</td>
                     <td>{{ allocation.no_of_bins }}</td>
-                    <!--<td>{{ toTonnes(allocation.weight) }}</td>-->
+                    <td>
+                      <input
+                        type="checkbox"
+                        :checked="form.allocation_id === allocation.id"
+                        @click="() => onSelectAllocation(allocation)"
+                      />
+                    </td>
                   </tr>
                 </template>
               </tbody>
