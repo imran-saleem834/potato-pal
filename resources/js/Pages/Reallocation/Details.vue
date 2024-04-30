@@ -282,14 +282,14 @@ defineExpose({
           <span>Reallocate from Buyer: </span>
           <Link
             :href="route('users.index', { userId: reallocation.allocation_buyer_id })"
-            class="text-danger"
+            class="text-primary"
           >
             {{ reallocation?.allocation_buyer?.buyer_name }}
           </Link>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
           <span>Seed type: </span>
-          <span class="text-danger">
+          <span class="text-primary">
             {{
               getSingleCategoryNameByType(reallocation.allocation.categories, 'seed-type') || '-'
             }}
@@ -297,19 +297,19 @@ defineExpose({
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
           <span>Bin size: </span>
-          <span class="text-danger">{{ getBinSizesValue(reallocation.allocation.bin_size) }}</span>
+          <span class="text-primary">{{ getBinSizesValue(reallocation.allocation.bin_size) }}</span>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
           <span>Reallocated bins: </span>
-          <span class="text-danger">{{ reallocation.no_of_bins }}</span>
+          <span class="text-primary">{{ reallocation.no_of_bins }}</span>
         </div>
         <!--<div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">-->
         <!--  <span>Reallocated weight: </span>-->
-        <!--  <span class="text-danger">{{ toTonnes(reallocation.weight) }}</span>-->
+        <!--  <span class="text-primary">{{ toTonnes(reallocation.weight) }}</span>-->
         <!--</div>-->
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
           <span>Grower Group: </span>
-          <span class="text-danger">
+          <span class="text-primary">
             {{
               getSingleCategoryNameByType(reallocation.allocation.categories, 'grower-group') || '-'
             }}
@@ -317,7 +317,7 @@ defineExpose({
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
           <span>Variety: </span>
-          <span class="text-danger">
+          <span class="text-primary">
             {{
               getSingleCategoryNameByType(reallocation.allocation.categories, 'seed-variety') || '-'
             }}
@@ -325,7 +325,7 @@ defineExpose({
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
           <span>Gen: </span>
-          <span class="text-danger">
+          <span class="text-primary">
             {{
               getSingleCategoryNameByType(reallocation.allocation.categories, 'seed-generation') ||
               '-'
@@ -334,7 +334,7 @@ defineExpose({
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
           <span>Class: </span>
-          <span class="text-danger">
+          <span class="text-primary">
             {{
               getSingleCategoryNameByType(reallocation.allocation.categories, 'seed-class') || '-'
             }}
@@ -342,11 +342,11 @@ defineExpose({
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 pb-1">
           <span>Paddock: </span>
-          <span class="text-danger">{{ reallocation.allocation.paddock }}</span>
+          <span class="text-primary">{{ reallocation.allocation.paddock }}</span>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 pb-1">
           <span>Comments: </span>
-          <span class="text-danger">{{ reallocation.comment }}</span>
+          <span class="text-primary">{{ reallocation.comment }}</span>
         </div>
       </div>
     </template>

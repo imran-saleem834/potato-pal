@@ -308,63 +308,63 @@ defineExpose({
       <div class="row allocation-items-box">
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
           <span>Grower: </span>
-          <Link :href="route('users.index', { userId: allocation.grower_id })" class="text-danger">
+          <Link :href="route('users.index', { userId: allocation.grower_id })" class="text-primary">
             {{ allocation.grower?.grower_name }}
           </Link>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
           <span>Paddock: </span>
-          <span class="text-danger">{{ allocation.paddock }}</span>
+          <span class="text-primary">{{ allocation.paddock }}</span>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
           <span>Variety: </span>
-          <span class="text-danger">
+          <span class="text-primary">
             {{ getSingleCategoryNameByType(allocation.categories, 'seed-variety') || '-' }}
           </span>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
           <span>Gen: </span>
-          <span class="text-danger">
+          <span class="text-primary">
             {{ getSingleCategoryNameByType(allocation.categories, 'seed-generation') || '-' }}
           </span>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
           <span>Bin size: </span>
-          <span class="text-danger">{{ getBinSizesValue(allocation.bin_size) }}</span>
+          <span class="text-primary">{{ getBinSizesValue(allocation.bin_size) }}</span>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
           <span>Allocated bins: </span>
-          <span class="text-danger">{{ allocation.no_of_bins }}</span>
+          <span class="text-primary">{{ allocation.no_of_bins }}</span>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
           <span>Allocated weight: </span>
-          <span class="text-danger">{{ toTonnes(allocation.weight) }}</span>
+          <span class="text-primary">{{ toTonnes(allocation.weight) }}</span>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Cutting bins: </span>
-          <span class="text-danger">{{ allocation.cuttings_sum_no_of_bins || '0' }}</span>
+          <span>Bins tipped for cutting: </span>
+          <span class="text-primary">{{ allocation.cuttings_sum_no_of_bins || '0' }}</span>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
           <span>Class: </span>
-          <span class="text-danger">
+          <span class="text-primary">
             {{ getSingleCategoryNameByType(allocation.categories, 'seed-class') || '-' }}
           </span>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
           <span>Grower Group: </span>
-          <span class="text-danger">
+          <span class="text-primary">
             {{ getSingleCategoryNameByType(allocation.categories, 'grower-group') || '-' }}
           </span>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
           <span>Seed type: </span>
-          <span class="text-danger">
+          <span class="text-primary">
             {{ getSingleCategoryNameByType(allocation.categories, 'seed-type') || '-' }}
           </span>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
           <span>Comments: </span>
-          <span class="text-danger">{{ allocation.comment }}</span>
+          <span class="text-primary">{{ allocation.comment }}</span>
         </div>
       </div>
     </template>

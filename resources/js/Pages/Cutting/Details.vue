@@ -244,15 +244,15 @@ defineExpose({
           </thead>
           <tbody>
             <tr v-for="(sa, index) in form.selected_allocations" :key="index">
-              <td class="d-none d-md-table-cell text-danger">{{ sa.allocation.grower.grower_name }}</td>
-              <td class="d-none d-md-table-cell text-danger">{{ sa.allocation.paddock }}</td>
-              <td class="d-none d-md-table-cell text-danger">
+              <td class="d-none d-md-table-cell text-primary">{{ sa.allocation.grower.grower_name }}</td>
+              <td class="d-none d-md-table-cell text-primary">{{ sa.allocation.paddock }}</td>
+              <td class="d-none d-md-table-cell text-primary">
                 {{ getSingleCategoryNameByType(sa.allocation.categories, 'seed-variety') || '-' }}
               </td>
-              <td class="d-none d-md-table-cell text-danger">
+              <td class="d-none d-md-table-cell text-primary">
                 {{ getSingleCategoryNameByType(sa.allocation.categories, 'seed-generation') || '-' }}
               </td>
-              <td class="text-danger">
+              <td class="text-primary">
                 {{ getSingleCategoryNameByType(sa.allocation.categories, 'seed-type') || '-' }}
                 <a
                   data-bs-toggle="tooltip"
@@ -272,12 +272,12 @@ defineExpose({
                   <i class="bi bi-question-circle fs-6 text-black"></i>
                 </a>
               </td>
-              <td class="d-none d-md-table-cell text-danger">
+              <td class="d-none d-md-table-cell text-primary">
                 {{ getSingleCategoryNameByType(sa.allocation.categories, 'seed-class') || '-' }}
               </td>
-              <td class="text-danger">{{ getBinSizesValue(sa.allocation.bin_size) }}</td>
-              <td class="d-none d-md-table-cell text-danger">{{ toTonnes(sa.allocation.weight) }}</td>
-              <td class="text-danger">
+              <td class="text-primary">{{ getBinSizesValue(sa.allocation.bin_size) }}</td>
+              <td class="d-none d-md-table-cell text-primary">{{ toTonnes(sa.allocation.weight) }}</td>
+              <td class="text-primary">
                 {{ `${sa.allocation.available_no_of_bins} / ${sa.allocation.no_of_bins}` }}
               </td>
               <td style="max-width: 150px">
@@ -427,15 +427,15 @@ defineExpose({
               {{ ca.allocation.id }}
             </Link>
           </td>
-          <td class="d-none d-md-table-cell text-danger">{{ ca.allocation?.grower?.grower_name }}</td>
-          <td class="d-none d-md-table-cell text-danger">{{ ca.allocation.paddock }}</td>
-          <td class="d-none d-xl-table-cell text-danger">
+          <td class="d-none d-md-table-cell text-primary">{{ ca.allocation?.grower?.grower_name }}</td>
+          <td class="d-none d-md-table-cell text-primary">{{ ca.allocation.paddock }}</td>
+          <td class="d-none d-xl-table-cell text-primary">
             {{ getSingleCategoryNameByType(ca.allocation.categories, 'seed-variety') || '-' }}
           </td>
-          <td class="d-none d-md-table-cell text-danger">
+          <td class="d-none d-md-table-cell text-primary">
             {{ getSingleCategoryNameByType(ca.allocation.categories, 'seed-generation') || '-' }}
           </td>
-          <td class="text-danger">
+          <td class="text-primary">
             {{ getSingleCategoryNameByType(ca.allocation.categories, 'seed-type') || '-' }}
             <a
               data-bs-toggle="tooltip"
@@ -454,7 +454,7 @@ defineExpose({
               <i class="bi bi-question-circle fs-6 text-black"></i>
             </a>
           </td>
-          <td class="d-none d-xl-table-cell text-danger">
+          <td class="d-none d-xl-table-cell text-primary">
             {{
               getSingleCategoryNameByType(
                 ca.allocation.categories,
@@ -462,10 +462,10 @@ defineExpose({
               ) || '-'
             }}
           </td>
-          <td class="text-danger">
+          <td class="text-primary">
             {{ getBinSizesValue(ca.allocation.bin_size) }}
           </td>
-          <td class="text-danger">{{ ca.no_of_bins }}</td>
+          <td class="text-primary">{{ ca.no_of_bins }}</td>
         </tr>
         </tbody>
       </table>
@@ -476,35 +476,35 @@ defineExpose({
         </div>
         <div v-if="parseInt(cutting.half_tonnes) > 0" class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
           <span>Half Tonne: </span>
-          <span class="text-danger">{{ cutting.half_tonnes || '0' }}</span>
+          <span class="text-primary">{{ cutting.half_tonnes || '0' }}</span>
         </div>
         <div v-if="parseInt(cutting.one_tonnes) > 0" class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
           <span>One Tonne: </span>
-          <span class="text-danger">{{ cutting.one_tonnes || '0' }}</span>
+          <span class="text-primary">{{ cutting.one_tonnes || '0' }}</span>
         </div>
         <div v-if="parseInt(cutting.two_tonnes) > 0" class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
           <span>Two Tonne: </span>
-          <span class="text-danger">{{ cutting.two_tonnes || '0' }}</span>
+          <span class="text-primary">{{ cutting.two_tonnes || '0' }}</span>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
           <span>Date cut: </span>
-          <span v-if="cutting.cut_date" class="text-danger">{{ moment(cutting.cut_date).format('DD MMM YYYY') }}</span>
+          <span v-if="cutting.cut_date" class="text-primary">{{ moment(cutting.cut_date).format('DD MMM YYYY') }}</span>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
           <span>Cut By: </span>
-          <span class="text-danger">
+          <span class="text-primary">
             {{ getSingleCategoryNameByType(cutting.categories, 'cool-store') || '-' }}
           </span>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
           <span>Fungicide: </span>
-          <span class="text-danger">
+          <span class="text-primary">
             {{ getSingleCategoryNameByType(cutting.categories, 'fungicide') || '-' }}
           </span>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
           <span>Comments: </span>
-          <span class="text-danger">{{ cutting.comment }}</span>
+          <span class="text-primary">{{ cutting.comment }}</span>
         </div>
       </div>
     </template>
