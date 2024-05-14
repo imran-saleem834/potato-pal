@@ -20,3 +20,9 @@ export var tiaSampleBoolean = [
   { value: true, label: 'Yes' },
   { value: false, label: 'No' },
 ];
+
+export var channels = [
+  { value: 'weighbridge', label: 'BU1' },
+  { value: 'BU2', label: 'BU2' },
+  { value: 'BU3', label: 'BU3' },
+];

@@ -7,6 +7,7 @@ use Inertia\Inertia;
 use App\Models\Unload;
 use App\Models\Category;
 use App\Models\Receival;
+use App\Models\Weighbridge;
 use Illuminate\Http\Request;
 use App\Helpers\ReceivalHelper;
 use App\Helpers\CategoriesHelper;
@@ -82,6 +83,8 @@ class UnloadingController extends Controller
                 $unload->id,
                 Unload::class
             );
+            
+            $this->saveWeighbridges($unloadInputs['weighbridges'] ?? [], $unload->id);
         }
 
         ReceivalHelper::updateUniqueKey($receival);
@@ -98,8 +101,11 @@ class UnloadingController extends Controller
      */
     public function destroy(string $id)
     {
-        Unload::where('receival_id', $id)->delete();
+        $unloadIds = Unload::where('receival_id', $id)->pluck('id')->toArray();
 
+        Weighbridge::whereIn('unload_id', $unloadIds)->delete();
+        Unload::where('receival_id', $id)->delete();
+        
         $receival         = Receival::find($id);
         $receival->status = null;
         $receival->save();
@@ -116,6 +122,8 @@ class UnloadingController extends Controller
      */
     public function destroySingle(string $id)
     {
+        Weighbridge::where('unload_id', $id)->delete();
+        
         $unload     = Unload::with(['receival:id,grower_id'])->select(['id', 'receival_id'])->find($id);
         $receivalId = $unload->receival->id;
         $growerId   = $unload->receival->grower_id;
@@ -131,10 +139,34 @@ class UnloadingController extends Controller
     private function getReceivalUnloads($receivalId)
     {
         return Receival::with([
+            'unloads.weighbridges',
             'unloads.categories.category',
-            'grower'    => fn ($query) => $query->select('id', 'name', 'grower_name'),
-            'tiaSample' => fn ($query) => $query->select(['id', 'receival_id']),
+            'grower:id,name,grower_name',
+            'tiaSample:id,receival_id',
             'categories.category',
         ])->find($receivalId);
+    }
+
+    private function saveWeighbridges(array $weighbridges, int $unloadId): void
+    {
+        $weighbridgeIds = [];
+        foreach ($weighbridges as $weighbridge) {
+
+            $weighbridge = Weighbridge::updateOrCreate(
+                ['id' => $weighbridge['id'] ?? null],
+                [
+                    'unload_id'  => $unloadId,
+                    'channel'    => $weighbridge['channel'],
+                    'bin_size'   => $weighbridge['bin_size'],
+                    'system'     => $weighbridge['system'],
+                    'no_of_bins' => $weighbridge['no_of_bins'],
+                    'weight'     => $weighbridge['weight'],
+                ]
+            );
+
+            $weighbridgeIds[] = $weighbridge->id;
+        }
+
+        Weighbridge::where('unload_id', $unloadId)->whereNotIn('id', $weighbridgeIds)->delete();
     }
 }

@@ -250,24 +250,22 @@ defineExpose({
     <div v-if="isForm && Object.values(form.selected_allocation).length" class="table-responsive">
       <table class="table table-sm">
         <thead>
-          <tr>
-            <th>Seed Type</th>
-            <th>Bin Size</th>
-            <th>Bins Available</th>
-            <th>Weight</th>
-          </tr>
+        <tr>
+          <th>Seed Type</th>
+          <th>Bin Size</th>
+          <th>Bins Available</th>
+          <th>Weight</th>
+        </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>
-              {{
-                getSingleCategoryNameByType(form.selected_allocation.categories, 'seed-type') || '-'
-              }}
-            </td>
-            <td>{{ getBinSizesValue(form.selected_allocation.bin_size) }}</td>
-            <td>{{ form.selected_allocation.no_of_bins }}</td>
-            <td>{{ toTonnes(form.selected_allocation.weight) }}</td>
-          </tr>
+        <tr>
+          <td class="text-primary">
+            {{ getSingleCategoryNameByType(form.selected_allocation.categories, 'seed-type') || '-' }}
+          </td>
+          <td class="text-primary">{{ getBinSizesValue(form.selected_allocation.bin_size) }}</td>
+          <td class="text-primary">{{ form.selected_allocation.no_of_bins }}</td>
+          <td class="text-primary">{{ toTonnes(form.selected_allocation.weight) }}</td>
+        </tr>
         </tbody>
       </table>
     </div>
@@ -275,27 +273,27 @@ defineExpose({
     <div v-if="isForm && Object.values(form.selected_reallocation).length" class="table-responsive">
       <table class="table table-sm">
         <thead>
-          <tr>
-            <th>Seed Type</th>
-            <th>Bin Size</th>
-            <th>Bins Available</th>
-            <th>Weight</th>
-          </tr>
+        <tr>
+          <th>Seed Type</th>
+          <th>Bin Size</th>
+          <th>Bins Available</th>
+          <th>Weight</th>
+        </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>
-              {{
-                getSingleCategoryNameByType(
-                  form.selected_reallocation.allocation.categories,
-                  'seed-type',
-                )
-              }}
-            </td>
-            <td>{{ getBinSizesValue(form.selected_reallocation.allocation.bin_size) }}</td>
-            <td>{{ form.selected_reallocation.no_of_bins }}</td>
-            <td>{{ toTonnes(form.selected_reallocation.weight) }}</td>
-          </tr>
+        <tr>
+          <td class="text-primary">
+            {{
+              getSingleCategoryNameByType(
+                form.selected_reallocation.allocation.categories,
+                'seed-type',
+              )
+            }}
+          </td>
+          <td class="text-primary">{{ getBinSizesValue(form.selected_reallocation.allocation.bin_size) }}</td>
+          <td class="text-primary">{{ form.selected_reallocation.no_of_bins }}</td>
+          <td class="text-primary">{{ toTonnes(form.selected_reallocation.weight) }}</td>
+        </tr>
         </tbody>
       </table>
     </div>
@@ -304,15 +302,15 @@ defineExpose({
       <div class="row">
         <div class="col-6 col-sm-3 mb-3">
           <label class="form-label">Dispatch Bins</label>
-          <TextInput v-model="form.no_of_bins" :error="form.errors.no_of_bins" type="text" />
+          <TextInput v-model="form.no_of_bins" :error="form.errors.no_of_bins" type="text"/>
         </div>
         <div class="col-6 col-sm-3 mb-3">
           <label class="form-label">Dispatch Kg</label>
-          <TextInput v-model="form.weight" :error="form.errors.weight" type="text" />
+          <TextInput v-model="form.weight" :error="form.errors.weight" type="text"/>
         </div>
         <div class="col-12 col-sm-6 mb-3">
           <label class="form-label">Comment</label>
-          <TextInput v-model="form.comment" :error="form.errors.comment" type="text" />
+          <TextInput v-model="form.comment" :error="form.errors.comment" type="text"/>
         </div>
       </div>
       <div v-if="isEdit || isNewItem" class="w-100 text-end">
@@ -363,13 +361,14 @@ defineExpose({
       />
       <div class="row allocation-items-box">
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Allocation Buyer Name: </span>
+          <span>Allocation Buyer: </span>
           <Link :href="route('users.index', { userId: dispatch.allocation_buyer_id })">
             {{ dispatch?.allocation_buyer?.name }}
           </Link>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
           <span>Seed Type: </span>
+          <span class="text-primary">
           <template v-if="dispatch.allocation_id">
             {{ getSingleCategoryNameByType(dispatch.allocation.categories, 'seed-type') }}
           </template>
@@ -378,26 +377,32 @@ defineExpose({
               getSingleCategoryNameByType(dispatch.reallocation.allocation.categories, 'seed-type')
             }}
           </template>
-          <template v-else>-</template>
+            <template v-else>-</template>
+          </span>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
           <span>Bin Size: </span>
+          <span class="text-primary">
           <template v-if="dispatch.allocation_id">
             {{ getBinSizesValue(dispatch.allocation.bin_size) }}
           </template>
           <template v-else-if="dispatch.reallocation_id">
             {{ getBinSizesValue(dispatch.reallocation.allocation.bin_size) }}
           </template>
-          <template v-else>-</template>
+            <template v-else>-</template>
+          </span>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Dispatch Bins:</span> {{ dispatch.no_of_bins }}
+          <span>Dispatch Bins:</span>
+          <span class="text-primary">{{ dispatch.no_of_bins }}</span>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Dispatch Weight:</span> {{ toTonnes(dispatch.weight.toFixed(2)) }}
+          <span>Dispatch Weight:</span>
+          <span class="text-primary">{{ toTonnes(dispatch.weight.toFixed(2)) }}</span>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
           <span>Receival Group: </span>
+          <span class="text-primary">
           <template v-if="dispatch.allocation_id">
             {{ getSingleCategoryNameByType(dispatch.allocation.categories, 'grower-group') }}
           </template>
@@ -410,9 +415,11 @@ defineExpose({
             }}
           </template>
           <template v-else>-</template>
+          </span>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
           <span>Seed Variety: </span>
+          <span class="text-primary">
           <template v-if="dispatch.allocation_id">
             {{ getSingleCategoryNameByType(dispatch.allocation.categories, 'seed-variety') }}
           </template>
@@ -425,9 +432,11 @@ defineExpose({
             }}
           </template>
           <template v-else>-</template>
+          </span>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
           <span>Seed Generation: </span>
+          <span class="text-primary">
           <template v-if="dispatch.allocation_id">
             {{ getSingleCategoryNameByType(dispatch.allocation.categories, 'seed-generation') }}
           </template>
@@ -440,9 +449,11 @@ defineExpose({
             }}
           </template>
           <template v-else>-</template>
+          </span>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
           <span>Seed Class: </span>
+          <span class="text-primary">
           <template v-if="dispatch.allocation_id">
             {{ getSingleCategoryNameByType(dispatch.allocation.categories, 'seed-class') }}
           </template>
@@ -452,17 +463,21 @@ defineExpose({
             }}
           </template>
           <template v-else>-</template>
+          </span>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
           <span>Paddock: </span>
+          <span class="text-primary">
           <template v-if="dispatch.allocation_id">{{ dispatch.allocation.paddock }}</template>
           <template v-else-if="dispatch.reallocation_id">
             {{ dispatch.reallocation.allocation.paddock }}
           </template>
           <template v-else>-</template>
+          </span>
         </div>
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Comment: </span> {{ dispatch.comment }}
+          <span>Comment: </span>
+          <span class="text-primary">{{ dispatch.comment }}</span>
         </div>
       </div>
     </template>
@@ -482,108 +497,108 @@ defineExpose({
         </div>
         <div class="modal-body">
           <div v-if="form.allocation_buyer_id" class="table-responsive">
-            <DataTable class="table mb-0">
+            <table class="table mb-0">
               <thead>
-                <tr>
-                  <th>From</th>
-                  <th>Seed Type</th>
-                  <th>Seed Var.</th>
-                  <th>Seed Class</th>
-                  <th>Seed Gen.</th>
-                  <th>Grower Group</th>
-                  <th>Paddock</th>
-                  <th>Bin Size</th>
-                  <th>No Of Bins</th>
-                  <th>Weight</th>
-                </tr>
+              <tr>
+                <th>From</th>
+                <th>Seed Type</th>
+                <th>Seed Var.</th>
+                <th>Seed Class</th>
+                <th>Seed Gen.</th>
+                <th>Grower Group</th>
+                <th>Paddock</th>
+                <th>Bin Size</th>
+                <th>No Of Bins</th>
+                <th>Weight</th>
+              </tr>
               </thead>
               <tbody>
-                <template v-for="allocation in allocations" :key="allocation.id">
-                  <tr
-                    v-if="
+              <template v-for="allocation in allocations" :key="allocation.id">
+                <tr
+                  v-if="
                       form.allocation_buyer_id === allocation.buyer_id &&
                       isForm &&
                       (allocation.no_of_bins > 0 || allocation.weight > 0)
                     "
-                    @click="() => onSelectAllocation(allocation)"
-                    style="cursor: pointer"
-                    data-bs-dismiss="modal"
-                  >
-                    <td>Allocation</td>
-                    <td>{{ getSingleCategoryNameByType(allocation.categories, 'seed-type') }}</td>
-                    <td>
-                      {{ getSingleCategoryNameByType(allocation.categories, 'seed-variety') }}
-                    </td>
-                    <td>{{ getSingleCategoryNameByType(allocation.categories, 'seed-class') }}</td>
-                    <td>
-                      {{ getSingleCategoryNameByType(allocation.categories, 'seed-generation') }}
-                    </td>
-                    <td>
-                      {{ getSingleCategoryNameByType(allocation.categories, 'grower-group') }}
-                    </td>
-                    <td>{{ allocation.paddock }}</td>
-                    <td>{{ getBinSizesValue(allocation.bin_size) }}</td>
-                    <td>{{ allocation.no_of_bins }}</td>
-                    <td>{{ toTonnes(allocation.weight) }}</td>
-                  </tr>
-                </template>
-                <template v-for="reallocation in reallocations" :key="reallocation.id">
-                  <tr
-                    v-if="
+                  @click="() => onSelectAllocation(allocation)"
+                  style="cursor: pointer"
+                  data-bs-dismiss="modal"
+                >
+                  <td>Allocation</td>
+                  <td>{{ getSingleCategoryNameByType(allocation.categories, 'seed-type') }}</td>
+                  <td>
+                    {{ getSingleCategoryNameByType(allocation.categories, 'seed-variety') }}
+                  </td>
+                  <td>{{ getSingleCategoryNameByType(allocation.categories, 'seed-class') }}</td>
+                  <td>
+                    {{ getSingleCategoryNameByType(allocation.categories, 'seed-generation') }}
+                  </td>
+                  <td>
+                    {{ getSingleCategoryNameByType(allocation.categories, 'grower-group') }}
+                  </td>
+                  <td>{{ allocation.paddock }}</td>
+                  <td>{{ getBinSizesValue(allocation.bin_size) }}</td>
+                  <td>{{ allocation.no_of_bins }}</td>
+                  <td>{{ toTonnes(allocation.weight) }}</td>
+                </tr>
+              </template>
+              <template v-for="reallocation in reallocations" :key="reallocation.id">
+                <tr
+                  v-if="
                       form.allocation_buyer_id === reallocation.buyer_id &&
                       isForm &&
                       (reallocation.no_of_bins > 0 || reallocation.weight > 0)
                     "
-                    @click="() => onSelectReallocation(reallocation)"
-                    style="cursor: pointer"
-                    data-bs-dismiss="modal"
-                  >
-                    <td>Reallocation</td>
-                    <td>
-                      {{
-                        getSingleCategoryNameByType(reallocation.allocation.categories, 'seed-type')
-                      }}
-                    </td>
-                    <td>
-                      {{
-                        getSingleCategoryNameByType(
-                          reallocation.allocation.categories,
-                          'seed-variety',
-                        )
-                      }}
-                    </td>
-                    <td>
-                      {{
-                        getSingleCategoryNameByType(
-                          reallocation.allocation.categories,
-                          'seed-class',
-                        )
-                      }}
-                    </td>
-                    <td>
-                      {{
-                        getSingleCategoryNameByType(
-                          reallocation.allocation.categories,
-                          'seed-generation',
-                        )
-                      }}
-                    </td>
-                    <td>
-                      {{
-                        getSingleCategoryNameByType(
-                          reallocation.allocation.categories,
-                          'grower-group',
-                        )
-                      }}
-                    </td>
-                    <td>{{ reallocation.allocation.paddock }}</td>
-                    <td>{{ getBinSizesValue(reallocation.allocation.bin_size) }}</td>
-                    <td>{{ reallocation.no_of_bins }}</td>
-                    <td>{{ toTonnes(reallocation.weight) }}</td>
-                  </tr>
-                </template>
+                  @click="() => onSelectReallocation(reallocation)"
+                  style="cursor: pointer"
+                  data-bs-dismiss="modal"
+                >
+                  <td>Reallocation</td>
+                  <td>
+                    {{
+                      getSingleCategoryNameByType(reallocation.allocation.categories, 'seed-type')
+                    }}
+                  </td>
+                  <td>
+                    {{
+                      getSingleCategoryNameByType(
+                        reallocation.allocation.categories,
+                        'seed-variety',
+                      )
+                    }}
+                  </td>
+                  <td>
+                    {{
+                      getSingleCategoryNameByType(
+                        reallocation.allocation.categories,
+                        'seed-class',
+                      )
+                    }}
+                  </td>
+                  <td>
+                    {{
+                      getSingleCategoryNameByType(
+                        reallocation.allocation.categories,
+                        'seed-generation',
+                      )
+                    }}
+                  </td>
+                  <td>
+                    {{
+                      getSingleCategoryNameByType(
+                        reallocation.allocation.categories,
+                        'grower-group',
+                      )
+                    }}
+                  </td>
+                  <td>{{ reallocation.allocation.paddock }}</td>
+                  <td>{{ getBinSizesValue(reallocation.allocation.bin_size) }}</td>
+                  <td>{{ reallocation.no_of_bins }}</td>
+                  <td>{{ toTonnes(reallocation.weight) }}</td>
+                </tr>
+              </template>
               </tbody>
-            </DataTable>
+            </table>
           </div>
         </div>
       </div>
@@ -609,63 +624,63 @@ defineExpose({
           <div class="table-responsive">
             <table class="table">
               <thead>
-                <tr>
-                  <th>From</th>
-                  <th>Seed Type</th>
-                  <th>Seed Var.</th>
-                  <th>Seed Class</th>
-                  <th>Seed Gen.</th>
-                  <th>Grower Group</th>
-                  <th>Paddock</th>
-                  <th>Bin Size</th>
-                </tr>
+              <tr>
+                <th>From</th>
+                <th>Seed Type</th>
+                <th>Seed Var.</th>
+                <th>Seed Class</th>
+                <th>Seed Gen.</th>
+                <th>Grower Group</th>
+                <th>Paddock</th>
+                <th>Bin Size</th>
+              </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>{{ returnForm.dispatch.allocation_id ? 'Allocation' : 'Reallocation' }}</td>
-                  <td>
-                    {{
-                      getSingleCategoryNameByType(
-                        returnForm.dispatch.allocation.categories,
-                        'seed-type',
-                      )
-                    }}
-                  </td>
-                  <td>
-                    {{
-                      getSingleCategoryNameByType(
-                        returnForm.dispatch.allocation.categories,
-                        'seed-variety',
-                      )
-                    }}
-                  </td>
-                  <td>
-                    {{
-                      getSingleCategoryNameByType(
-                        returnForm.dispatch.allocation.categories,
-                        'seed-class',
-                      )
-                    }}
-                  </td>
-                  <td>
-                    {{
-                      getSingleCategoryNameByType(
-                        returnForm.dispatch.allocation.categories,
-                        'seed-generation',
-                      )
-                    }}
-                  </td>
-                  <td>
-                    {{
-                      getSingleCategoryNameByType(
-                        returnForm.dispatch.allocation.categories,
-                        'grower-group',
-                      )
-                    }}
-                  </td>
-                  <td>{{ returnForm.dispatch.allocation.paddock }}</td>
-                  <td>{{ getBinSizesValue(returnForm.dispatch.allocation.bin_size) }}</td>
-                </tr>
+              <tr>
+                <td>{{ returnForm.dispatch.allocation_id ? 'Allocation' : 'Reallocation' }}</td>
+                <td>
+                  {{
+                    getSingleCategoryNameByType(
+                      returnForm.dispatch.allocation.categories,
+                      'seed-type',
+                    )
+                  }}
+                </td>
+                <td>
+                  {{
+                    getSingleCategoryNameByType(
+                      returnForm.dispatch.allocation.categories,
+                      'seed-variety',
+                    )
+                  }}
+                </td>
+                <td>
+                  {{
+                    getSingleCategoryNameByType(
+                      returnForm.dispatch.allocation.categories,
+                      'seed-class',
+                    )
+                  }}
+                </td>
+                <td>
+                  {{
+                    getSingleCategoryNameByType(
+                      returnForm.dispatch.allocation.categories,
+                      'seed-generation',
+                    )
+                  }}
+                </td>
+                <td>
+                  {{
+                    getSingleCategoryNameByType(
+                      returnForm.dispatch.allocation.categories,
+                      'grower-group',
+                    )
+                  }}
+                </td>
+                <td>{{ returnForm.dispatch.allocation.paddock }}</td>
+                <td>{{ getBinSizesValue(returnForm.dispatch.allocation.bin_size) }}</td>
+              </tr>
               </tbody>
             </table>
           </div>

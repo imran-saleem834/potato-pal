@@ -122,6 +122,30 @@ Route::get('/abc2', function () {
     }
 });
 
+Route::get('/abc3', function () {
+    //    $receivals = \App\Models\Receival::with(['categories' => function($query) {
+    //        return $query->where('type', 'grower-group');
+    //    }, 'categories.category'])->get();
+
+    //    $mcCainStockBuyer = \App\Models\User::where('buyer_name', 'McCain Stock')->first();
+    //    $simplotStockBuyer = \App\Models\User::where('buyer_name', 'Simplot Stock')->first();
+
+    prePrint(\App\Models\User::get()->toArray());
+    exit;
+
+    foreach ($receivals as $receival) {
+        foreach ($receival->categories as $category) {
+            if ($category->category->name === 'McCain Seed') {
+                $receival->dummy_buyer_id = $mcCainStockBuyer->id;
+                $receival->save();
+            } else if ($category->category->name === 'Simplot Seed') {
+                $receival->dummy_buyer_id = $simplotStockBuyer->id;
+                $receival->save();
+            }
+        }
+    }
+});
+
 Route::get('xero', function () {
     if (! Xero::isConnected()) {
         return redirect('xero/connect');

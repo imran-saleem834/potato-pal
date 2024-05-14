@@ -23,17 +23,18 @@ class UnloadRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'status'               => ['required', 'string', 'max:20'],
-            'fungicide'            => ['nullable', 'array'],
-            'unloads'              => ['required', 'array'],
-            'unloads.*.seed_type'  => ['required', 'numeric', 'exists:categories,id'],
-            'unloads.*.type'       => ['required', 'numeric', Rule::in([1, 2])],
-            'unloads.*.bin_size'   => ['required', 'numeric', Rule::in([500, 1000, 2000])],
-            'unloads.*.channel'    => ['nullable', 'string', Rule::in(['weighbridge', 'BU2', 'BU3'])],
-            'unloads.*.system'     => ['nullable', 'numeric', 'max:2'],
-            'unloads.*.no_of_bins' => ['required', 'numeric', 'gt:0'],
-            'unloads.*.weight'     => ['required', 'numeric', 'gt:0'],
-            'unloads.*.created_at' => ['nullable', 'date_format:Y-m-d H:i:s'],
+            'status'                 => ['required', 'string', 'max:20'],
+            'fungicide'              => ['nullable', 'array'],
+            'unloads'                => ['required', 'array'],
+            'unloads.*.seed_type'    => ['required', 'numeric', 'exists:categories,id'],
+            'unloads.*.type'         => ['required', 'numeric', Rule::in([1, 2])],
+            'unloads.*.bin_size'     => ['required', 'numeric', Rule::in([500, 1000, 2000])],
+            'unloads.*.channel'      => ['nullable', 'string', Rule::in(['weighbridge', 'BU2', 'BU3'])],
+            'unloads.*.system'       => ['nullable', 'numeric', 'max:2'],
+            'unloads.*.no_of_bins'   => ['required', 'numeric', 'gt:0'],
+            'unloads.*.weight'       => ['required', 'numeric', 'gt:0'],
+            'unloads.*.created_at'   => ['nullable', 'date_format:Y-m-d H:i:s'],
+            'unloads.*.weighbridges' => ['nullable', 'array'],
         ];
     }
 

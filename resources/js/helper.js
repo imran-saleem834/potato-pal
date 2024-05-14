@@ -41,7 +41,11 @@ export function toCamelCase(string) {
 }
 
 export function getBinSizesValue(binSize) {
-  return binSizes.find((bin) => bin.value === binSize).label;
+  return getLabelFromItems(binSizes, binSize);
+}
+
+export function getLabelFromItems(items, value) {
+  return items.find((item) => item.value === value).label;
 }
 
 export function toTonnes(weight) {

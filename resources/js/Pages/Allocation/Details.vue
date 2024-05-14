@@ -234,12 +234,12 @@ defineExpose({
         </thead>
         <tbody>
           <tr>
-            <td>
+            <td class="text-primary">
               {{ getSingleCategoryNameByType(form.select_receival.unload_categories, 'seed-type') }}
             </td>
-            <td>{{ getBinSizesValue(form.select_receival.bin_size) }}</td>
-            <td class="text-center text-md-start">{{ form.select_receival.no_of_bins }}</td>
-            <td>{{ toTonnes(form.select_receival.weight) }}</td>
+            <td class="text-primary">{{ getBinSizesValue(form.select_receival.bin_size) }}</td>
+            <td class="text-center text-md-start text-primary">{{ form.select_receival.no_of_bins }}</td>
+            <td class="text-primary">{{ toTonnes(form.select_receival.weight) }}</td>
           </tr>
         </tbody>
       </table>
@@ -374,7 +374,7 @@ defineExpose({
     <div class="modal-dialog modal-xl">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Select Receival</h5>
+          <h5 class="modal-title" :id="`receivals-${uniqueKey}-label`">Select Receival</h5>
           <button
             type="button"
             class="btn-close"

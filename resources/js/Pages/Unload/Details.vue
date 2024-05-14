@@ -13,9 +13,11 @@ import {
   getCategoriesDropDownByType,
   getCategoriesByType,
   getCategoryIdsByType,
+  getBinSizesValue,
+  getLabelFromItems,
 } from '@/helper.js';
 import { DatePicker } from 'v-calendar';
-import { binSizes, tiaStatus, tiaStatusInit } from '@/const.js';
+import { binSizes, tiaStatus, tiaStatusInit, channels } from '@/const.js';
 import ItemOfCategories from '@/Components/ItemOfCategories.vue';
 import TdOfCategories from '@/Components/TdOfCategories.vue';
 import ConfirmedModal from '@/Components/ConfirmedModal.vue';
@@ -67,6 +69,7 @@ const defaultUnloadFields = {
   weight: 0,
   channel: null,
   system: null,
+  weighbridges: [],
 };
 
 const updateUnloadForm = () => {
@@ -84,8 +87,7 @@ const updateUnloadForm = () => {
 
 const updateUnloadsOnChangeReceival = (receival) => {
   form.fungicide = getCategoryIdsByType(receival.categories, 'fungicide');
-  form.unloads =
-    receival.unloads.length <= 0 ? [{ ...defaultUnloadFields }] : [...receival.unloads];
+  form.unloads = receival.unloads.length <= 0 ? [{ ...defaultUnloadFields }] : [...receival.unloads];
 
   updateUnloadForm();
 };
@@ -93,6 +95,7 @@ const updateUnloadsOnChangeReceival = (receival) => {
 const resetBinsAndWeight = (index) => {
   form.unloads[index].no_of_bins = null;
   form.unloads[index].weight = null;
+  form.unloads[index].weighbridges = [];
 };
 
 const onChangeSeedType = (value, index) => {
@@ -206,15 +209,21 @@ onMounted(() => {
 });
 
 const acceptWeight = (index) => {
-  form.unloads[index].no_of_bins =
-    parseInt(form.unloads[index].no_of_bins ?? 0) + parseInt(bins.value[index]);
-  form.unloads[index].weight =
-    parseFloat(form.unloads[index].weight ?? 0) + parseFloat(weight.value[index]);
+  form.unloads[index].no_of_bins = parseInt(form.unloads[index].no_of_bins ?? 0) + parseInt(bins.value[index]);
+  form.unloads[index].weight = parseFloat(form.unloads[index].weight ?? 0) + parseFloat(weight.value[index]);
 
-  rejectWeight(index);
+  form.unloads[index].weighbridges.push({
+    channel: form.unloads[index].channel,
+    bin_size: form.unloads[index].bin_size,
+    system: form.unloads[index].system,
+    no_of_bins: bins.value[index],
+    weight: weight.value[index],
+  });
+
+  resetCurrentWeight(index);
 };
 
-const rejectWeight = (index) => {
+const resetCurrentWeight = (index) => {
   bins.value[index] = null;
   weight.value[index] = null;
 };
@@ -479,11 +488,7 @@ defineExpose({
                 :is-form="isForm"
                 :value="form.unloads[index].channel"
                 :error="form.errors[`unloads.${index}.channel`]"
-                :items="[
-                  { value: 'weighbridge', label: 'BU1' },
-                  { value: 'BU2', label: 'BU2' },
-                  { value: 'BU3', label: 'BU3' },
-                ]"
+                :items="channels"
                 @click="(value) => onChangeChannel(value, index)"
               />
             </td>
@@ -596,7 +601,7 @@ defineExpose({
           </tr>
           <tr v-if="isForm && form.unloads[index] && form.unloads[index]?.type === 1">
             <th>Weight of bins</th>
-            <td class="pb-0">
+            <td>
               <TextInput v-model="weight[index]" type="text">
                 <template #addon>
                   <div class="input-group-text">kg</div>
@@ -610,12 +615,25 @@ defineExpose({
                   <div
                     v-if="weight[index] && bins[index]"
                     class="input-group-text cursor-pointer"
-                    @click="rejectWeight(index)"
+                    @click="resetCurrentWeight(index)"
                   >
                     <i class="bi bi-x-lg"></i>
                   </div>
                 </template>
               </TextInput>
+            </td>
+          </tr>
+          <tr v-if="isForm && form.unloads[index] && form.unloads[index]?.type === 1 && form.unloads[index].weighbridges?.length > 0">
+            <td colspan="2">
+              <table class="table table-sm">
+                <tr v-for="weighbridge in form.unloads[index].weighbridges" :key="weighbridge?.channel">
+                  <td class="d-none">{{ getLabelFromItems(channels, weighbridge.channel) }}</td>
+                  <td class="d-none">{{ getBinSizesValue(weighbridge.bin_size) }}</td>
+                  <td class="d-none">System {{ weighbridge.system }}</td>
+                  <td>{{ weighbridge.no_of_bins }} Bins</td>
+                  <td>{{ toTonnes(weighbridge.weight) }}</td>
+                </tr>
+              </table>
             </td>
           </tr>
         </table>

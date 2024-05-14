@@ -1,10 +1,11 @@
 <script setup>
-import { computed, ref, watch } from 'vue';
+import { ref, watch } from 'vue';
 import { router, Link } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import TopBar from '@/Components/TopBar.vue';
 import LeftBar from '@/Components/LeftBar.vue';
-import { toTonnes, getBinSizesValue, getSingleCategoryNameByType, getCategoriesByType } from '@/helper.js';
+import { channels } from '@/const.js';
+import { toTonnes, getBinSizesValue, getSingleCategoryNameByType, getCategoriesByType, getLabelFromItems } from '@/helper.js';
 import { useWindowSize } from 'vue-window-size';
 
 const { width, height } = useWindowSize();
@@ -32,10 +33,6 @@ const filter = (keyword) => (search.value = keyword);
 const setActiveTab = (id) => {
   activeTab.value = props.weighbridges.data.find((weighbridge) => weighbridge.id === id);
 };
-
-const isSystemType = computed(() => {
-  return activeTab.value?.type === 1;
-});
 
 if (width.value > 991) {
   setActiveTab(props.weighbridges.data[0]?.id);
@@ -66,7 +63,7 @@ if (width.value > 991) {
             :links="weighbridges.links"
             :active-tab="activeTab?.id"
             :row-1="{ title: 'Weighbridge Id', value: 'id' }"
-            :row-2="{ title: 'Receival Id', value: 'receival_id' }"
+            :row-2="{ title: 'Unload Id', value: 'unload_id' }"
             @click="setActiveTab"
           />
         </div>
@@ -81,9 +78,9 @@ if (width.value > 991) {
                       <th>Receival ID</th>
                       <td>
                         <Link
-                          :href="route('receivals.index', { receivalId: activeTab?.receival_id })"
+                          :href="route('receivals.index', { receivalId: activeTab.unload?.receival_id })"
                         >
-                          {{ activeTab?.receival_id }}
+                          {{ activeTab.unload?.receival_id }}
                         </Link>
                       </td>
                     </tr>
@@ -91,9 +88,9 @@ if (width.value > 991) {
                       <th>Unload ID</th>
                       <td>
                         <Link
-                          :href="route('unloading.index', { receivalId: activeTab?.receival_id })"
+                          :href="route('unloading.index', { receivalId: activeTab.unload?.receival_id })"
                         >
-                          {{ activeTab?.receival_id }}
+                          {{ activeTab.unload_id }}
                         </Link>
                       </td>
                     </tr>
@@ -102,29 +99,23 @@ if (width.value > 991) {
                       <td class="pb-0">
                         <ul
                           class="p-0"
-                          v-if="getCategoriesByType(activeTab.categories, 'seed-type').length"
+                          v-if="getCategoriesByType(activeTab.unload?.categories, 'seed-type').length"
                         >
                           <li>
                             <a>
-                              {{ getSingleCategoryNameByType(activeTab.categories, 'seed-type') }}
+                              {{ getSingleCategoryNameByType(activeTab.unload?.categories, 'seed-type') }}
                             </a>
                           </li>
                         </ul>
                         <template v-else>-</template>
                       </td>
                     </tr>
-                    <tr v-if="isSystemType">
+                    <tr>
                       <th>Channel</th>
                       <td class="pb-0">
                         <ul class="p-0">
                           <li>
-                            <a>
-                              {{
-                                activeTab.channel === 'weighbridge'
-                                  ? 'BU1'
-                                  : activeTab.channel.toUpperCase()
-                              }}
-                            </a>
+                            <a>{{ getLabelFromItems(channels, activeTab.channel) }}</a>
                           </li>
                         </ul>
                       </td>
@@ -140,7 +131,7 @@ if (width.value > 991) {
                         <template v-else>-</template>
                       </td>
                     </tr>
-                    <tr v-if="isSystemType">
+                    <tr>
                       <th>System</th>
                       <td class="pb-0">
                         <ul class="p-0">
