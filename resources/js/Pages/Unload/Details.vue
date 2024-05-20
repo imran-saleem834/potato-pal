@@ -8,6 +8,7 @@ import Multiselect from '@vueform/multiselect';
 import { useToast } from 'vue-toastification';
 import {
   toTonnes,
+  doConfirmToast,
   getCategoryByKeyword,
   getSingleCategoryNameByType,
   getCategoriesDropDownByType,
@@ -98,35 +99,61 @@ const resetBinsAndWeight = (index) => {
   form.unloads[index].weighbridges = [];
 };
 
+const updateSeedType = (parameters) => {
+  form.unloads[parameters.index].seed_type = parameters.value;
+
+  resetBinsAndWeight(parameters.index);
+}
+
 const onChangeSeedType = (value, index) => {
-  form.unloads[index].seed_type = value;
+  if (form.unloads[index].no_of_bins > 0) {
+    doConfirmToast(
+      'You will lose no of bins & weight, yes',
+      () => {
+        updateSeedType({ value, index });
+      }
+    );
+  } else {
+    updateSeedType({ value, index })
+  }
+}
 
-  resetBinsAndWeight(index);
-};
+const updateBinSize = (parameters) => {
+  form.unloads[parameters.index].bin_size = parameters.value;
 
-const onChangeWeightType = (value, index) => {
-  form.unloads[index].type = value;
-
-  resetBinsAndWeight(index);
-};
-
-const onChangeChannel = (value, index) => {
-  form.unloads[index].channel = value;
-  form.unloads[index].bin_size = value === 'weighbridge' ? 1000 : 2000;
-
-  resetBinsAndWeight(index);
-};
+  resetBinsAndWeight(parameters.index);
+}
 
 const onChangeBinSize = (value, index) => {
-  form.unloads[index].bin_size = value;
+  if (form.unloads[index].no_of_bins > 0) {
+    doConfirmToast(
+      'You will lose no of bins & weight, yes',
+      () => {
+        updateBinSize({ value, index });
+      }
+    );
+  } else {
+    updateBinSize({ value, index })
+  }
+}
 
-  resetBinsAndWeight(index);
-};
+const updateWeightType = (parameters) => {
+  form.unloads[parameters.index].type = parameters.value;
 
-const onChangeSystem = (value, index) => {
-  form.unloads[index].system = value;
+  resetBinsAndWeight(parameters.index);
+}
 
-  resetBinsAndWeight(index);
+const onChangeWeightType = (value, index) => {
+  if (form.unloads[index].no_of_bins > 0) {
+    doConfirmToast(
+      'You will lose no of bins & weight, yes',
+      () => {
+        updateWeightType({ value, index });
+      }
+    );
+  } else {
+    updateWeightType({ value, index })
+  }
 };
 
 updateUnloadsOnChangeReceival(props.receival);
@@ -209,6 +236,9 @@ onMounted(() => {
 });
 
 const acceptWeight = (index) => {
+  if (isNaN(Number(weight.value[index]))) {
+    return;
+  }
   form.unloads[index].no_of_bins = parseInt(form.unloads[index].no_of_bins ?? 0) + parseInt(bins.value[index]);
   form.unloads[index].weight = parseFloat(form.unloads[index].weight ?? 0) + parseFloat(weight.value[index]);
 
@@ -407,6 +437,10 @@ defineExpose({
           />
         </div>
         <table class="table input-table mb-0">
+          <tr v-if="unload.id">
+            <th>Unload ID</th>
+            <td>{{ unload.id }}</td>
+          </tr>
           <tr>
             <th>Unload time</th>
             <td>
@@ -480,19 +514,6 @@ defineExpose({
               />
             </td>
           </tr>
-          <tr v-if="form.unloads[index]?.type === 1">
-            <th>Channel</th>
-            <td class="pb-0">
-              <UlLiButton
-                v-if="form.unloads[index]"
-                :is-form="isForm"
-                :value="form.unloads[index].channel"
-                :error="form.errors[`unloads.${index}.channel`]"
-                :items="channels"
-                @click="(value) => onChangeChannel(value, index)"
-              />
-            </td>
-          </tr>
           <tr>
             <th>Bin size</th>
             <td class="pb-0">
@@ -506,12 +527,24 @@ defineExpose({
               />
             </td>
           </tr>
-          <template v-if="isForm && form.unloads[index] && form.unloads[index]?.type === 1">
+          <template v-if="form.unloads[index] && form.unloads[index]?.type === 1">
+            <tr>
+              <th>Channel</th>
+              <td class="pb-0">
+                <UlLiButton
+                  :is-form="isForm"
+                  :value="form.unloads[index].channel"
+                  :error="form.errors[`unloads.${index}.channel`]"
+                  :items="channels"
+                  @click="(value) => form.unloads[index].channel = value"
+                />
+              </td>
+            </tr>
             <tr>
               <th>System</th>
               <td class="pb-0">
                 <UlLiButton
-                  :is-form="true"
+                  :is-form="isForm"
                   :value="form.unloads[index].system"
                   :error="form.errors[`unloads.${index}.system`]"
                   :items="
@@ -522,10 +555,12 @@ defineExpose({
                           { value: 2, label: 'System 2' },
                         ]
                   "
-                  @click="(value) => onChangeSystem(value, index)"
+                  @click="(value) => form.unloads[index].system = value"
                 />
               </td>
             </tr>
+          </template>
+          <template v-if="isForm && form.unloads[index] && form.unloads[index]?.type === 1">
             <tr>
               <th>No. of total bins</th>
               <td>{{ form.unloads[index].no_of_bins || '-' }}</td>
@@ -578,64 +613,76 @@ defineExpose({
               </td>
             </tr>
           </template>
-          <tr v-if="isForm && form.unloads[index] && form.unloads[index]?.type === 1">
-            <th>No. of bins weighed at a time</th>
-            <td class="pb-0">
-              <div class="d-inline-block">
-                <UlLiButton
-                  :is-form="true"
-                  :value="bins[index]"
-                  :items="[
-                    { value: 1, label: '1' },
-                    { value: 2, label: '2' },
-                  ]"
-                  :error="weightError[index]"
-                  @click="(value) => (bins[index] = value)"
-                />
-              </div>
-              <div class="d-inline-block align-top">
-                <button @click="startWeighing(index)" class="btn btn-red me-2">Start Weight</button>
-                <button @click="getWeight(index)" class="btn btn-red">Get Weight</button>
-              </div>
-            </td>
+          <template v-if="isForm && form.unloads[index] && form.unloads[index]?.type === 1">
+            <tr>
+              <th>No. of bins weighed at a time</th>
+              <td class="pb-0">
+                <div class="d-inline-block">
+                  <UlLiButton
+                    :is-form="true"
+                    :value="bins[index]"
+                    :items="[
+                      { value: 1, label: '1' },
+                      { value: 2, label: '2' },
+                    ]"
+                    :error="weightError[index]"
+                    @click="(value) => (bins[index] = value)"
+                  />
+                </div>
+                <div class="d-inline-block align-top">
+                  <button @click="startWeighing(index)" class="btn btn-red me-2">Start Weight</button>
+                  <button @click="getWeight(index)" class="btn btn-red">Get Weight</button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <th>Weight of bins</th>
+              <td>
+                <TextInput v-model="weight[index]" type="text">
+                  <template #addon>
+                    <div class="input-group-text">kg</div>
+                    <div
+                      v-if="weight[index] && bins[index]"
+                      class="input-group-text cursor-pointer"
+                      @click="acceptWeight(index)"
+                    >
+                      <i class="bi bi-check-lg"></i>
+                    </div>
+                    <div
+                      v-if="weight[index] && bins[index]"
+                      class="input-group-text cursor-pointer"
+                      @click="resetCurrentWeight(index)"
+                    >
+                      <i class="bi bi-x-lg"></i>
+                    </div>
+                  </template>
+                </TextInput>
+              </td>
+            </tr>
+          </template>
+        </table>
+        <table 
+          v-if="isForm && form.unloads[index] && form.unloads[index]?.type === 1 && form.unloads[index].weighbridges?.length > 0"
+          class="table table-striped table-sm mb-0"
+        >
+          <thead>
+          <tr>
+            <th class="text-center">Id</th>
+            <th>Channel</th>
+            <th>System</th>
+            <th>No of Bins</th>
+            <th>Weight</th>
           </tr>
-          <tr v-if="isForm && form.unloads[index] && form.unloads[index]?.type === 1">
-            <th>Weight of bins</th>
-            <td>
-              <TextInput v-model="weight[index]" type="text">
-                <template #addon>
-                  <div class="input-group-text">kg</div>
-                  <div
-                    v-if="weight[index] && bins[index]"
-                    class="input-group-text cursor-pointer"
-                    @click="acceptWeight(index)"
-                  >
-                    <i class="bi bi-check-lg"></i>
-                  </div>
-                  <div
-                    v-if="weight[index] && bins[index]"
-                    class="input-group-text cursor-pointer"
-                    @click="resetCurrentWeight(index)"
-                  >
-                    <i class="bi bi-x-lg"></i>
-                  </div>
-                </template>
-              </TextInput>
-            </td>
+          </thead>
+          <tbody>
+          <tr v-for="weighbridge in form.unloads[index].weighbridges" :key="weighbridge?.channel">
+            <td class="text-center">{{ weighbridge?.id || '-' }}</td>
+            <td>{{ getLabelFromItems(channels, weighbridge.channel) }}</td>
+            <td>System {{ weighbridge.system }}</td>
+            <td>{{ weighbridge.no_of_bins }} Bins</td>
+            <td>{{ toTonnes(weighbridge.weight) }}</td>
           </tr>
-          <tr v-if="isForm && form.unloads[index] && form.unloads[index]?.type === 1 && form.unloads[index].weighbridges?.length > 0">
-            <td colspan="2">
-              <table class="table table-sm">
-                <tr v-for="weighbridge in form.unloads[index].weighbridges" :key="weighbridge?.channel">
-                  <td class="d-none">{{ getLabelFromItems(channels, weighbridge.channel) }}</td>
-                  <td class="d-none">{{ getBinSizesValue(weighbridge.bin_size) }}</td>
-                  <td class="d-none">System {{ weighbridge.system }}</td>
-                  <td>{{ weighbridge.no_of_bins }} Bins</td>
-                  <td>{{ toTonnes(weighbridge.weight) }}</td>
-                </tr>
-              </table>
-            </td>
-          </tr>
+          </tbody>
         </table>
       </div>
 

@@ -1,4 +1,8 @@
 import { binSizes } from '@/const.js';
+import ConfirmToast from "@/Components/ConfirmToast.vue";
+import { POSITION, useToast } from 'vue-toastification';
+
+const toast = useToast();
 
 export function getCategoriesByType(categories, type) {
   return (categories || []).filter((category) => category.type === type);
@@ -51,4 +55,23 @@ export function getLabelFromItems(items, value) {
 export function toTonnes(weight) {
   const weighted = (weight / 1000).toFixed(3);
   return weighted + (weighted <= 1 ? ' tonne' : ' tonnes');
+}
+
+export function doConfirmToast(message, callback) {
+  toast(
+      {
+        component: ConfirmToast,
+        props: {
+          message
+        },
+        listeners: {
+          callback,
+        },
+      },
+      {
+        position: POSITION.TOP_CENTER,
+        timeout: false,
+        hideProgressBar: true,
+      },
+  );
 }

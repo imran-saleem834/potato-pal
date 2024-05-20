@@ -19,6 +19,7 @@ return new class extends Migration
             $table->tinyInteger('system')->nullable();
             $table->float('no_of_bins')->nullable();
             $table->float('weight')->nullable();
+            $table->foreignId('created_by')->nullable();
             $table->timestamps();
         });
     }

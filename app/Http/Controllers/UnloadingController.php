@@ -147,22 +147,27 @@ class UnloadingController extends Controller
         ])->find($receivalId);
     }
 
-    private function saveWeighbridges(array $weighbridges, int $unloadId): void
+    private function saveWeighbridges(array $inputs, int $unloadId): void
     {
         $weighbridgeIds = [];
-        foreach ($weighbridges as $weighbridge) {
+        foreach ($inputs as $input) {
 
-            $weighbridge = Weighbridge::updateOrCreate(
-                ['id' => $weighbridge['id'] ?? null],
-                [
+            $weighbridge = null;
+            if (!empty($input['id'])) {
+                $weighbridge = Weighbridge::find($input['id']);
+            }
+
+            if (!$weighbridge) {
+                $weighbridge = Weighbridge::create([
                     'unload_id'  => $unloadId,
-                    'channel'    => $weighbridge['channel'],
-                    'bin_size'   => $weighbridge['bin_size'],
-                    'system'     => $weighbridge['system'],
-                    'no_of_bins' => $weighbridge['no_of_bins'],
-                    'weight'     => $weighbridge['weight'],
-                ]
-            );
+                    'channel'    => $input['channel'],
+                    'bin_size'   => $input['bin_size'],
+                    'system'     => $input['system'],
+                    'no_of_bins' => $input['no_of_bins'],
+                    'weight'     => $input['weight'],
+                    'created_by' => auth()->id()
+                ]);
+            }
 
             $weighbridgeIds[] = $weighbridge->id;
         }

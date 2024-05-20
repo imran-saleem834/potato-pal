@@ -22,10 +22,16 @@ class Weighbridge extends Model
         'system',
         'no_of_bins',
         'weight',
+        'created_by',
     ];
 
     public function unload(): BelongsTo
     {
         return $this->belongsTo(Unload::class);
+    }
+
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 }
