@@ -16,9 +16,6 @@ return new class extends Migration
             $table->foreignId('buyer_id');
             $table->foreignId('grower_id')->nullable();
             $table->string('unique_key', 80)->nullable();
-            $table->float('no_of_bins')->nullable();
-            $table->float('weight')->nullable();
-            $table->float('bin_size')->nullable();
             $table->string('paddock', 100)->nullable();
             $table->string('comment', 255)->nullable();
             $table->timestamps();

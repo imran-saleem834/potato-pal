@@ -15,9 +15,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('buyer_id');
             $table->foreignId('allocation_buyer_id');
-            $table->foreignId('allocation_id');
-            $table->float('no_of_bins')->nullable();
-            $table->float('weight')->nullable();
             $table->string('comment', 255)->nullable();
             $table->timestamps();
         });

@@ -68,6 +68,7 @@ class AllocationController extends Controller
 
             $receivals[] = [
                 'remaining_receival_id' => $remainingReceival->id,
+                'grower_name'           => $grower->grower_name,
                 'grower_id'             => $remainingReceival->grower_id,
                 'unique_key'            => $remainingReceival->unique_key,
                 'bin_size'              => $unload->bin_size,
