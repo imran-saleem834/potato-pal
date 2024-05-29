@@ -3,56 +3,64 @@
 namespace App\Helpers;
 
 use App\Models\Cutting;
-use App\Models\Dispatch;
 use App\Models\Allocation;
-use App\Models\Reallocation;
-use App\Models\CuttingAllocation;
+use App\Models\AllocationItem;
 
 class DeleteRecordsHelper
 {
-    public static function deleteAllocation($id)
+    public static function deleteAllocation($allocation)
     {
-        Allocation::destroy($id);
-
-        static::deleteReallocationsByAllocationId($id);
-        static::deleteDisaptachesByAllocationId($id);
-        static::deleteCuttingByAllocationId($id);
-    }
-
-    private static function deleteReallocationsByAllocationId($id)
-    {
-        $reallocations = Reallocation::where('allocation_id', $id)->get();
-
-        foreach ($reallocations as $reallocation) {
-            static::deleteDisaptachByReallocationId($reallocation->id);
+        // Delete cutting
+        static::deleteCuttingByAllocationId($allocation->id);
+        
+        // Delete allocation returns and dispatch items
+        $allocation->returns()->delete();
+        foreach ($allocation->dispatchItems as $dispatchItem) {
+            $dispatchItem->allocatable()->delete();
+            $dispatchItem->delete();
         }
 
-        Reallocation::where('allocation_id', $id)->delete();
+        // Delete reallocation returns and dispatch items
+        foreach ($allocation->reallocationItems as $reallocationItem) {
+            $reallocation = $reallocationItem->allocatable;
+            static::deleteReallocation($reallocation);
+        }
+        
+        $allocation->item()->delete();
+        $allocation->delete();
     }
 
-    private static function deleteDisaptachesByAllocationId($id)
+    public static function deleteReallocation($reallocation)
     {
-        Dispatch::where('allocation_id', $id)->delete();
-    }
-
-    public static function deleteDisaptachByReallocationId($id)
-    {
-        Dispatch::where('reallocation_id', $id)->delete();
+        $reallocation->returns()->delete();
+        foreach ($reallocation->dispatchItems as $dispatchItem) {
+            $dispatchItem->allocatable()->delete();
+            $dispatchItem->delete();
+        }
+        $reallocation->item()->delete();
+        $reallocation->delete();
     }
 
     private static function deleteCuttingByAllocationId($id)
     {
         $cuttingIds         = [];
-        $cuttingAllocations = CuttingAllocation::where('allocation_id', $id)->get();
-        foreach ($cuttingAllocations as $cuttingAllocation) {
-            $cuttingIds[] = $cuttingAllocation->cutting_id;
-            $cuttingAllocation->delete();
+        $cuttingAllocationItems = AllocationItem::query()
+            ->where('allocatable_type', Cutting::class)
+            ->where('foreignable_type', Allocation::class)
+            ->where('foreignable_id', $id)
+            ->get();
+        foreach ($cuttingAllocationItems as $cuttingAllocationItem) {
+            $cuttingIds[] = $cuttingAllocationItem->allocatable_id;
+            $cuttingAllocationItem->delete();
         }
 
         // Remove Cutting if all it's allocations are removed
         $cuttingIds = array_unique($cuttingIds);
         foreach ($cuttingIds as $cuttingId) {
-            $isMoreCuttingAllocationExists = CuttingAllocation::where('cutting_id', $cuttingId)->exists();
+            $isMoreCuttingAllocationExists = AllocationItem::query()
+                ->where('allocatable_type', Cutting::class)
+                ->where('allocatable_id', $cuttingId)
+                ->exists();
             if (! $isMoreCuttingAllocationExists) {
                 Cutting::destroy($cuttingId);
             }

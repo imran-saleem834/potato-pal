@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from 'vue';
+import { reactive, ref, watch } from 'vue';
 import { router, Link } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import TopBar from '@/Components/TopBar.vue';
@@ -8,15 +8,14 @@ import LeftBar from '@/Components/LeftBar.vue';
 import Pagination from '@/Components/Pagination.vue';
 import { getCategoriesByType } from '@/helper.js';
 import { useWindowSize } from 'vue-window-size';
+import AllocationsModal from "@/Pages/Dispatch/Partials/AllocationsModal.vue";
+import ReturnsModal from "@/Pages/Dispatch/Partials/ReturnsModal.vue";
 
 const { width, height } = useWindowSize();
 
 const props = defineProps({
   dispatchBuyers: Object,
   single: Object,
-  allocations: Object,
-  reallocations: Object,
-  buyers: Object,
   filters: Object,
   errors: Object,
 });
@@ -27,6 +26,9 @@ const isNewRecord = ref(false);
 const isNewItemRecord = ref(false);
 const search = ref(props.filters.search);
 const details = ref(null);
+const selectIdentifier = ref(null);
+const selection = reactive({});
+const selectedReturnDispatch = ref(null);
 
 watch(
   () => props?.single,
@@ -82,6 +84,15 @@ const setNewRecord = () => {
   activeTab.value = null;
 };
 
+const setUpdateSelection = (identifier, id) => {
+  selectIdentifier.value = identifier;
+  selection[identifier] = { id: id, selected: {} };
+}
+
+const setReturnDispatch = (returnDispatch) => {
+  selectedReturnDispatch.value = returnDispatch;
+}
+
 if (width.value > 991) {
   setActiveTab(dispatches.value.data[0]?.buyer_id);
 }
@@ -129,9 +140,8 @@ if (width.value > 991) {
               ref="details"
               unique-key="newRecord"
               :is-new="true"
-              :allocations="allocations"
-              :reallocations="reallocations"
-              :buyers="buyers"
+              :selected-allocation="selection['newRecord']?.selected || {}"
+              @allocation="(id) => setUpdateSelection('newRecord', id)"
               @create="() => setActiveTab(dispatchBuyers[0]?.buyer_id)"
             />
             <template v-else>
@@ -206,19 +216,19 @@ if (width.value > 991) {
                 unique-key="newItemRecord"
                 :dispatch="{ buyer_id: activeTab?.buyer_id }"
                 :is-new-item="true"
-                :allocations="allocations"
-                :reallocations="reallocations"
-                :buyers="buyers"
+                :selected-allocation="selection['newItemRecord']?.selected || {}"
+                @allocation="(id) => setUpdateSelection('newItemRecord', id)"
                 @create="() => setActiveTab(activeTab?.buyer_id)"
               />
               <template v-for="dispatch in dispatches?.data" :key="dispatch.id">
+                <!--                  @setReturnDispatch="(returnDispatch) => selectedReturnDispatch => returnDispatch"-->
                 <Details
                   ref="details"
                   :unique-key="`${dispatch.id}`"
                   :dispatch="dispatch"
-                  :allocations="allocations"
-                  :reallocations="reallocations"
-                  :buyers="buyers"
+                  :selected-allocation="selection[dispatch.id]?.selected || {}"
+                  @allocation="(buyerId) => setUpdateSelection(dispatch.id, buyerId)"
+                  @setReturnDispatch="setReturnDispatch"
                   @delete="() => setActiveTab(dispatches?.data[0]?.buyer_id)"
                 />
               </template>
@@ -233,5 +243,15 @@ if (width.value > 991) {
         </div>
       </div>
     </div>
+    
+    <AllocationsModal
+      :buyer-id="selection[selectIdentifier]?.id"
+      @allocations="(allocations) => selection[selectIdentifier].selected = allocations"
+      @close="() => selection[selectIdentifier].id = null"
+    />
+    <ReturnsModal
+      :dispatch="selectedReturnDispatch"
+      @close="() => selectedReturnDispatch = null"
+    />
   </AppLayout>
 </template>

@@ -8,6 +8,8 @@ use App\Models\Unload;
 use App\Models\Receival;
 use App\Models\Allocation;
 use Illuminate\Http\Request;
+use App\Helpers\BuyerHelper;
+use App\Models\AllocationItem;
 use App\Helpers\ReceivalHelper;
 use App\Helpers\CategoriesHelper;
 use App\Helpers\NotificationHelper;
@@ -23,16 +25,7 @@ class AllocationController extends Controller
      */
     public function index(Request $request)
     {
-        $allocationBuyers = Allocation::select(['buyer_id'])
-            ->with(['buyer:id,buyer_name', 'buyer.categories.category'])
-            ->latest()
-            ->groupBy('buyer_id')
-            ->get()
-            ->map(function ($allocation) {
-                $allocation->id = $allocation->buyer_id;
-
-                return $allocation;
-            });
+        $allocationBuyers = BuyerHelper::getListOfModelBuyers(Allocation::class);
 
         $firstBuyerId = $allocationBuyers->first()->buyer_id ?? '';
         $inputBuyerId = $request->input('buyerId', $firstBuyerId);
@@ -45,65 +38,48 @@ class AllocationController extends Controller
         return Inertia::render('Allocation/Index', [
             'allocationBuyers' => $allocationBuyers,
             'single'           => $allocations,
-            'growers'          => fn () => $this->growers(),
-            'buyers'           => fn () => $this->buyers(),
+            'growers'          => fn () => BuyerHelper::getAvailableGrowers(),
+            'buyers'           => fn () => BuyerHelper::getAvailableBuyers(),
             'filters'          => $request->only(['search']),
         ]);
     }
 
-    private function growers()
+    public function receivals(Request $request, $id)
     {
-        $growers = User::query()
+        $grower = User::query()
             ->with(['remainingReceivals'])
             ->select(['id', 'grower_name'])
             ->whereJsonContains('role', 'grower')
-            ->get();
+            ->findOrFail($id);
 
         $receivals = collect([]);
-        foreach ($growers as $grower) {
-            foreach ($grower->remainingReceivals as $remainingReceival) {
-                if (empty($remainingReceival->receival_id)) {
-                    continue;
-                }
-                if (empty($remainingReceival->unload_id)) {
-                    continue;
-                }
-
-                $receivalId = $remainingReceival->receival_id[0];
-                $unloadId   = $remainingReceival->unload_id[0];
-                $receival   = Receival::select(['id', 'paddocks'])->with(['categories.category'])->find($receivalId);
-                $unload     = Unload::select(['id', 'bin_size'])->with(['categories.category'])->find($unloadId);
-
-                $receivals[] = [
-                    'remaining_receival_id' => $remainingReceival->id,
-                    'grower_id'             => $remainingReceival->grower_id,
-                    'unique_key'            => $remainingReceival->unique_key,
-                    'bin_size'              => $unload->bin_size,
-                    'paddock'               => $receival->paddocks[0] ?? '',
-                    'no_of_bins'            => $remainingReceival->no_of_bins,
-                    'weight'                => $remainingReceival->weight,
-                    'receival_categories'   => $receival->categories->toArray(),
-                    'unload_categories'     => $unload->categories->toArray(),
-                ];
+        foreach ($grower->remainingReceivals as $remainingReceival) {
+            if (empty($remainingReceival->receival_id)) {
+                continue;
             }
+            if (empty($remainingReceival->unload_id)) {
+                continue;
+            }
+
+            $receivalId = $remainingReceival->receival_id[0];
+            $unloadId   = $remainingReceival->unload_id[0];
+            $receival   = Receival::select(['id', 'paddocks'])->with(['categories.category'])->find($receivalId);
+            $unload     = Unload::select(['id', 'bin_size'])->with(['categories.category'])->find($unloadId);
+
+            $receivals[] = [
+                'remaining_receival_id' => $remainingReceival->id,
+                'grower_id'             => $remainingReceival->grower_id,
+                'unique_key'            => $remainingReceival->unique_key,
+                'bin_size'              => $unload->bin_size,
+                'paddock'               => $receival->paddocks[0] ?? '',
+                'no_of_bins'            => $remainingReceival->no_of_bins,
+                'weight'                => $remainingReceival->weight,
+                'receival_categories'   => $receival->categories->toArray(),
+                'unload_categories'     => $unload->categories->toArray(),
+            ];
         }
 
-        return $growers->map(function ($grower) use ($receivals) {
-            return [
-                'value'     => $grower->id,
-                'label'     => $grower->grower_name,
-                'receivals' => $receivals->where('grower_id', $grower->id)->values(),
-            ];
-        });
-    }
-
-    private function buyers()
-    {
-        return User::query()
-            ->select(['id', 'buyer_name'])
-            ->whereJsonContains('role', 'buyer')
-            ->get()
-            ->map(fn ($user) => ['value' => $user->id, 'label' => $user->buyer_name]);
+        return response()->json($receivals->values()->toArray());
     }
 
     /**
@@ -113,14 +89,16 @@ class AllocationController extends Controller
     {
         $allocation = Allocation::create($request->validated());
 
-        $inputs = $request->only([
-            'grower_group',
-            'seed_type',
-            'seed_variety',
-            'seed_generation',
-            'seed_class',
-        ]);
+        $inputs = $request->only(Allocation::CATEGORY_INPUTS);
         CategoriesHelper::createRelationOfTypes($inputs, $allocation->id, Allocation::class);
+
+        AllocationItem::create([
+            'allocatable_type' => Allocation::class,
+            'allocatable_id'   => $allocation->id,
+            'bin_size'         => $request->input('bin_size'),
+            'no_of_bins'       => $request->input('no_of_bins'),
+            'weight'           => $request->input('weight'),
+        ]);
 
         ReceivalHelper::calculateRemainingReceivals($allocation->grower_id);
 
@@ -139,14 +117,13 @@ class AllocationController extends Controller
         $allocation->update($request->validated());
         $allocation->save();
 
-        $inputs = $request->only([
-            'grower_group',
-            'seed_type',
-            'seed_variety',
-            'seed_generation',
-            'seed_class',
-        ]);
+        $inputs = $request->only(Allocation::CATEGORY_INPUTS);
         CategoriesHelper::createRelationOfTypes($inputs, $allocation->id, Allocation::class);
+
+        AllocationItem::updateOrCreate(
+            ['allocatable_type' => Allocation::class, 'allocatable_id' => $allocation->id],
+            $request->safe()->only(['bin_size', 'no_of_bins', 'weight'])
+        );
 
         ReceivalHelper::calculateRemainingReceivals($allocation->grower_id);
 
@@ -162,11 +139,11 @@ class AllocationController extends Controller
     {
         CategoriesHelper::deleteCategoryRelations($id, Allocation::class);
 
-        $allocation = Allocation::find($id);
+        $allocation = Allocation::with(['dispatchItems', 'reallocationItems.allocatable.dispatchItems'])->find($id);
         $buyerId    = $allocation->buyer_id;
         $growerId   = $allocation->grower_id;
 
-        DeleteRecordsHelper::deleteAllocation($id);
+        DeleteRecordsHelper::deleteAllocation($allocation);
 
         NotificationHelper::deleteAction('Allocation', $id);
 
@@ -184,22 +161,19 @@ class AllocationController extends Controller
     {
         return Allocation::query()
             ->with([
+                'item',
+                'returns',
                 'categories.category',
-                'cuttings.cutting',
                 'grower:id,grower_name',
             ])
-            ->withSum(['cuttings'], 'no_of_bins')
+            ->withSum(['cuttingItems'], 'no_of_bins')
             ->when($search, function ($query, $search) {
                 return $query->where(function ($subQuery) use ($search) {
                     return $subQuery
                         ->where('paddock', 'LIKE', "%{$search}%")
                         ->orWhere('comment', 'LIKE', "%{$search}%")
-                        ->orWhere('no_of_bins', 'LIKE', "%{$search}%")
-                        ->orWhere('bin_size', 'LIKE', "%{$search}%")
-                        ->orWhereRaw("CONCAT(`weight`, ' kg') LIKE '%{$search}%'")
                         ->orWhereRelation('grower', function (Builder $query) use ($search) {
-                            return $query->where('name', 'LIKE', "%{$search}%")
-                                ->orWhere('grower_name', 'LIKE', "%{$search}%");
+                            return $query->where('grower_name', 'LIKE', "%{$search}%");
                         })
                         ->orWhereRelation('categories.category', function (Builder $query) use ($search) {
                             return $query->where('name', 'LIKE', "%{$search}%");

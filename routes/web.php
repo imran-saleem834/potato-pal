@@ -69,6 +69,12 @@ Route::middleware([
     Route::resource('/allocations', AllocationController::class)->except(['create', 'edit', 'show']);
     Route::resource('/reallocations', ReallocationController::class)->except(['create', 'edit']);
     Route::resource('/dispatches', DispatchController::class)->except(['create', 'edit', 'show']);
+    Route::post('/returns', [DispatchController::class, 'returns'])->name('returns.store');
+
+    Route::get('/growers/{id}/receivals', [AllocationController::class, 'receivals'])->name('growers.receivals');
+    Route::get('/buyers/{id}/c/allocations', [CuttingController::class, 'allocations'])->name('c.buyers.allocations');
+    Route::get('/buyers/{id}/r/allocations', [ReallocationController::class, 'allocations'])->name('r.buyers.allocations');
+    Route::get('/buyers/{id}/d/allocations', [DispatchController::class, 'allocations'])->name('d.buyers.allocations');
 
     Route::get('/weighbridges', [WeighbridgeController::class, 'index'])->name('weighbridges.index');
 

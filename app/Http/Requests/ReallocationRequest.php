@@ -2,11 +2,9 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Allocation;
-use App\Models\Cutting;
-use App\Models\CuttingAllocation;
-use App\Models\Dispatch;
 use App\Models\Reallocation;
+use Illuminate\Validation\Rule;
+use App\Helpers\AllocationHelper;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ReallocationRequest extends FormRequest
@@ -26,38 +24,45 @@ class ReallocationRequest extends FormRequest
      */
     public function rules(): array
     {
-        // $allocation = Allocation::query()
-        //     ->select(['no_of_bins', 'weight'])
-        //     ->find($this->get('allocation_id'))
-        //     ->toArray();
+        $rules = [
+            'buyer_id'                          => ['required', 'numeric', 'exists:users,id'],
+            'allocation_buyer_id'               => ['required', 'numeric', 'exists:users,id'],
+            'comment'                           => ['nullable', 'string', 'max:255'],
+            'selected_allocation'               => ['required', 'array'],
+            'selected_allocation.id'            => [
+                'nullable',
+                'numeric',
+                'exists:allocations,id',
+            ],
+            'selected_allocation.item'          => ['required', 'array'],
+            'selected_allocation.item.bin_size' => ['required', 'numeric', Rule::in([500, 1000, 2000])],
+        ];
 
-        // $noOfBins = $cutting['no_of_bins'] ?? 0;
-        // $weight   = $allocation['weight'] ?? 0;
+        $inputs = $this->input('selected_allocation', []);
 
-        $noOfBins = CuttingAllocation::query()
-            ->where('allocation_id', $this->get('allocation_id'))
-            ->sum('no_of_bins');
+        $allocation = AllocationHelper::getAvailableAllocationForReallocation(['id' => $inputs['id']])->first();
 
-        $dispatchNoOfBins = Dispatch::where('allocation_id', $this->get('allocation_id'))->sum('no_of_bins');
-
-        $noOfBins -= $dispatchNoOfBins;
-
+        $binsInKg = $allocation->available_no_of_bins * $allocation->item->bin_size;
         if ($this->isMethod('PATCH')) {
-            $reallocation = Reallocation::select(['no_of_bins', 'weight'])->find($this->route('reallocation'));
+            $reallocation = Reallocation::query()
+                ->with(['item' => fn($query) => $query->where('foreignable_id', $allocation->id)])
+                ->find($this->route('reallocation'));
 
-            $noOfBins = $reallocation->no_of_bins + $noOfBins;
-            // $weight   = $reallocation->weight + $weight;
+            if (!empty($reallocation->item)) {
+                $binsInKg += $reallocation->item->no_of_bins * $reallocation->item->bin_size;
+            }
         }
 
-        return [
-            'buyer_id'            => ['required', 'numeric', 'exists:users,id'],
-            'allocation_buyer_id' => ['required', 'numeric', 'exists:users,id'],
-            'allocation_id'       => ['required', 'numeric', 'exists:allocations,id'],
-            'no_of_bins'          => ['required', 'numeric', 'gt:0', "max:$noOfBins"],
-            // 'weight'              => ['required', 'numeric', 'gt:0', "max:$weight"],
-            'weight'              => ['nullable'],
-            'comment'             => ['nullable', 'string', 'max:255'],
+        $allocation->available_no_of_bins = $binsInKg / $allocation->item->bin_size;
+
+        $rules["selected_allocation.no_of_bins"] = [
+            'required',
+            'numeric',
+            'gt:0',
+            "max:{$allocation->available_no_of_bins}",
         ];
+
+        return $rules;
     }
 
     /**
@@ -68,9 +73,11 @@ class ReallocationRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'buyer_id'            => 'reallocate to buyer',
-            'allocation_buyer_id' => 'reallocate from buyer',
-            'allocation_id'       => 'allocation',
+            'buyer_id'                          => 'reallocate to buyer',
+            'allocation_buyer_id'               => 'reallocate from buyer',
+            'selected_allocation'               => 'allocation',
+            'selected_allocation.allocation_id' => 'allocation',
+            'selected_allocation.no_of_bins'    => 'no of bins',
         ];
     }
 

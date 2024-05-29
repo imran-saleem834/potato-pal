@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from 'vue';
+import { reactive, ref, watch } from 'vue';
 import { router, Link } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import TopBar from '@/Components/TopBar.vue';
@@ -8,6 +8,7 @@ import Details from '@/Pages/Cutting/Details.vue';
 import Pagination from '@/Components/Pagination.vue';
 import { getCategoriesByType } from '@/helper.js';
 import { useWindowSize } from 'vue-window-size';
+import AllocationsModal from "@/Pages/Cutting/Partials/AllocationsModal.vue";
 
 const { width, height } = useWindowSize();
 
@@ -15,8 +16,6 @@ const props = defineProps({
   cuttingBuyers: Object,
   single: Object,
   allocations: Object,
-  categories: Object,
-  buyers: Object,
   filters: Object,
   errors: Object,
 });
@@ -27,6 +26,8 @@ const isNewRecord = ref(false);
 const isNewItemRecord = ref(false);
 const search = ref(props.filters.search);
 const details = ref(null);
+const selectIdentifier = ref(null);
+const selection = reactive({});
 
 watch(
   () => props?.single,
@@ -82,6 +83,11 @@ const setNewRecord = () => {
   activeTab.value = null;
 };
 
+const setUpdateSelection = (identifier, id) => {
+  selectIdentifier.value = identifier;
+  selection[identifier] = { id: id, selected: {} };
+}
+
 if (width.value > 991) {
   setActiveTab(cuttings.value.data[0]?.buyer_id);
 }
@@ -129,9 +135,8 @@ if (width.value > 991) {
               ref="details"
               unique-key="newRecord"
               :is-new="true"
-              :allocations="allocations"
-              :categories="categories"
-              :buyers="buyers"
+              :selected-allocations="selection['newRecord']?.selected || {}"
+              @allocation="(id) => setUpdateSelection('newRecord', id)"
               @create="() => setActiveTab(cuttingBuyers[0]?.buyer_id)"
             />
             <template v-else>
@@ -157,12 +162,7 @@ if (width.value > 991) {
                         </Link>
                       </td>
                       <td class="pb-0 border-0">
-                        <ul
-                          v-if="
-                            getCategoriesByType(activeTab?.buyer?.categories, 'buyer-group')
-                              .length > 0
-                          "
-                        >
+                        <ul v-if="getCategoriesByType(activeTab?.buyer?.categories, 'buyer-group').length > 0">
                           <li
                             v-for="category in getCategoriesByType(
                               activeTab?.buyer?.categories,
@@ -206,9 +206,8 @@ if (width.value > 991) {
                 unique-key="newItemRecord"
                 :cutting="{ buyer_id: activeTab?.buyer_id }"
                 :is-new-item="true"
-                :allocations="allocations"
-                :categories="categories"
-                :buyers="buyers"
+                :selected-allocations="selection['newItemRecord']?.selected || {}"
+                @allocation="(id) => setUpdateSelection('newItemRecord', id)"
                 @create="() => setActiveTab(activeTab?.buyer_id)"
               />
               <template v-for="cutting in cuttings?.data" :key="cutting.id">
@@ -216,9 +215,8 @@ if (width.value > 991) {
                   ref="details"
                   :unique-key="`${cutting.id}`"
                   :cutting="cutting"
-                  :allocations="allocations"
-                  :categories="categories"
-                  :buyers="buyers"
+                  :selected-allocations="selection[cutting.id]?.selected || {}"
+                  @allocation="(buyerId) => setUpdateSelection(cutting.id, buyerId)"
                   @delete="() => setActiveTab(cuttings?.data[0]?.buyer_id)"
                 />
               </template>
@@ -234,5 +232,11 @@ if (width.value > 991) {
         <div class="clearfix"></div>
       </div>
     </div>
+
+    <AllocationsModal
+      :buyer-id="selection[selectIdentifier]?.id"
+      @allocations="(allocations) => selection[selectIdentifier].selected = allocations"
+      @close="() => selection[selectIdentifier].id = null"
+    />
   </AppLayout>
 </template>

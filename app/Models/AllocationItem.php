@@ -3,9 +3,10 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class RemainingReceival extends Model
+class AllocationItem extends Model
 {
     use HasFactory;
 
@@ -15,10 +16,12 @@ class RemainingReceival extends Model
      * @var array<string>
      */
     protected $fillable = [
-        'grower_id',
-        'unique_key',
-        'receival_id',
-        'unload_id',
+        'allocatable_type',
+        'allocatable_id',
+        'foreignable_type',
+        'foreignable_id',
+        'is_returned',
+        'bin_size',
         'no_of_bins',
         'weight',
     ];
@@ -29,12 +32,16 @@ class RemainingReceival extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'receival_id' => 'array',
-        'unload_id'   => 'array',
+        'is_returned' => 'boolean',
     ];
 
-    public function receival()
+    public function allocatable(): MorphTo
     {
-        return $this->belongsTo(Receival::class);
+        return $this->morphTo();
+    }
+
+    public function foreignable(): MorphTo
+    {
+        return $this->morphTo();
     }
 }

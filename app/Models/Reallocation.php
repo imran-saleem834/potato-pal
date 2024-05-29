@@ -3,7 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 class Reallocation extends Model
 {
@@ -17,9 +19,6 @@ class Reallocation extends Model
     protected $fillable = [
         'buyer_id',
         'allocation_buyer_id',
-        'allocation_id',
-        'no_of_bins',
-        'weight',
         'comment',
     ];
 
@@ -33,13 +32,23 @@ class Reallocation extends Model
         return $this->belongsTo(User::class, 'allocation_buyer_id');
     }
 
-    public function allocation()
+    public function item(): MorphOne
     {
-        return $this->belongsTo(Allocation::class);
+        return $this->morphOne(AllocationItem::class, 'allocatable')
+            ->where('foreignable_type', Allocation::class);
     }
 
-    public function dispatches()
+    public function dispatchItems(): MorphMany
     {
-        return $this->hasMany(Dispatch::class);
+        return $this->morphMany(AllocationItem::class, 'foreignable')
+            ->where('allocatable_type', Dispatch::class)
+            ->where('is_returned', false);
+    }
+
+    public function returns(): MorphMany
+    {
+        return $this->morphMany(AllocationItem::class, 'foreignable')
+            ->where('allocatable_type', Dispatch::class)
+            ->where('is_returned', true);
     }
 }

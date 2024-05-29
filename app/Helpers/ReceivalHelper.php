@@ -96,11 +96,10 @@ class ReceivalHelper
                     ->where('grower_id', $growerId)
                     ->where('status', 'completed');
             })
-            ->pluck('unique_key')
-            ->unique()
+            ->pluck('bin_size', 'unique_key')
             ->toArray();
 
-        foreach ($uniqueKeys as $uniqueKey) {
+        foreach ($uniqueKeys as $uniqueKey => $binSize) {
             $remainingReceival = RemainingReceival::query()
                 ->where('grower_id', $growerId)
                 ->where('unique_key', $uniqueKey)
@@ -111,13 +110,15 @@ class ReceivalHelper
             }
 
             $allocations = Allocation::query()
+                ->select(['id'])
+                ->with(['item'])
                 ->where('grower_id', $growerId)
                 ->where('unique_key', $uniqueKey)
                 ->get();
 
             foreach ($allocations as $allocation) {
-                $remainingReceival->no_of_bins -= $allocation->no_of_bins;
-                $remainingReceival->weight     -= $allocation->weight;
+                $remainingReceival->no_of_bins -= $allocation->item->no_of_bins;
+                $remainingReceival->weight     -= $allocation->item->weight;
             }
 
             $remainingReceival->save();

@@ -18,7 +18,7 @@ const menus = [
   { route: route('reallocations.index'), image: 'reallocation.png', label: 'Reallocations' },
   { route: '', image: 'menu7.png', label: 'Invoices' },
   { route: '', image: 'menu8.png', label: 'Labels' },
-  { route: '', image: 'menu9.png', label: 'Dispatch' },
+  { route: route('dispatches.index'), image: 'menu9.png', label: 'Dispatch' },
   { route: '', image: 'menu10.png', label: 'Reports' },
   { route: route('cuttings.index'), image: 'cutting.png', label: 'Cutting' },
   { route: route('weighbridges.index'), image: 'menu12.png', label: 'Weighbridge' },

@@ -1,27 +1,18 @@
 <script setup>
-import moment from 'moment';
-import { useForm, Link } from '@inertiajs/vue3';
+import { useForm, usePage } from '@inertiajs/vue3';
+import { useToast } from 'vue-toastification';
 import { computed, onMounted, onUpdated, ref, watch } from 'vue';
 import Multiselect from '@vueform/multiselect';
-import DataTable from 'datatables.net-vue3';
-import DataTablesCore from 'datatables.net';
 import TextInput from '@/Components/TextInput.vue';
 import ConfirmedModal from '@/Components/ConfirmedModal.vue';
 import CustomDatePicker from '@/Components/CustomDatePicker.vue';
-import {
-  toTonnes,
-  getBinSizesValue,
-  getCategoryIdsByType,
-  getCategoryByKeyword,
-  getCategoriesDropDownByType,
-  getSingleCategoryNameByType,
-} from '@/helper.js';
-import { useToast } from 'vue-toastification';
 import * as bootstrap from 'bootstrap';
+import SingleDetailsView from "@/Pages/Cutting/Partials/SingleDetailsView.vue";
+import SelectedAllocationView from "@/Pages/Cutting/Partials/SelectedAllocationView.vue";
+import { getCategoryIdsByType, getCategoryByKeyword, getCategoriesDropDownByType } from '@/helper.js';
 
+const page = usePage();
 const toast = useToast();
-
-DataTable.use(DataTablesCore);
 
 const props = defineProps({
   uniqueKey: String,
@@ -37,19 +28,18 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  categories: Object,
-  allocations: Object,
-  buyers: Object,
+  selectedAllocations: Object,
 });
 
-const emit = defineEmits(['create', 'delete']);
+const emit = defineEmits(['allocation', 'create', 'delete']);
 
 const isEdit = ref(false);
+const loader = ref(false);
 
 const getDefaultCategoryId = (categories, type, keyword) => {
   let categoriesIds = getCategoryIdsByType(categories, type);
   if (categoriesIds.length <= 0) {
-    const defaultCategory = getCategoryByKeyword(props.categories, type, keyword);
+    const defaultCategory = getCategoryByKeyword(page.props.categories, type, keyword);
     if (defaultCategory) {
       categoriesIds = [defaultCategory.id];
     }
@@ -66,7 +56,7 @@ const form = useForm({
   cool_store: getDefaultCategoryId(props.cutting.categories, 'cool-store', 'Cherry Hill'),
   fungicide: getDefaultCategoryId(props.cutting.categories, 'fungicide', 'Mancozeb/Lime'),
   comment: props.cutting.comment,
-  selected_allocations: props.cutting.cutting_allocations || [],
+  selected_allocations: [],
 });
 
 watch(
@@ -84,33 +74,19 @@ watch(
     form.cool_store = getDefaultCategoryId(cutting.categories, 'cool-store', 'Cherry Hill');
     form.fungicide = getDefaultCategoryId(cutting.categories, 'fungicide', 'Mancozeb/Lime');
     form.comment = cutting.comment;
-    form.selected_allocations = cutting.cutting_allocations || [];
   },
 );
 
-const onSelectAllocation = (allocation) => {
-  const allocationExists = form.selected_allocations.find(
-    (alloc) => alloc.allocation_id === allocation.id,
-  );
-  if (allocationExists !== undefined) {
-    form.selected_allocations = form.selected_allocations.filter(
-      (alloc) => alloc.allocation_id !== allocation.id,
-    );
-  } else {
-    form.selected_allocations = [
-      ...form.selected_allocations,
-      {
-        allocation_id: allocation.id,
-        no_of_bins: '',
-        allocation,
-      },
-    ];
-  }
-};
+watch(
+  () => props.selectedAllocations,
+  (allocations) => {
+    if (allocations.length > 0) {
+      form.selected_allocations = allocations;
+    }
+  },
+);
 
-const onChangeBuyers = () => {
-  form.selected_allocations = [];
-};
+const onChangeBuyer = () => form.selected_allocations = [];
 
 const isForm = computed(() => {
   return isEdit.value || props.isNew || props.isNewItem;
@@ -118,6 +94,25 @@ const isForm = computed(() => {
 
 const setIsEdit = () => {
   isEdit.value = true;
+  loader.value = true;
+
+  axios.get(route('c.buyers.allocations', props.cutting.buyer_id))
+    .then((response) => {
+      form.selected_allocations = response.data.filter((allocation) => {
+        return props.cutting.items.some((item) => item.foreignable_id === allocation.id);
+      });
+      form.selected_allocations.map((allocation) => {
+        const item = props.cutting.items.find((item) => item.foreignable_id === allocation.id);
+        allocation.no_of_bins = item.no_of_bins;
+        return allocation;
+      });
+    })
+    .catch(() => {
+
+    })
+    .finally(() => {
+      loader.value = false
+    });
 };
 
 const updateRecord = () => {
@@ -190,24 +185,25 @@ defineExpose({
             <Multiselect
               v-if="isNew"
               v-model="form.buyer_id"
-              @change="onChangeBuyers"
+              @change="onChangeBuyer"
               mode="single"
               placeholder="Choose a buyer"
               :searchable="true"
-              :options="buyers"
+              :options="$page.props.buyers"
             />
             <input
               v-else
               type="text"
               class="form-control"
               :disabled="true"
-              v-model="buyers.find((buyer) => buyer.value === form.buyer_id).label"
+              v-model="$page.props.buyers.find((buyer) => buyer.value === form.buyer_id).label"
             />
             <button
               v-if="form.buyer_id"
               class="btn btn-red input-group-text px-1 px-sm-2"
               data-bs-toggle="modal"
-              :data-bs-target="`#allocations-${uniqueKey}`"
+              data-bs-target="#allocations-modal"
+              @click="emit('allocation', form.buyer_id)"
               v-text="'Select Allocations'"
             />
           </div>
@@ -226,71 +222,11 @@ defineExpose({
     </table>
 
     <template v-if="isForm">
-      <div v-if="form.selected_allocations.length" class="table-responsive">
-        <table class="table table-sm align-middle mb-3">
-          <thead>
-            <tr>
-              <th class="d-none d-md-table-cell">Grower</th>
-              <th class="d-none d-md-table-cell">Paddock</th>
-              <th class="d-none d-md-table-cell">Variety</th>
-              <th class="d-none d-md-table-cell">Gen.</th>
-              <th>Seed type</th>
-              <th class="d-none d-md-table-cell">Class</th>
-              <th>Bin size</th>
-              <th class="d-none d-md-table-cell">Weight</th>
-              <th>Available/No of bins</th>
-              <th>Bins to cut</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(sa, index) in form.selected_allocations" :key="index">
-              <td class="d-none d-md-table-cell text-primary">{{ sa.allocation.grower.grower_name }}</td>
-              <td class="d-none d-md-table-cell text-primary">{{ sa.allocation.paddock }}</td>
-              <td class="d-none d-md-table-cell text-primary">
-                {{ getSingleCategoryNameByType(sa.allocation.categories, 'seed-variety') || '-' }}
-              </td>
-              <td class="d-none d-md-table-cell text-primary">
-                {{ getSingleCategoryNameByType(sa.allocation.categories, 'seed-generation') || '-' }}
-              </td>
-              <td class="text-primary">
-                {{ getSingleCategoryNameByType(sa.allocation.categories, 'seed-type') || '-' }}
-                <a
-                  data-bs-toggle="tooltip"
-                  data-bs-html="true"
-                  class="d-md-none"
-                  :data-bs-title="`
-                    <div class='text-start'>
-                      Grower: ${sa.allocation.grower.grower_name}<br/>
-                      Paddock: ${sa.allocation.paddock}<br/>
-                      Variety: ${getSingleCategoryNameByType(sa.allocation.categories, 'seed-variety') || '-'}<br/>
-                      Gen.: ${getSingleCategoryNameByType(sa.allocation.categories, 'seed-generation') || '-'}<br/>
-                      Class: ${getSingleCategoryNameByType(sa.allocation.categories, 'seed-class') || '-'}<br/>
-                      Weight: ${toTonnes(sa.allocation.weight)}
-                    </div>
-                  `"
-                >
-                  <i class="bi bi-question-circle fs-6 text-black"></i>
-                </a>
-              </td>
-              <td class="d-none d-md-table-cell text-primary">
-                {{ getSingleCategoryNameByType(sa.allocation.categories, 'seed-class') || '-' }}
-              </td>
-              <td class="text-primary">{{ getBinSizesValue(sa.allocation.bin_size) }}</td>
-              <td class="d-none d-md-table-cell text-primary">{{ toTonnes(sa.allocation.weight) }}</td>
-              <td class="text-primary">
-                {{ `${sa.allocation.available_no_of_bins} / ${sa.allocation.no_of_bins}` }}
-              </td>
-              <td style="max-width: 150px">
-                <TextInput
-                  v-model="form.selected_allocations[index].no_of_bins"
-                  :error="form.errors[`selected_allocations.${index}.no_of_bins`]"
-                  type="text"
-                />
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <SelectedAllocationView 
+        :form="form"
+        :loader="loader"
+        :allocations="form.selected_allocations"
+      />
       <h4 class="mt-0 mb-3">Cutting Details</h4>
       <div class="row">
         <div class="col-12 col-sm-6 col-md-4 col-lg-6 col-xl-4 mb-3">
@@ -336,7 +272,7 @@ defineExpose({
             placeholder="Choose a cut by"
             :searchable="true"
             :create-option="true"
-            :options="getCategoriesDropDownByType(categories, 'cool-store')"
+            :options="getCategoriesDropDownByType($page.props.categories, 'cool-store')"
             :class="{ 'is-invalid': form.errors.cool_store }"
           />
           <div
@@ -353,7 +289,7 @@ defineExpose({
             placeholder="Choose a fungicide"
             :searchable="true"
             :create-option="true"
-            :options="getCategoriesDropDownByType(categories, 'fungicide')"
+            :options="getCategoriesDropDownByType($page.props.categories, 'fungicide')"
             :class="{ 'is-invalid': form.errors.fungicide }"
           />
           <div
@@ -406,194 +342,9 @@ defineExpose({
           <template v-else><i class="bi bi-trash"></i></template>
         </button>
       </div>
-      <table class="table table-sm align-middle">
-        <thead>
-        <tr>
-          <th>Allocation ID</th>
-          <th class="d-none d-md-table-cell">Grower</th>
-          <th class="d-none d-md-table-cell">Paddock</th>
-          <th class="d-none d-xl-table-cell">Variety</th>
-          <th class="d-none d-md-table-cell">Gen.</th>
-          <th>Seed type</th>
-          <th class="d-none d-xl-table-cell">Class</th>
-          <th>Bin size</th>
-          <th>Bins Tipped</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr v-for="ca in cutting.cutting_allocations" :key="ca.id">
-          <td>
-            <Link :href="route('allocations.index', { buyerId: ca.allocation?.buyer_id })">
-              {{ ca.allocation.id }}
-            </Link>
-          </td>
-          <td class="d-none d-md-table-cell text-primary">{{ ca.allocation?.grower?.grower_name }}</td>
-          <td class="d-none d-md-table-cell text-primary">{{ ca.allocation.paddock }}</td>
-          <td class="d-none d-xl-table-cell text-primary">
-            {{ getSingleCategoryNameByType(ca.allocation.categories, 'seed-variety') || '-' }}
-          </td>
-          <td class="d-none d-md-table-cell text-primary">
-            {{ getSingleCategoryNameByType(ca.allocation.categories, 'seed-generation') || '-' }}
-          </td>
-          <td class="text-primary">
-            {{ getSingleCategoryNameByType(ca.allocation.categories, 'seed-type') || '-' }}
-            <a
-              data-bs-toggle="tooltip"
-              data-bs-html="true"
-              class="d-xl-none"
-              :data-bs-title="`
-                <div class='text-start'>
-                  Grower: ${ca.allocation.grower.grower_name}<br/>
-                  Paddock: ${ca.allocation.paddock}<br/>
-                  Variety: ${getSingleCategoryNameByType(ca.allocation.categories, 'seed-variety') || '-'}<br/>
-                  Gen.: ${getSingleCategoryNameByType(ca.allocation.categories, 'seed-generation') || '-'}<br/>
-                  Class: ${getSingleCategoryNameByType(ca.allocation.categories, 'seed-class') || '-'}
-                </div>
-              `"
-            >
-              <i class="bi bi-question-circle fs-6 text-black"></i>
-            </a>
-          </td>
-          <td class="d-none d-xl-table-cell text-primary">
-            {{
-              getSingleCategoryNameByType(
-                ca.allocation.categories,
-                'seed-class',
-              ) || '-'
-            }}
-          </td>
-          <td class="text-primary">
-            {{ getBinSizesValue(ca.allocation.bin_size) }}
-          </td>
-          <td class="text-primary">{{ ca.no_of_bins }}</td>
-        </tr>
-        </tbody>
-      </table>
-      <h4 class="mt-0 mb-3">Cutting Details:</h4>
-      <div class="row allocation-items-box">
-        <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Bins Cut into:</span>
-        </div>
-        <div v-if="parseInt(cutting.half_tonnes) > 0" class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Half Tonne: </span>
-          <span class="text-primary">{{ cutting.half_tonnes || '0' }}</span>
-        </div>
-        <div v-if="parseInt(cutting.one_tonnes) > 0" class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>One Tonne: </span>
-          <span class="text-primary">{{ cutting.one_tonnes || '0' }}</span>
-        </div>
-        <div v-if="parseInt(cutting.two_tonnes) > 0" class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Two Tonne: </span>
-          <span class="text-primary">{{ cutting.two_tonnes || '0' }}</span>
-        </div>
-        <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Date cut: </span>
-          <span v-if="cutting.cut_date" class="text-primary">{{ moment(cutting.cut_date).format('DD MMM YYYY') }}</span>
-        </div>
-        <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Cut By: </span>
-          <span class="text-primary">
-            {{ getSingleCategoryNameByType(cutting.categories, 'cool-store') || '-' }}
-          </span>
-        </div>
-        <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Fungicide: </span>
-          <span class="text-primary">
-            {{ getSingleCategoryNameByType(cutting.categories, 'fungicide') || '-' }}
-          </span>
-        </div>
-        <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Comments: </span>
-          <span class="text-primary">{{ cutting.comment }}</span>
-        </div>
-      </div>
+      
+      <SingleDetailsView :cutting="cutting" />
     </template>
-  </div>
-
-  <div class="modal fade" :id="`allocations-${uniqueKey}`" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-xl">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">
-            <template v-if="form.selected_allocations.length > 0">
-              Selected {{ form.selected_allocations.length }} Allocations
-            </template>
-            <template v-else>Select Allocations</template>
-          </h5>
-          <button
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="modal"
-            aria-label="Close"
-          ></button>
-        </div>
-        <div class="modal-body">
-          <div class="table-responsive">
-            <table class="table mb-0">
-              <thead>
-                <tr>
-                  <th>Grower Group</th>
-                  <th>Grower</th>
-                  <th>Paddock</th>
-                  <th>Variety</th>
-                  <th>Gen</th>
-                  <th>Seed type</th>
-                  <th>Class</th>
-                  <th>Bin size</th>
-                  <th>Weight</th>
-                  <th>Available / No of bins</th>
-                  <th>Select</th>
-                </tr>
-              </thead>
-              <tbody>
-                <template v-for="allocation in allocations" :key="allocation.id">
-                  <tr v-if="form.buyer_id === allocation.buyer_id && isForm">
-                    <td>
-                      {{
-                        getSingleCategoryNameByType(allocation.categories, 'grower-group') || '-'
-                      }}
-                    </td>
-                    <td>{{ allocation.grower?.grower_name || '-' }}</td>
-                    <td>{{ allocation.paddock }}</td>
-                    <td>
-                      {{
-                        getSingleCategoryNameByType(allocation.categories, 'seed-variety') || '-'
-                      }}
-                    </td>
-                    <td>
-                      {{
-                        getSingleCategoryNameByType(allocation.categories, 'seed-generation') || '-'
-                      }}
-                    </td>
-                    <td>
-                      {{ getSingleCategoryNameByType(allocation.categories, 'seed-type') || '-' }}
-                    </td>
-                    <td>
-                      {{ getSingleCategoryNameByType(allocation.categories, 'seed-class') || '-' }}
-                    </td>
-                    <td>{{ getBinSizesValue(allocation.bin_size) }}</td>
-                    <td>{{ toTonnes(allocation.weight) }}</td>
-                    <td>{{ `${allocation.available_no_of_bins} / ${allocation.no_of_bins}` }}</td>
-                    <td>
-                      <input
-                        type="checkbox"
-                        :checked="
-                          form.selected_allocations.find(
-                            (cutting_allocation) =>
-                              cutting_allocation.allocation_id === allocation.id,
-                          )
-                        "
-                        @click="onSelectAllocation(allocation)"
-                      />
-                    </td>
-                  </tr>
-                </template>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 
   <ConfirmedModal
@@ -616,7 +367,3 @@ defineExpose({
     @ok="updateRecord"
   />
 </template>
-
-<style>
-@import 'datatables.net-dt';
-</style>

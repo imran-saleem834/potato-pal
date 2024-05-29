@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from 'vue';
+import { reactive, ref, watch } from 'vue';
 import { router, Link } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import TopBar from '@/Components/TopBar.vue';
@@ -8,14 +8,13 @@ import LeftBar from '@/Components/LeftBar.vue';
 import Pagination from '@/Components/Pagination.vue';
 import { getCategoriesByType } from '@/helper.js';
 import { useWindowSize } from 'vue-window-size';
+import AllocationsModal from "@/Pages/Reallocation/Partials/AllocationsModal.vue";
 
 const { width, height } = useWindowSize();
 
 const props = defineProps({
   reallocationBuyers: Object,
   single: Object,
-  allocations: Object,
-  buyers: Object,
   filters: Object,
   errors: Object,
 });
@@ -26,6 +25,8 @@ const isNewRecord = ref(false);
 const isNewItemRecord = ref(false);
 const search = ref(props.filters.search);
 const details = ref(null);
+const selectIdentifier = ref(null);
+const selection = reactive({});
 
 watch(
   () => props?.single,
@@ -81,6 +82,11 @@ const setNewRecord = () => {
   activeTab.value = null;
 };
 
+const setUpdateSelection = (identifier, id) => {
+  selectIdentifier.value = identifier;
+  selection[identifier] = { id: id, selected: {} };
+}
+
 if (width.value > 991) {
   setActiveTab(reallocations.value.data[0]?.buyer_id);
 }
@@ -128,8 +134,8 @@ if (width.value > 991) {
               ref="details"
               unique-key="newRecord"
               :is-new="true"
-              :allocations="allocations"
-              :buyers="buyers"
+              :selected-allocation="selection['newRecord']?.selected || {}"
+              @allocation="(id) => setUpdateSelection('newRecord', id)"
               @create="() => setActiveTab(reallocations[0]?.buyer_id)"
             />
             <template v-else>
@@ -145,27 +151,19 @@ if (width.value > 991) {
                   <tbody>
                     <tr class="align-middle border-0">
                       <td class="pb-0 d-none d-sm-table-cell border-0">
-                        <Link :href="route('users.index', { userId: activeTab?.buyer_id })">
-                          {{ activeTab?.buyer_id }}
+                        <Link :href="route('users.index', { userId: activeTab.buyer_id })">
+                          {{ activeTab.buyer_id }}
                         </Link>
                       </td>
                       <td class="pb-0 border-0">
-                        <Link :href="route('users.index', { userId: activeTab?.buyer_id })">
-                          {{ activeTab?.buyer?.buyer_name }}
+                        <Link :href="route('users.index', { userId: activeTab.buyer_id })">
+                          {{ activeTab.buyer?.buyer_name }}
                         </Link>
                       </td>
                       <td class="pb-0 border-0">
-                        <ul
-                          v-if="
-                            getCategoriesByType(activeTab?.buyer?.categories, 'buyer-group')
-                              .length > 0
-                          "
-                        >
+                        <ul v-if="getCategoriesByType(activeTab.buyer?.categories, 'buyer-group').length > 0">
                           <li
-                            v-for="category in getCategoriesByType(
-                              activeTab?.buyer?.categories,
-                              'buyer-group',
-                            )"
+                            v-for="category in getCategoriesByType(activeTab.buyer.categories, 'buyer-group')"
                             :key="category.id"
                           >
                             <a>{{ category.category.name }}</a>
@@ -204,8 +202,8 @@ if (width.value > 991) {
                 unique-key="newItemRecord"
                 :reallocation="{ buyer_id: activeTab?.buyer_id }"
                 :is-new-item="true"
-                :allocations="allocations"
-                :buyers="buyers"
+                :selected-allocation="selection['newItemRecord']?.selected || {}"
+                @allocation="(id) => setUpdateSelection('newItemRecord', id)"
                 @create="() => setActiveTab(activeTab?.buyer_id)"
               />
               <template v-for="reallocation in reallocations?.data" :key="reallocation.id">
@@ -213,8 +211,8 @@ if (width.value > 991) {
                   ref="details"
                   :unique-key="`${reallocation.id}`"
                   :reallocation="reallocation"
-                  :allocations="allocations"
-                  :buyers="buyers"
+                  :selected-allocation="selection[reallocation.id]?.selected || {}"
+                  @allocation="(buyerId) => setUpdateSelection(reallocation.id, buyerId)"
                   @delete="() => setActiveTab(reallocations?.data[0]?.buyer_id)"
                 />
               </template>
@@ -229,5 +227,11 @@ if (width.value > 991) {
         </div>
       </div>
     </div>
+    
+    <AllocationsModal
+      :buyer-id="selection[selectIdentifier]?.id"
+      @allocations="(allocations) => selection[selectIdentifier].selected = allocations"
+      @close="() => selection[selectIdentifier].id = null"
+    />
   </AppLayout>
 </template>

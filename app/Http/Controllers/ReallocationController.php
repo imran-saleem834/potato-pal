@@ -2,34 +2,28 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
+use App\Helpers\DeleteRecordsHelper;
+use App\Models\Dispatch;
 use Inertia\Inertia;
 use App\Models\Allocation;
+use App\Helpers\BuyerHelper;
 use App\Models\Reallocation;
 use Illuminate\Http\Request;
+use App\Models\AllocationItem;
+use App\Helpers\AllocationHelper;
 use App\Helpers\NotificationHelper;
-use App\Helpers\DeleteRecordsHelper;
 use Illuminate\Database\Eloquent\Builder;
 use App\Http\Requests\ReallocationRequest;
 
 class ReallocationController extends Controller
 {
     /**
-     * @param  Request  $request
+     * @param Request $request
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
-        $reallocationBuyers = Reallocation::select('buyer_id')
-            ->with(['buyer:id,buyer_name', 'buyer.categories.category'])
-            ->latest()
-            ->groupBy('buyer_id')
-            ->get()
-            ->map(function ($reallocation) {
-                $reallocation->id = $reallocation->buyer_id;
-
-                return $reallocation;
-            });
+        $reallocationBuyers = BuyerHelper::getListOfModelBuyers(Reallocation::class);
 
         $firstBuyerId = $reallocationBuyers->first()->buyer_id ?? '';
         $inputBuyerId = $request->input('buyerId', $firstBuyerId);
@@ -39,39 +33,22 @@ class ReallocationController extends Controller
             $reallocations = $this->getReallocations($firstBuyerId, $request->input('search'));
         }
 
-        $allocations = Allocation::query()
-            ->with(['grower', 'cuttings', 'dispatches', 'reallocations', 'categories.category'])
-            ->get()
-            ->map(function ($allocation) {
-                $allocation->no_of_bins = $allocation->cuttings->sum('no_of_bins');
-                foreach ($allocation->dispatches as $dispatch) {
-                    $allocation->no_of_bins -= $dispatch->no_of_bins;
-                    // $allocation->weight     -= $dispatch->weight;
-                }
-                foreach ($allocation->reallocations as $reallocation) {
-                    $allocation->no_of_bins -= $reallocation->no_of_bins;
-                    // $allocation->weight     -= $reallocation->weight;
-                }
-
-                return $allocation;
-            });
-
         return Inertia::render('Reallocation/Index', [
             'reallocationBuyers' => $reallocationBuyers,
             'single'             => $reallocations,
-            'allocations'        => $allocations,
-            'buyers'             => fn () => $this->buyers(),
+            'buyers'             => fn() => BuyerHelper::getAvailableBuyers(),
             'filters'            => $request->only(['search']),
         ]);
     }
 
-    private function buyers()
+    public function allocations(Request $request, $id)
     {
-        return User::query()
-            ->select(['id', 'buyer_name'])
-            ->whereJsonContains('role', 'buyer')
-            ->get()
-            ->map(fn ($user) => ['value' => $user->id, 'label' => $user->buyer_name]);
+        $allocations = AllocationHelper::getAvailableAllocationForReallocation(
+            ['buyer_id' => $id],
+            ['categories.category', 'grower:id,grower_name']
+        );
+        
+        return response()->json($allocations);
     }
 
     /**
@@ -80,6 +57,17 @@ class ReallocationController extends Controller
     public function store(ReallocationRequest $request)
     {
         $reallocation = Reallocation::create($request->validated());
+
+        $inputs = $request->validated('selected_allocation');
+
+        AllocationItem::create([
+            'allocatable_type' => Reallocation::class,
+            'allocatable_id'   => $reallocation->id,
+            'foreignable_type' => Allocation::class,
+            'foreignable_id'   => $inputs['id'],
+            'bin_size'         => $inputs['item']['bin_size'],
+            'no_of_bins'       => $inputs['no_of_bins'],
+        ]);
 
         NotificationHelper::addedAction('Reallocation', $reallocation->id);
 
@@ -92,13 +80,33 @@ class ReallocationController extends Controller
     public function update(ReallocationRequest $request, string $id)
     {
         $reallocation = Reallocation::find($id);
-        $buyerId      = $reallocation->buyer_id;
         $reallocation->update($request->validated());
         $reallocation->save();
 
+        $inputs = $request->validated('selected_allocation');
+        $item   = AllocationItem::updateOrCreate(
+            [
+                'allocatable_type' => Reallocation::class,
+                'allocatable_id'   => $reallocation->id,
+                'foreignable_type' => Allocation::class,
+                'foreignable_id'   => $inputs['id']
+            ],
+            [
+                'bin_size'   => $inputs['item']['bin_size'],
+                'no_of_bins' => $inputs['no_of_bins']
+            ]
+        );
+
+        // Delete those who where not comes to update or create
+        AllocationItem::query()
+            ->where('allocatable_type', Reallocation::class)
+            ->where('allocatable_id', $reallocation->id)
+            ->whereNotIn('id', [$item->id])
+            ->delete();
+
         NotificationHelper::updatedAction('Reallocation', $id);
 
-        return to_route('reallocations.index', ['buyerId' => $buyerId]);
+        return to_route('reallocations.index', ['buyerId' => $reallocation->buyer_id]);
     }
 
     /**
@@ -108,10 +116,9 @@ class ReallocationController extends Controller
     {
         $reallocation = Reallocation::find($id);
         $buyerId      = $reallocation->buyer_id;
-        $reallocation->delete();
-
-        DeleteRecordsHelper::deleteDisaptachByReallocationId($id);
-
+        
+        DeleteRecordsHelper::deleteReallocation($reallocation);
+        
         NotificationHelper::deleteAction('Reallocation', $id);
 
         $isReallocationExists = Reallocation::where('buyer_id', $buyerId)->exists();
@@ -126,20 +133,25 @@ class ReallocationController extends Controller
     {
         return Reallocation::query()
             ->with([
-                'allocation.categories.category',
-                'allocationBuyer:id,buyer_name',
+                'returns',
+                'allocationBuyer',
+                'item.foreignable.grower:id,grower_name',
+                'item.foreignable.categories.category',
             ])
             ->when($search, function ($query, $search) {
                 return $query->where(function ($subQuery) use ($search) {
                     return $subQuery
                         ->orWhere('comment', 'LIKE', "%{$search}%")
-                        ->orWhere('no_of_bins', 'LIKE', "%{$search}%")
-                        ->orWhere('weight', 'LIKE', "%{$search}%")
-                        ->orWhereRelation('allocation', function (Builder $query) use ($search) {
-                            return $query->where('paddock', 'LIKE', "%{$search}%")
-                                ->orWhere('bin_size', 'LIKE', "%{$search}%");
+                        ->orWhereRelation('allocationBuyer', function (Builder $query) use ($search) {
+                            return $query->where('buyer_name', 'LIKE', "%{$search}%");
                         })
-                        ->orWhereRelation('allocation.categories.category', function (Builder $query) use ($search) {
+                        ->orWhereRelation('item.foreignable', function (Builder $query) use ($search) {
+                            return $query->where('paddock', 'LIKE', "%{$search}%");
+                        })
+                        ->orWhereRelation('item.foreignable.grower', function (Builder $query) use ($search) {
+                            return $query->where('grower_name', 'LIKE', "%{$search}%");
+                        })
+                        ->orWhereRelation('item.foreignable.categories.category', function (Builder $query) use ($search) {
                             return $query->where('name', 'LIKE', "%{$search}%");
                         });
                 });

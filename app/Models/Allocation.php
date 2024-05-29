@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -19,11 +20,16 @@ class Allocation extends Model
         'buyer_id',
         'grower_id',
         'unique_key',
-        'no_of_bins',
-        'weight',
-        'bin_size',
         'paddock',
         'comment',
+    ];
+
+    const CATEGORY_INPUTS = [
+        'grower_group',
+        'seed_type',
+        'seed_variety',
+        'seed_generation',
+        'seed_class',
     ];
 
     public function buyer()
@@ -36,19 +42,36 @@ class Allocation extends Model
         return $this->belongsTo(User::class, 'grower_id');
     }
 
-    public function cuttings()
+    public function item(): MorphOne
     {
-        return $this->hasMany(CuttingAllocation::class);
+        return $this->morphOne(AllocationItem::class, 'allocatable')
+            ->whereNull('foreignable_type');
     }
 
-    public function reallocations()
+    public function cuttingItems(): MorphMany
     {
-        return $this->hasMany(Reallocation::class);
+        return $this->morphMany(AllocationItem::class, 'foreignable')
+            ->where('allocatable_type', Cutting::class);
     }
 
-    public function dispatches()
+    public function reallocationItems(): MorphMany
     {
-        return $this->hasMany(Dispatch::class);
+        return $this->morphMany(AllocationItem::class, 'foreignable')
+            ->where('allocatable_type', Reallocation::class);
+    }
+
+    public function dispatchItems(): MorphMany
+    {
+        return $this->morphMany(AllocationItem::class, 'foreignable')
+            ->where('allocatable_type', Dispatch::class)
+            ->where('is_returned', false);
+    }
+
+    public function returns(): MorphMany
+    {
+        return $this->morphMany(AllocationItem::class, 'foreignable')
+            ->where('allocatable_type', Dispatch::class)
+            ->where('is_returned', true);
     }
 
     public function categories(): MorphMany

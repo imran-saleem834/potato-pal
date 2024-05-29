@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from 'vue';
+import { reactive, ref, watch } from 'vue';
 import { router, Link } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import TopBar from '@/Components/TopBar.vue';
@@ -8,14 +8,13 @@ import LeftBar from '@/Components/LeftBar.vue';
 import Pagination from '@/Components/Pagination.vue';
 import { getCategoriesByType } from '@/helper.js';
 import { useWindowSize } from 'vue-window-size';
+import ReceivalsModal from "@/Pages/Allocation/Partials/ReceivalsModal.vue";
 
 const { width, height } = useWindowSize();
 
 const props = defineProps({
   allocationBuyers: Object,
   single: Object,
-  growers: Object,
-  buyers: Object,
   filters: Object,
   errors: Object,
 });
@@ -26,6 +25,8 @@ const isNewRecord = ref(false);
 const isNewItemRecord = ref(false);
 const search = ref(props.filters.search);
 const details = ref(null);
+const selectIdentifier = ref(null);
+const selection = reactive({});
 
 watch(
   () => props?.single,
@@ -81,6 +82,11 @@ const setNewRecord = () => {
   activeTab.value = null;
 };
 
+const setUpdateSelection = (identifier, id) => {
+  selectIdentifier.value = identifier;
+  selection[identifier] = { id: id, selected: {} };
+}
+
 if (width.value > 991) {
   setActiveTab(allocations.value.data[0]?.buyer_id);
 }
@@ -128,51 +134,45 @@ if (width.value > 991) {
               ref="details"
               unique-key="newRecord"
               :is-new="true"
-              :growers="growers"
-              :buyers="buyers"
+              :selected-receival="selection['newRecord']?.selected || {}"
+              @grower="(id) => setUpdateSelection('newRecord', id)"
               @create="() => setActiveTab(allocationBuyers[0]?.buyer_id)"
             />
             <template v-else>
               <div v-if="activeTab" class="user-boxes">
                 <table class="table input-table mb-0">
                   <thead>
-                    <tr>
-                      <th class="d-none d-sm-table-cell">Buyer ID</th>
-                      <th>Buyer Name</th>
-                      <th>Buyer Group</th>
-                    </tr>
+                  <tr>
+                    <th class="d-none d-sm-table-cell">Buyer ID</th>
+                    <th>Buyer Name</th>
+                    <th>Buyer Group</th>
+                  </tr>
                   </thead>
                   <tbody>
-                    <tr class="align-middle border-0">
-                      <td class="pb-0 d-none d-sm-table-cell border-0">
-                        <Link :href="route('users.index', { userId: activeTab?.buyer_id })">
-                          {{ activeTab?.buyer_id }}
-                        </Link>
-                      </td>
-                      <td class="pb-0 border-0">
-                        <Link :href="route('users.index', { userId: activeTab?.buyer_id })">
-                          {{ activeTab?.buyer?.buyer_name }}
-                        </Link>
-                      </td>
-                      <td class="pb-0 border-0">
-                        <ul
-                          v-if="
-                            getCategoriesByType(activeTab?.buyer?.categories, 'buyer-group')
-                              .length > 0
-                          "
+                  <tr class="align-middle border-0">
+                    <td class="pb-0 d-none d-sm-table-cell border-0">
+                      <Link :href="route('users.index', { userId: activeTab?.buyer_id })">
+                        {{ activeTab?.buyer_id }}
+                      </Link>
+                    </td>
+                    <td class="pb-0 border-0">
+                      <Link :href="route('users.index', { userId: activeTab?.buyer_id })">
+                        {{ activeTab?.buyer?.buyer_name }}
+                      </Link>
+                    </td>
+                    <td class="pb-0 border-0">
+                      <ul
+                        v-if="getCategoriesByType(activeTab?.buyer?.categories, 'buyer-group').length > 0"
+                      >
+                        <li
+                          v-for="category in getCategoriesByType(activeTab?.buyer?.categories,'buyer-group')"
+                          :key="category.id"
                         >
-                          <li
-                            v-for="category in getCategoriesByType(
-                              activeTab?.buyer?.categories,
-                              'buyer-group',
-                            )"
-                            :key="category.id"
-                          >
-                            <a>{{ category.category.name }}</a>
-                          </li>
-                        </ul>
-                      </td>
-                    </tr>
+                          <a>{{ category.category.name }}</a>
+                        </li>
+                      </ul>
+                    </td>
+                  </tr>
                   </tbody>
                 </table>
               </div>
@@ -204,8 +204,8 @@ if (width.value > 991) {
                 unique-key="newItemRecord"
                 :allocation="{ buyer_id: activeTab?.buyer_id }"
                 :is-new-item="true"
-                :growers="growers"
-                :buyers="buyers"
+                :selected-receival="selection['newItemRecord']?.selected || {}"
+                @grower="(id) => setUpdateSelection('newItemRecord', id)"
                 @create="() => setActiveTab(activeTab?.buyer_id)"
               />
               <template v-for="allocation in allocations?.data" :key="allocation.id">
@@ -213,8 +213,8 @@ if (width.value > 991) {
                   ref="details"
                   :unique-key="`${allocation.id}`"
                   :allocation="allocation"
-                  :growers="growers"
-                  :buyers="buyers"
+                  :selected-receival="selection[allocation.id]?.selected || {}"
+                  @grower="(growerId) => setUpdateSelection(allocation.id, growerId)"
                   @delete="() => setActiveTab(allocations?.data[0]?.buyer_id)"
                 />
               </template>
@@ -229,5 +229,11 @@ if (width.value > 991) {
         </div>
       </div>
     </div>
+
+    <ReceivalsModal
+      :grower-id="selection[selectIdentifier]?.id"
+      @receival="(receival) => selection[selectIdentifier].selected = receival"
+      @close="() => selection[selectIdentifier].id = null"
+    />
   </AppLayout>
 </template>

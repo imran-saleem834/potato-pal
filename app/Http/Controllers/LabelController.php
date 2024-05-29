@@ -50,8 +50,8 @@ class LabelController extends Controller
     {
         return Allocation::query()
             ->with([
-                'buyer'  => fn ($query) => $query->select(['id', 'buyer_name']),
-                'grower' => fn ($query) => $query->select(['id', 'grower_name']),
+                'buyer:id,buyer_name',
+                'grower:id,grower_name',
             ])
             ->get();
     }
@@ -61,9 +61,9 @@ class LabelController extends Controller
         return Reallocation::query()
             ->with([
                 'buyer'             => fn ($query) => $query->select(['id', 'buyer_name']),
-                'allocation:id,buyer_id,grower_id,bin_size,paddock',
-                'allocation.buyer'  => fn ($query) => $query->select(['id', 'buyer_name']),
-                'allocation.grower' => fn ($query) => $query->select(['id', 'grower_name']),
+                'allocation.item',
+                'allocation.buyer:id,buyer_name',
+                'allocation.grower:id,grower_name',
             ])
             ->get();
     }
@@ -72,9 +72,9 @@ class LabelController extends Controller
     {
         return CuttingAllocation::query()
             ->with([
-                'allocation:id,buyer_id,grower_id,bin_size,paddock',
-                'allocation.buyer'  => fn ($query) => $query->select(['id', 'buyer_name']),
-                'allocation.grower' => fn ($query) => $query->select(['id', 'grower_name']),
+                'allocation.item',
+                'allocation.buyer:id,buyer_name',
+                'allocation.grower:id,grower_name',
             ])
             ->get();
     }

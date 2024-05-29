@@ -1,22 +1,15 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
-import { useForm, Link } from '@inertiajs/vue3';
-import {
-  toTonnes,
-  getBinSizesValue,
-  getCategoryIdsByType,
-  getSingleCategoryNameByType,
-} from '@/helper.js';
+import { useForm } from '@inertiajs/vue3';
+import { getCategoryIdsByType } from '@/helper.js';
 import Multiselect from '@vueform/multiselect';
 import TextInput from '@/Components/TextInput.vue';
-import DataTable from 'datatables.net-vue3';
-import DataTablesCore from 'datatables.net';
 import { useToast } from 'vue-toastification';
 import ConfirmedModal from '@/Components/ConfirmedModal.vue';
+import SingleDetailsView from "@/Pages/Allocation/Partials/SingleDetailsView.vue";
+import SelectedReceivalView from "@/Pages/Allocation/Partials/SelectedReceivalView.vue";
 
 const toast = useToast();
-
-DataTable.use(DataTablesCore);
 
 const props = defineProps({
   uniqueKey: String,
@@ -32,21 +25,21 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  growers: Object,
-  buyers: Object,
+  selectedReceival: Object,
 });
 
-const emit = defineEmits(['create', 'delete']);
+const emit = defineEmits(['grower', 'create', 'delete']);
 
 const isEdit = ref(false);
+const loader = ref(false);
 
 const form = useForm({
   buyer_id: props.allocation.buyer_id,
   grower_id: props.allocation.grower_id,
   unique_key: props.allocation.unique_key,
-  no_of_bins: props.allocation.no_of_bins,
-  weight: props.allocation.weight / 1000,
-  bin_size: props.allocation.bin_size,
+  no_of_bins: props.allocation.item?.no_of_bins,
+  weight: (props.allocation.item?.weight || 0) / 1000,
+  bin_size: props.allocation.item?.bin_size,
   paddock: props.allocation.paddock,
   comment: props.allocation.comment,
   grower_group: getCategoryIdsByType(props.allocation.categories, 'grower-group'),
@@ -67,9 +60,9 @@ watch(
     form.buyer_id = allocation.buyer_id;
     form.grower_id = allocation.grower_id;
     form.unique_key = allocation.unique_key;
-    form.no_of_bins = allocation.no_of_bins;
-    form.weight = allocation.weight / 1000;
-    form.bin_size = allocation.bin_size;
+    form.no_of_bins = allocation.item?.no_of_bins;
+    form.weight = (allocation.item?.weight || 0) / 1000;
+    form.bin_size = allocation.item?.bin_size;
     form.paddock = allocation.paddock;
     form.comment = allocation.comment;
     form.grower_group = getCategoryIdsByType(allocation.categories, 'grower-group');
@@ -77,21 +70,17 @@ watch(
     form.seed_variety = getCategoryIdsByType(allocation.categories, 'seed-variety');
     form.seed_generation = getCategoryIdsByType(allocation.categories, 'seed-generation');
     form.seed_class = getCategoryIdsByType(allocation.categories, 'seed-class');
-
-    if (allocation.unique_key) {
-      selectReceivalOnEdit(allocation);
-    }
   },
 );
 
-const selectReceivalOnEdit = (allocation) => {
-  form.select_receival =
-    props.growers
-      ?.find((grower) => grower.value === allocation.grower_id)
-      ?.receivals?.find((receival) => receival.unique_key === allocation.unique_key) || {};
-};
-
-selectReceivalOnEdit(props.allocation);
+watch(
+  () => props.selectedReceival,
+  (receival) => {
+    if (Object.values(receival).length > 0) {
+      onSelectReceival(receival);
+    }
+  },
+);
 
 const onSelectReceival = (receival) => {
   form.select_receival = receival;
@@ -120,6 +109,20 @@ const isForm = computed(() => {
 
 const setIsEdit = () => {
   isEdit.value = true;
+  loader.value = true;
+  
+  if (props.allocation.unique_key) {
+    axios.get(route('growers.receivals', props.allocation.grower_id))
+      .then((response) => {
+        form.select_receival = response.data.find((receival) => receival.unique_key === props.allocation.unique_key) || {};
+      })
+      .catch(() => {
+
+      })
+      .finally(() => {
+        loader.value = false
+      });
+  }
 };
 
 const updateRecord = () => {
@@ -171,7 +174,7 @@ defineExpose({
             mode="single"
             placeholder="Choose a buyer"
             :searchable="true"
-            :options="buyers"
+            :options="$page.props.buyers"
             :class="{ 'is-invalid': form.errors.buyer_id }"
           />
           <div
@@ -197,15 +200,16 @@ defineExpose({
               mode="single"
               placeholder="Choose a grower"
               :searchable="true"
-              :options="growers"
+              :options="$page.props.growers"
               :class="{ 'is-invalid': form.errors.grower_id || form.errors.unique_key }"
             />
             <button
               v-if="form.grower_id"
               class="btn btn-red input-group-text px-1 px-sm-2"
               data-bs-toggle="modal"
-              :data-bs-target="`#receivals-${uniqueKey}`"
+              data-bs-target="#receival-modals"
               v-text="'Select Receival'"
+              @click="emit('grower', form.grower_id)"
             />
           </div>
           <div
@@ -222,28 +226,11 @@ defineExpose({
       </tr>
     </table>
 
-    <div v-if="isForm && Object.values(form.select_receival).length" class="table-responsive">
-      <table class="table table-sm">
-        <thead>
-          <tr>
-            <th>Seed type</th>
-            <th>Bin size</th>
-            <th>Bins available</th>
-            <th>Weight</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td class="text-primary">
-              {{ getSingleCategoryNameByType(form.select_receival.unload_categories, 'seed-type') }}
-            </td>
-            <td class="text-primary">{{ getBinSizesValue(form.select_receival.bin_size) }}</td>
-            <td class="text-center text-md-start text-primary">{{ form.select_receival.no_of_bins }}</td>
-            <td class="text-primary">{{ toTonnes(form.select_receival.weight) }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <SelectedReceivalView
+      v-if="isForm"
+      :loader="loader"
+      :receival="form.select_receival"
+    />
 
     <template v-if="isForm">
       <div class="row">
@@ -305,147 +292,9 @@ defineExpose({
           <template v-else><i class="bi bi-trash"></i></template>
         </button>
       </div>
-      <div class="row allocation-items-box">
-        <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Grower: </span>
-          <Link :href="route('users.index', { userId: allocation.grower_id })" class="text-primary">
-            {{ allocation.grower?.grower_name }}
-          </Link>
-        </div>
-        <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Paddock: </span>
-          <span class="text-primary">{{ allocation.paddock }}</span>
-        </div>
-        <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Variety: </span>
-          <span class="text-primary">
-            {{ getSingleCategoryNameByType(allocation.categories, 'seed-variety') || '-' }}
-          </span>
-        </div>
-        <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Gen: </span>
-          <span class="text-primary">
-            {{ getSingleCategoryNameByType(allocation.categories, 'seed-generation') || '-' }}
-          </span>
-        </div>
-        <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Bin size: </span>
-          <span class="text-primary">{{ getBinSizesValue(allocation.bin_size) }}</span>
-        </div>
-        <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Allocated bins: </span>
-          <span class="text-primary">{{ allocation.no_of_bins }}</span>
-        </div>
-        <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Allocated weight: </span>
-          <span class="text-primary">{{ toTonnes(allocation.weight) }}</span>
-        </div>
-        <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Bins tipped for cutting: </span>
-          <span class="text-primary">{{ allocation.cuttings_sum_no_of_bins || '0' }}</span>
-        </div>
-        <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Class: </span>
-          <span class="text-primary">
-            {{ getSingleCategoryNameByType(allocation.categories, 'seed-class') || '-' }}
-          </span>
-        </div>
-        <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Grower Group: </span>
-          <span class="text-primary">
-            {{ getSingleCategoryNameByType(allocation.categories, 'grower-group') || '-' }}
-          </span>
-        </div>
-        <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Seed type: </span>
-          <span class="text-primary">
-            {{ getSingleCategoryNameByType(allocation.categories, 'seed-type') || '-' }}
-          </span>
-        </div>
-        <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Comments: </span>
-          <span class="text-primary">{{ allocation.comment }}</span>
-        </div>
-      </div>
+      
+      <SingleDetailsView :allocation="allocation" />
     </template>
-  </div>
-
-  <div class="modal fade" :id="`receivals-${uniqueKey}`" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-xl">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" :id="`receivals-${uniqueKey}-label`">Select Receival</h5>
-          <button
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="modal"
-            aria-label="Close"
-          ></button>
-        </div>
-        <div class="modal-body">
-          <template v-for="grower in growers" :key="grower.value">
-            <div v-if="form.grower_id === grower.value && isForm" class="table-responsive">
-              <DataTable class="table mb-0">
-                <thead>
-                  <tr>
-                    <th>Grower Group</th>
-                    <th>Paddock</th>
-                    <th>Variety</th>
-                    <th>Gen</th>
-                    <th>Seed type</th>
-                    <th>Class</th>
-                    <th>Bin size</th>
-                    <th>No of bins</th>
-                    <th>Weight</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <template v-for="receival in grower?.receivals" :key="receival.id">
-                    <tr
-                      v-if="receival.no_of_bins > 0 || receival.weight > 0"
-                      @click="() => onSelectReceival(receival)"
-                      style="cursor: pointer"
-                      data-bs-dismiss="modal"
-                    >
-                      <td>
-                        {{
-                          getSingleCategoryNameByType(receival.receival_categories, 'grower-group')
-                        }}
-                      </td>
-                      <td>{{ receival.paddock }}</td>
-                      <td>
-                        {{
-                          getSingleCategoryNameByType(receival.receival_categories, 'seed-variety')
-                        }}
-                      </td>
-                      <td>
-                        {{
-                          getSingleCategoryNameByType(
-                            receival.receival_categories,
-                            'seed-generation',
-                          )
-                        }}
-                      </td>
-                      <td>
-                        {{ getSingleCategoryNameByType(receival.unload_categories, 'seed-type') }}
-                      </td>
-                      <td>
-                        {{
-                          getSingleCategoryNameByType(receival.receival_categories, 'seed-class')
-                        }}
-                      </td>
-                      <td>{{ getBinSizesValue(receival.bin_size) }}</td>
-                      <td>{{ receival.no_of_bins }}</td>
-                      <td>{{ toTonnes(receival.weight) }}</td>
-                    </tr>
-                  </template>
-                </tbody>
-              </DataTable>
-            </div>
-          </template>
-        </div>
-      </div>
-    </div>
   </div>
 
   <ConfirmedModal
@@ -468,7 +317,3 @@ defineExpose({
     @ok="updateRecord"
   />
 </template>
-
-<style>
-@import 'datatables.net-dt';
-</style>
