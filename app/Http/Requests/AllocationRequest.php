@@ -51,10 +51,10 @@ class AllocationRequest extends FormRequest
         ];
 
         if ($this->isMethod('PATCH')) {
-            $allocation = Allocation::find($this->route('allocation'));
+            $allocation = Allocation::select(['id', 'unique_key'])->with(['item'])->find($this->route('allocation'));
             if ($receival['unique_key'] === $allocation->unique_key) {
-                $noOfBins = $allocation->no_of_bins + $noOfBins;
-                $weight   = $allocation->weight + $weight;
+                $noOfBins = $allocation->item->no_of_bins + $noOfBins;
+                $weight   = $allocation->item->weight + $weight;
             }
 
             $rules['no_of_bins'] = ['required', 'numeric', 'gt:0', "max:$noOfBins"];
