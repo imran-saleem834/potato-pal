@@ -11,7 +11,7 @@ import {
   getBinSizesValue,
   getSingleCategoryNameByType,
   getCategoriesByType,
-  getLabelFromItems
+  getLabelFromItems,
 } from '@/helper.js';
 import { useWindowSize } from 'vue-window-size';
 
@@ -107,7 +107,8 @@ if (width.value > 991) {
             </div>
 
             <div
-              v-for="weighbridge in activeTab?.weighbridges" :key="weighbridge.id"
+              v-for="weighbridge in activeTab?.weighbridges"
+              :key="weighbridge.id"
               class="user-boxes"
             >
               <div class="row allocation-items-box">
@@ -136,10 +137,10 @@ if (width.value > 991) {
                 <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
                   <span>Seed Type: </span>
                   <span class="text-primary">
-                  <template v-if="getCategoriesByType(activeTab.categories, 'seed-type').length">
-                    {{ getSingleCategoryNameByType(activeTab.categories, 'seed-type') }}
-                  </template>
-                  <template v-else>-</template>  
+                    <template v-if="getCategoriesByType(activeTab.categories, 'seed-type').length">
+                      {{ getSingleCategoryNameByType(activeTab.categories, 'seed-type') }}
+                    </template>
+                    <template v-else>-</template>
                   </span>
                 </div>
                 <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
@@ -156,7 +157,9 @@ if (width.value > 991) {
                 <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
                   <span>Weight of total bins: </span>
                   <span class="text-primary">
-                    <template v-if="weighbridge.weight">{{ toTonnes(weighbridge.weight) }}</template>
+                    <template v-if="weighbridge.weight">
+                      {{ toTonnes(weighbridge.weight) }}
+                    </template>
                     <template v-else>-</template>
                   </span>
                 </div>

@@ -6,8 +6,8 @@ use Inertia\Inertia;
 use App\Models\Cutting;
 use App\Models\Category;
 use App\Models\Allocation;
-use Illuminate\Http\Request;
 use App\Helpers\BuyerHelper;
+use Illuminate\Http\Request;
 use App\Models\AllocationItem;
 use App\Helpers\AllocationHelper;
 use App\Helpers\CategoriesHelper;
@@ -18,7 +18,7 @@ use Illuminate\Database\Eloquent\Builder;
 class CuttingController extends Controller
 {
     /**
-     * @param Request $request
+     * @param  Request  $request
      * Display a listing of the resource.
      */
     public function index(Request $request)
@@ -37,8 +37,8 @@ class CuttingController extends Controller
             'cuttingBuyers' => $cuttingBuyers,
             'single'        => $cuttings,
             'allocations'   => [],
-            'categories'    => fn() => Category::whereIn('type', Cutting::CATEGORY_TYPES)->get(),
-            'buyers'        => fn() => BuyerHelper::getAvailableBuyers(),
+            'categories'    => fn () => Category::whereIn('type', Cutting::CATEGORY_TYPES)->get(),
+            'buyers'        => fn () => BuyerHelper::getAvailableBuyers(),
             'filters'       => $request->only(['search']),
         ]);
     }
@@ -95,11 +95,11 @@ class CuttingController extends Controller
                     'allocatable_type' => Cutting::class,
                     'allocatable_id'   => $cutting->id,
                     'foreignable_type' => Allocation::class,
-                    'foreignable_id'   => $inputs['id']
+                    'foreignable_id'   => $inputs['id'],
                 ],
                 [
                     'bin_size'   => $inputs['item']['bin_size'],
-                    'no_of_bins' => $inputs['no_of_bins']
+                    'no_of_bins' => $inputs['no_of_bins'],
                 ]
             );
             $itemIds[] = $item->id;

@@ -34,7 +34,7 @@ class ReceivalHelper
                 $unload->receival->categories->firstWhere('type', 'seed-generation')?->category?->id,
                 $seedTypeCategory?->id,
                 $unload->bin_size,
-                $unload->receival->paddocks[0] ?? null
+                $unload->receival->paddocks[0] ?? null,
             ]));
 
             return count($uniqueKey) == 6 ? implode('-', $uniqueKey) : null;
@@ -46,7 +46,7 @@ class ReceivalHelper
                 $unload->receival->categories->firstWhere('type', 'seed-generation')?->category?->id,
                 $seedTypeCategory?->id,
                 $unload->bin_size,
-                $unload->receival->paddocks[0] ?? null
+                $unload->receival->paddocks[0] ?? null,
             ]));
 
             return count($uniqueKey) == 7 ? implode('-', $uniqueKey) : null;

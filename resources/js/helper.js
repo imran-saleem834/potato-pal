@@ -1,5 +1,5 @@
 import { binSizes } from '@/const.js';
-import ConfirmToast from "@/Components/ConfirmToast.vue";
+import ConfirmToast from '@/Components/ConfirmToast.vue';
 import { POSITION, useToast } from 'vue-toastification';
 
 const toast = useToast();
@@ -59,19 +59,19 @@ export function toTonnes(weight) {
 
 export function doConfirmToast(message, callback) {
   toast(
-      {
-        component: ConfirmToast,
-        props: {
-          message
-        },
-        listeners: {
-          callback,
-        },
+    {
+      component: ConfirmToast,
+      props: {
+        message,
       },
-      {
-        position: POSITION.TOP_CENTER,
-        timeout: false,
-        hideProgressBar: true,
+      listeners: {
+        callback,
       },
+    },
+    {
+      position: POSITION.TOP_CENTER,
+      timeout: false,
+      hideProgressBar: true,
+    },
   );
 }

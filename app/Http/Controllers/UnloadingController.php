@@ -83,7 +83,7 @@ class UnloadingController extends Controller
                 $unload->id,
                 Unload::class
             );
-            
+
             $this->saveWeighbridges($unloadInputs['weighbridges'] ?? [], $unload->id);
         }
 
@@ -105,7 +105,7 @@ class UnloadingController extends Controller
 
         Weighbridge::whereIn('unload_id', $unloadIds)->delete();
         Unload::where('receival_id', $id)->delete();
-        
+
         $receival         = Receival::find($id);
         $receival->status = null;
         $receival->save();
@@ -123,7 +123,7 @@ class UnloadingController extends Controller
     public function destroySingle(string $id)
     {
         Weighbridge::where('unload_id', $id)->delete();
-        
+
         $unload     = Unload::with(['receival:id,grower_id'])->select(['id', 'receival_id'])->find($id);
         $receivalId = $unload->receival->id;
         $growerId   = $unload->receival->grower_id;
@@ -153,11 +153,11 @@ class UnloadingController extends Controller
         foreach ($inputs as $input) {
 
             $weighbridge = null;
-            if (!empty($input['id'])) {
+            if (! empty($input['id'])) {
                 $weighbridge = Weighbridge::find($input['id']);
             }
 
-            if (!$weighbridge) {
+            if (! $weighbridge) {
                 $weighbridge = Weighbridge::create([
                     'unload_id'  => $unloadId,
                     'channel'    => $input['channel'],
@@ -165,7 +165,7 @@ class UnloadingController extends Controller
                     'system'     => $input['system'],
                     'no_of_bins' => $input['no_of_bins'],
                     'weight'     => $input['weight'],
-                    'created_by' => auth()->id()
+                    'created_by' => auth()->id(),
                 ]);
             }
 

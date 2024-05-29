@@ -7,9 +7,13 @@ import TextInput from '@/Components/TextInput.vue';
 import ConfirmedModal from '@/Components/ConfirmedModal.vue';
 import CustomDatePicker from '@/Components/CustomDatePicker.vue';
 import * as bootstrap from 'bootstrap';
-import SingleDetailsView from "@/Pages/Cutting/Partials/SingleDetailsView.vue";
-import SelectedAllocationView from "@/Pages/Cutting/Partials/SelectedAllocationView.vue";
-import { getCategoryIdsByType, getCategoryByKeyword, getCategoriesDropDownByType } from '@/helper.js';
+import SingleDetailsView from '@/Pages/Cutting/Partials/SingleDetailsView.vue';
+import SelectedAllocationView from '@/Pages/Cutting/Partials/SelectedAllocationView.vue';
+import {
+  getCategoryIdsByType,
+  getCategoryByKeyword,
+  getCategoriesDropDownByType,
+} from '@/helper.js';
 
 const page = usePage();
 const toast = useToast();
@@ -86,7 +90,7 @@ watch(
   },
 );
 
-const onChangeBuyer = () => form.selected_allocations = [];
+const onChangeBuyer = () => (form.selected_allocations = []);
 
 const isForm = computed(() => {
   return isEdit.value || props.isNew || props.isNewItem;
@@ -96,7 +100,8 @@ const setIsEdit = () => {
   isEdit.value = true;
   loader.value = true;
 
-  axios.get(route('c.buyers.allocations', props.cutting.buyer_id))
+  axios
+    .get(route('c.buyers.allocations', props.cutting.buyer_id))
     .then((response) => {
       form.selected_allocations = response.data.filter((allocation) => {
         return props.cutting.items.some((item) => item.foreignable_id === allocation.id);
@@ -107,11 +112,9 @@ const setIsEdit = () => {
         return allocation;
       });
     })
-    .catch(() => {
-
-    })
+    .catch(() => {})
     .finally(() => {
-      loader.value = false
+      loader.value = false;
     });
 };
 
@@ -222,7 +225,7 @@ defineExpose({
     </table>
 
     <template v-if="isForm">
-      <SelectedAllocationView 
+      <SelectedAllocationView
         :form="form"
         :loader="loader"
         :allocations="form.selected_allocations"
@@ -342,7 +345,7 @@ defineExpose({
           <template v-else><i class="bi bi-trash"></i></template>
         </button>
       </div>
-      
+
       <SingleDetailsView :cutting="cutting" />
     </template>
   </div>

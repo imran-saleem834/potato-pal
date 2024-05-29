@@ -1,5 +1,5 @@
 <script setup>
-import { Link, } from '@inertiajs/vue3';
+import { Link } from '@inertiajs/vue3';
 
 defineProps({
   canResetPassword: {
@@ -47,7 +47,7 @@ const submit = () => {
     </p>
 
     <p v-if="['login', 'register'].includes(type)" class="text-center mt-4 terms-condition">
-      By logging in to the Cherry Hill Coolstores platform you agree to our 
+      By logging in to the Cherry Hill Coolstores platform you agree to our
       <Link :href="route('terms.show')"> Terms & Conditions</Link>,
       <Link :href="route('policy.show')">Privacy Policy</Link>, & our End User Licence Agreement.
     </p>

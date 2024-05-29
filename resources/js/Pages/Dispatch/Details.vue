@@ -4,8 +4,8 @@ import { useForm } from '@inertiajs/vue3';
 import Multiselect from '@vueform/multiselect';
 import TextInput from '@/Components/TextInput.vue';
 import ConfirmedModal from '@/Components/ConfirmedModal.vue';
-import SelectedAllocationView from "@/Pages/Dispatch/Partials/SelectedAllocationView.vue";
-import SingleDetailsView from "@/Pages/Dispatch/Partials/SingleDetailsView.vue";
+import SelectedAllocationView from '@/Pages/Dispatch/Partials/SelectedAllocationView.vue';
+import SingleDetailsView from '@/Pages/Dispatch/Partials/SingleDetailsView.vue';
 
 const props = defineProps({
   uniqueKey: String,
@@ -73,18 +73,20 @@ const setIsEdit = () => {
   isEdit.value = true;
   loader.value = true;
 
-  axios.get(route('d.buyers.allocations', props.dispatch.allocation_buyer_id))
+  axios
+    .get(route('d.buyers.allocations', props.dispatch.allocation_buyer_id))
     .then((response) => {
       form.selected_allocation = response.data.find((allocation) => {
-        return props.dispatch.item.foreignable_id === allocation.id && props.dispatch.type === allocation.type;
+        return (
+          props.dispatch.item.foreignable_id === allocation.id &&
+          props.dispatch.type === allocation.type
+        );
       });
       form.selected_allocation.no_of_bins = props.dispatch.item.no_of_bins;
     })
-    .catch(() => {
-
-    })
+    .catch(() => {})
     .finally(() => {
-      loader.value = false
+      loader.value = false;
     });
 };
 
@@ -163,9 +165,7 @@ defineExpose({
               :searchable="true"
               :options="$page.props.buyers"
               :class="{
-                'is-invalid':
-                  form.errors.allocation_buyer_id ||
-                  form.errors.selected_allocation,
+                'is-invalid': form.errors.allocation_buyer_id || form.errors.selected_allocation,
               }"
             />
             <button
@@ -192,10 +192,7 @@ defineExpose({
     </table>
 
     <template v-if="isForm">
-      <SelectedAllocationView
-        :loader="loader"
-        :selected-allocation="form.selected_allocation"
-      />
+      <SelectedAllocationView :loader="loader" :selected-allocation="form.selected_allocation" />
       <div class="row mb-3">
         <div class="col-4">
           <label class="form-label">Dispatch</label>
@@ -211,7 +208,7 @@ defineExpose({
         </div>
         <div class="col-8">
           <label class="form-label">Comments</label>
-          <TextInput v-model="form.comment" :error="form.errors.comment" type="text"/>
+          <TextInput v-model="form.comment" :error="form.errors.comment" type="text" />
         </div>
       </div>
       <div v-if="isEdit || isNewItem" class="w-100 text-end">

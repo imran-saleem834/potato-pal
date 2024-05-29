@@ -33,27 +33,27 @@ class DispatchRequest extends FormRequest
             'selected_allocation.item.bin_size' => ['required', 'numeric', Rule::in([500, 1000, 2000])],
             'comment'                           => ['nullable', 'string', 'max:255'],
         ];
-        
+
         $inputs = $this->input('selected_allocation', []);
 
-        $allocation = AllocationHelper::getAvailableAllocationForDispatch([$inputs['type'] . '_id' => $inputs['id']])
+        $allocation = AllocationHelper::getAvailableAllocationForDispatch([$inputs['type'].'_id' => $inputs['id']])
             ->where('type', $inputs['type'])
             ->first();
 
         $binsInKg = $allocation->available_no_of_bins * $allocation->item->bin_size;
         if ($this->isMethod('PATCH')) {
             $dispatch = Dispatch::query()
-                ->with(['item' => fn($query) => $query->where('foreignable_id', $allocation->id)])
+                ->with(['item' => fn ($query) => $query->where('foreignable_id', $allocation->id)])
                 ->find($this->route('dispatch'));
 
-            if (!empty($dispatch->item)) {
+            if (! empty($dispatch->item)) {
                 $binsInKg += $dispatch->item->no_of_bins * $dispatch->item->bin_size;
             }
         }
 
         $allocation->available_no_of_bins = $binsInKg / $allocation->item->bin_size;
 
-        $rules["selected_allocation.no_of_bins"] = [
+        $rules['selected_allocation.no_of_bins'] = [
             'required',
             'numeric',
             'gt:0',

@@ -1,7 +1,7 @@
 <script setup>
 import { computed, watch } from 'vue';
 import { binSizes } from '@/const.js';
-import { useForm } from "@inertiajs/vue3";
+import { useForm } from '@inertiajs/vue3';
 import TextInput from '@/Components/TextInput.vue';
 import UlLiButton from '@/Components/UlLiButton.vue';
 import { getBinSizesValue, getSingleCategoryNameByType } from '@/helper.js';
@@ -9,7 +9,7 @@ import { getBinSizesValue, getSingleCategoryNameByType } from '@/helper.js';
 const props = defineProps({
   dispatch: {
     type: Object,
-    default: null
+    default: null,
   },
 });
 
@@ -46,7 +46,8 @@ watch(
     if (dispatch) {
       form.dispatch = dispatch;
     }
-  });
+  },
+);
 </script>
 
 <template>
@@ -67,30 +68,42 @@ watch(
           <div class="table-responsive">
             <table class="table mb-0">
               <thead>
-              <tr>
-                <th>From</th>
-                <th>Grower Group</th>
-                <th>Grower</th>
-                <th>Paddock</th>
-                <th>Variety</th>
-                <th>Gen</th>
-                <th>Seed type</th>
-                <th>Class</th>
-                <th>Bin size</th>
-              </tr>
+                <tr>
+                  <th>From</th>
+                  <th>Grower Group</th>
+                  <th>Grower</th>
+                  <th>Paddock</th>
+                  <th>Variety</th>
+                  <th>Gen</th>
+                  <th>Seed type</th>
+                  <th>Class</th>
+                  <th>Bin size</th>
+                </tr>
               </thead>
               <tbody>
-              <tr>
-                <td>{{ dispatch.type.toUpperCase() }}</td>
-                <td>{{ getSingleCategoryNameByType(allocation.categories, 'grower-group') || '-' }}</td>
-                <td>{{ allocation.grower?.grower_name || '-' }}</td>
-                <td>{{ allocation.paddock }}</td>
-                <td>{{ getSingleCategoryNameByType(allocation.categories, 'seed-variety') || '-' }}</td>
-                <td>{{ getSingleCategoryNameByType(allocation.categories, 'seed-generation') || '-' }}</td>
-                <td>{{ getSingleCategoryNameByType(allocation.categories, 'seed-type') || '-' }}</td>
-                <td>{{ getSingleCategoryNameByType(allocation.categories, 'seed-class') || '-' }}</td>
-                <td>{{ getBinSizesValue(dispatch.item.bin_size) }}</td>
-              </tr>
+                <tr>
+                  <td>{{ dispatch.type.toUpperCase() }}</td>
+                  <td>
+                    {{ getSingleCategoryNameByType(allocation.categories, 'grower-group') || '-' }}
+                  </td>
+                  <td>{{ allocation.grower?.grower_name || '-' }}</td>
+                  <td>{{ allocation.paddock }}</td>
+                  <td>
+                    {{ getSingleCategoryNameByType(allocation.categories, 'seed-variety') || '-' }}
+                  </td>
+                  <td>
+                    {{
+                      getSingleCategoryNameByType(allocation.categories, 'seed-generation') || '-'
+                    }}
+                  </td>
+                  <td>
+                    {{ getSingleCategoryNameByType(allocation.categories, 'seed-type') || '-' }}
+                  </td>
+                  <td>
+                    {{ getSingleCategoryNameByType(allocation.categories, 'seed-class') || '-' }}
+                  </td>
+                  <td>{{ getBinSizesValue(dispatch.item.bin_size) }}</td>
+                </tr>
               </tbody>
             </table>
           </div>
@@ -109,11 +122,7 @@ watch(
             </div>
             <div class="col-12 col-xl-2 mb-2">
               <label class="form-label">Return no of bins</label>
-              <TextInput
-                v-model="form.no_of_bins"
-                :error="form.errors.no_of_bins"
-                type="text"
-              />
+              <TextInput v-model="form.no_of_bins" :error="form.errors.no_of_bins" type="text" />
             </div>
           </div>
         </div>

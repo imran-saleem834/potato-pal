@@ -12,7 +12,7 @@ class DeleteRecordsHelper
     {
         // Delete cutting
         static::deleteCuttingByAllocationId($allocation->id);
-        
+
         // Delete allocation returns and dispatch items
         $allocation->returns()->delete();
         foreach ($allocation->dispatchItems as $dispatchItem) {
@@ -25,7 +25,7 @@ class DeleteRecordsHelper
             $reallocation = $reallocationItem->allocatable;
             static::deleteReallocation($reallocation);
         }
-        
+
         $allocation->item()->delete();
         $allocation->delete();
     }
@@ -43,7 +43,7 @@ class DeleteRecordsHelper
 
     private static function deleteCuttingByAllocationId($id)
     {
-        $cuttingIds         = [];
+        $cuttingIds             = [];
         $cuttingAllocationItems = AllocationItem::query()
             ->where('allocatable_type', Cutting::class)
             ->where('foreignable_type', Allocation::class)

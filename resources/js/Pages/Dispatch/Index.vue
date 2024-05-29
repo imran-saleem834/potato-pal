@@ -8,8 +8,8 @@ import LeftBar from '@/Components/LeftBar.vue';
 import Pagination from '@/Components/Pagination.vue';
 import { getCategoriesByType } from '@/helper.js';
 import { useWindowSize } from 'vue-window-size';
-import AllocationsModal from "@/Pages/Dispatch/Partials/AllocationsModal.vue";
-import ReturnsModal from "@/Pages/Dispatch/Partials/ReturnsModal.vue";
+import AllocationsModal from '@/Pages/Dispatch/Partials/AllocationsModal.vue';
+import ReturnsModal from '@/Pages/Dispatch/Partials/ReturnsModal.vue';
 
 const { width, height } = useWindowSize();
 
@@ -87,11 +87,11 @@ const setNewRecord = () => {
 const setUpdateSelection = (identifier, id) => {
   selectIdentifier.value = identifier;
   selection[identifier] = { id: id, selected: {} };
-}
+};
 
 const setReturnDispatch = (returnDispatch) => {
   selectedReturnDispatch.value = returnDispatch;
-}
+};
 
 if (width.value > 991) {
   setActiveTab(dispatches.value.data[0]?.buyer_id);
@@ -243,15 +243,15 @@ if (width.value > 991) {
         </div>
       </div>
     </div>
-    
+
     <AllocationsModal
       :buyer-id="selection[selectIdentifier]?.id"
-      @allocations="(allocations) => selection[selectIdentifier].selected = allocations"
-      @close="() => selection[selectIdentifier].id = null"
+      @allocations="(allocations) => (selection[selectIdentifier].selected = allocations)"
+      @close="() => (selection[selectIdentifier].id = null)"
     />
     <ReturnsModal
       :dispatch="selectedReturnDispatch"
-      @close="() => selectedReturnDispatch = null"
+      @close="() => (selectedReturnDispatch = null)"
     />
   </AppLayout>
 </template>

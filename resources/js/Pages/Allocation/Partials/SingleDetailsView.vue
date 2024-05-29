@@ -1,11 +1,7 @@
 <script setup>
 import moment from 'moment';
 import { Link } from '@inertiajs/vue3';
-import {
-  toTonnes,
-  getBinSizesValue,
-  getSingleCategoryNameByType,
-} from '@/helper.js';
+import { toTonnes, getBinSizesValue, getSingleCategoryNameByType } from '@/helper.js';
 
 defineProps({
   allocation: Object,

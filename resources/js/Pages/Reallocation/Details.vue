@@ -5,8 +5,8 @@ import Multiselect from '@vueform/multiselect';
 import TextInput from '@/Components/TextInput.vue';
 import { useToast } from 'vue-toastification';
 import ConfirmedModal from '@/Components/ConfirmedModal.vue';
-import SelectedAllocationView from "@/Pages/Reallocation/Partials/SelectedAllocationView.vue";
-import SingleDetailsView from "@/Pages/Reallocation/Partials/SingleDetailsView.vue";
+import SelectedAllocationView from '@/Pages/Reallocation/Partials/SelectedAllocationView.vue';
+import SingleDetailsView from '@/Pages/Reallocation/Partials/SingleDetailsView.vue';
 
 const toast = useToast();
 
@@ -73,18 +73,17 @@ const setIsEdit = () => {
   isEdit.value = true;
   loader.value = true;
 
-  axios.get(route('r.buyers.allocations', props.reallocation.allocation_buyer_id))
+  axios
+    .get(route('r.buyers.allocations', props.reallocation.allocation_buyer_id))
     .then((response) => {
       form.selected_allocation = response.data.find((allocation) => {
         return props.reallocation.item.foreignable_id === allocation.id;
       });
       form.selected_allocation.no_of_bins = props.reallocation.item.no_of_bins;
     })
-    .catch(() => {
-
-    })
+    .catch(() => {})
     .finally(() => {
-      loader.value = false
+      loader.value = false;
     });
 };
 
@@ -193,10 +192,7 @@ defineExpose({
     </table>
 
     <template v-if="isForm">
-      <SelectedAllocationView
-        :loader="loader"
-        :allocation="form.selected_allocation"
-      />
+      <SelectedAllocationView :loader="loader" :allocation="form.selected_allocation" />
       <div class="row mb-3">
         <div class="col-4">
           <label class="form-label">Reallocate</label>
@@ -254,7 +250,7 @@ defineExpose({
           <template v-else><i class="bi bi-trash"></i></template>
         </button>
       </div>
-      
+
       <SingleDetailsView :reallocation="reallocation" />
     </template>
   </div>

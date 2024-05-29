@@ -6,8 +6,8 @@ import Multiselect from '@vueform/multiselect';
 import TextInput from '@/Components/TextInput.vue';
 import { useToast } from 'vue-toastification';
 import ConfirmedModal from '@/Components/ConfirmedModal.vue';
-import SingleDetailsView from "@/Pages/Allocation/Partials/SingleDetailsView.vue";
-import SelectedReceivalView from "@/Pages/Allocation/Partials/SelectedReceivalView.vue";
+import SingleDetailsView from '@/Pages/Allocation/Partials/SingleDetailsView.vue';
+import SelectedReceivalView from '@/Pages/Allocation/Partials/SelectedReceivalView.vue';
 
 const toast = useToast();
 
@@ -110,17 +110,18 @@ const isForm = computed(() => {
 const setIsEdit = () => {
   isEdit.value = true;
   loader.value = true;
-  
-  if (props.allocation.unique_key) {
-    axios.get(route('growers.receivals', props.allocation.grower_id))
-      .then((response) => {
-        form.select_receival = response.data.find((receival) => receival.unique_key === props.allocation.unique_key) || {};
-      })
-      .catch(() => {
 
+  if (props.allocation.unique_key) {
+    axios
+      .get(route('growers.receivals', props.allocation.grower_id))
+      .then((response) => {
+        form.select_receival =
+          response.data.find((receival) => receival.unique_key === props.allocation.unique_key) ||
+          {};
       })
+      .catch(() => {})
       .finally(() => {
-        loader.value = false
+        loader.value = false;
       });
   }
 };
@@ -226,11 +227,7 @@ defineExpose({
       </tr>
     </table>
 
-    <SelectedReceivalView
-      v-if="isForm"
-      :loader="loader"
-      :receival="form.select_receival"
-    />
+    <SelectedReceivalView v-if="isForm" :loader="loader" :receival="form.select_receival" />
 
     <template v-if="isForm">
       <div class="row">
@@ -292,7 +289,7 @@ defineExpose({
           <template v-else><i class="bi bi-trash"></i></template>
         </button>
       </div>
-      
+
       <SingleDetailsView :allocation="allocation" />
     </template>
   </div>

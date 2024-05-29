@@ -2,8 +2,8 @@
 import moment from 'moment';
 import { Link } from '@inertiajs/vue3';
 import { getBinSizesValue, getSingleCategoryNameByType, toTonnes } from '@/helper.js';
-import { computed, onMounted, onUpdated } from "vue";
-import * as bootstrap from "bootstrap";
+import { computed, onMounted, onUpdated } from 'vue';
+import * as bootstrap from 'bootstrap';
 
 const props = defineProps({
   reallocation: Object,
@@ -31,40 +31,40 @@ onUpdated(() => {
 <template>
   <table class="table table-sm align-middle">
     <thead>
-    <tr>
-      <th>Allocation ID</th>
-      <th class="d-none d-md-table-cell">Grower</th>
-      <th class="d-none d-md-table-cell">Paddock</th>
-      <th class="d-none d-xl-table-cell">Variety</th>
-      <th class="d-none d-md-table-cell">Gen.</th>
-      <th>Seed type</th>
-      <th class="d-none d-xl-table-cell">Class</th>
-      <th>Bin size</th>
-      <th>Bins Reallocate</th>
-    </tr>
+      <tr>
+        <th>Allocation ID</th>
+        <th class="d-none d-md-table-cell">Grower</th>
+        <th class="d-none d-md-table-cell">Paddock</th>
+        <th class="d-none d-xl-table-cell">Variety</th>
+        <th class="d-none d-md-table-cell">Gen.</th>
+        <th>Seed type</th>
+        <th class="d-none d-xl-table-cell">Class</th>
+        <th>Bin size</th>
+        <th>Bins Reallocate</th>
+      </tr>
     </thead>
     <tbody>
-    <tr>
-      <td>
-        <Link :href="route('allocations.index', { buyerId: allocation.buyer_id })">
-          {{ allocation.id }}
-        </Link>
-      </td>
-      <td class="d-none d-md-table-cell text-primary">{{ allocation.grower?.grower_name }}</td>
-      <td class="d-none d-md-table-cell text-primary">{{ allocation.paddock }}</td>
-      <td class="d-none d-xl-table-cell text-primary">
-        {{ getSingleCategoryNameByType(allocation.categories, 'seed-variety') || '-' }}
-      </td>
-      <td class="d-none d-md-table-cell text-primary">
-        {{ getSingleCategoryNameByType(allocation.categories, 'seed-generation') || '-' }}
-      </td>
-      <td class="text-primary">
-        {{ getSingleCategoryNameByType(allocation.categories, 'seed-type') || '-' }}
-        <a
-          data-bs-toggle="tooltip"
-          data-bs-html="true"
-          class="d-xl-none"
-          :data-bs-title="`
+      <tr>
+        <td>
+          <Link :href="route('allocations.index', { buyerId: allocation.buyer_id })">
+            {{ allocation.id }}
+          </Link>
+        </td>
+        <td class="d-none d-md-table-cell text-primary">{{ allocation.grower?.grower_name }}</td>
+        <td class="d-none d-md-table-cell text-primary">{{ allocation.paddock }}</td>
+        <td class="d-none d-xl-table-cell text-primary">
+          {{ getSingleCategoryNameByType(allocation.categories, 'seed-variety') || '-' }}
+        </td>
+        <td class="d-none d-md-table-cell text-primary">
+          {{ getSingleCategoryNameByType(allocation.categories, 'seed-generation') || '-' }}
+        </td>
+        <td class="text-primary">
+          {{ getSingleCategoryNameByType(allocation.categories, 'seed-type') || '-' }}
+          <a
+            data-bs-toggle="tooltip"
+            data-bs-html="true"
+            class="d-xl-none"
+            :data-bs-title="`
             <div class='text-start'>
               Grower: ${allocation.grower.grower_name}<br/>
               Paddock: ${allocation.paddock}<br/>
@@ -73,21 +73,16 @@ onUpdated(() => {
               Class: ${getSingleCategoryNameByType(allocation.categories, 'seed-class') || '-'}
             </div>
           `"
-        >
-          <i class="bi bi-question-circle fs-6 text-black"></i>
-        </a>
-      </td>
-      <td class="d-none d-xl-table-cell text-primary">
-        {{
-          getSingleCategoryNameByType(
-            allocation.categories,
-            'seed-class',
-          ) || '-'
-        }}
-      </td>
-      <td class="text-primary">{{ getBinSizesValue(reallocation.item.bin_size) }}</td>
-      <td class="text-primary">{{ reallocation.item.no_of_bins }}</td>
-    </tr>
+          >
+            <i class="bi bi-question-circle fs-6 text-black"></i>
+          </a>
+        </td>
+        <td class="d-none d-xl-table-cell text-primary">
+          {{ getSingleCategoryNameByType(allocation.categories, 'seed-class') || '-' }}
+        </td>
+        <td class="text-primary">{{ getBinSizesValue(reallocation.item.bin_size) }}</td>
+        <td class="text-primary">{{ reallocation.item.no_of_bins }}</td>
+      </tr>
     </tbody>
   </table>
 
@@ -124,8 +119,8 @@ onUpdated(() => {
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
           <span>Return Time: </span>
           <span class="text-primary">
-          {{ moment(item.created_at).format('DD/MM/YYYY hh:mm A') }}
-        </span>
+            {{ moment(item.created_at).format('DD/MM/YYYY hh:mm A') }}
+          </span>
         </div>
       </template>
     </div>

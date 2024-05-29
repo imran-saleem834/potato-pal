@@ -144,7 +144,7 @@ Route::get('/abc3', function () {
             if ($category->category->name === 'McCain Seed') {
                 $receival->dummy_buyer_id = $mcCainStockBuyer->id;
                 $receival->save();
-            } else if ($category->category->name === 'Simplot Seed') {
+            } elseif ($category->category->name === 'Simplot Seed') {
                 $receival->dummy_buyer_id = $simplotStockBuyer->id;
                 $receival->save();
             }

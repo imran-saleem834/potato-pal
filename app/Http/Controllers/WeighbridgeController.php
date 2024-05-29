@@ -20,6 +20,7 @@ class WeighbridgeController extends Controller
             ->when($request->input('search'), function (Builder $query, $search) {
                 return $query->where(function (Builder $subQuery) use ($search) {
                     $search = $search === 'BU1' ? 'weighbridge' : $search;
+
                     return $subQuery
                         ->where('id', 'LIKE', "%$search%")
                         ->orWhere('channel', 'LIKE', "%$search%")

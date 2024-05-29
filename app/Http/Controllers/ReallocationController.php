@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers\DeleteRecordsHelper;
-use App\Models\Dispatch;
 use Inertia\Inertia;
 use App\Models\Allocation;
 use App\Helpers\BuyerHelper;
@@ -12,13 +10,14 @@ use Illuminate\Http\Request;
 use App\Models\AllocationItem;
 use App\Helpers\AllocationHelper;
 use App\Helpers\NotificationHelper;
+use App\Helpers\DeleteRecordsHelper;
 use Illuminate\Database\Eloquent\Builder;
 use App\Http\Requests\ReallocationRequest;
 
 class ReallocationController extends Controller
 {
     /**
-     * @param Request $request
+     * @param  Request  $request
      * Display a listing of the resource.
      */
     public function index(Request $request)
@@ -36,7 +35,7 @@ class ReallocationController extends Controller
         return Inertia::render('Reallocation/Index', [
             'reallocationBuyers' => $reallocationBuyers,
             'single'             => $reallocations,
-            'buyers'             => fn() => BuyerHelper::getAvailableBuyers(),
+            'buyers'             => fn () => BuyerHelper::getAvailableBuyers(),
             'filters'            => $request->only(['search']),
         ]);
     }
@@ -47,7 +46,7 @@ class ReallocationController extends Controller
             ['buyer_id' => $id],
             ['categories.category', 'grower:id,grower_name']
         );
-        
+
         return response()->json($allocations);
     }
 
@@ -89,11 +88,11 @@ class ReallocationController extends Controller
                 'allocatable_type' => Reallocation::class,
                 'allocatable_id'   => $reallocation->id,
                 'foreignable_type' => Allocation::class,
-                'foreignable_id'   => $inputs['id']
+                'foreignable_id'   => $inputs['id'],
             ],
             [
                 'bin_size'   => $inputs['item']['bin_size'],
-                'no_of_bins' => $inputs['no_of_bins']
+                'no_of_bins' => $inputs['no_of_bins'],
             ]
         );
 
@@ -116,9 +115,9 @@ class ReallocationController extends Controller
     {
         $reallocation = Reallocation::find($id);
         $buyerId      = $reallocation->buyer_id;
-        
+
         DeleteRecordsHelper::deleteReallocation($reallocation);
-        
+
         NotificationHelper::deleteAction('Reallocation', $id);
 
         $isReallocationExists = Reallocation::where('buyer_id', $buyerId)->exists();

@@ -45,17 +45,17 @@ class ReallocationRequest extends FormRequest
         $binsInKg = $allocation->available_no_of_bins * $allocation->item->bin_size;
         if ($this->isMethod('PATCH')) {
             $reallocation = Reallocation::query()
-                ->with(['item' => fn($query) => $query->where('foreignable_id', $allocation->id)])
+                ->with(['item' => fn ($query) => $query->where('foreignable_id', $allocation->id)])
                 ->find($this->route('reallocation'));
 
-            if (!empty($reallocation->item)) {
+            if (! empty($reallocation->item)) {
                 $binsInKg += $reallocation->item->no_of_bins * $reallocation->item->bin_size;
             }
         }
 
         $allocation->available_no_of_bins = $binsInKg / $allocation->item->bin_size;
 
-        $rules["selected_allocation.no_of_bins"] = [
+        $rules['selected_allocation.no_of_bins'] = [
             'required',
             'numeric',
             'gt:0',

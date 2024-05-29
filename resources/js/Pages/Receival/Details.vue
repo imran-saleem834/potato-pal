@@ -552,7 +552,9 @@ const pushForUnload = () => {
                 :options="buyers"
                 :class="{ 'is-invalid': form.errors.dummy_buyer_id }"
               />
-              <template v-else-if="receival.dummy_buyer">{{ receival.dummy_buyer?.buyer_name }}</template>
+              <template v-else-if="receival.dummy_buyer">
+                {{ receival.dummy_buyer?.buyer_name }}
+              </template>
               <template v-else>-</template>
               <div
                 v-if="form.errors.dummy_buyer_id"

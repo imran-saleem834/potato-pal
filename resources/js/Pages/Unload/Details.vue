@@ -88,7 +88,8 @@ const updateUnloadForm = () => {
 
 const updateUnloadsOnChangeReceival = (receival) => {
   form.fungicide = getCategoryIdsByType(receival.categories, 'fungicide');
-  form.unloads = receival.unloads.length <= 0 ? [{ ...defaultUnloadFields }] : [...receival.unloads];
+  form.unloads =
+    receival.unloads.length <= 0 ? [{ ...defaultUnloadFields }] : [...receival.unloads];
 
   updateUnloadForm();
 };
@@ -103,56 +104,47 @@ const updateSeedType = (parameters) => {
   form.unloads[parameters.index].seed_type = parameters.value;
 
   resetBinsAndWeight(parameters.index);
-}
+};
 
 const onChangeSeedType = (value, index) => {
   if (form.unloads[index].no_of_bins > 0) {
-    doConfirmToast(
-      'You will lose no of bins & weight, yes',
-      () => {
-        updateSeedType({ value, index });
-      }
-    );
+    doConfirmToast('You will lose no of bins & weight, yes', () => {
+      updateSeedType({ value, index });
+    });
   } else {
-    updateSeedType({ value, index })
+    updateSeedType({ value, index });
   }
-}
+};
 
 const updateBinSize = (parameters) => {
   form.unloads[parameters.index].bin_size = parameters.value;
 
   resetBinsAndWeight(parameters.index);
-}
+};
 
 const onChangeBinSize = (value, index) => {
   if (form.unloads[index].no_of_bins > 0) {
-    doConfirmToast(
-      'You will lose no of bins & weight, yes',
-      () => {
-        updateBinSize({ value, index });
-      }
-    );
+    doConfirmToast('You will lose no of bins & weight, yes', () => {
+      updateBinSize({ value, index });
+    });
   } else {
-    updateBinSize({ value, index })
+    updateBinSize({ value, index });
   }
-}
+};
 
 const updateWeightType = (parameters) => {
   form.unloads[parameters.index].type = parameters.value;
 
   resetBinsAndWeight(parameters.index);
-}
+};
 
 const onChangeWeightType = (value, index) => {
   if (form.unloads[index].no_of_bins > 0) {
-    doConfirmToast(
-      'You will lose no of bins & weight, yes',
-      () => {
-        updateWeightType({ value, index });
-      }
-    );
+    doConfirmToast('You will lose no of bins & weight, yes', () => {
+      updateWeightType({ value, index });
+    });
   } else {
-    updateWeightType({ value, index })
+    updateWeightType({ value, index });
   }
 };
 
@@ -239,8 +231,10 @@ const acceptWeight = (index) => {
   if (isNaN(Number(weight.value[index]))) {
     return;
   }
-  form.unloads[index].no_of_bins = parseInt(form.unloads[index].no_of_bins ?? 0) + parseInt(bins.value[index]);
-  form.unloads[index].weight = parseFloat(form.unloads[index].weight ?? 0) + parseFloat(weight.value[index]);
+  form.unloads[index].no_of_bins =
+    parseInt(form.unloads[index].no_of_bins ?? 0) + parseInt(bins.value[index]);
+  form.unloads[index].weight =
+    parseFloat(form.unloads[index].weight ?? 0) + parseFloat(weight.value[index]);
 
   form.unloads[index].weighbridges.push({
     channel: form.unloads[index].channel,
@@ -536,7 +530,7 @@ defineExpose({
                   :value="form.unloads[index].channel"
                   :error="form.errors[`unloads.${index}.channel`]"
                   :items="channels"
-                  @click="(value) => form.unloads[index].channel = value"
+                  @click="(value) => (form.unloads[index].channel = value)"
                 />
               </td>
             </tr>
@@ -555,7 +549,7 @@ defineExpose({
                           { value: 2, label: 'System 2' },
                         ]
                   "
-                  @click="(value) => form.unloads[index].system = value"
+                  @click="(value) => (form.unloads[index].system = value)"
                 />
               </td>
             </tr>
@@ -630,7 +624,9 @@ defineExpose({
                   />
                 </div>
                 <div class="d-inline-block align-top">
-                  <button @click="startWeighing(index)" class="btn btn-red me-2">Start Weight</button>
+                  <button @click="startWeighing(index)" class="btn btn-red me-2">
+                    Start Weight
+                  </button>
                   <button @click="getWeight(index)" class="btn btn-red">Get Weight</button>
                 </div>
               </td>
@@ -661,27 +657,32 @@ defineExpose({
             </tr>
           </template>
         </table>
-        <table 
-          v-if="isForm && form.unloads[index] && form.unloads[index]?.type === 1 && form.unloads[index].weighbridges?.length > 0"
+        <table
+          v-if="
+            isForm &&
+            form.unloads[index] &&
+            form.unloads[index]?.type === 1 &&
+            form.unloads[index].weighbridges?.length > 0
+          "
           class="table table-striped table-sm mb-0"
         >
           <thead>
-          <tr>
-            <th class="text-center">Id</th>
-            <th>Channel</th>
-            <th>System</th>
-            <th>No of Bins</th>
-            <th>Weight</th>
-          </tr>
+            <tr>
+              <th class="text-center">Id</th>
+              <th>Channel</th>
+              <th>System</th>
+              <th>No of Bins</th>
+              <th>Weight</th>
+            </tr>
           </thead>
           <tbody>
-          <tr v-for="weighbridge in form.unloads[index].weighbridges" :key="weighbridge?.channel">
-            <td class="text-center">{{ weighbridge?.id || '-' }}</td>
-            <td>{{ getLabelFromItems(channels, weighbridge.channel) }}</td>
-            <td>System {{ weighbridge.system }}</td>
-            <td>{{ weighbridge.no_of_bins }} Bins</td>
-            <td>{{ toTonnes(weighbridge.weight) }}</td>
-          </tr>
+            <tr v-for="weighbridge in form.unloads[index].weighbridges" :key="weighbridge?.channel">
+              <td class="text-center">{{ weighbridge?.id || '-' }}</td>
+              <td>{{ getLabelFromItems(channels, weighbridge.channel) }}</td>
+              <td>System {{ weighbridge.system }}</td>
+              <td>{{ weighbridge.no_of_bins }} Bins</td>
+              <td>{{ toTonnes(weighbridge.weight) }}</td>
+            </tr>
           </tbody>
         </table>
       </div>

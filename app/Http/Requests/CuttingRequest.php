@@ -48,9 +48,9 @@ class CuttingRequest extends FormRequest
         ];
 
         $allocationIds = Arr::pluck($this->input('selected_allocations', []), ['id']);
-        $allocations = AllocationHelper::getAvailableAllocationForCutting(['id' => $allocationIds]);
-        $allocations = $allocations->keyBy('id');
-        
+        $allocations   = AllocationHelper::getAvailableAllocationForCutting(['id' => $allocationIds]);
+        $allocations   = $allocations->keyBy('id');
+
         foreach ($this->input('selected_allocations', []) as $key => $inputs) {
             $allocation = $allocations[$inputs['id']] ?? null;
 
@@ -58,7 +58,7 @@ class CuttingRequest extends FormRequest
 
             if ($this->isMethod('PATCH')) {
                 $cutting = Cutting::query()
-                    ->with(['items' => fn($query) => $query->where('foreignable_id', $allocation->id)])
+                    ->with(['items' => fn ($query) => $query->where('foreignable_id', $allocation->id)])
                     ->find($this->route('cutting'));
                 foreach ($cutting->items as $item) {
                     $binsInKg += $item->no_of_bins * $item->bin_size;

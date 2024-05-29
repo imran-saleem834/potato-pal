@@ -3,8 +3,8 @@
 namespace App\Helpers;
 
 use App\Models\Allocation;
-use App\Models\Reallocation;
 use Illuminate\Support\Arr;
+use App\Models\Reallocation;
 
 class AllocationHelper
 {
@@ -13,7 +13,7 @@ class AllocationHelper
         return Allocation::query()
             ->with(array_merge(['item', 'returns', 'cuttingItems', 'dispatchItems'], $with))
             ->when($filter['buyer_id'] ?? null, function ($query, $buyerId) {
-                return $query->whereIn('buyer_id', Arr::wrap($buyerId));   
+                return $query->whereIn('buyer_id', Arr::wrap($buyerId));
             })
             ->when($filter['id'] ?? null, function ($query, $id) {
                 return $query->whereIn('id', Arr::wrap($id));
@@ -44,14 +44,14 @@ class AllocationHelper
                 return $allocation;
             });
     }
-    
+
     public static function getAvailableAllocationForReallocation(array $filter, ?array $with = [])
     {
         return Allocation::query()
             ->has('cuttingItems')
             ->with(array_merge(['item', 'returns', 'cuttingItems', 'reallocationItems', 'dispatchItems'], $with))
             ->when($filter['buyer_id'] ?? null, function ($query, $buyerId) {
-                return $query->whereIn('buyer_id', Arr::wrap($buyerId));   
+                return $query->whereIn('buyer_id', Arr::wrap($buyerId));
             })
             ->when($filter['allocation_id'] ?? null, function ($query, $id) {
                 return $query->whereIn('id', Arr::wrap($id));
@@ -82,7 +82,7 @@ class AllocationHelper
                 return $allocation;
             });
     }
-    
+
     public static function getAvailableAllocationForDispatch(array $filter, ?array $with = [])
     {
         $allocations = Allocation::query()
@@ -120,7 +120,7 @@ class AllocationHelper
                 return $allocation;
             });
 
-        $with = Arr::map($with, fn ($w) => 'item.foreignable.' . $w);
+        $with   = Arr::map($with, fn ($w) => 'item.foreignable.'.$w);
         $with[] = 'item.foreignable.item.foreignable';
 
         $reallocations = Reallocation::query()

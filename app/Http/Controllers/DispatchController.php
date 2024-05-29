@@ -11,14 +11,15 @@ use Illuminate\Http\Request;
 use App\Models\AllocationItem;
 use App\Helpers\AllocationHelper;
 use App\Helpers\NotificationHelper;
+use App\Http\Requests\ReturnRequest;
+use App\Http\Requests\DispatchRequest;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
-use App\Http\Requests\{ReturnRequest, DispatchRequest};
 
 class DispatchController extends Controller
 {
     /**
-     * @param Request $request
+     * @param  Request  $request
      * Display a listing of the resource.
      */
     public function index(Request $request)
@@ -29,14 +30,14 @@ class DispatchController extends Controller
         $inputBuyerId = $request->input('buyerId', $firstBuyerId);
 
         $dispatchs = $this->getDispatchs($inputBuyerId, $request->input('search'));
-        if ($dispatchs->isEmpty() && ((int)$inputBuyerId) !== ((int)$firstBuyerId)) {
+        if ($dispatchs->isEmpty() && ((int) $inputBuyerId) !== ((int) $firstBuyerId)) {
             $dispatchs = $this->getDispatchs($firstBuyerId, $request->input('search'));
         }
 
         return Inertia::render('Dispatch/Index', [
             'dispatchBuyers' => $dispatchBuyers,
             'single'         => $dispatchs,
-            'buyers'         => fn() => BuyerHelper::getAvailableBuyers(),
+            'buyers'         => fn () => BuyerHelper::getAvailableBuyers(),
             'filters'        => $request->only(['search']),
         ]);
     }
@@ -95,7 +96,7 @@ class DispatchController extends Controller
             ],
             [
                 'bin_size'   => $inputs['item']['bin_size'],
-                'no_of_bins' => $inputs['no_of_bins']
+                'no_of_bins' => $inputs['no_of_bins'],
             ]
         );
 
@@ -153,13 +154,13 @@ class DispatchController extends Controller
                     $morphTo->morphWith([
                         Reallocation::class => [
                             'item.foreignable.categories.category',
-                            'item.foreignable.grower:id,grower_name'
+                            'item.foreignable.grower:id,grower_name',
                         ],
                         Allocation::class   => ['categories.category', 'grower:id,grower_name'],
                     ]);
                 },
                 'allocationBuyer',
-                'returns'
+                'returns',
             ])
             ->when($search, function ($query, $search) {
                 return $query->where(function ($subQuery) use ($search) {

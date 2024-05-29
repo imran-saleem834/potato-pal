@@ -8,7 +8,7 @@ import LeftBar from '@/Components/LeftBar.vue';
 import Pagination from '@/Components/Pagination.vue';
 import { getCategoriesByType } from '@/helper.js';
 import { useWindowSize } from 'vue-window-size';
-import AllocationsModal from "@/Pages/Reallocation/Partials/AllocationsModal.vue";
+import AllocationsModal from '@/Pages/Reallocation/Partials/AllocationsModal.vue';
 
 const { width, height } = useWindowSize();
 
@@ -85,7 +85,7 @@ const setNewRecord = () => {
 const setUpdateSelection = (identifier, id) => {
   selectIdentifier.value = identifier;
   selection[identifier] = { id: id, selected: {} };
-}
+};
 
 if (width.value > 991) {
   setActiveTab(reallocations.value.data[0]?.buyer_id);
@@ -161,9 +161,17 @@ if (width.value > 991) {
                         </Link>
                       </td>
                       <td class="pb-0 border-0">
-                        <ul v-if="getCategoriesByType(activeTab.buyer?.categories, 'buyer-group').length > 0">
+                        <ul
+                          v-if="
+                            getCategoriesByType(activeTab.buyer?.categories, 'buyer-group').length >
+                            0
+                          "
+                        >
                           <li
-                            v-for="category in getCategoriesByType(activeTab.buyer.categories, 'buyer-group')"
+                            v-for="category in getCategoriesByType(
+                              activeTab.buyer.categories,
+                              'buyer-group',
+                            )"
                             :key="category.id"
                           >
                             <a>{{ category.category.name }}</a>
@@ -227,11 +235,11 @@ if (width.value > 991) {
         </div>
       </div>
     </div>
-    
+
     <AllocationsModal
       :buyer-id="selection[selectIdentifier]?.id"
-      @allocations="(allocations) => selection[selectIdentifier].selected = allocations"
-      @close="() => selection[selectIdentifier].id = null"
+      @allocations="(allocations) => (selection[selectIdentifier].selected = allocations)"
+      @close="() => (selection[selectIdentifier].id = null)"
     />
   </AppLayout>
 </template>

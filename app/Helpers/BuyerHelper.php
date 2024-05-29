@@ -12,7 +12,7 @@ class BuyerHelper
             ->select('buyer_id')
             ->with([
                 'buyer:id,buyer_name',
-                'buyer.categories.category'
+                'buyer.categories.category',
             ])
             ->latest()
             ->groupBy('buyer_id')
@@ -30,7 +30,7 @@ class BuyerHelper
             ->select(['id', 'buyer_name'])
             ->whereJsonContains('role', 'buyer')
             ->get()
-            ->map(fn($user) => ['value' => $user->id, 'label' => $user->buyer_name]);
+            ->map(fn ($user) => ['value' => $user->id, 'label' => $user->buyer_name]);
     }
 
     public static function getAvailableGrowers()
@@ -39,6 +39,6 @@ class BuyerHelper
             ->select(['id', 'grower_name'])
             ->whereJsonContains('role', 'grower')
             ->get()
-            ->map(fn($user) => ['value' => $user->id, 'label' => $user->grower_name]);
+            ->map(fn ($user) => ['value' => $user->id, 'label' => $user->grower_name]);
     }
 }
