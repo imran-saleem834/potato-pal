@@ -3,7 +3,6 @@
 namespace App\Http\Requests;
 
 use App\Models\Reallocation;
-use Illuminate\Validation\Rule;
 use App\Helpers\AllocationHelper;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -25,42 +24,31 @@ class ReallocationRequest extends FormRequest
     public function rules(): array
     {
         $rules = [
-            'buyer_id'                          => ['required', 'numeric', 'exists:users,id'],
-            'allocation_buyer_id'               => ['required', 'numeric', 'exists:users,id'],
-            'comment'                           => ['nullable', 'string', 'max:255'],
-            'selected_allocation'               => ['required', 'array'],
-            'selected_allocation.id'            => [
-                'nullable',
-                'numeric',
-                'exists:allocations,id',
-            ],
-            'selected_allocation.item'          => ['required', 'array'],
-            'selected_allocation.item.bin_size' => ['required', 'numeric', Rule::in([500, 1000, 2000])],
+            'buyer_id'            => ['required', 'numeric', 'exists:users,id'],
+            'allocation_buyer_id' => ['required', 'numeric', 'exists:users,id'],
+            'comment'             => ['nullable', 'string', 'max:255'],
+            'selected_cutting'    => ['required', 'array'],
+            'selected_cutting.id' => ['nullable', 'numeric', 'exists:cuttings,id'],
         ];
 
-        $inputs = $this->input('selected_allocation', []);
+        $inputs  = $this->input('selected_cutting', []);
+        $cutting = AllocationHelper::getAvailableCuttingsForReallocation(['id' => $inputs['id']])->first();
 
-        $allocation = AllocationHelper::getAvailableAllocationForReallocation(['id' => $inputs['id']])->first();
-
-        $binsInKg = $allocation->available_no_of_bins * $allocation->item->bin_size;
         if ($this->isMethod('PATCH')) {
             $reallocation = Reallocation::query()
-                ->with(['item' => fn ($query) => $query->where('foreignable_id', $allocation->id)])
+                ->with(['item' => fn($query) => $query->where('foreignable_id', $cutting->id)])
                 ->find($this->route('reallocation'));
 
-            if (! empty($reallocation->item)) {
-                $binsInKg += $reallocation->item->no_of_bins * $reallocation->item->bin_size;
+            if (!empty($reallocation->item)) {
+                $cutting->available_half_tonnes = $cutting->available_half_tonnes + $reallocation->item->half_tonnes;
+                $cutting->available_one_tonnes  = $cutting->available_one_tonnes + $reallocation->item->one_tonnes;
+                $cutting->available_two_tonnes  = $cutting->available_two_tonnes + $reallocation->item->two_tonnes;
             }
         }
 
-        $allocation->available_no_of_bins = $binsInKg / $allocation->item->bin_size;
-
-        $rules['selected_allocation.no_of_bins'] = [
-            'required',
-            'numeric',
-            'gt:0',
-            "max:{$allocation->available_no_of_bins}",
-        ];
+        $rules['half_tonnes'] = ['nullable', 'numeric', "max:{$cutting->available_half_tonnes}"];
+        $rules['one_tonnes']  = ['nullable', 'numeric', "max:{$cutting->available_one_tonnes}"];
+        $rules['two_tonnes']  = ['nullable', 'numeric', "max:{$cutting->available_two_tonnes}"];
 
         return $rules;
     }
@@ -73,33 +61,10 @@ class ReallocationRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'buyer_id'                          => 'reallocate to buyer',
-            'allocation_buyer_id'               => 'reallocate from buyer',
-            'selected_allocation'               => 'allocation',
-            'selected_allocation.allocation_id' => 'allocation',
-            'selected_allocation.no_of_bins'    => 'no of bins',
+            'buyer_id'            => 'reallocate to buyer',
+            'allocation_buyer_id' => 'reallocate from buyer',
+            'selected_cutting'    => 'cutting',
+            'selected_cutting.id' => 'cutting',
         ];
-    }
-
-    /**
-     * Get custom messages for validator errors.
-     */
-    public function messages(): array
-    {
-        return [
-            'weight.gte' => 'The :attribute field must be greater than or equal to :value kg.',
-            'weight.max' => 'The :attribute field must not be greater than :max kg.',
-        ];
-    }
-
-    /**
-     * Prepare the data for validation.
-     *
-     * @return void
-     */
-    public function prepareForValidation()
-    {
-        $weight = max($this->input('weight', 0), 0) * 1000;
-        $this->merge(['weight' => $weight]);
     }
 }

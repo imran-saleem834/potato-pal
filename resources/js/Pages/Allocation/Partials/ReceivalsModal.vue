@@ -75,7 +75,7 @@ watch(
             v-if="!loader && receivals.length <= 0"
             class="d-flex justify-content-center text-danger fs-5 my-3"
           >
-            Doesn't find any records
+            Data not found
           </div>
           <div v-if="!loader && receivals.length" class="table-responsive">
             <DataTable class="table mb-0">

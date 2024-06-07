@@ -163,7 +163,7 @@ class AllocationController extends Controller
         return Allocation::query()
             ->with([
                 'item',
-                'returns',
+                'returnItems',
                 'categories.category',
                 'grower:id,grower_name',
             ])

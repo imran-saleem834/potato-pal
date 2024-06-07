@@ -40,7 +40,7 @@ class Dispatch extends Model
             ->where('is_returned', false);
     }
 
-    public function returns(): MorphMany
+    public function returnItems(): MorphMany
     {
         return $this->morphMany(AllocationItem::class, 'allocatable')
             ->where('is_returned', true);

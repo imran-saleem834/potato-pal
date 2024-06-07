@@ -24,6 +24,9 @@ class AllocationItem extends Model
         'bin_size',
         'no_of_bins',
         'weight',
+        'half_tonnes',
+        'one_tonnes',
+        'two_tonnes',
     ];
 
     /**

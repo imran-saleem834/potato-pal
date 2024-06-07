@@ -25,40 +25,33 @@ class DispatchRequest extends FormRequest
     public function rules(): array
     {
         $rules = [
-            'buyer_id'                          => ['required', 'numeric', 'exists:users,id'],
-            'type'                              => ['required', 'string', Rule::in(['allocation', 'reallocation'])],
-            'allocation_buyer_id'               => ['required', 'numeric', 'exists:users,id'],
-            'selected_allocation.id'            => ['nullable', 'numeric'],
-            'selected_allocation.item'          => ['required', 'array'],
-            'selected_allocation.item.bin_size' => ['required', 'numeric', Rule::in([500, 1000, 2000])],
-            'comment'                           => ['nullable', 'string', 'max:255'],
+            'buyer_id'               => ['required', 'numeric', 'exists:users,id'],
+            'type'                   => ['required', 'string', Rule::in(['allocation', 'cutting', 'reallocation'])],
+            'allocation_buyer_id'    => ['required', 'numeric', 'exists:users,id'],
+            'selected_allocation.id' => ['nullable', 'numeric'],
+            'comment'                => ['nullable', 'string', 'max:255'],
         ];
 
-        $inputs = $this->input('selected_allocation', []);
-
-        $allocation = AllocationHelper::getAvailableAllocationForDispatch([$inputs['type'].'_id' => $inputs['id']])
+        $inputs     = $this->input('selected_allocation', []);
+        $allocation = AllocationHelper::getAvailableAllocationForDispatch([$inputs['type'] . '_id' => $inputs['id']])
             ->where('type', $inputs['type'])
             ->first();
 
-        $binsInKg = $allocation->available_no_of_bins * $allocation->item->bin_size;
         if ($this->isMethod('PATCH')) {
             $dispatch = Dispatch::query()
                 ->with(['item' => fn ($query) => $query->where('foreignable_id', $allocation->id)])
                 ->find($this->route('dispatch'));
 
-            if (! empty($dispatch->item)) {
-                $binsInKg += $dispatch->item->no_of_bins * $dispatch->item->bin_size;
+            if (!empty($dispatch->item)) {
+                $allocation->available_half_tonnes = $allocation->available_half_tonnes + $dispatch->item->half_tonnes;
+                $allocation->available_one_tonnes  = $allocation->available_one_tonnes + $dispatch->item->one_tonnes;
+                $allocation->available_two_tonnes  = $allocation->available_two_tonnes + $dispatch->item->two_tonnes;
             }
         }
 
-        $allocation->available_no_of_bins = $binsInKg / $allocation->item->bin_size;
-
-        $rules['selected_allocation.no_of_bins'] = [
-            'required',
-            'numeric',
-            'gt:0',
-            "max:{$allocation->available_no_of_bins}",
-        ];
+        $rules['half_tonnes'] = ['nullable', 'numeric', "max:{$allocation->available_half_tonnes}"];
+        $rules['one_tonnes']  = ['nullable', 'numeric', "max:{$allocation->available_one_tonnes}"];
+        $rules['two_tonnes']  = ['nullable', 'numeric', "max:{$allocation->available_two_tonnes}"];
 
         return $rules;
     }
@@ -71,21 +64,10 @@ class DispatchRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'buyer_id'                          => 'dispatch buyer',
-            'allocation_buyer_id'               => 'allocation buyer',
-            'selected_allocation'               => 'allocation',
-            'selected_allocation.no_of_bins'    => 'no of bins',
+            'buyer_id'               => 'dispatch to buyer',
+            'allocation_buyer_id'    => 'dispatch from buyer',
+            'selected_allocation'    => 'selection',
+            'selected_allocation.id' => 'selection',
         ];
-    }
-
-    /**
-     * Prepare the data for validation.
-     *
-     * @return void
-     */
-    public function prepareForValidation()
-    {
-        $weight = max($this->input('weight', 0), 0) * 1000;
-        $this->merge(['weight' => $weight]);
     }
 }

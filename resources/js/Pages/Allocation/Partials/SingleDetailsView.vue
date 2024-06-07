@@ -1,6 +1,6 @@
 <script setup>
-import moment from 'moment';
 import { Link } from '@inertiajs/vue3';
+import ReturnItems from "@/Components/ReturnItems.vue";
 import { toTonnes, getBinSizesValue, getSingleCategoryNameByType } from '@/helper.js';
 
 defineProps({
@@ -70,30 +70,7 @@ defineProps({
       <span>Comments: </span>
       <span class="text-primary">{{ allocation.comment }}</span>
     </div>
-    <template v-if="allocation.returns.length">
-      <div class="col-12 mb-1 pb-1">
-        <span class="text-danger">Returns:</span>
-      </div>
-      <template v-for="item in allocation.returns" :key="item.id">
-        <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Bin size: </span>
-          <span class="text-primary">{{ getBinSizesValue(item.bin_size) }}</span>
-        </div>
-        <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Return bins: </span>
-          <span class="text-primary">{{ item.no_of_bins }}</span>
-        </div>
-        <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1 d-none">
-          <span>Return weight: </span>
-          <span class="text-primary">{{ toTonnes(item.weight) }}</span>
-        </div>
-        <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Return Time: </span>
-          <span class="text-primary">
-            {{ moment(item.created_at).format('DD/MM/YYYY hh:mm A') }}
-          </span>
-        </div>
-      </template>
-    </template>
+
+    <ReturnItems :items="allocation.return_items" />
   </div>
 </template>

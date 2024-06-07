@@ -2,7 +2,7 @@
 import { ref, watch } from 'vue';
 import DataTable from 'datatables.net-vue3';
 import DataTablesCore from 'datatables.net';
-import { toTonnes, getBinSizesValue, getSingleCategoryNameByType } from '@/helper.js';
+import { getSingleCategoryNameByType } from '@/helper.js';
 
 DataTable.use(DataTablesCore);
 
@@ -13,18 +13,17 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['allocations', 'close']);
+const emit = defineEmits(['cutting', 'close']);
 
 const loader = ref(false);
-const allocations = ref([]);
-const selected = ref([]);
+const cuttings = ref([]);
 
-const getAllocations = () => {
+const getCuttings = () => {
   loader.value = true;
   axios
-    .get(route('r.buyers.allocations', props.buyerId))
+    .get(route('buyers.cuttings', props.buyerId))
     .then((response) => {
-      allocations.value = response.data;
+      cuttings.value = response.data;
     })
     .catch(() => {})
     .finally(() => {
@@ -33,13 +32,12 @@ const getAllocations = () => {
 };
 
 const onCloseModal = () => {
-  selected.value = [];
-  allocations.value = [];
+  cuttings.value = [];
   emit('close');
 };
 
-const onSelectAllocation = (allocation) => {
-  emit('allocations', allocation);
+const onSelectCutting = (cutting) => {
+  emit('cutting', cutting);
   onCloseModal();
 };
 
@@ -47,23 +45,18 @@ watch(
   () => props.buyerId,
   (buyerId) => {
     if (buyerId) {
-      getAllocations();
+      getCuttings();
     }
   },
 );
 </script>
 
 <template>
-  <div class="modal fade" id="allocations-modal" tabindex="-1" role="dialog">
+  <div class="modal fade" id="cuttings-modal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-xl">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="allocations-modal-Label">
-            <template v-if="selected.length > 0">
-              Selected {{ selected.length }} Allocations
-            </template>
-            <template v-else>Select Allocations</template>
-          </h5>
+          <h5 class="modal-title" id="cuttings-modal-Label">Select Cuttings</h5>
           <button
             type="button"
             class="btn-close"
@@ -79,12 +72,12 @@ watch(
             </div>
           </div>
           <div
-            v-if="!loader && allocations.length <= 0"
+            v-if="!loader && cuttings.length <= 0"
             class="d-flex justify-content-center text-danger fs-5 my-3"
           >
-            Doesn't find any records
+            Data not found
           </div>
-          <div v-if="!loader && allocations.length" class="table-responsive">
+          <div v-if="!loader && cuttings.length" class="table-responsive">
             <DataTable class="table mb-0">
               <thead>
                 <tr>
@@ -95,47 +88,41 @@ watch(
                   <th>Gen</th>
                   <th>Seed type</th>
                   <th>Class</th>
-                  <th>Bin size</th>
-                  <th>Weight</th>
-                  <th>Available / Tipped bins</th>
+                  <th>Half tonnes</th>
+                  <th>One tonnes</th>
+                  <th>Two tonnes</th>
                   <th>Select</th>
                 </tr>
               </thead>
               <tbody>
-                <template v-for="allocation in allocations" :key="allocation.id">
+                <template v-for="cutting in cuttings" :key="cutting.id">
                   <tr>
+                    <td>{{ getSingleCategoryNameByType(cutting.item.foreignable.categories, 'grower-group') || '-' }}</td>
+                    <td>{{ cutting.item.foreignable.grower?.grower_name || '-' }}</td>
+                    <td>{{ cutting.item.foreignable.paddock }}</td>
                     <td>
                       {{
-                        getSingleCategoryNameByType(allocation.categories, 'grower-group') || '-'
-                      }}
-                    </td>
-                    <td>{{ allocation.grower?.grower_name || '-' }}</td>
-                    <td>{{ allocation.paddock }}</td>
-                    <td>
-                      {{
-                        getSingleCategoryNameByType(allocation.categories, 'seed-variety') || '-'
+                        getSingleCategoryNameByType(cutting.item.foreignable.categories, 'seed-variety') || '-'
                       }}
                     </td>
                     <td>
                       {{
-                        getSingleCategoryNameByType(allocation.categories, 'seed-generation') || '-'
+                        getSingleCategoryNameByType(cutting.item.foreignable.categories, 'seed-generation') || '-'
                       }}
                     </td>
                     <td>
-                      {{ getSingleCategoryNameByType(allocation.categories, 'seed-type') || '-' }}
+                      {{ getSingleCategoryNameByType(cutting.item.foreignable.categories, 'seed-type') || '-' }}
                     </td>
                     <td>
-                      {{ getSingleCategoryNameByType(allocation.categories, 'seed-class') || '-' }}
+                      {{ getSingleCategoryNameByType(cutting.item.foreignable.categories, 'seed-class') || '-' }}
                     </td>
-                    <td>{{ getBinSizesValue(allocation.item.bin_size) }}</td>
-                    <td>{{ toTonnes(allocation.item.weight) }}</td>
-                    <td>
-                      {{ `${allocation.available_no_of_bins} / ${allocation.total_no_of_bins}` }}
-                    </td>
+                    <td>{{ `${cutting.available_half_tonnes} Bins` }}</td>
+                    <td>{{ `${cutting.available_one_tonnes} Bins` }}</td>
+                    <td>{{ `${cutting.available_two_tonnes} Bins` }}</td>
                     <td>
                       <input
                         type="checkbox"
-                        @click="onSelectAllocation(allocation)"
+                        @click="onSelectCutting(cutting)"
                         data-bs-dismiss="modal"
                       />
                     </td>

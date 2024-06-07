@@ -5,7 +5,7 @@ import Multiselect from '@vueform/multiselect';
 import TextInput from '@/Components/TextInput.vue';
 import { useToast } from 'vue-toastification';
 import ConfirmedModal from '@/Components/ConfirmedModal.vue';
-import SelectedAllocationView from '@/Pages/Reallocation/Partials/SelectedAllocationView.vue';
+import SelectedCuttingView from '@/Pages/Reallocation/Partials/SelectedCuttingView.vue';
 import SingleDetailsView from '@/Pages/Reallocation/Partials/SingleDetailsView.vue';
 
 const toast = useToast();
@@ -24,10 +24,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  selectedAllocation: Object,
+  selectedCutting: Object,
 });
 
-const emit = defineEmits(['allocation', 'create', 'delete']);
+const emit = defineEmits(['cutting', 'create', 'delete']);
 
 const isEdit = ref(false);
 const loader = ref(false);
@@ -35,8 +35,11 @@ const loader = ref(false);
 const form = useForm({
   buyer_id: props.reallocation.buyer_id,
   allocation_buyer_id: props.reallocation.allocation_buyer_id,
+  half_tonnes: props.reallocation.item?.half_tonnes,
+  one_tonnes: props.reallocation.item?.one_tonnes,
+  two_tonnes: props.reallocation.item?.two_tonnes,
   comment: props.reallocation.comment,
-  selected_allocation: [],
+  selected_cutting: {},
 });
 
 watch(
@@ -48,21 +51,24 @@ watch(
     form.clearErrors();
     form.buyer_id = reallocation.buyer_id;
     form.allocation_buyer_id = reallocation.allocation_buyer_id;
+    form.half_tonnes = reallocation.item?.half_tonnes;
+    form.one_tonnes = reallocation.item?.one_tonnes;
+    form.two_tonnes = reallocation.item?.two_tonnes;
     form.comment = reallocation.comment;
   },
 );
 
 watch(
-  () => props.selectedAllocation,
-  (allocation) => {
-    if (Object.values(allocation).length) {
-      form.selected_allocation = allocation;
+  () => props.selectedCutting,
+  (cutting) => {
+    if (Object.values(cutting).length) {
+      form.selected_cutting = cutting;
     }
   },
 );
 
 const onChangeAllocationBuyer = () => {
-  form.selected_allocation = [];
+  form.selected_cutting = [];
 };
 
 const isForm = computed(() => {
@@ -74,12 +80,14 @@ const setIsEdit = () => {
   loader.value = true;
 
   axios
-    .get(route('r.buyers.allocations', props.reallocation.allocation_buyer_id))
+    .get(route('buyers.cuttings', props.reallocation.allocation_buyer_id))
     .then((response) => {
-      form.selected_allocation = response.data.find((allocation) => {
-        return props.reallocation.item.foreignable_id === allocation.id;
+      form.selected_cutting = response.data.find((cutting) => {
+        return props.reallocation.item.foreignable_id === cutting.id;
       });
-      form.selected_allocation.no_of_bins = props.reallocation.item.no_of_bins;
+      form.half_tonnes = props.reallocation.item.half_tonnes;
+      form.one_tonnes = props.reallocation.item.one_tonnes;
+      form.two_tonnes = props.reallocation.item.two_tonnes;
     })
     .catch(() => {})
     .finally(() => {
@@ -165,16 +173,16 @@ defineExpose({
               :searchable="true"
               :options="$page.props.buyers"
               :class="{
-                'is-invalid': form.errors.allocation_buyer_id || form.errors.selected_allocation,
+                'is-invalid': form.errors.allocation_buyer_id || form.errors.selected_cutting,
               }"
             />
             <button
               v-if="form.allocation_buyer_id"
               class="btn btn-red input-group-text px-1 px-sm-2"
               data-bs-toggle="modal"
-              data-bs-target="#allocations-modal"
+              data-bs-target="#cuttings-modal"
               v-text="'Select Cutting'"
-              @click="emit('allocation', form.allocation_buyer_id)"
+              @click="emit('cutting', form.allocation_buyer_id)"
             />
           </div>
           <div
@@ -183,32 +191,50 @@ defineExpose({
             v-text="form.errors.allocation_buyer_id"
           />
           <div
-            v-if="form.errors.selected_allocation"
+            v-if="form.errors.selected_cutting"
             class="invalid-feedback p-0 m-0"
-            v-text="form.errors.selected_allocation"
+            v-text="form.errors.selected_cutting"
           />
         </td>
       </tr>
     </table>
 
     <template v-if="isForm">
-      <SelectedAllocationView :loader="loader" :allocation="form.selected_allocation" />
-      <div class="row mb-3">
-        <div class="col-4">
-          <label class="form-label">Reallocate</label>
-          <TextInput
-            v-model="form.selected_allocation.no_of_bins"
-            :error="form.errors[`selected_allocation.no_of_bins`]"
-            type="text"
-          >
+      <SelectedCuttingView :loader="loader" :cutting="form.selected_cutting" />
+      <div class="row">
+        <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 mb-3">
+          <TextInput type="text" v-model="form.half_tonnes" :error="form.errors.half_tonnes">
+            <template #prefix-addon>
+              <div class="input-group-text">Half tonne</div>
+            </template>
             <template #addon>
               <div class="input-group-text">Bins</div>
             </template>
           </TextInput>
         </div>
-        <div class="col-8">
-          <label class="form-label">Comments</label>
-          <TextInput v-model="form.comment" :error="form.errors.comment" type="text" />
+        <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 mb-3">
+          <TextInput type="text" v-model="form.one_tonnes" :error="form.errors.one_tonnes">
+            <template #prefix-addon>
+              <div class="input-group-text">One tonne</div>
+            </template>
+            <template #addon>
+              <div class="input-group-text">Bins</div>
+            </template>
+          </TextInput>
+        </div>
+        <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 mb-3">
+          <TextInput type="text" v-model="form.two_tonnes" :error="form.errors.two_tonnes">
+            <template #prefix-addon>
+              <div class="input-group-text">Two tonne</div>
+            </template>
+            <template #addon>
+              <div class="input-group-text">Bins</div>
+            </template>
+          </TextInput>
+        </div>
+        <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 mb-3">
+          <label class="form-label d-none">Comments</label>
+          <TextInput v-model="form.comment" :error="form.errors.comment" type="text" placeholder="Comments" />
         </div>
       </div>
       <div v-if="isEdit || isNewItem" class="w-100 text-end">

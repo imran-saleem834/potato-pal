@@ -8,7 +8,7 @@ import LeftBar from '@/Components/LeftBar.vue';
 import Pagination from '@/Components/Pagination.vue';
 import { getCategoriesByType } from '@/helper.js';
 import { useWindowSize } from 'vue-window-size';
-import AllocationsModal from '@/Pages/Dispatch/Partials/AllocationsModal.vue';
+import SelectionModal from '@/Pages/Dispatch/Partials/SelectionModal.vue';
 import ReturnsModal from '@/Pages/Dispatch/Partials/ReturnsModal.vue';
 
 const { width, height } = useWindowSize();
@@ -221,7 +221,6 @@ if (width.value > 991) {
                 @create="() => setActiveTab(activeTab?.buyer_id)"
               />
               <template v-for="dispatch in dispatches?.data" :key="dispatch.id">
-                <!--                  @setReturnDispatch="(returnDispatch) => selectedReturnDispatch => returnDispatch"-->
                 <Details
                   ref="details"
                   :unique-key="`${dispatch.id}`"
@@ -244,7 +243,7 @@ if (width.value > 991) {
       </div>
     </div>
 
-    <AllocationsModal
+    <SelectionModal
       :buyer-id="selection[selectIdentifier]?.id"
       @allocations="(allocations) => (selection[selectIdentifier].selected = allocations)"
       @close="() => (selection[selectIdentifier].id = null)"

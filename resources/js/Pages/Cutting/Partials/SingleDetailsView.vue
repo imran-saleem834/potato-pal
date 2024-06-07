@@ -4,6 +4,7 @@ import { Link } from '@inertiajs/vue3';
 import { getBinSizesValue, getSingleCategoryNameByType } from '@/helper.js';
 import { onMounted, onUpdated } from 'vue';
 import * as bootstrap from 'bootstrap';
+import ReturnItems from "@/Components/ReturnItems.vue";
 
 defineProps({
   cutting: Object,
@@ -40,35 +41,35 @@ onUpdated(() => {
       </tr>
     </thead>
     <tbody>
-      <tr v-for="item in cutting.items" :key="item.id">
+      <tr>
         <td>
-          <Link :href="route('allocations.index', { buyerId: item.foreignable?.buyer_id })">
-            {{ item.foreignable.id }}
+          <Link :href="route('allocations.index', { buyerId: cutting.item.foreignable?.buyer_id })">
+            {{ cutting.item.foreignable.id }}
           </Link>
         </td>
         <td class="d-none d-md-table-cell text-primary">
-          {{ item.foreignable?.grower?.grower_name }}
+          {{ cutting.item.foreignable?.grower?.grower_name }}
         </td>
-        <td class="d-none d-md-table-cell text-primary">{{ item.foreignable.paddock }}</td>
+        <td class="d-none d-md-table-cell text-primary">{{ cutting.item.foreignable.paddock }}</td>
         <td class="d-none d-xl-table-cell text-primary">
-          {{ getSingleCategoryNameByType(item.foreignable.categories, 'seed-variety') || '-' }}
+          {{ getSingleCategoryNameByType(cutting.item.foreignable.categories, 'seed-variety') || '-' }}
         </td>
         <td class="d-none d-md-table-cell text-primary">
-          {{ getSingleCategoryNameByType(item.foreignable.categories, 'seed-generation') || '-' }}
+          {{ getSingleCategoryNameByType(cutting.item.foreignable.categories, 'seed-generation') || '-' }}
         </td>
         <td class="text-primary">
-          {{ getSingleCategoryNameByType(item.foreignable.categories, 'seed-type') || '-' }}
+          {{ getSingleCategoryNameByType(cutting.item.foreignable.categories, 'seed-type') || '-' }}
           <a
             data-bs-toggle="tooltip"
             data-bs-html="true"
             class="d-xl-none"
             :data-bs-title="`
             <div class='text-start'>
-              Grower: ${item.foreignable.grower.grower_name}<br/>
-              Paddock: ${item.foreignable.paddock}<br/>
-              Variety: ${getSingleCategoryNameByType(item.foreignable.categories, 'seed-variety') || '-'}<br/>
-              Gen.: ${getSingleCategoryNameByType(item.foreignable.categories, 'seed-generation') || '-'}<br/>
-              Class: ${getSingleCategoryNameByType(item.foreignable.categories, 'seed-class') || '-'}
+              Grower: ${cutting.item.foreignable.grower.grower_name}<br/>
+              Paddock: ${cutting.item.foreignable.paddock}<br/>
+              Variety: ${getSingleCategoryNameByType(cutting.item.foreignable.categories, 'seed-variety') || '-'}<br/>
+              Gen.: ${getSingleCategoryNameByType(cutting.item.foreignable.categories, 'seed-generation') || '-'}<br/>
+              Class: ${getSingleCategoryNameByType(cutting.item.foreignable.categories, 'seed-class') || '-'}
             </div>
           `"
           >
@@ -76,10 +77,10 @@ onUpdated(() => {
           </a>
         </td>
         <td class="d-none d-xl-table-cell text-primary">
-          {{ getSingleCategoryNameByType(item.foreignable.categories, 'seed-class') || '-' }}
+          {{ getSingleCategoryNameByType(cutting.item.foreignable.categories, 'seed-class') || '-' }}
         </td>
-        <td class="text-primary">{{ getBinSizesValue(item.bin_size) }}</td>
-        <td class="text-primary">{{ item.no_of_bins }}</td>
+        <td class="text-primary">{{ getBinSizesValue(cutting.item.bin_size) }}</td>
+        <td class="text-primary">{{ cutting.item.no_of_bins }}</td>
       </tr>
     </tbody>
   </table>
@@ -90,31 +91,31 @@ onUpdated(() => {
       <span>Bins Cut into:</span>
     </div>
     <div
-      v-if="parseInt(cutting.half_tonnes) > 0"
+      v-if="parseInt(cutting.item.half_tonnes) > 0"
       class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1"
     >
       <span>Half Tonne: </span>
-      <span class="text-primary">{{ cutting.half_tonnes || '0' }} Bins</span>
+      <span class="text-primary">{{ cutting.item.half_tonnes || '0' }} Bins</span>
     </div>
     <div
-      v-if="parseInt(cutting.one_tonnes) > 0"
+      v-if="parseInt(cutting.item.one_tonnes) > 0"
       class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1"
     >
       <span>One Tonne: </span>
-      <span class="text-primary">{{ cutting.one_tonnes || '0' }} Bins</span>
+      <span class="text-primary">{{ cutting.item.one_tonnes || '0' }} Bins</span>
     </div>
     <div
-      v-if="parseInt(cutting.two_tonnes) > 0"
+      v-if="parseInt(cutting.item.two_tonnes) > 0"
       class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1"
     >
       <span>Two Tonne: </span>
-      <span class="text-primary">{{ cutting.two_tonnes || '0' }} Bins</span>
+      <span class="text-primary">{{ cutting.item.two_tonnes || '0' }} Bins</span>
     </div>
     <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
       <span>Date cut: </span>
-      <span v-if="cutting.cut_date" class="text-primary">{{
-        moment(cutting.cut_date).format('DD MMM YYYY')
-      }}</span>
+      <span v-if="cutting.cut_date" class="text-primary">
+        {{ moment(cutting.cut_date).format('DD MMM YYYY') }}
+      </span>
     </div>
     <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
       <span>Cut By: </span>
@@ -133,4 +134,6 @@ onUpdated(() => {
       <span class="text-primary">{{ cutting.comment }}</span>
     </div>
   </div>
+
+  <ReturnItems :items="cutting.return_items" />
 </template>

@@ -15,6 +15,10 @@ defineProps({
     type: String,
     default: '',
   },
+  placeholder: {
+    type: String,
+    default: '',
+  },
 });
 
 defineEmits(['update:modelValue']);
@@ -40,6 +44,7 @@ defineExpose({ focus: () => input.value.focus() });
       :class="{ 'is-invalid': error }"
       :disabled="disabled"
       :value="modelValue"
+      :placeholder="placeholder"
       @input="$emit('update:modelValue', $event.target.value)"
     />
     <slot name="addon" />

@@ -5,7 +5,7 @@ import { toTonnes, getBinSizesValue, getSingleCategoryNameByType } from '@/helpe
 
 const props = defineProps({
   loader: Boolean,
-  allocations: Array,
+  allocation: Object,
   form: {
     required: true,
   },
@@ -24,7 +24,7 @@ watchEffect(() => {
       <span class="visually-hidden">Loading...</span>
     </div>
   </div>
-  <div v-if="!loader && allocations.length > 0" class="table-responsive">
+  <div v-if="!loader && Object.values(allocation).length > 0" class="table-responsive">
     <table class="table table-sm align-middle mb-3">
       <thead>
         <tr>
@@ -41,7 +41,7 @@ watchEffect(() => {
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(allocation, index) in allocations" :key="allocation.id">
+        <tr>
           <td class="d-none d-md-table-cell text-primary">{{ allocation.grower.grower_name }}</td>
           <td class="d-none d-md-table-cell text-primary">{{ allocation.paddock }}</td>
           <td class="d-none d-md-table-cell text-primary">
@@ -82,8 +82,8 @@ watchEffect(() => {
           </td>
           <td style="max-width: 150px">
             <TextInput
-              v-model="form.selected_allocations[index].no_of_bins"
-              :error="form.errors[`selected_allocations.${index}.no_of_bins`]"
+              v-model="form.selected_allocation.no_of_bins"
+              :error="form.errors[`selected_allocation.no_of_bins`]"
               type="text"
             />
           </td>

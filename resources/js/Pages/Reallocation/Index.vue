@@ -8,7 +8,7 @@ import LeftBar from '@/Components/LeftBar.vue';
 import Pagination from '@/Components/Pagination.vue';
 import { getCategoriesByType } from '@/helper.js';
 import { useWindowSize } from 'vue-window-size';
-import AllocationsModal from '@/Pages/Reallocation/Partials/AllocationsModal.vue';
+import CuttingsModal from '@/Pages/Reallocation/Partials/CuttingsModal.vue';
 
 const { width, height } = useWindowSize();
 
@@ -134,8 +134,8 @@ if (width.value > 991) {
               ref="details"
               unique-key="newRecord"
               :is-new="true"
-              :selected-allocation="selection['newRecord']?.selected || {}"
-              @allocation="(id) => setUpdateSelection('newRecord', id)"
+              :selected-cutting="selection['newRecord']?.selected || {}"
+              @cutting="(id) => setUpdateSelection('newRecord', id)"
               @create="() => setActiveTab(reallocations[0]?.buyer_id)"
             />
             <template v-else>
@@ -200,7 +200,7 @@ if (width.value > 991) {
                     :disabled="isNewItemRecord"
                     @click="isNewItemRecord = true"
                   >
-                    <i class="bi bi-plus-lg"></i> Add allocation
+                    <i class="bi bi-plus-lg"></i> Add reallocation
                   </button>
                 </div>
               </div>
@@ -210,8 +210,8 @@ if (width.value > 991) {
                 unique-key="newItemRecord"
                 :reallocation="{ buyer_id: activeTab?.buyer_id }"
                 :is-new-item="true"
-                :selected-allocation="selection['newItemRecord']?.selected || {}"
-                @allocation="(id) => setUpdateSelection('newItemRecord', id)"
+                :selected-cutting="selection['newItemRecord']?.selected || {}"
+                @cutting="(id) => setUpdateSelection('newItemRecord', id)"
                 @create="() => setActiveTab(activeTab?.buyer_id)"
               />
               <template v-for="reallocation in reallocations?.data" :key="reallocation.id">
@@ -219,8 +219,8 @@ if (width.value > 991) {
                   ref="details"
                   :unique-key="`${reallocation.id}`"
                   :reallocation="reallocation"
-                  :selected-allocation="selection[reallocation.id]?.selected || {}"
-                  @allocation="(buyerId) => setUpdateSelection(reallocation.id, buyerId)"
+                  :selected-cutting="selection[reallocation.id]?.selected || {}"
+                  @cutting="(buyerId) => setUpdateSelection(reallocation.id, buyerId)"
                   @delete="() => setActiveTab(reallocations?.data[0]?.buyer_id)"
                 />
               </template>
@@ -236,9 +236,9 @@ if (width.value > 991) {
       </div>
     </div>
 
-    <AllocationsModal
+    <CuttingsModal
       :buyer-id="selection[selectIdentifier]?.id"
-      @allocations="(allocations) => (selection[selectIdentifier].selected = allocations)"
+      @cutting="(cutting) => (selection[selectIdentifier].selected = cutting)"
       @close="() => (selection[selectIdentifier].id = null)"
     />
   </AppLayout>

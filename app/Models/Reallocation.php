@@ -35,7 +35,8 @@ class Reallocation extends Model
     public function item(): MorphOne
     {
         return $this->morphOne(AllocationItem::class, 'allocatable')
-            ->where('foreignable_type', Allocation::class);
+            ->where('foreignable_type', Cutting::class)
+            ->where('is_returned', false);
     }
 
     public function dispatchItems(): MorphMany
@@ -45,7 +46,7 @@ class Reallocation extends Model
             ->where('is_returned', false);
     }
 
-    public function returns(): MorphMany
+    public function returnItems(): MorphMany
     {
         return $this->morphMany(AllocationItem::class, 'foreignable')
             ->where('allocatable_type', Dispatch::class)

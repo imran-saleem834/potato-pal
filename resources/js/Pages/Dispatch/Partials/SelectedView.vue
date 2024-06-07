@@ -1,9 +1,19 @@
 <script setup>
-import { toTonnes, getBinSizesValue, getSingleCategoryNameByType } from '@/helper.js';
+import { computed } from 'vue';
+import { getSingleCategoryNameByType } from '@/helper.js';
 
 const props = defineProps({
   loader: Boolean,
-  allocation: Object,
+  selected: Object,
+});
+
+const allocation = computed(() => {
+  if (props.selected.type === 'reallocation') {
+    return props.selected.item.foreignable.item.foreignable;
+  } else if (props.selected.type === 'cutting') {
+    return props.selected.item.foreignable;
+  }
+  return props.selected;
 });
 </script>
 
@@ -13,23 +23,27 @@ const props = defineProps({
       <span class="visually-hidden">Loading...</span>
     </div>
   </div>
-  <div v-if="!loader && Object.values(allocation).length > 0" class="table-responsive">
+  <div v-if="!loader && Object.values(selected).length > 0" class="table-responsive">
     <table class="table table-sm align-middle mb-3">
       <thead>
         <tr>
+          <th>From</th>
           <th class="d-none d-md-table-cell">Grower</th>
           <th class="d-none d-md-table-cell">Paddock</th>
           <th class="d-none d-md-table-cell">Variety</th>
           <th class="d-none d-md-table-cell">Gen.</th>
           <th>Seed type</th>
           <th class="d-none d-md-table-cell">Class</th>
-          <th>Bin size</th>
-          <th class="d-none d-md-table-cell">Weight</th>
-          <th>Available/Tipped bins</th>
+          <th>Half tonnes</th>
+          <th>One tonnes</th>
+          <th>Two tonnes</th>
         </tr>
       </thead>
       <tbody>
         <tr>
+          <td class="d-none d-md-table-cell text-primary">
+            {{ selected.type.toUpperCase() }}
+          </td>
           <td class="d-none d-md-table-cell text-primary">{{ allocation.grower.grower_name }}</td>
           <td class="d-none d-md-table-cell text-primary">{{ allocation.paddock }}</td>
           <td class="d-none d-md-table-cell text-primary">
@@ -50,8 +64,7 @@ const props = defineProps({
                 Paddock: ${allocation.paddock}<br/>
                 Variety: ${getSingleCategoryNameByType(allocation.categories, 'seed-variety') || '-'}<br/>
                 Gen.: ${getSingleCategoryNameByType(allocation.categories, 'seed-generation') || '-'}<br/>
-                Class: ${getSingleCategoryNameByType(allocation.categories, 'seed-class') || '-'}<br/>
-                Weight: ${toTonnes(allocation.item.weight)}
+                Class: ${getSingleCategoryNameByType(allocation.categories, 'seed-class') || '-'}
               </div>
             `"
             >
@@ -61,13 +74,9 @@ const props = defineProps({
           <td class="d-none d-md-table-cell text-primary">
             {{ getSingleCategoryNameByType(allocation.categories, 'seed-class') || '-' }}
           </td>
-          <td class="text-primary">{{ getBinSizesValue(allocation.item.bin_size) }}</td>
-          <td class="d-none d-md-table-cell text-primary">
-            {{ toTonnes(allocation.item.weight) }}
-          </td>
-          <td class="text-primary">
-            {{ `${allocation.available_no_of_bins} / ${allocation.total_no_of_bins}` }}
-          </td>
+          <td>{{ `${selected.available_half_tonnes} Bins` }}</td>
+          <td>{{ `${selected.available_one_tonnes} Bins` }}</td>
+          <td>{{ `${selected.available_two_tonnes} Bins` }}</td>
         </tr>
       </tbody>
     </table>

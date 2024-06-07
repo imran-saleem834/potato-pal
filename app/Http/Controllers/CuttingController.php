@@ -12,6 +12,7 @@ use App\Models\AllocationItem;
 use App\Helpers\AllocationHelper;
 use App\Helpers\CategoriesHelper;
 use App\Helpers\NotificationHelper;
+use App\Helpers\DeleteRecordsHelper;
 use App\Http\Requests\CuttingRequest;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -60,16 +61,19 @@ class CuttingController extends Controller
     {
         $cutting = Cutting::create($request->validated());
 
-        foreach ($request->validated('selected_allocations') as $inputs) {
-            AllocationItem::create([
-                'allocatable_type' => Cutting::class,
-                'allocatable_id'   => $cutting->id,
-                'foreignable_type' => Allocation::class,
-                'foreignable_id'   => $inputs['id'],
-                'bin_size'         => $inputs['item']['bin_size'],
-                'no_of_bins'       => $inputs['no_of_bins'],
-            ]);
-        }
+        $inputs = $request->validated('selected_allocation');
+
+        AllocationItem::create([
+            'allocatable_type' => Cutting::class,
+            'allocatable_id'   => $cutting->id,
+            'foreignable_type' => Allocation::class,
+            'foreignable_id'   => $inputs['id'],
+            'bin_size'         => $inputs['item']['bin_size'],
+            'no_of_bins'       => $inputs['no_of_bins'],
+            'half_tonnes'      => $request->validated('half_tonnes', 0),
+            'one_tonnes'       => $request->validated('one_tonnes', 0),
+            'two_tonnes'       => $request->validated('two_tonnes', 0),
+        ]);
 
         $inputs = $request->only(Cutting::CATEGORY_INPUTS);
         CategoriesHelper::createRelationOfTypes($inputs, $cutting->id, Cutting::class);
@@ -88,28 +92,29 @@ class CuttingController extends Controller
         $cutting->update($request->validated());
         $cutting->save();
 
-        $itemIds = [];
-        foreach ($request->validated('selected_allocations') as $inputs) {
-            $item      = AllocationItem::updateOrCreate(
-                [
-                    'allocatable_type' => Cutting::class,
-                    'allocatable_id'   => $cutting->id,
-                    'foreignable_type' => Allocation::class,
-                    'foreignable_id'   => $inputs['id'],
-                ],
-                [
-                    'bin_size'   => $inputs['item']['bin_size'],
-                    'no_of_bins' => $inputs['no_of_bins'],
-                ]
-            );
-            $itemIds[] = $item->id;
-        }
+        $inputs = $request->validated('selected_allocation');
+        $item   = AllocationItem::updateOrCreate(
+            [
+                'allocatable_type' => Cutting::class,
+                'allocatable_id'   => $cutting->id,
+                'foreignable_type' => Allocation::class,
+                'foreignable_id'   => $inputs['id'],
+                'is_returned'      => 0,
+            ],
+            [
+                'bin_size'    => $inputs['item']['bin_size'],
+                'no_of_bins'  => $inputs['no_of_bins'],
+                'half_tonnes' => $request->validated('half_tonnes', 0),
+                'one_tonnes'  => $request->validated('one_tonnes', 0),
+                'two_tonnes'  => $request->validated('two_tonnes', 0),
+            ],
+        );
 
         // Delete those who where not comes to update or create
         AllocationItem::query()
             ->where('allocatable_type', Cutting::class)
             ->where('allocatable_id', $cutting->id)
-            ->whereNotIn('id', $itemIds)
+            ->whereNotIn('id', [$item->id])
             ->delete();
 
         $inputs = $request->only(Cutting::CATEGORY_INPUTS);
@@ -127,10 +132,10 @@ class CuttingController extends Controller
     {
         CategoriesHelper::deleteCategoryRelations($id, Cutting::class);
 
-        $cutting = Cutting::find($id);
+        $cutting = Cutting::with(['reallocationItems.allocatable.dispatchItems', 'dispatchItems'])->find($id);
         $buyerId = $cutting->buyer_id;
-        $cutting->items()->delete();
-        $cutting->delete();
+
+        DeleteRecordsHelper::deleteCutting($cutting);
 
         NotificationHelper::deleteAction('Cutting', $id);
 
@@ -147,9 +152,10 @@ class CuttingController extends Controller
     {
         return Cutting::query()
             ->with([
+                'returnItems',
                 'categories.category',
-                'items.foreignable.grower:id,grower_name',
-                'items.foreignable.categories.category',
+                'item.foreignable.grower:id,grower_name',
+                'item.foreignable.categories.category',
             ])
             ->when($search, function ($query, $search) {
                 return $query->where(function ($subQuery) use ($search) {
@@ -159,10 +165,10 @@ class CuttingController extends Controller
                         ->orWhereRelation('categories.category', function (Builder $query) use ($search) {
                             return $query->where('name', 'LIKE', "%{$search}%");
                         })
-                        ->orWhereRelation('items.foreignable', function (Builder $query) use ($search) {
+                        ->orWhereRelation('item.foreignable', function (Builder $query) use ($search) {
                             return $query->where('paddock', 'LIKE', "%{$search}%");
                         })
-                        ->orWhereRelation('items.foreignable.categories.category', function (Builder $query) use ($search) {
+                        ->orWhereRelation('item.foreignable.categories.category', function (Builder $query) use ($search) {
                             return $query->where('name', 'LIKE', "%{$search}%");
                         });
                 });

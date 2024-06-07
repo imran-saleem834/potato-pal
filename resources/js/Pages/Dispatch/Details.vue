@@ -4,7 +4,7 @@ import { useForm } from '@inertiajs/vue3';
 import Multiselect from '@vueform/multiselect';
 import TextInput from '@/Components/TextInput.vue';
 import ConfirmedModal from '@/Components/ConfirmedModal.vue';
-import SelectedAllocationView from '@/Pages/Dispatch/Partials/SelectedAllocationView.vue';
+import SelectedView from '@/Pages/Dispatch/Partials/SelectedView.vue';
 import SingleDetailsView from '@/Pages/Dispatch/Partials/SingleDetailsView.vue';
 
 const props = defineProps({
@@ -33,6 +33,9 @@ const form = useForm({
   buyer_id: props.dispatch.buyer_id,
   type: props.dispatch.type,
   allocation_buyer_id: props.dispatch.allocation_buyer_id,
+  half_tonnes: props.dispatch.item?.half_tonnes,
+  one_tonnes: props.dispatch.item?.one_tonnes,
+  two_tonnes: props.dispatch.item?.two_tonnes,
   comment: props.dispatch.comment,
   selected_allocation: {},
 });
@@ -47,6 +50,9 @@ watch(
     form.buyer_id = dispatch.buyer_id;
     form.type = dispatch.type;
     form.allocation_buyer_id = dispatch.allocation_buyer_id;
+    form.half_tonnes = dispatch.item?.half_tonnes;
+    form.one_tonnes = dispatch.item?.one_tonnes;
+    form.two_tonnes = dispatch.item?.two_tonnes;
     form.comment = dispatch.comment;
   },
 );
@@ -82,7 +88,9 @@ const setIsEdit = () => {
           props.dispatch.type === allocation.type
         );
       });
-      form.selected_allocation.no_of_bins = props.dispatch.item.no_of_bins;
+      form.half_tonnes = props.dispatch.item.half_tonnes;
+      form.one_tonnes = props.dispatch.item.one_tonnes;
+      form.two_tonnes = props.dispatch.item.two_tonnes;
     })
     .catch(() => {})
     .finally(() => {
@@ -154,7 +162,7 @@ defineExpose({
   <div class="user-boxes position-relative" :class="{ 'pe-5': !isForm }">
     <table v-if="isForm" class="table input-table">
       <tr>
-        <th class="d-none d-sm-table-cell">Re\Allocation Buyer Name</th>
+        <th class="d-none d-sm-table-cell">Buyer Name</th>
         <td>
           <div class="p-0" :class="{ 'input-group': form.allocation_buyer_id }">
             <Multiselect
@@ -173,7 +181,7 @@ defineExpose({
               class="btn btn-red input-group-text px-1 px-sm-2"
               data-bs-toggle="modal"
               data-bs-target="#allocations-modal"
-              v-text="'Select Allocation'"
+              v-text="'Select'"
               @click="emit('allocation', form.allocation_buyer_id)"
             />
           </div>
@@ -192,23 +200,40 @@ defineExpose({
     </table>
 
     <template v-if="isForm">
-      <SelectedAllocationView :loader="loader" :selected-allocation="form.selected_allocation" />
+      <SelectedView :loader="loader" :selected="form.selected_allocation" />
       <div class="row mb-3">
-        <div class="col-4">
-          <label class="form-label">Dispatch</label>
-          <TextInput
-            v-model="form.selected_allocation.no_of_bins"
-            :error="form.errors[`selected_allocation.no_of_bins`]"
-            type="text"
-          >
+        <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 mb-3">
+          <TextInput type="text" v-model="form.half_tonnes" :error="form.errors.half_tonnes">
+            <template #prefix-addon>
+              <div class="input-group-text">Half tonne</div>
+            </template>
             <template #addon>
               <div class="input-group-text">Bins</div>
             </template>
           </TextInput>
         </div>
-        <div class="col-8">
-          <label class="form-label">Comments</label>
-          <TextInput v-model="form.comment" :error="form.errors.comment" type="text" />
+        <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 mb-3">
+          <TextInput type="text" v-model="form.one_tonnes" :error="form.errors.one_tonnes">
+            <template #prefix-addon>
+              <div class="input-group-text">One tonne</div>
+            </template>
+            <template #addon>
+              <div class="input-group-text">Bins</div>
+            </template>
+          </TextInput>
+        </div>
+        <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 mb-3">
+          <TextInput type="text" v-model="form.two_tonnes" :error="form.errors.two_tonnes">
+            <template #prefix-addon>
+              <div class="input-group-text">Two tonne</div>
+            </template>
+            <template #addon>
+              <div class="input-group-text">Bins</div>
+            </template>
+          </TextInput>
+        </div>
+        <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 mb-3">
+          <TextInput v-model="form.comment" :error="form.errors.comment" type="text" placeholder="Comments" />
         </div>
       </div>
       <div v-if="isEdit || isNewItem" class="w-100 text-end">

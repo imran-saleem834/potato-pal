@@ -1,6 +1,6 @@
 <script setup>
-import { useForm, usePage } from '@inertiajs/vue3';
 import { useToast } from 'vue-toastification';
+import { useForm, usePage } from '@inertiajs/vue3';
 import { computed, onMounted, onUpdated, ref, watch } from 'vue';
 import Multiselect from '@vueform/multiselect';
 import TextInput from '@/Components/TextInput.vue';
@@ -53,14 +53,14 @@ const getDefaultCategoryId = (categories, type, keyword) => {
 
 const form = useForm({
   buyer_id: props.cutting.buyer_id,
-  half_tonnes: props.cutting.half_tonnes,
-  one_tonnes: props.cutting.one_tonnes,
-  two_tonnes: props.cutting.two_tonnes,
+  half_tonnes: props.cutting.item?.half_tonnes,
+  one_tonnes: props.cutting.item?.one_tonnes,
+  two_tonnes: props.cutting.item?.two_tonnes,
   cut_date: props.cutting.cut_date ? props.cutting.cut_date.split('T')[0] : null,
   cool_store: getDefaultCategoryId(props.cutting.categories, 'cool-store', 'Cherry Hill'),
   fungicide: getDefaultCategoryId(props.cutting.categories, 'fungicide', 'Mancozeb/Lime'),
   comment: props.cutting.comment,
-  selected_allocations: [],
+  selected_allocation: {},
 });
 
 watch(
@@ -71,9 +71,9 @@ watch(
     }
     form.clearErrors();
     form.buyer_id = cutting.buyer_id;
-    form.half_tonnes = cutting.half_tonnes;
-    form.one_tonnes = cutting.one_tonnes;
-    form.two_tonnes = cutting.two_tonnes;
+    form.half_tonnes = cutting.item?.half_tonnes;
+    form.one_tonnes = cutting.item?.one_tonnes;
+    form.two_tonnes = cutting.item?.two_tonnes;
     form.cut_date = cutting.cut_date ? cutting.cut_date.split('T')[0] : null;
     form.cool_store = getDefaultCategoryId(cutting.categories, 'cool-store', 'Cherry Hill');
     form.fungicide = getDefaultCategoryId(cutting.categories, 'fungicide', 'Mancozeb/Lime');
@@ -83,14 +83,14 @@ watch(
 
 watch(
   () => props.selectedAllocations,
-  (allocations) => {
-    if (allocations.length > 0) {
-      form.selected_allocations = allocations;
+  (allocation) => {
+    if (Object.values(allocation).length > 0) {
+      form.selected_allocation = allocation;
     }
   },
 );
 
-const onChangeBuyer = () => (form.selected_allocations = []);
+const onChangeBuyer = () => (form.selected_allocation = {});
 
 const isForm = computed(() => {
   return isEdit.value || props.isNew || props.isNewItem;
@@ -103,14 +103,12 @@ const setIsEdit = () => {
   axios
     .get(route('c.buyers.allocations', props.cutting.buyer_id))
     .then((response) => {
-      form.selected_allocations = response.data.filter((allocation) => {
-        return props.cutting.items.some((item) => item.foreignable_id === allocation.id);
-      });
-      form.selected_allocations.map((allocation) => {
-        const item = props.cutting.items.find((item) => item.foreignable_id === allocation.id);
-        allocation.no_of_bins = item.no_of_bins;
-        return allocation;
-      });
+      form.selected_allocation = response.data.find((item) => props.cutting.item.foreignable_id === item.id);
+      form.selected_allocation.bin_size = props.cutting.item.bin_size;
+      form.selected_allocation.no_of_bins = props.cutting.item.no_of_bins;
+      form.half_tonnes = props.cutting.item.half_tonnes;
+      form.one_tonnes = props.cutting.item.one_tonnes;
+      form.two_tonnes = props.cutting.item.two_tonnes;
     })
     .catch(() => {})
     .finally(() => {
@@ -182,7 +180,7 @@ defineExpose({
             class="p-0"
             :class="{
               'input-group': form.buyer_id,
-              'is-invalid': form.errors.buyer_id || form.errors.selected_allocations,
+              'is-invalid': form.errors.buyer_id || form.errors.selected_allocation,
             }"
           >
             <Multiselect
@@ -216,9 +214,9 @@ defineExpose({
             v-text="form.errors.buyer_id"
           />
           <div
-            v-if="form.errors.selected_allocations"
+            v-if="form.errors.selected_allocation"
             class="invalid-feedback p-0 m-0"
-            v-text="form.errors.selected_allocations"
+            v-text="form.errors.selected_allocation"
           />
         </td>
       </tr>
@@ -228,7 +226,7 @@ defineExpose({
       <SelectedAllocationView
         :form="form"
         :loader="loader"
-        :allocations="form.selected_allocations"
+        :allocation="form.selected_allocation"
       />
       <h4 class="mt-0 mb-3">Cutting Details</h4>
       <div class="row">

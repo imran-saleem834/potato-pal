@@ -45,19 +45,15 @@ class Allocation extends Model
     public function item(): MorphOne
     {
         return $this->morphOne(AllocationItem::class, 'allocatable')
-            ->whereNull('foreignable_type');
+            ->whereNull('foreignable_type')
+            ->where('is_returned', false);
     }
 
     public function cuttingItems(): MorphMany
     {
         return $this->morphMany(AllocationItem::class, 'foreignable')
-            ->where('allocatable_type', Cutting::class);
-    }
-
-    public function reallocationItems(): MorphMany
-    {
-        return $this->morphMany(AllocationItem::class, 'foreignable')
-            ->where('allocatable_type', Reallocation::class);
+            ->where('allocatable_type', Cutting::class)
+            ->where('is_returned', false);
     }
 
     public function dispatchItems(): MorphMany
@@ -67,7 +63,7 @@ class Allocation extends Model
             ->where('is_returned', false);
     }
 
-    public function returns(): MorphMany
+    public function returnItems(): MorphMany
     {
         return $this->morphMany(AllocationItem::class, 'foreignable')
             ->where('allocatable_type', Dispatch::class)

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -18,9 +19,6 @@ class Cutting extends Model
      */
     protected $fillable = [
         'buyer_id',
-        'half_tonnes',
-        'one_tonnes',
-        'two_tonnes',
         'cut_date',
         'comment',
     ];
@@ -43,9 +41,31 @@ class Cutting extends Model
         return $this->belongsTo(User::class, 'buyer_id');
     }
 
-    public function items(): MorphMany
+    public function item(): MorphOne
     {
-        return $this->morphMany(AllocationItem::class, 'allocatable');
+        return $this->morphOne(AllocationItem::class, 'allocatable')
+            ->where('is_returned', false);
+    }
+
+    public function reallocationItems(): MorphMany
+    {
+        return $this->morphMany(AllocationItem::class, 'foreignable')
+            ->where('allocatable_type', Reallocation::class)
+            ->where('is_returned', false);
+    }
+
+    public function dispatchItems(): MorphMany
+    {
+        return $this->morphMany(AllocationItem::class, 'foreignable')
+            ->where('allocatable_type', Dispatch::class)
+            ->where('is_returned', false);
+    }
+
+    public function returnItems(): MorphMany
+    {
+        return $this->morphMany(AllocationItem::class, 'foreignable')
+            ->where('allocatable_type', Dispatch::class)
+            ->where('is_returned', true);
     }
 
     public function categories(): MorphMany

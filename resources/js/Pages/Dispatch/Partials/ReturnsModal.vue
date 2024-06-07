@@ -1,10 +1,8 @@
 <script setup>
 import { computed, watch } from 'vue';
-import { binSizes } from '@/const.js';
 import { useForm } from '@inertiajs/vue3';
 import TextInput from '@/Components/TextInput.vue';
-import UlLiButton from '@/Components/UlLiButton.vue';
-import { getBinSizesValue, getSingleCategoryNameByType } from '@/helper.js';
+import { getSingleCategoryNameByType } from '@/helper.js';
 
 const props = defineProps({
   dispatch: {
@@ -17,8 +15,9 @@ const emit = defineEmits(['close']);
 
 const form = useForm({
   dispatch: props.dispatch,
-  bin_size: '',
-  no_of_bins: '',
+  half_tonnes: '',
+  one_tonnes: '',
+  two_tonnes: '',
 });
 
 const storeRecord = () => {
@@ -35,6 +34,8 @@ const storeRecord = () => {
 
 const allocation = computed(() => {
   if (props.dispatch.type === 'reallocation') {
+    return props.dispatch.item.foreignable.item.foreignable.item.foreignable;
+  } else if (props.dispatch.type === 'cutting') {
     return props.dispatch.item.foreignable.item.foreignable;
   }
   return props.dispatch.item.foreignable;
@@ -55,7 +56,7 @@ watch(
     <div class="modal-dialog modal-xl">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="returns-modal-Label">Return Allocation</h5>
+          <h5 v-if="dispatch" class="modal-title" id="returns-modal-Label">Return {{ dispatch.type }}</h5>
           <button
             type="button"
             class="btn-close"
@@ -69,7 +70,7 @@ watch(
             <table class="table mb-0">
               <thead>
                 <tr>
-                  <th>From</th>
+                  <th>To</th>
                   <th>Grower Group</th>
                   <th>Grower</th>
                   <th>Paddock</th>
@@ -77,7 +78,6 @@ watch(
                   <th>Gen</th>
                   <th>Seed type</th>
                   <th>Class</th>
-                  <th>Bin size</th>
                 </tr>
               </thead>
               <tbody>
@@ -92,9 +92,7 @@ watch(
                     {{ getSingleCategoryNameByType(allocation.categories, 'seed-variety') || '-' }}
                   </td>
                   <td>
-                    {{
-                      getSingleCategoryNameByType(allocation.categories, 'seed-generation') || '-'
-                    }}
+                    {{ getSingleCategoryNameByType(allocation.categories, 'seed-generation') || '-' }}
                   </td>
                   <td>
                     {{ getSingleCategoryNameByType(allocation.categories, 'seed-type') || '-' }}
@@ -102,27 +100,40 @@ watch(
                   <td>
                     {{ getSingleCategoryNameByType(allocation.categories, 'seed-class') || '-' }}
                   </td>
-                  <td>{{ getBinSizesValue(dispatch.item.bin_size) }}</td>
                 </tr>
               </tbody>
             </table>
           </div>
           <div class="row my-3">
-            <div class="col-12 col-xl-4 mb-2">
-              <div class="user-boxes p-0 m-0 shadow-none">
-                <label class="form-label">Return Bin Size</label>
-                <UlLiButton
-                  :is-form="true"
-                  :value="form.bin_size"
-                  :error="form.errors.bin_size"
-                  :items="binSizes"
-                  @click="(key) => (form.bin_size = key)"
-                />
-              </div>
+            <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 mb-3">
+              <TextInput type="text" v-model="form.half_tonnes" :error="form.errors.half_tonnes">
+                <template #prefix-addon>
+                  <div class="input-group-text">Half tonne</div>
+                </template>
+                <template #addon>
+                  <div class="input-group-text">Bins</div>
+                </template>
+              </TextInput>
             </div>
-            <div class="col-12 col-xl-2 mb-2">
-              <label class="form-label">Return no of bins</label>
-              <TextInput v-model="form.no_of_bins" :error="form.errors.no_of_bins" type="text" />
+            <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 mb-3">
+              <TextInput type="text" v-model="form.one_tonnes" :error="form.errors.one_tonnes">
+                <template #prefix-addon>
+                  <div class="input-group-text">One tonne</div>
+                </template>
+                <template #addon>
+                  <div class="input-group-text">Bins</div>
+                </template>
+              </TextInput>
+            </div>
+            <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 mb-3">
+              <TextInput type="text" v-model="form.two_tonnes" :error="form.errors.two_tonnes">
+                <template #prefix-addon>
+                  <div class="input-group-text">Two tonne</div>
+                </template>
+                <template #addon>
+                  <div class="input-group-text">Bins</div>
+                </template>
+              </TextInput>
             </div>
           </div>
         </div>

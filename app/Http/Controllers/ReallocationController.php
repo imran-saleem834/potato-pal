@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Inertia\Inertia;
-use App\Models\Allocation;
+use App\Models\Cutting;
 use App\Helpers\BuyerHelper;
 use App\Models\Reallocation;
 use Illuminate\Http\Request;
@@ -40,14 +40,14 @@ class ReallocationController extends Controller
         ]);
     }
 
-    public function allocations(Request $request, $id)
+    public function cuttings(Request $request, $id)
     {
-        $allocations = AllocationHelper::getAvailableAllocationForReallocation(
+        $cuttings = AllocationHelper::getAvailableCuttingsForReallocation(
             ['buyer_id' => $id],
-            ['categories.category', 'grower:id,grower_name']
+            ['item.foreignable.categories.category', 'item.foreignable.grower:id,grower_name']
         );
 
-        return response()->json($allocations);
+        return response()->json($cuttings);
     }
 
     /**
@@ -57,15 +57,16 @@ class ReallocationController extends Controller
     {
         $reallocation = Reallocation::create($request->validated());
 
-        $inputs = $request->validated('selected_allocation');
+        $inputs = $request->validated('selected_cutting');
 
         AllocationItem::create([
             'allocatable_type' => Reallocation::class,
             'allocatable_id'   => $reallocation->id,
-            'foreignable_type' => Allocation::class,
+            'foreignable_type' => Cutting::class,
             'foreignable_id'   => $inputs['id'],
-            'bin_size'         => $inputs['item']['bin_size'],
-            'no_of_bins'       => $inputs['no_of_bins'],
+            'half_tonnes'      => $request->validated('half_tonnes', 0),
+            'one_tonnes'       => $request->validated('one_tonnes', 0),
+            'two_tonnes'       => $request->validated('two_tonnes', 0),
         ]);
 
         NotificationHelper::addedAction('Reallocation', $reallocation->id);
@@ -82,17 +83,19 @@ class ReallocationController extends Controller
         $reallocation->update($request->validated());
         $reallocation->save();
 
-        $inputs = $request->validated('selected_allocation');
+        $inputs = $request->validated('selected_cutting');
         $item   = AllocationItem::updateOrCreate(
             [
                 'allocatable_type' => Reallocation::class,
                 'allocatable_id'   => $reallocation->id,
-                'foreignable_type' => Allocation::class,
+                'foreignable_type' => Cutting::class,
                 'foreignable_id'   => $inputs['id'],
+                'is_returned'      => 0,
             ],
             [
-                'bin_size'   => $inputs['item']['bin_size'],
-                'no_of_bins' => $inputs['no_of_bins'],
+                'half_tonnes'      => $request->validated('half_tonnes', 0),
+                'one_tonnes'       => $request->validated('one_tonnes', 0),
+                'two_tonnes'       => $request->validated('two_tonnes', 0),
             ]
         );
 
@@ -113,7 +116,7 @@ class ReallocationController extends Controller
      */
     public function destroy(string $id)
     {
-        $reallocation = Reallocation::find($id);
+        $reallocation = Reallocation::with(['dispatchItems'])->find($id);
         $buyerId      = $reallocation->buyer_id;
 
         DeleteRecordsHelper::deleteReallocation($reallocation);
@@ -132,10 +135,10 @@ class ReallocationController extends Controller
     {
         return Reallocation::query()
             ->with([
-                'returns',
+                'returnItems',
                 'allocationBuyer',
-                'item.foreignable.grower:id,grower_name',
-                'item.foreignable.categories.category',
+                'item.foreignable.item.foreignable.grower:id,grower_name',
+                'item.foreignable.item.foreignable.categories.category',
             ])
             ->when($search, function ($query, $search) {
                 return $query->where(function ($subQuery) use ($search) {
@@ -144,13 +147,13 @@ class ReallocationController extends Controller
                         ->orWhereRelation('allocationBuyer', function (Builder $query) use ($search) {
                             return $query->where('buyer_name', 'LIKE', "%{$search}%");
                         })
-                        ->orWhereRelation('item.foreignable', function (Builder $query) use ($search) {
+                        ->orWhereRelation('item.foreignable.item.foreignable', function (Builder $query) use ($search) {
                             return $query->where('paddock', 'LIKE', "%{$search}%");
                         })
-                        ->orWhereRelation('item.foreignable.grower', function (Builder $query) use ($search) {
+                        ->orWhereRelation('item.foreignable.item.foreignable.grower', function (Builder $query) use ($search) {
                             return $query->where('grower_name', 'LIKE', "%{$search}%");
                         })
-                        ->orWhereRelation('item.foreignable.categories.category', function (Builder $query) use ($search) {
+                        ->orWhereRelation('item.foreignable.item.foreignable.categories.category', function (Builder $query) use ($search) {
                             return $query->where('name', 'LIKE', "%{$search}%");
                         });
                 });

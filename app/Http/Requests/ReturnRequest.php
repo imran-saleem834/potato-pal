@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ReturnRequest extends FormRequest
@@ -23,20 +22,10 @@ class ReturnRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'dispatch'   => ['required', 'array'],
-            'no_of_bins' => ['required', 'numeric', 'gt:0'],
-            'bin_size'   => ['required', 'numeric', Rule::in([500, 1000, 2000])],
+            'dispatch'    => ['required', 'array'],
+            'half_tonnes' => ['nullable', 'numeric'],
+            'one_tonnes'  => ['nullable', 'numeric'],
+            'two_tonnes'  => ['nullable', 'numeric'],
         ];
-    }
-
-    /**
-     * Prepare the data for validation.
-     *
-     * @return void
-     */
-    public function prepareForValidation()
-    {
-        $weight = max($this->input('weight', 0), 0) * 1000;
-        $this->merge(['weight' => $weight]);
     }
 }

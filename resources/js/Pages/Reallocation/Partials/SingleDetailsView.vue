@@ -1,16 +1,16 @@
 <script setup>
-import moment from 'moment';
 import { Link } from '@inertiajs/vue3';
-import { getBinSizesValue, getSingleCategoryNameByType, toTonnes } from '@/helper.js';
-import { computed, onMounted, onUpdated } from 'vue';
 import * as bootstrap from 'bootstrap';
+import { computed, onMounted, onUpdated } from 'vue';
+import { getSingleCategoryNameByType } from '@/helper.js';
+import ReturnItems from "@/Components/ReturnItems.vue";
 
 const props = defineProps({
   reallocation: Object,
 });
 
 const allocation = computed(() => {
-  return props.reallocation.item.foreignable;
+  return props.reallocation.item.foreignable.item.foreignable;
 });
 
 onMounted(() => {
@@ -39,8 +39,9 @@ onUpdated(() => {
         <th class="d-none d-md-table-cell">Gen.</th>
         <th>Seed type</th>
         <th class="d-none d-xl-table-cell">Class</th>
-        <th>Bin size</th>
-        <th>Bins Reallocate</th>
+        <th v-if="reallocation.item.half_tonnes > 0">Half tonnes</th>
+        <th v-if="reallocation.item.one_tonnes > 0">One tonnes</th>
+        <th v-if="reallocation.item.two_tonnes > 0">Two tonnes</th>
       </tr>
     </thead>
     <tbody>
@@ -80,8 +81,9 @@ onUpdated(() => {
         <td class="d-none d-xl-table-cell text-primary">
           {{ getSingleCategoryNameByType(allocation.categories, 'seed-class') || '-' }}
         </td>
-        <td class="text-primary">{{ getBinSizesValue(reallocation.item.bin_size) }}</td>
-        <td class="text-primary">{{ reallocation.item.no_of_bins }}</td>
+        <td v-if="reallocation.item.half_tonnes > 0" class="text-primary">{{ `${reallocation.item.half_tonnes} Bins` }}</td>
+        <td v-if="reallocation.item.one_tonnes > 0" class="text-primary">{{ `${reallocation.item.one_tonnes} Bins` }}</td>
+        <td v-if="reallocation.item.two_tonnes > 0" class="text-primary">{{ `${reallocation.item.two_tonnes} Bins` }}</td>
       </tr>
     </tbody>
   </table>
@@ -98,31 +100,5 @@ onUpdated(() => {
     </div>
   </div>
 
-  <template v-if="reallocation.returns.length">
-    <div class="row">
-      <div class="col-12 mb-1 pb-1">
-        <span class="text-danger">Returns:</span>
-      </div>
-      <template v-for="item in reallocation.returns" :key="item.id">
-        <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Bin size: </span>
-          <span class="text-primary">{{ getBinSizesValue(item.bin_size) }}</span>
-        </div>
-        <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Return bins: </span>
-          <span class="text-primary">{{ item.no_of_bins }}</span>
-        </div>
-        <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1 d-none">
-          <span>Return weight: </span>
-          <span class="text-primary">{{ toTonnes(item.weight) }}</span>
-        </div>
-        <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-          <span>Return Time: </span>
-          <span class="text-primary">
-            {{ moment(item.created_at).format('DD/MM/YYYY hh:mm A') }}
-          </span>
-        </div>
-      </template>
-    </div>
-  </template>
+  <ReturnItems :items="reallocation.return_items" />
 </template>

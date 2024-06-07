@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Inertia\Inertia;
+use App\Models\Cutting;
 use App\Models\Dispatch;
 use App\Models\Allocation;
 use App\Helpers\BuyerHelper;
@@ -64,10 +65,11 @@ class DispatchController extends Controller
         AllocationItem::create([
             'allocatable_type' => Dispatch::class,
             'allocatable_id'   => $dispatch->id,
-            'foreignable_type' => $dispatch->type === 'allocation' ? Allocation::class : Reallocation::class,
+            'foreignable_type' => $this->getForeignableType($dispatch->type),
             'foreignable_id'   => $inputs['id'],
-            'bin_size'         => $inputs['item']['bin_size'],
-            'no_of_bins'       => $inputs['no_of_bins'],
+            'half_tonnes'      => $request->validated('half_tonnes', 0),
+            'one_tonnes'       => $request->validated('one_tonnes', 0),
+            'two_tonnes'       => $request->validated('two_tonnes', 0),
         ]);
 
         NotificationHelper::addedAction('Dispatch', $dispatch->id);
@@ -90,13 +92,14 @@ class DispatchController extends Controller
             [
                 'allocatable_type' => Dispatch::class,
                 'allocatable_id'   => $dispatch->id,
-                'foreignable_type' => $dispatch->type === 'allocation' ? Allocation::class : Reallocation::class,
+                'foreignable_type' => $this->getForeignableType($dispatch->type),
                 'foreignable_id'   => $inputs['id'],
                 'is_returned'      => 0,
             ],
             [
-                'bin_size'   => $inputs['item']['bin_size'],
-                'no_of_bins' => $inputs['no_of_bins'],
+                'half_tonnes'      => $request->validated('half_tonnes', 0),
+                'one_tonnes'       => $request->validated('one_tonnes', 0),
+                'two_tonnes'       => $request->validated('two_tonnes', 0),
             ]
         );
 
@@ -112,7 +115,7 @@ class DispatchController extends Controller
     {
         $dispatch = Dispatch::find($id);
         $buyerId  = $dispatch->buyer_id;
-        $dispatch->returns()->delete();
+        $dispatch->returnItems()->delete();
         $dispatch->item()->delete();
         $dispatch->delete();
 
@@ -128,17 +131,17 @@ class DispatchController extends Controller
 
     public function returns(ReturnRequest $request)
     {
-        $inputs         = $request->validated('dispatch');
-        $isReallocation = $inputs['type'] === 'reallocation';
+        $inputs = $request->validated('dispatch');
 
         AllocationItem::create([
             'allocatable_type' => Dispatch::class,
             'allocatable_id'   => $inputs['id'],
-            'foreignable_type' => $isReallocation ? Reallocation::class : Allocation::class,
+            'foreignable_type' => $this->getForeignableType($inputs['type']),
             'foreignable_id'   => $inputs['item']['foreignable']['id'],
             'is_returned'      => 1,
-            'bin_size'         => $request->validated('bin_size'),
-            'no_of_bins'       => $request->validated('no_of_bins'),
+            'half_tonnes'      => $request->validated('half_tonnes', 0),
+            'one_tonnes'       => $request->validated('one_tonnes', 0),
+            'two_tonnes'       => $request->validated('two_tonnes', 0),
         ]);
 
         NotificationHelper::addedAction('Return', $inputs['id']);
@@ -153,14 +156,21 @@ class DispatchController extends Controller
                 'item.foreignable' => function (MorphTo $morphTo) {
                     $morphTo->morphWith([
                         Reallocation::class => [
+                            'item.foreignable.item.foreignable.categories.category',
+                            'item.foreignable.item.foreignable.grower:id,grower_name',
+                        ],
+                        Cutting::class => [
                             'item.foreignable.categories.category',
                             'item.foreignable.grower:id,grower_name',
                         ],
-                        Allocation::class   => ['categories.category', 'grower:id,grower_name'],
+                        Allocation::class   => [
+                            'categories.category', 
+                            'grower:id,grower_name'
+                        ],
                     ]);
                 },
                 'allocationBuyer',
-                'returns',
+                'returnItems',
             ])
             ->when($search, function ($query, $search) {
                 return $query->where(function ($subQuery) use ($search) {
@@ -168,17 +178,21 @@ class DispatchController extends Controller
                         ->where('comment', 'LIKE', "%{$search}%")
                         ->orWhereHasMorph(
                             'item.foreignable',
-                            [Allocation::class, Reallocation::class],
+                            [Allocation::class, Cutting::class, Reallocation::class],
                             function (Builder $query, string $type) use ($search) {
                                 if ($type === Allocation::class) {
                                     return $query->where('paddock', 'LIKE', "%{$search}%")
                                         ->orWhereRelation('buyer', 'buyer_name', 'LIKE', "%{$search}%")
                                         ->orWhereRelation('categories.category', 'name', 'LIKE', "%{$search}%");
+                                } else if ($type === Cutting::class) {
+                                    return $query->whereRelation('item.foreignable', 'paddock', 'LIKE', "%{$search}%")
+                                        ->orWhereRelation('item.foreignable.buyer', 'buyer_name', 'LIKE', "%{$search}%")
+                                        ->orWhereRelation('item.foreignable.categories.category', 'name', 'LIKE', "%{$search}%");
                                 }
 
-                                return $query->whereRelation('item.foreignable', 'paddock', 'LIKE', "%{$search}%")
-                                    ->orWhereRelation('item.foreignable.buyer', 'buyer_name', 'LIKE', "%{$search}%")
-                                    ->orWhereRelation('item.foreignable.categories.category', 'name', 'LIKE', "%{$search}%");
+                                return $query->whereRelation('item.foreignable.item.foreignable', 'paddock', 'LIKE', "%{$search}%")
+                                    ->orWhereRelation('item.foreignable.item.foreignable.buyer', 'buyer_name', 'LIKE', "%{$search}%")
+                                    ->orWhereRelation('item.foreignable.item.foreignable.categories.category', 'name', 'LIKE', "%{$search}%");
                             }
                         );
                 });
@@ -188,5 +202,15 @@ class DispatchController extends Controller
             ->paginate(10)
             ->withQueryString()
             ->onEachSide(1);
+    }
+
+    private function getForeignableType($type)
+    {
+        if ($type === 'reallocation') {
+            return Reallocation::class;
+        } else if ($type === 'cutting') {
+            return Cutting::class;
+        }
+        return Allocation::class;
     }
 }

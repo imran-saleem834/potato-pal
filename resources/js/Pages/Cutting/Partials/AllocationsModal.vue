@@ -17,7 +17,6 @@ const emit = defineEmits(['allocations', 'close']);
 
 const loader = ref(false);
 const allocations = ref([]);
-const selected = ref([]);
 
 const getAllocations = () => {
   loader.value = true;
@@ -33,19 +32,13 @@ const getAllocations = () => {
 };
 
 const onCloseModal = () => {
-  emit('allocations', selected.value);
-  selected.value = [];
   allocations.value = [];
   emit('close');
 };
 
 const onSelectAllocation = (allocation) => {
-  const allocationExists = selected.value.find((alloc) => alloc.id === allocation.id);
-  if (allocationExists !== undefined) {
-    selected.value = selected.value.filter((alloc) => alloc.id !== allocation.id);
-  } else {
-    selected.value = [...selected.value, allocation];
-  }
+  emit('allocations', allocation);
+  onCloseModal();
 };
 
 watch(
@@ -63,12 +56,7 @@ watch(
     <div class="modal-dialog modal-xl">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="allocations-modal-Label">
-            <template v-if="selected.length > 0">
-              Selected {{ selected.length }} Allocations
-            </template>
-            <template v-else>Select Allocations</template>
-          </h5>
+          <h5 class="modal-title" id="allocations-modal-Label">Select Allocation</h5>
           <button
             type="button"
             class="btn-close"
@@ -87,7 +75,7 @@ watch(
             v-if="!loader && allocations.length <= 0"
             class="d-flex justify-content-center text-danger fs-5 my-3"
           >
-            Doesn't find any records
+            Data not found
           </div>
           <div v-if="!loader && allocations.length" class="table-responsive">
             <DataTable class="table mb-0">
@@ -140,8 +128,8 @@ watch(
                     <td>
                       <input
                         type="checkbox"
-                        :checked="selected.find((alloc) => alloc.id === allocation.id)"
                         @click="onSelectAllocation(allocation)"
+                        data-bs-dismiss="modal"
                       />
                     </td>
                   </tr>

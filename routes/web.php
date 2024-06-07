@@ -73,7 +73,7 @@ Route::middleware([
 
     Route::get('/growers/{id}/receivals', [AllocationController::class, 'receivals'])->name('growers.receivals');
     Route::get('/buyers/{id}/c/allocations', [CuttingController::class, 'allocations'])->name('c.buyers.allocations');
-    Route::get('/buyers/{id}/r/allocations', [ReallocationController::class, 'allocations'])->name('r.buyers.allocations');
+    Route::get('/buyers/{id}/cuttings', [ReallocationController::class, 'cuttings'])->name('buyers.cuttings');
     Route::get('/buyers/{id}/d/allocations', [DispatchController::class, 'allocations'])->name('d.buyers.allocations');
 
     Route::get('/weighbridges', [WeighbridgeController::class, 'index'])->name('weighbridges.index');

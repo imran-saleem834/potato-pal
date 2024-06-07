@@ -2,7 +2,7 @@
 import { ref, watch } from 'vue';
 import DataTable from 'datatables.net-vue3';
 import DataTablesCore from 'datatables.net';
-import { toTonnes, getBinSizesValue, getSingleCategoryNameByType } from '@/helper.js';
+import { getSingleCategoryNameByType } from '@/helper.js';
 
 DataTable.use(DataTablesCore);
 
@@ -38,13 +38,15 @@ const onCloseModal = () => {
   emit('close');
 };
 
-const onSelectAllocation = (allocation) => {
+const onSelect = (allocation) => {
   emit('allocations', allocation);
   onCloseModal();
 };
 
 const getAllocation = (allocation) => {
   if (allocation.type === 'reallocation') {
+    return allocation.item.foreignable.item.foreignable;
+  } else if (allocation.type === 'cutting') {
     return allocation.item.foreignable;
   }
   return allocation;
@@ -65,12 +67,7 @@ watch(
     <div class="modal-dialog modal-xl">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="allocations-modal-Label">
-            <template v-if="selected.length > 0">
-              Selected {{ selected.length }} Allocations
-            </template>
-            <template v-else>Select Allocations</template>
-          </h5>
+          <h5 class="modal-title" id="allocations-modal-Label">Select Allocation, Reallocation OR Cutting</h5>
           <button
             type="button"
             class="btn-close"
@@ -89,7 +86,7 @@ watch(
             v-if="!loader && allocations.length <= 0"
             class="d-flex justify-content-center text-danger fs-5 my-3"
           >
-            Doesn't find any records
+            Data not found
           </div>
           <div v-if="!loader && allocations.length" class="table-responsive">
             <DataTable class="table mb-0">
@@ -103,9 +100,9 @@ watch(
                   <th>Gen</th>
                   <th>Seed type</th>
                   <th>Class</th>
-                  <th>Bin size</th>
-                  <th>Weight</th>
-                  <th>Available / Total bins</th>
+                  <th>Half tonnes</th>
+                  <th>One tonnes</th>
+                  <th>Two tonnes</th>
                   <th>Select</th>
                 </tr>
               </thead>
@@ -155,15 +152,13 @@ watch(
                         ) || '-'
                       }}
                     </td>
-                    <td>{{ getBinSizesValue(allocation.item.bin_size) }}</td>
-                    <td>{{ toTonnes(allocation.item.weight) }}</td>
-                    <td>
-                      {{ `${allocation.available_no_of_bins} / ${allocation.total_no_of_bins}` }}
-                    </td>
+                    <td>{{ `${allocation.available_half_tonnes} Bins` }}</td>
+                    <td>{{ `${allocation.available_one_tonnes} Bins` }}</td>
+                    <td>{{ `${allocation.available_two_tonnes} Bins` }}</td>
                     <td>
                       <input
                         type="checkbox"
-                        @click="onSelectAllocation(allocation)"
+                        @click="onSelect(allocation)"
                         data-bs-dismiss="modal"
                       />
                     </td>
