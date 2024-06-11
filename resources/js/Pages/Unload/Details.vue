@@ -14,7 +14,6 @@ import {
   getCategoriesDropDownByType,
   getCategoriesByType,
   getCategoryIdsByType,
-  getBinSizesValue,
   getLabelFromItems,
 } from '@/helper.js';
 import { DatePicker } from 'v-calendar';

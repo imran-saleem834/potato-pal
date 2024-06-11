@@ -20,29 +20,33 @@ class Dispatch extends Model
     protected $fillable = [
         'buyer_id',
         'type',
-        'allocation_buyer_id',
+        'docket_no',
         'comment',
     ];
+
+    const CATEGORY_INPUTS = ['buyer_group', 'transport'];
+
+    const CATEGORY_TYPES = ['buyer-group', 'transport'];
 
     public function buyer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'buyer_id');
     }
 
-    public function allocationBuyer(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'allocation_buyer_id');
-    }
-
     public function item(): MorphOne
     {
         return $this->morphOne(AllocationItem::class, 'allocatable')
-            ->where('is_returned', false);
+            ->whereNull('returned_id');
     }
 
     public function returnItems(): MorphMany
     {
         return $this->morphMany(AllocationItem::class, 'allocatable')
-            ->where('is_returned', true);
+            ->whereNotNull('returned_id');
+    }
+
+    public function categories(): MorphMany
+    {
+        return $this->morphMany(CategoriesRelation::class, 'categorizable');
     }
 }

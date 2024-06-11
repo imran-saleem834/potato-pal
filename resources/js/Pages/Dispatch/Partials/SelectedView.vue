@@ -74,9 +74,9 @@ const allocation = computed(() => {
           <td class="d-none d-md-table-cell text-primary">
             {{ getSingleCategoryNameByType(allocation.categories, 'seed-class') || '-' }}
           </td>
-          <td>{{ `${selected.available_half_tonnes} Bins` }}</td>
-          <td>{{ `${selected.available_one_tonnes} Bins` }}</td>
-          <td>{{ `${selected.available_two_tonnes} Bins` }}</td>
+          <td class="text-primary">{{ `${selected.available_half_tonnes} Bins` }}</td>
+          <td class="text-primary">{{ `${selected.available_one_tonnes} Bins` }}</td>
+          <td class="text-primary">{{ `${selected.available_two_tonnes} Bins` }}</td>
         </tr>
       </tbody>
     </table>

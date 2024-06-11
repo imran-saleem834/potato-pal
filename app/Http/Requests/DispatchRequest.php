@@ -27,8 +27,11 @@ class DispatchRequest extends FormRequest
         $rules = [
             'buyer_id'               => ['required', 'numeric', 'exists:users,id'],
             'type'                   => ['required', 'string', Rule::in(['allocation', 'cutting', 'reallocation'])],
-            'allocation_buyer_id'    => ['required', 'numeric', 'exists:users,id'],
             'selected_allocation.id' => ['nullable', 'numeric'],
+            'created_at'             => ['nullable', 'date_format:Y-m-d H:i:s'],
+            'buyer_group'            => ['nullable', 'array', 'max:1'],
+            'transport'              => ['nullable', 'array', 'max:1'],
+            'docket_no'              => ['nullable', 'string', 'max:50'],
             'comment'                => ['nullable', 'string', 'max:255'],
         ];
 
@@ -64,8 +67,7 @@ class DispatchRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'buyer_id'               => 'dispatch to buyer',
-            'allocation_buyer_id'    => 'dispatch from buyer',
+            'buyer_id'               => 'buyer',
             'selected_allocation'    => 'selection',
             'selected_allocation.id' => 'selection',
         ];

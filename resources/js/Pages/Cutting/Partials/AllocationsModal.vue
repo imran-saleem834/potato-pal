@@ -90,7 +90,7 @@ watch(
                   <th>Class</th>
                   <th>Bin size</th>
                   <th>Weight</th>
-                  <th>Available / No of bins</th>
+                  <th>Bins available to cut</th>
                   <th>Select</th>
                 </tr>
               </thead>
@@ -122,9 +122,7 @@ watch(
                     </td>
                     <td>{{ getBinSizesValue(allocation.item.bin_size) }}</td>
                     <td>{{ toTonnes(allocation.item.weight) }}</td>
-                    <td>
-                      {{ `${allocation.available_no_of_bins} / ${allocation.total_no_of_bins}` }}
-                    </td>
+                    <td>{{ allocation.available_no_of_bins }}</td>
                     <td>
                       <input
                         type="checkbox"

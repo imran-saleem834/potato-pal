@@ -23,6 +23,9 @@ class ReturnRequest extends FormRequest
     {
         return [
             'dispatch'    => ['required', 'array'],
+            'created_at'  => ['nullable', 'date_format:Y-m-d H:i:s'],
+            'docket_no'   => ['nullable', 'string', 'max:50'],
+            'comment'     => ['nullable', 'string', 'max:255'],
             'half_tonnes' => ['nullable', 'numeric'],
             'one_tonnes'  => ['nullable', 'numeric'],
             'two_tonnes'  => ['nullable', 'numeric'],

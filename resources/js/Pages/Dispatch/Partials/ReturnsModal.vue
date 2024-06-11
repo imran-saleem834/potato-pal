@@ -1,5 +1,6 @@
 <script setup>
 import { computed, watch } from 'vue';
+import { DatePicker } from 'v-calendar';
 import { useForm } from '@inertiajs/vue3';
 import TextInput from '@/Components/TextInput.vue';
 import { getSingleCategoryNameByType } from '@/helper.js';
@@ -15,6 +16,9 @@ const emit = defineEmits(['close']);
 
 const form = useForm({
   dispatch: props.dispatch,
+  created_at: null,
+  docket_no: '',
+  comment: '',
   half_tonnes: '',
   one_tonnes: '',
   two_tonnes: '',
@@ -134,6 +138,39 @@ watch(
                   <div class="input-group-text">Bins</div>
                 </template>
               </TextInput>
+            </div>
+            <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 mb-3">
+              <label class="form-label">Return Time</label>
+              <DatePicker
+                v-model.string="form.created_at"
+                mode="dateTime"
+                :masks="{
+                  modelValue: 'YYYY-MM-DD HH:mm:ss',
+                }"
+              >
+                <template #default="{ togglePopover }">
+                  <input
+                    type="text"
+                    class="form-control"
+                    :class="{ 'is-invalid': form.errors[`created_at`] }"
+                    :value="form.created_at"
+                    @click="togglePopover"
+                  />
+                  <div
+                    v-if="form.errors[`created_at`]"
+                    class="invalid-feedback"
+                    v-text="form.errors[`created_at`]"
+                  />
+                </template>
+              </DatePicker>
+            </div>
+            <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 mb-3">
+              <label class="form-label">Docket No</label>
+              <TextInput type="text" v-model="form.docket_no" :error="form.errors.docket_no" />
+            </div>
+            <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 mb-3">
+              <label class="form-label">Comments</label>
+              <TextInput v-model="form.comment" :error="form.errors.comment" type="text" />
             </div>
           </div>
         </div>

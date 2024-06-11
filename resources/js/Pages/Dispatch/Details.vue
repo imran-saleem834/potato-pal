@@ -1,11 +1,15 @@
 <script setup>
+import { DatePicker } from 'v-calendar';
 import { computed, ref, watch } from 'vue';
-import { useForm } from '@inertiajs/vue3';
 import Multiselect from '@vueform/multiselect';
+import { useForm, usePage } from '@inertiajs/vue3';
 import TextInput from '@/Components/TextInput.vue';
 import ConfirmedModal from '@/Components/ConfirmedModal.vue';
 import SelectedView from '@/Pages/Dispatch/Partials/SelectedView.vue';
 import SingleDetailsView from '@/Pages/Dispatch/Partials/SingleDetailsView.vue';
+import { getCategoriesDropDownByType, getCategoryIdsByType } from '@/helper.js';
+
+const page = usePage();
 
 const props = defineProps({
   uniqueKey: String,
@@ -32,11 +36,16 @@ const loader = ref(false);
 const form = useForm({
   buyer_id: props.dispatch.buyer_id,
   type: props.dispatch.type,
-  allocation_buyer_id: props.dispatch.allocation_buyer_id,
   half_tonnes: props.dispatch.item?.half_tonnes,
   one_tonnes: props.dispatch.item?.one_tonnes,
   two_tonnes: props.dispatch.item?.two_tonnes,
   comment: props.dispatch.comment,
+  created_at: props.dispatch.created_at
+    ? props.dispatch.created_at.split('.')[0].replace('T', ' ')
+    : null,
+  buyer_group: getCategoryIdsByType(props.dispatch.categories, 'buyer-group'),
+  transport: getCategoryIdsByType(props.dispatch.categories, 'transport'),
+  docket_no: props.dispatch.docket_no,
   selected_allocation: {},
 });
 
@@ -49,11 +58,14 @@ watch(
     form.clearErrors();
     form.buyer_id = dispatch.buyer_id;
     form.type = dispatch.type;
-    form.allocation_buyer_id = dispatch.allocation_buyer_id;
     form.half_tonnes = dispatch.item?.half_tonnes;
     form.one_tonnes = dispatch.item?.one_tonnes;
     form.two_tonnes = dispatch.item?.two_tonnes;
     form.comment = dispatch.comment;
+    form.created_at = dispatch.created_at ? dispatch.created_at.split('.')[0].replace('T', ' ') : null;
+    form.buyer_group = getCategoryIdsByType(dispatch.categories, 'buyer-group');
+    form.transport = getCategoryIdsByType(dispatch.categories, 'transport');
+    form.docket_no = dispatch.docket_no;
   },
 );
 
@@ -67,7 +79,7 @@ watch(
   },
 );
 
-const onChangeAllocationBuyer = () => {
+const onChangeBuyer = () => {
   form.selected_allocation = {};
 };
 
@@ -80,7 +92,7 @@ const setIsEdit = () => {
   loader.value = true;
 
   axios
-    .get(route('d.buyers.allocations', props.dispatch.allocation_buyer_id))
+    .get(route('d.buyers.allocations', props.dispatch.buyer_id))
     .then((response) => {
       form.selected_allocation = response.data.find((allocation) => {
         return (
@@ -129,6 +141,11 @@ const deleteDispatch = () => {
   });
 };
 
+const buyerGroups = computed(() => {
+  const categories = page.props.buyers.find(buyer => buyer.value === form.buyer_id)?.categories || [];
+  return categories.map((category) => category.category);
+});
+
 defineExpose({
   storeRecord,
 });
@@ -138,7 +155,7 @@ defineExpose({
   <div v-if="isNew" class="user-boxes">
     <table class="table input-table mb-0">
       <tr>
-        <th>Dispatch Buyer Name</th>
+        <th>Buyer Name</th>
         <td>
           <Multiselect
             v-model="form.buyer_id"
@@ -146,6 +163,7 @@ defineExpose({
             placeholder="Choose a buyer"
             :searchable="true"
             :options="$page.props.buyers"
+            @change="onChangeBuyer"
             :class="{ 'is-invalid': form.errors.buyer_id }"
           />
           <div
@@ -160,35 +178,15 @@ defineExpose({
 
   <h4 v-if="isNew">Dispatches Details</h4>
   <div class="user-boxes position-relative" :class="{ 'pe-5': !isForm }">
-    <table v-if="isForm" class="table input-table">
+    <table v-if="isForm && form.buyer_id" class="table input-table">
       <tr>
-        <th class="d-none d-sm-table-cell">Buyer Name</th>
-        <td>
-          <div class="p-0" :class="{ 'input-group': form.allocation_buyer_id }">
-            <Multiselect
-              v-model="form.allocation_buyer_id"
-              @change="onChangeAllocationBuyer"
-              mode="single"
-              placeholder="Choose a buyer"
-              :searchable="true"
-              :options="$page.props.buyers"
-              :class="{
-                'is-invalid': form.errors.allocation_buyer_id || form.errors.selected_allocation,
-              }"
-            />
-            <button
-              v-if="form.allocation_buyer_id"
-              class="btn btn-red input-group-text px-1 px-sm-2"
-              data-bs-toggle="modal"
-              data-bs-target="#allocations-modal"
-              v-text="'Select'"
-              @click="emit('allocation', form.allocation_buyer_id)"
-            />
-          </div>
-          <div
-            v-if="form.errors.allocation_buyer_id"
-            class="invalid-feedback p-0 m-0"
-            v-text="form.errors.allocation_buyer_id"
+        <td class="text-center">
+          <button
+            class="btn btn-red input-group-text px-1 px-sm-2"
+            data-bs-toggle="modal"
+            data-bs-target="#allocations-modal"
+            v-text="'Select Allocation / Reallocation / Cutting'"
+            @click="emit('allocation', form.buyer_id)"
           />
           <div
             v-if="form.errors.selected_allocation"
@@ -234,6 +232,63 @@ defineExpose({
         </div>
         <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 mb-3">
           <TextInput v-model="form.comment" :error="form.errors.comment" type="text" placeholder="Comments" />
+        </div>
+        <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 mb-3">
+          <label class="form-label">Dispatch Time</label>
+          <DatePicker
+            v-model.string="form.created_at"
+            mode="dateTime"
+            :masks="{
+              modelValue: 'YYYY-MM-DD HH:mm:ss',
+            }"
+          >
+            <template #default="{ togglePopover }">
+              <input
+                type="text"
+                class="form-control"
+                :class="{ 'is-invalid': form.errors[`.created_at`] }"
+                :value="form.created_at"
+                @click="togglePopover"
+              />
+              <div
+                v-if="form.errors[`created_at`]"
+                class="invalid-feedback"
+                v-text="form.errors[`created_at`]"
+              />
+            </template>
+          </DatePicker>
+        </div>
+        <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 mb-3">
+          <label class="form-label">Group Type</label>
+          <Multiselect
+            v-model="form.buyer_group"
+            mode="tags"
+            placeholder="Choose a group type"
+            :searchable="true"
+            :class="{ 'is-invalid': form.errors[`buyer_group`] }"
+            :options="getCategoriesDropDownByType(buyerGroups, 'buyer-group')"
+          />
+          <div v-if="form.errors.buyer_group" class="invalid-feedback">
+            {{ form.errors.buyer_group }}
+          </div>
+        </div>
+        <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 mb-3">
+          <label class="form-label">Transport</label>
+          <Multiselect
+            v-model="form.transport"
+            mode="tags"
+            placeholder="Choose a transport"
+            :searchable="true"
+            :class="{ 'is-invalid': form.errors[`transport`] }"
+            :options="getCategoriesDropDownByType($page.props.categories, 'transport')"
+          />
+          <div v-if="form.errors.transport" class="invalid-feedback">
+            {{ form.errors.transport }}
+          </div>
+        </div>
+        <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 mb-3">
+          <label class="form-label">Docket No</label>
+          <TextInput type="text" v-model="form.docket_no" :error="form.errors.docket_no" />
         </div>
       </div>
       <div v-if="isEdit || isNewItem" class="w-100 text-end">

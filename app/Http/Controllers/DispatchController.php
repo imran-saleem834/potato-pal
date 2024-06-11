@@ -2,16 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use Inertia\Inertia;
+use App\Models\User;
 use App\Models\Cutting;
 use App\Models\Dispatch;
+use App\Models\Category;
 use App\Models\Allocation;
 use App\Helpers\BuyerHelper;
 use App\Models\Reallocation;
 use Illuminate\Http\Request;
+use App\Models\DispatchReturn;
 use App\Models\AllocationItem;
+use App\Helpers\CategoriesHelper;
 use App\Helpers\AllocationHelper;
 use App\Helpers\NotificationHelper;
+use App\Helpers\DeleteRecordsHelper;
 use App\Http\Requests\ReturnRequest;
 use App\Http\Requests\DispatchRequest;
 use Illuminate\Database\Eloquent\Builder;
@@ -38,9 +44,20 @@ class DispatchController extends Controller
         return Inertia::render('Dispatch/Index', [
             'dispatchBuyers' => $dispatchBuyers,
             'single'         => $dispatchs,
-            'buyers'         => fn () => BuyerHelper::getAvailableBuyers(),
+            'buyers'         => fn () => $this->getAvailableBuyers(),
+            'categories'     => Category::whereIn('type', ['transport'])->get(),
             'filters'        => $request->only(['search']),
         ]);
+    }
+
+    private function getAvailableBuyers()
+    {
+        return User::query()
+            ->with(['categories' => fn ($query) => $query->with(['category'])->where('type', 'buyer-group')])
+            ->select(['id', 'buyer_name'])
+            ->whereJsonContains('role', 'buyer')
+            ->get()
+            ->map(fn ($user) => ['value' => $user->id, 'label' => $user->buyer_name, 'categories' => $user->categories]);
     }
 
     public function allocations(Request $request, $id)
@@ -59,6 +76,14 @@ class DispatchController extends Controller
     public function store(DispatchRequest $request)
     {
         $dispatch = Dispatch::create($request->validated());
+
+        if (! empty($request->validated('created_at'))) {
+            $dispatch->created_at = Carbon::parse($request->validated('created_at'));
+            $dispatch->save();
+        }
+
+        $inputs = $request->only(Dispatch::CATEGORY_INPUTS);
+        CategoriesHelper::createRelationOfTypes($inputs, $dispatch->id, Dispatch::class);
 
         $inputs = $request->validated('selected_allocation', []);
 
@@ -86,6 +111,14 @@ class DispatchController extends Controller
         $dispatch->update($request->validated());
         $dispatch->save();
 
+        if (! empty($request->validated('created_at'))) {
+            $dispatch->created_at = Carbon::parse($request->validated('created_at'));
+            $dispatch->save();
+        }
+
+        $inputs = $request->only(Dispatch::CATEGORY_INPUTS);
+        CategoriesHelper::createRelationOfTypes($inputs, $dispatch->id, Dispatch::class);
+
         $inputs = $request->validated('selected_allocation', []);
 
         AllocationItem::updateOrCreate(
@@ -94,7 +127,7 @@ class DispatchController extends Controller
                 'allocatable_id'   => $dispatch->id,
                 'foreignable_type' => $this->getForeignableType($dispatch->type),
                 'foreignable_id'   => $inputs['id'],
-                'is_returned'      => 0,
+                'returned_id'      => null,
             ],
             [
                 'half_tonnes'      => $request->validated('half_tonnes', 0),
@@ -114,8 +147,8 @@ class DispatchController extends Controller
     public function destroy(string $id)
     {
         $dispatch = Dispatch::find($id);
-        $buyerId  = $dispatch->buyer_id;
-        $dispatch->returnItems()->delete();
+        $buyerId = $dispatch->buyer_id;
+        DeleteRecordsHelper::deleteReturnItems($dispatch);
         $dispatch->item()->delete();
         $dispatch->delete();
 
@@ -132,13 +165,20 @@ class DispatchController extends Controller
     public function returns(ReturnRequest $request)
     {
         $inputs = $request->validated('dispatch');
+        
+        $return = DispatchReturn::create($request->validated());
+
+        if (! empty($request->validated('created_at'))) {
+            $return->created_at = Carbon::parse($request->validated('created_at'));
+            $return->save();
+        }
 
         AllocationItem::create([
             'allocatable_type' => Dispatch::class,
             'allocatable_id'   => $inputs['id'],
             'foreignable_type' => $this->getForeignableType($inputs['type']),
             'foreignable_id'   => $inputs['item']['foreignable']['id'],
-            'is_returned'      => 1,
+            'returned_id'      => $return->id,
             'half_tonnes'      => $request->validated('half_tonnes', 0),
             'one_tonnes'       => $request->validated('one_tonnes', 0),
             'two_tonnes'       => $request->validated('two_tonnes', 0),
@@ -153,6 +193,7 @@ class DispatchController extends Controller
     {
         return Dispatch::query()
             ->with([
+                'categories.category',
                 'item.foreignable' => function (MorphTo $morphTo) {
                     $morphTo->morphWith([
                         Reallocation::class => [
@@ -169,13 +210,15 @@ class DispatchController extends Controller
                         ],
                     ]);
                 },
-                'allocationBuyer',
-                'returnItems',
+                'returnItems.returns',
             ])
             ->when($search, function ($query, $search) {
                 return $query->where(function ($subQuery) use ($search) {
                     return $subQuery
                         ->where('comment', 'LIKE', "%{$search}%")
+                        ->orWhereRelation('categories.category', function (Builder $query) use ($search) {
+                            return $query->where('name', 'LIKE', "%{$search}%");
+                        })
                         ->orWhereHasMorph(
                             'item.foreignable',
                             [Allocation::class, Cutting::class, Reallocation::class],

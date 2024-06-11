@@ -7,7 +7,7 @@ class DeleteRecordsHelper
     public static function deleteAllocation($allocation)
     {
         // Delete allocation returns and dispatch items
-        $allocation->returnItems()->delete();
+        static::deleteReturnItems($allocation);
         foreach ($allocation->dispatchItems as $dispatchItem) {
             $dispatchItem->allocatable()->delete();
             $dispatchItem->delete();
@@ -25,7 +25,7 @@ class DeleteRecordsHelper
 
     public static function deleteCutting($cutting)
     {
-        $cutting->returnItems()->delete();
+        static::deleteReturnItems($cutting);
         foreach ($cutting->reallocationItems as $reallocationItem) {
             $reallocation = $reallocationItem->allocatable;
             static::deleteReallocation($reallocation);  // Delete Reallocation
@@ -40,12 +40,22 @@ class DeleteRecordsHelper
 
     public static function deleteReallocation($reallocation)
     {
-        $reallocation->returnItems()->delete();
+        static::deleteReturnItems($reallocation);
         foreach ($reallocation->dispatchItems as $dispatchItem) {
             $dispatchItem->allocatable()->delete(); // Delete Dispatch
             $dispatchItem->delete();                // Delete Dispatch Item
         }
         $reallocation->item()->delete();
         $reallocation->delete();
+    }
+
+    public static function deleteReturnItems($model)
+    {
+        $model->loadMissing('returnItems');
+        
+        foreach ($model->returnItems as $returnItem) {
+            $returnItem->returns()->delete();
+            $returnItem->delete();
+        }
     }
 }

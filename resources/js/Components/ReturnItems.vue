@@ -28,8 +28,16 @@ defineProps({
         <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
           <span>Return Time: </span>
           <span class="text-primary">
-            {{ moment(item.created_at).format('DD/MM/YYYY hh:mm A') }}
+            {{ moment(item.returns.created_at).format('DD/MM/YYYY hh:mm A') }}
           </span>
+        </div>
+        <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+          <span>Docket No: </span>
+          <span class="text-primary">{{ item.returns.docket_no }}</span>
+        </div>
+        <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+          <span>Comments: </span>
+          <span class="text-primary">{{ item.returns.comment }}</span>
         </div>
       </template>
     </div>

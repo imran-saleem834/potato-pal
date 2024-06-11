@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -20,22 +21,13 @@ class AllocationItem extends Model
         'allocatable_id',
         'foreignable_type',
         'foreignable_id',
-        'is_returned',
+        'returned_id',
         'bin_size',
         'no_of_bins',
         'weight',
         'half_tonnes',
         'one_tonnes',
         'two_tonnes',
-    ];
-
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'is_returned' => 'boolean',
     ];
 
     public function allocatable(): MorphTo
@@ -46,5 +38,10 @@ class AllocationItem extends Model
     public function foreignable(): MorphTo
     {
         return $this->morphTo();
+    }
+
+    public function returns(): BelongsTo
+    {
+        return $this->belongsTo(DispatchReturn::class, 'returned_id');
     }
 }

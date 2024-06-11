@@ -122,7 +122,11 @@ class AllocationController extends Controller
         CategoriesHelper::createRelationOfTypes($inputs, $allocation->id, Allocation::class);
 
         AllocationItem::updateOrCreate(
-            ['allocatable_type' => Allocation::class, 'allocatable_id' => $allocation->id],
+            [
+                'allocatable_type' => Allocation::class,
+                'allocatable_id'   => $allocation->id,
+                'returned_id'      => null,
+            ],
             $request->safe()->only(['bin_size', 'no_of_bins', 'weight'])
         );
 
@@ -163,7 +167,7 @@ class AllocationController extends Controller
         return Allocation::query()
             ->with([
                 'item',
-                'returnItems',
+                'returnItems.returns',
                 'categories.category',
                 'grower:id,grower_name',
             ])

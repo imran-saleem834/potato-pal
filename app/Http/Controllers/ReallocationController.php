@@ -90,7 +90,7 @@ class ReallocationController extends Controller
                 'allocatable_id'   => $reallocation->id,
                 'foreignable_type' => Cutting::class,
                 'foreignable_id'   => $inputs['id'],
-                'is_returned'      => 0,
+                'returned_id'      => null,
             ],
             [
                 'half_tonnes'      => $request->validated('half_tonnes', 0),
@@ -135,7 +135,7 @@ class ReallocationController extends Controller
     {
         return Reallocation::query()
             ->with([
-                'returnItems',
+                'returnItems.returns',
                 'allocationBuyer',
                 'item.foreignable.item.foreignable.grower:id,grower_name',
                 'item.foreignable.item.foreignable.categories.category',

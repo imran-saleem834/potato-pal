@@ -44,28 +44,28 @@ class Cutting extends Model
     public function item(): MorphOne
     {
         return $this->morphOne(AllocationItem::class, 'allocatable')
-            ->where('is_returned', false);
+            ->whereNull('returned_id');
     }
 
     public function reallocationItems(): MorphMany
     {
         return $this->morphMany(AllocationItem::class, 'foreignable')
             ->where('allocatable_type', Reallocation::class)
-            ->where('is_returned', false);
+            ->whereNull('returned_id');
     }
 
     public function dispatchItems(): MorphMany
     {
         return $this->morphMany(AllocationItem::class, 'foreignable')
             ->where('allocatable_type', Dispatch::class)
-            ->where('is_returned', false);
+            ->whereNull('returned_id');
     }
 
     public function returnItems(): MorphMany
     {
         return $this->morphMany(AllocationItem::class, 'foreignable')
             ->where('allocatable_type', Dispatch::class)
-            ->where('is_returned', true);
+            ->whereNotNull('returned_id');
     }
 
     public function categories(): MorphMany

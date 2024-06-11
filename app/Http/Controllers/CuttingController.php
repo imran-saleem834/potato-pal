@@ -99,7 +99,7 @@ class CuttingController extends Controller
                 'allocatable_id'   => $cutting->id,
                 'foreignable_type' => Allocation::class,
                 'foreignable_id'   => $inputs['id'],
-                'is_returned'      => 0,
+                'returned_id'      => null,
             ],
             [
                 'bin_size'    => $inputs['item']['bin_size'],
@@ -152,7 +152,7 @@ class CuttingController extends Controller
     {
         return Cutting::query()
             ->with([
-                'returnItems',
+                'returnItems.returns',
                 'categories.category',
                 'item.foreignable.grower:id,grower_name',
                 'item.foreignable.categories.category',

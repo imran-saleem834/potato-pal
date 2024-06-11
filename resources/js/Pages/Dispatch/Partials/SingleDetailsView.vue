@@ -1,4 +1,5 @@
 <script setup>
+import moment from 'moment';
 import { Link } from '@inertiajs/vue3';
 import { computed, onMounted, onUpdated } from 'vue';
 import { getSingleCategoryNameByType } from '@/helper.js';
@@ -94,6 +95,12 @@ onUpdated(() => {
       <span class="text-primary">{{ dispatch.id }}</span>
     </div>
     <div class="col-12 col-sm-6 col-md-3 mb-1 pb-1">
+      <span>Dispatch Time: </span>
+      <span class="text-primary">
+        {{ moment(dispatch.created_at).format('DD/MM/YYYY hh:mm A') }}
+      </span>
+    </div>
+    <div class="col-12 col-sm-6 col-md-3 mb-1 pb-1">
       <span v-if="dispatch.type === 'allocation'">From Allocation: </span>
       <span v-else-if="dispatch.type === 'cutting'">From Cutting: </span>
       <span v-else>From Reallocation: </span>
@@ -110,8 +117,20 @@ onUpdated(() => {
       </span>
     </div>
     <div class="col-12 col-sm-6 col-md-3 mb-1 pb-1">
-      <span>From buyer: </span>
-      <span class="text-primary">{{ dispatch.allocation_buyer?.buyer_name }}</span>
+      <span>Group Type: </span>
+      <span class="text-primary">
+        {{ getSingleCategoryNameByType(dispatch.categories, 'buyer-group') || '-' }}
+      </span>
+    </div>
+    <div class="col-12 col-sm-6 col-md-3 mb-1 pb-1">
+      <span>Transport: </span>
+      <span class="text-primary">
+        {{ getSingleCategoryNameByType(dispatch.categories, 'transport') || '-' }}
+      </span>
+    </div>
+    <div class="col-12 col-sm-6 col-md-3 mb-1 pb-1">
+      <span>Docket No: </span>
+      <span class="text-primary">{{ dispatch.docket_no }}</span>
     </div>
     <div class="col-12 col-sm-6 col-md-3 mb-1 pb-1">
       <span>Comments: </span>

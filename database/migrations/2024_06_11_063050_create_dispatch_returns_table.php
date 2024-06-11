@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -11,10 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('dispatches', function (Blueprint $table) {
+        Schema::create('dispatch_returns', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('buyer_id');
-            $table->string('type', 50)->nullable();
             $table->string('docket_no', 50)->nullable();
             $table->string('comment', 255)->nullable();
             $table->timestamps();
@@ -26,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('dispatches');
+        Schema::dropIfExists('dispatch_returns');
     }
 };
