@@ -92,9 +92,9 @@ class DispatchController extends Controller
             'allocatable_id'   => $dispatch->id,
             'foreignable_type' => $this->getForeignableType($dispatch->type),
             'foreignable_id'   => $inputs['id'],
-            'half_tonnes'      => $request->validated('half_tonnes', 0),
-            'one_tonnes'       => $request->validated('one_tonnes', 0),
-            'two_tonnes'       => $request->validated('two_tonnes', 0),
+            'half_tonnes'      => $request->validated('half_tonnes') ?? 0,
+            'one_tonnes'       => $request->validated('one_tonnes') ?? 0,
+            'two_tonnes'       => $request->validated('two_tonnes') ?? 0,
         ]);
 
         NotificationHelper::addedAction('Dispatch', $dispatch->id);
@@ -130,9 +130,9 @@ class DispatchController extends Controller
                 'returned_id'      => null,
             ],
             [
-                'half_tonnes'      => $request->validated('half_tonnes', 0),
-                'one_tonnes'       => $request->validated('one_tonnes', 0),
-                'two_tonnes'       => $request->validated('two_tonnes', 0),
+                'half_tonnes'      => $request->validated('half_tonnes') ?? 0,
+                'one_tonnes'       => $request->validated('one_tonnes') ?? 0,
+                'two_tonnes'       => $request->validated('two_tonnes') ?? 0,
             ]
         );
 
@@ -179,9 +179,9 @@ class DispatchController extends Controller
             'foreignable_type' => $this->getForeignableType($inputs['type']),
             'foreignable_id'   => $inputs['item']['foreignable']['id'],
             'returned_id'      => $return->id,
-            'half_tonnes'      => $request->validated('half_tonnes', 0),
-            'one_tonnes'       => $request->validated('one_tonnes', 0),
-            'two_tonnes'       => $request->validated('two_tonnes', 0),
+            'half_tonnes'      => $request->validated('half_tonnes') ?? 0,
+            'one_tonnes'       => $request->validated('one_tonnes') ?? 0,
+            'two_tonnes'       => $request->validated('two_tonnes') ?? 0,
         ]);
 
         NotificationHelper::addedAction('Return', $inputs['id']);

@@ -70,9 +70,9 @@ class CuttingController extends Controller
             'foreignable_id'   => $inputs['id'],
             'bin_size'         => $inputs['item']['bin_size'],
             'no_of_bins'       => $inputs['no_of_bins'],
-            'half_tonnes'      => $request->validated('half_tonnes', 0),
-            'one_tonnes'       => $request->validated('one_tonnes', 0),
-            'two_tonnes'       => $request->validated('two_tonnes', 0),
+            'half_tonnes'      => $request->validated('half_tonnes') ?? 0,
+            'one_tonnes'       => $request->validated('one_tonnes') ?? 0,
+            'two_tonnes'       => $request->validated('two_tonnes') ?? 0,
         ]);
 
         $inputs = $request->only(Cutting::CATEGORY_INPUTS);
@@ -104,9 +104,9 @@ class CuttingController extends Controller
             [
                 'bin_size'    => $inputs['item']['bin_size'],
                 'no_of_bins'  => $inputs['no_of_bins'],
-                'half_tonnes' => $request->validated('half_tonnes', 0),
-                'one_tonnes'  => $request->validated('one_tonnes', 0),
-                'two_tonnes'  => $request->validated('two_tonnes', 0),
+                'half_tonnes' => $request->validated('half_tonnes') ?? 0,
+                'one_tonnes'  => $request->validated('one_tonnes') ?? 0,
+                'two_tonnes'  => $request->validated('two_tonnes') ?? 0,
             ],
         );
 

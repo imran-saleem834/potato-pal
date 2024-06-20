@@ -27,7 +27,6 @@ const allocation = computed(() => {
     <table class="table table-sm align-middle mb-3">
       <thead>
         <tr>
-          <th>From</th>
           <th class="d-none d-md-table-cell">Grower</th>
           <th class="d-none d-md-table-cell">Paddock</th>
           <th class="d-none d-md-table-cell">Variety</th>
@@ -41,9 +40,6 @@ const allocation = computed(() => {
       </thead>
       <tbody>
         <tr>
-          <td class="d-none d-md-table-cell text-primary">
-            {{ selected.type.toUpperCase() }}
-          </td>
           <td class="d-none d-md-table-cell text-primary">{{ allocation.grower.grower_name }}</td>
           <td class="d-none d-md-table-cell text-primary">{{ allocation.paddock }}</td>
           <td class="d-none d-md-table-cell text-primary">
@@ -53,7 +49,10 @@ const allocation = computed(() => {
             {{ getSingleCategoryNameByType(allocation.categories, 'seed-generation') || '-' }}
           </td>
           <td class="text-primary">
-            {{ getSingleCategoryNameByType(allocation.categories, 'seed-type') || '-' }}
+            <template v-if="selected.type === 'cutting'">Cut Seed</template>
+            <template v-else>
+              {{ getSingleCategoryNameByType(allocation.categories, 'seed-type') || '-' }}
+            </template>
             <a
               data-bs-toggle="tooltip"
               data-bs-html="true"

@@ -64,9 +64,9 @@ class ReallocationController extends Controller
             'allocatable_id'   => $reallocation->id,
             'foreignable_type' => Cutting::class,
             'foreignable_id'   => $inputs['id'],
-            'half_tonnes'      => $request->validated('half_tonnes', 0),
-            'one_tonnes'       => $request->validated('one_tonnes', 0),
-            'two_tonnes'       => $request->validated('two_tonnes', 0),
+            'half_tonnes'      => $request->validated('half_tonnes') ?? 0,
+            'one_tonnes'       => $request->validated('one_tonnes') ?? 0,
+            'two_tonnes'       => $request->validated('two_tonnes') ?? 0,
         ]);
 
         NotificationHelper::addedAction('Reallocation', $reallocation->id);
@@ -93,9 +93,9 @@ class ReallocationController extends Controller
                 'returned_id'      => null,
             ],
             [
-                'half_tonnes'      => $request->validated('half_tonnes', 0),
-                'one_tonnes'       => $request->validated('one_tonnes', 0),
-                'two_tonnes'       => $request->validated('two_tonnes', 0),
+                'half_tonnes'      => $request->validated('half_tonnes') ?? 0,
+                'one_tonnes'       => $request->validated('one_tonnes') ?? 0,
+                'two_tonnes'       => $request->validated('two_tonnes') ?? 0,
             ]
         );
 

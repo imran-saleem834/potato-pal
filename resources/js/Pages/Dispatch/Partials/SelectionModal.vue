@@ -92,8 +92,6 @@ watch(
             <DataTable class="table mb-0">
               <thead>
                 <tr>
-                  <th>From</th>
-                  <th>Grower Group</th>
                   <th>Grower</th>
                   <th>Paddock</th>
                   <th>Variety</th>
@@ -108,16 +106,11 @@ watch(
               </thead>
               <tbody>
                 <template v-for="allocation in allocations" :key="allocation.id">
-                  <tr>
-                    <td>{{ allocation.type.toUpperCase() }}</td>
-                    <td>
-                      {{
-                        getSingleCategoryNameByType(
-                          getAllocation(allocation).categories,
-                          'grower-group',
-                        ) || '-'
-                      }}
-                    </td>
+                  <tr
+                    v-if="allocation.available_half_tonnes > 0 || 
+                          allocation.available_one_tonnes > 0 || 
+                          allocation.available_two_tonnes > 0"
+                  >
                     <td>{{ getAllocation(allocation).grower?.grower_name || '-' }}</td>
                     <td>{{ getAllocation(allocation).paddock }}</td>
                     <td>
@@ -137,12 +130,15 @@ watch(
                       }}
                     </td>
                     <td>
-                      {{
-                        getSingleCategoryNameByType(
-                          getAllocation(allocation).categories,
-                          'seed-type',
-                        ) || '-'
-                      }}
+                      <template v-if="allocation.type === 'cutting'">Cut Seed</template>
+                      <template v-else>
+                        {{
+                          getSingleCategoryNameByType(
+                            getAllocation(allocation).categories,
+                            'seed-type',
+                          ) || '-'
+                        }}
+                      </template>
                     </td>
                     <td>
                       {{
