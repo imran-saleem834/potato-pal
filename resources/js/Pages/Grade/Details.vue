@@ -3,9 +3,10 @@ import moment from 'moment';
 import { computed, watch } from 'vue';
 import { useForm, Link } from '@inertiajs/vue3';
 import Multiselect from '@vueform/multiselect';
+import { booleanArray } from '@/const.js';
 import { useToast } from 'vue-toastification';
-import TextInput from '@/Components/TextInput.vue';
 import { toCamelCase } from '@/helper.js';
+import TextInput from '@/Components/TextInput.vue';
 import UlLiButton from '@/Components/UlLiButton.vue';
 
 const toast = useToast();
@@ -106,7 +107,7 @@ defineExpose({
       <div class="user-boxes">
         <table class="table input-table mb-0">
           <tr>
-            <th>Unload</th>
+            <th>Unload ID</th>
             <td>
               <Multiselect
                 v-if="isForm"
@@ -122,7 +123,7 @@ defineExpose({
                 class="p-0"
                 :href="route('unloading.index', { receivalId: grade.unload.receival_id })"
               >
-                {{ grade.unload.receival_id }}
+                {{ grade.unload.id }}
               </Link>
               <template v-else>-</template>
               <div v-if="form.errors.unload_id" class="invalid-feedback">
@@ -131,7 +132,7 @@ defineExpose({
             </td>
           </tr>
           <tr v-if="!isForm">
-            <th>Receival</th>
+            <th>Receival ID</th>
             <td>
               <Link
                 v-if="grade.unload.receival"
@@ -144,12 +145,12 @@ defineExpose({
             </td>
           </tr>
           <tr v-if="!isForm">
-            <th>Grower Name</th>
+            <th>Grower name</th>
             <td>
               <Link
                 v-if="grade.unload.receival.grower"
                 class="p-0"
-                :href="route('receivals.index', { receivalId: grade.unload.receival.grower_id })"
+                :href="route('users.index', { userId: grade.unload.receival.grower_id })"
               >
                 {{ grade.unload.receival.grower.grower_name }}
               </Link>
@@ -157,7 +158,7 @@ defineExpose({
             </td>
           </tr>
           <tr v-if="!isForm">
-            <th>Time Added</th>
+            <th>Time added</th>
             <td>{{ moment(grade.created_at).format('DD/MM/YYYY hh:mm A') }}</td>
           </tr>
           <tr>
@@ -191,7 +192,7 @@ defineExpose({
       <div class="user-boxes">
         <table class="table input-table mb-0">
           <tr>
-            <th>No of Bulk Bags out:</th>
+            <th>No of bulk bags out</th>
             <td>
               <TextInput
                 v-if="isForm"
@@ -206,7 +207,7 @@ defineExpose({
             </td>
           </tr>
           <tr>
-            <th>Net Weight of bulk Bags:</th>
+            <th>Net weight of bulk bags</th>
             <td>
               <TextInput
                 v-if="isForm"
@@ -221,22 +222,19 @@ defineExpose({
             </td>
           </tr>
           <tr>
-            <th>Fungicide:</th>
+            <th>Fungicide</th>
             <td class="pb-0">
               <UlLiButton
                 :is-form="isForm"
                 :value="form.fungicide"
                 :error="form.errors.fungicide"
-                :items="[
-                  { value: true, label: 'Yes' },
-                  { value: false, label: 'No' },
-                ]"
+                :items="booleanArray"
                 @click="(value) => (form.fungicide = value)"
               />
             </td>
           </tr>
           <tr v-if="form.fungicide">
-            <th>Fungicide used:</th>
+            <th>Fungicide used</th>
             <td>
               <TextInput
                 v-if="isForm"
@@ -255,7 +253,7 @@ defineExpose({
             </td>
           </tr>
           <tr>
-            <th>Start Time:</th>
+            <th>Start time</th>
             <td>
               <TextInput
                 v-if="isForm"
@@ -268,7 +266,7 @@ defineExpose({
             </td>
           </tr>
           <tr>
-            <th>End Time:</th>
+            <th>End time</th>
             <td>
               <TextInput v-if="isForm" v-model="form.end" :error="form.errors.end" type="time" />
               <template v-else-if="grade.end">{{ grade.end }}</template>
@@ -276,7 +274,7 @@ defineExpose({
             </td>
           </tr>
           <tr>
-            <th>No of Crew:</th>
+            <th>No of crew</th>
             <td>
               <TextInput
                 v-if="isForm"
@@ -289,7 +287,7 @@ defineExpose({
             </td>
           </tr>
           <tr>
-            <th>Comments:</th>
+            <th>Comments</th>
             <td>
               <TextInput
                 v-if="isForm"
@@ -346,14 +344,15 @@ defineExpose({
             </td>
           </tr>
           <tr>
-            <th>Waste (tonnes)</th>
+            <th>Waste</th>
             <td>
-              <TextInput
-                v-model="form.waste"
-                :error="form.errors.waste"
-                :disabled="!isForm"
-                type="text"
-              />
+              <TextInput v-model="form.waste" :error="form.errors.waste" :disabled="!isForm" type="text">
+                <template #addon>
+                  <div class="input-group-text d-none d-md-inline-block d-lg-none d-xl-inline-block">
+                    tonnes
+                  </div>
+                </template>
+              </TextInput>
             </td>
           </tr>
         </table>

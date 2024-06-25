@@ -16,7 +16,7 @@ export var tiaStatus = [
   { value: 'rejected', label: 'Rejected' },
 ];
 
-export var tiaSampleBoolean = [
+export var booleanArray = [
   { value: true, label: 'Yes' },
   { value: false, label: 'No' },
 ];

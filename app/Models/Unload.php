@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -40,5 +41,10 @@ class Unload extends Model
     public function weighbridges(): HasMany
     {
         return $this->hasMany(Weighbridge::class);
+    }
+
+    public function grade(): HasOne
+    {
+        return $this->hasOne(Grade::class);
     }
 }

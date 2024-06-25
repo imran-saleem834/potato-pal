@@ -3,10 +3,10 @@ import { useToast } from 'vue-toastification';
 import { useForm, usePage } from '@inertiajs/vue3';
 import { computed, onMounted, onUpdated, ref, watch } from 'vue';
 import Multiselect from '@vueform/multiselect';
+import * as bootstrap from 'bootstrap';
 import TextInput from '@/Components/TextInput.vue';
 import ConfirmedModal from '@/Components/ConfirmedModal.vue';
 import CustomDatePicker from '@/Components/CustomDatePicker.vue';
-import * as bootstrap from 'bootstrap';
 import SingleDetailsView from '@/Pages/Cutting/Partials/SingleDetailsView.vue';
 import SelectedAllocationView from '@/Pages/Cutting/Partials/SelectedAllocationView.vue';
 import {

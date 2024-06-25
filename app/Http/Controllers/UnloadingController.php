@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Carbon\Carbon;
 use Inertia\Inertia;
+use App\Models\Grade;
 use App\Models\Unload;
 use App\Models\Category;
 use App\Models\Receival;
@@ -136,10 +137,23 @@ class UnloadingController extends Controller
         return to_route('unloading.index', ['receivalId' => $receivalId]);
     }
 
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function pushForGrading(string $id)
+    {
+        $unload = Unload::find($id);
+
+        Grade::create(['unload_id' => $unload->id]);
+
+        return to_route('unloading.index', ['receivalId' => $unload->receival_id]);
+    }
+
     private function getReceivalUnloads($receivalId)
     {
         return Receival::with([
             'unloads.weighbridges',
+            'unloads.grade:id,unload_id',
             'unloads.categories.category',
             'grower:id,name,grower_name',
             'tiaSample:id,receival_id',

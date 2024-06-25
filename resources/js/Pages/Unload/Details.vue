@@ -287,6 +287,18 @@ const deleteUnload = (id) => {
   });
 };
 
+const gradingForm = useForm({});
+const pushForGrading = (id) => {
+  gradingForm.post(route('unloading.push.grading', id), {
+    preserveScroll: true,
+    preserveState: true,
+    onSuccess: () => {
+      emit('update');
+      toast.success('The unloading pushed for grading successfully!');
+    },
+  });
+};
+
 defineExpose({
   updateRecord,
   storeRecord,
@@ -313,7 +325,7 @@ defineExpose({
             </td>
           </tr>
           <tr>
-            <th>Receival id</th>
+            <th>Receival ID</th>
             <td>
               <Link class="p-0" :href="route('receivals.index', { receivalId: receival.id })">
                 {{ receival.id }}
@@ -325,7 +337,7 @@ defineExpose({
             <td>{{ moment(receival.created_at).format('DD/MM/YYYY hh:mm A') }}</td>
           </tr>
           <tr>
-            <th>Grower Group</th>
+            <th>Grower group</th>
             <TdOfCategories :categories="receival.categories" type="grower-group" />
           </tr>
           <tr>
@@ -492,7 +504,7 @@ defineExpose({
             </td>
           </tr>
           <tr>
-            <th>Weight Type</th>
+            <th>Weight type</th>
             <td class="pb-0">
               <UlLiButton
                 v-if="form.unloads[index]"
@@ -655,6 +667,30 @@ defineExpose({
               </td>
             </tr>
           </template>
+          <tr v-if="unload.id && receival.status === 'completed'">
+            <th>Grading</th>
+            <td v-if="unload.grade?.id">
+              <Link class="p-0" :href="route('gradings.index', { gradeId: unload.grade.id })">
+                {{ unload.grade.id }}
+              </Link>
+            </td>
+            <td v-else class="pb-0">
+              <ul class="p-0">
+                <li>
+                  <button
+                    class="btn btn-dark"
+                    @click="pushForGrading(unload.id)"
+                    :disabled="gradingForm.processing"
+                  >
+                    <template v-if="gradingForm.processing">
+                      <i class="bi bi-arrow-repeat d-inline-block spin"></i> Loading...
+                    </template>
+                    <template v-else> Push for Grading</template>
+                  </button>
+                </li>
+              </ul>
+            </td>
+          </tr>
         </table>
         <table
           v-if="

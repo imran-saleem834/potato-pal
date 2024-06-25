@@ -56,6 +56,8 @@ Route::middleware([
 
     Route::delete('/unloading/{unloading}/single', [UnloadingController::class, 'destroySingle'])
         ->name('unloading.single.destroy');
+    Route::post('/unloading/{id}/push/grading', [UnloadingController::class, 'pushForGrading'])
+        ->name('unloading.push.grading');
     Route::resource('/unloading', UnloadingController::class);
     Route::resource('/cuttings', CuttingController::class);
     Route::resource('/gradings', GradingController::class);

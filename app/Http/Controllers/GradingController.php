@@ -51,13 +51,11 @@ class GradingController extends Controller
         return Unload::query()
             ->with([
                 'categories.category',
-                'receival'        => fn ($query) => $query->select(['id', 'grower_id']),
-                'receival.grower' => fn ($query) => $query->select(['id', 'grower_name']),
+                'receival:id,grower_id',
+                'receival.grower:id,grower_name',
             ])
             ->select(['id', 'receival_id'])
-            ->whereRelation('receival', function ($query) {
-                return $query->where('status', 'completed');
-            })
+            ->whereRelation('receival', 'status', '=', 'completed')
             ->get()
             ->map(function ($unload) {
                 $categoryName = $unload->categories?->first()?->category?->name;
@@ -68,7 +66,7 @@ class GradingController extends Controller
 
                 return [
                     'value' => $unload->id,
-                    'label' => "$label; Receival id: {$unload->receival_id}; {$unload->receival->grower->grower_name}",
+                    'label' => "Unload id: {$unload->id}; $label; Receival id: {$unload->receival_id}; {$unload->receival->grower->grower_name}",
                 ];
             });
     }

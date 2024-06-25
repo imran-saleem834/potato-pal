@@ -9,7 +9,7 @@ import Images from '@/Components/Images.vue';
 import UlLiButton from '@/Components/UlLiButton.vue';
 import TdOfCategories from '@/Components/TdOfCategories.vue';
 import CustomDatePicker from '@/Components/CustomDatePicker.vue';
-import { binSizes, tiaStatus, tiaSampleBoolean } from '@/const.js';
+import { binSizes, tiaStatus, booleanArray } from '@/const.js';
 
 const toast = useToast();
 
@@ -592,7 +592,7 @@ defineExpose({
                 :is-form="isForm"
                 :value="form.excessive_dirt"
                 :error="form.errors.excessive_dirt"
-                :items="tiaSampleBoolean"
+                :items="booleanArray"
                 @click="(value) => (form.excessive_dirt = value)"
               />
             </td>
@@ -604,7 +604,7 @@ defineExpose({
                 :is-form="isForm"
                 :value="form.minor_skin_cracking"
                 :error="form.errors.minor_skin_cracking"
-                :items="tiaSampleBoolean"
+                :items="booleanArray"
                 @click="(value) => (form.minor_skin_cracking = value)"
               />
             </td>
@@ -616,7 +616,7 @@ defineExpose({
                 :is-form="isForm"
                 :value="form.skinning"
                 :error="form.errors.skinning"
-                :items="tiaSampleBoolean"
+                :items="booleanArray"
                 @click="(value) => (form.skinning = value)"
               />
             </td>
@@ -628,7 +628,7 @@ defineExpose({
                 :is-form="isForm"
                 :value="form.regarding"
                 :error="form.errors.regarding"
-                :items="tiaSampleBoolean"
+                :items="booleanArray"
                 @click="(value) => (form.regarding = value)"
               />
             </td>

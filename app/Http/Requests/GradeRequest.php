@@ -42,8 +42,8 @@ class GradeRequest extends FormRequest
             'net_weight_bags_out' => ['nullable', 'numeric', 'gte:0', 'max:999999'],
             'fungicide'           => ['nullable', 'boolean'],
             'fungicide_used'      => ['nullable', 'numeric', 'gte:0', 'max:999999'],
-            'start'               => ['nullable', 'date_format:h:i'],
-            'end'                 => ['nullable', 'date_format:h:i'],
+            'start'               => ['nullable', 'date_format:H:i'],
+            'end'                 => ['nullable', 'date_format:H:i'],
             'no_of_crew'          => ['nullable', 'numeric', 'gte:0', 'max:999999'],
             'comments'            => ['nullable', 'string', 'max:191'],
         ];
