@@ -52,7 +52,7 @@ class DeleteRecordsHelper
     public static function deleteReturnItems($model)
     {
         $model->loadMissing('returnItems');
-        
+
         foreach ($model->returnItems as $returnItem) {
             $returnItem->returns()->delete();
             $returnItem->delete();

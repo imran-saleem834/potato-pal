@@ -103,7 +103,9 @@ const setIsEdit = () => {
   axios
     .get(route('c.buyers.allocations', props.cutting.buyer_id))
     .then((response) => {
-      form.selected_allocation = response.data.find((item) => props.cutting.item.foreignable_id === item.id);
+      form.selected_allocation = response.data.find(
+        (item) => props.cutting.item.foreignable_id === item.id,
+      );
       form.selected_allocation.bin_size = props.cutting.item.bin_size;
       form.selected_allocation.no_of_bins = props.cutting.item.no_of_bins;
       form.half_tonnes = props.cutting.item.half_tonnes;

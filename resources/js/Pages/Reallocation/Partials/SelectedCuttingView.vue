@@ -30,16 +30,28 @@ const props = defineProps({
       </thead>
       <tbody>
         <tr>
-          <td class="d-none d-md-table-cell text-primary">{{ cutting.item.foreignable.grower.grower_name }}</td>
-          <td class="d-none d-md-table-cell text-primary">{{ cutting.item.foreignable.paddock }}</td>
           <td class="d-none d-md-table-cell text-primary">
-            {{ getSingleCategoryNameByType(cutting.item.foreignable.categories, 'seed-variety') || '-' }}
+            {{ cutting.item.foreignable.grower.grower_name }}
           </td>
           <td class="d-none d-md-table-cell text-primary">
-            {{ getSingleCategoryNameByType(cutting.item.foreignable.categories, 'seed-generation') || '-' }}
+            {{ cutting.item.foreignable.paddock }}
+          </td>
+          <td class="d-none d-md-table-cell text-primary">
+            {{
+              getSingleCategoryNameByType(cutting.item.foreignable.categories, 'seed-variety') ||
+              '-'
+            }}
+          </td>
+          <td class="d-none d-md-table-cell text-primary">
+            {{
+              getSingleCategoryNameByType(cutting.item.foreignable.categories, 'seed-generation') ||
+              '-'
+            }}
           </td>
           <td class="text-primary">
-            {{ getSingleCategoryNameByType(cutting.item.foreignable.categories, 'seed-type') || '-' }}
+            {{
+              getSingleCategoryNameByType(cutting.item.foreignable.categories, 'seed-type') || '-'
+            }}
             <a
               data-bs-toggle="tooltip"
               data-bs-html="true"
@@ -58,7 +70,9 @@ const props = defineProps({
             </a>
           </td>
           <td class="d-none d-md-table-cell text-primary">
-            {{ getSingleCategoryNameByType(cutting.item.foreignable.categories, 'seed-class') || '-' }}
+            {{
+              getSingleCategoryNameByType(cutting.item.foreignable.categories, 'seed-class') || '-'
+            }}
           </td>
           <td class="text-primary">{{ `${cutting.available_half_tonnes} Bins` }}</td>
           <td class="text-primary">{{ `${cutting.available_one_tonnes} Bins` }}</td>

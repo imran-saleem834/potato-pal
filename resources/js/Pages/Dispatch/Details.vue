@@ -62,7 +62,9 @@ watch(
     form.one_tonnes = dispatch.item?.one_tonnes;
     form.two_tonnes = dispatch.item?.two_tonnes;
     form.comment = dispatch.comment;
-    form.created_at = dispatch.created_at ? dispatch.created_at.split('.')[0].replace('T', ' ') : null;
+    form.created_at = dispatch.created_at
+      ? dispatch.created_at.split('.')[0].replace('T', ' ')
+      : null;
     form.buyer_group = getCategoryIdsByType(dispatch.categories, 'buyer-group');
     form.transport = getCategoryIdsByType(dispatch.categories, 'transport');
     form.docket_no = dispatch.docket_no;
@@ -142,7 +144,8 @@ const deleteDispatch = () => {
 };
 
 const buyerGroups = computed(() => {
-  const categories = page.props.buyers.find(buyer => buyer.value === form.buyer_id)?.categories || [];
+  const categories =
+    page.props.buyers.find((buyer) => buyer.value === form.buyer_id)?.categories || [];
   return categories.map((category) => category.category);
 });
 
@@ -231,7 +234,12 @@ defineExpose({
           </TextInput>
         </div>
         <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 mb-3">
-          <TextInput v-model="form.comment" :error="form.errors.comment" type="text" placeholder="Comments" />
+          <TextInput
+            v-model="form.comment"
+            :error="form.errors.comment"
+            type="text"
+            placeholder="Comments"
+          />
         </div>
         <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 mb-3">
           <label class="form-label">Dispatch Time</label>

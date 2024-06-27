@@ -4,7 +4,7 @@ import { Link } from '@inertiajs/vue3';
 import { computed, onMounted, onUpdated } from 'vue';
 import { getSingleCategoryNameByType } from '@/helper.js';
 import * as bootstrap from 'bootstrap';
-import ReturnItems from "@/Components/ReturnItems.vue";
+import ReturnItems from '@/Components/ReturnItems.vue';
 
 const props = defineProps({
   dispatch: Object,
@@ -84,9 +84,15 @@ onUpdated(() => {
         <td class="d-none d-xl-table-cell text-primary">
           {{ getSingleCategoryNameByType(allocation.categories, 'seed-class') || '-' }}
         </td>
-        <td v-if="dispatch.item.half_tonnes > 0" class="text-primary">{{ `${dispatch.item.half_tonnes} Bins` }}</td>
-        <td v-if="dispatch.item.one_tonnes > 0" class="text-primary">{{ `${dispatch.item.one_tonnes} Bins` }}</td>
-        <td v-if="dispatch.item.two_tonnes > 0" class="text-primary">{{ `${dispatch.item.two_tonnes} Bins` }}</td>
+        <td v-if="dispatch.item.half_tonnes > 0" class="text-primary">
+          {{ `${dispatch.item.half_tonnes} Bins` }}
+        </td>
+        <td v-if="dispatch.item.one_tonnes > 0" class="text-primary">
+          {{ `${dispatch.item.one_tonnes} Bins` }}
+        </td>
+        <td v-if="dispatch.item.two_tonnes > 0" class="text-primary">
+          {{ `${dispatch.item.two_tonnes} Bins` }}
+        </td>
       </tr>
     </tbody>
   </table>
@@ -110,9 +116,16 @@ onUpdated(() => {
       <span class="text-primary">
         <Link
           :href="
-            route(dispatch.type === 'allocation' ? 'allocations.index' : (dispatch.type === 'cutting' ? 'cuttings.index' : 'reallocations.index'), {
-              buyerId: dispatch.item.foreignable?.buyer_id,
-            })
+            route(
+              dispatch.type === 'allocation'
+                ? 'allocations.index'
+                : dispatch.type === 'cutting'
+                  ? 'cuttings.index'
+                  : 'reallocations.index',
+              {
+                buyerId: dispatch.item.foreignable?.buyer_id,
+              },
+            )
           "
         >
           {{ dispatch.item.foreignable.id }}

@@ -380,13 +380,18 @@ body {
 }
 
 .topbar .logout-top {
-    text-align: right;
-    margin-top: 40px;
+    float: right;
+    margin-top: 22px;
+    font-family: 'Montserrat-Medium';
+}
+
+.topbar .logout-top img {
+    width: 40px;
+    height: 40px;
 }
 
 .topbar .logout-top a {
     color: rgba(33, 31, 31, 0.87);
-    font-family: 'Montserrat-Medium';
 }
 
 .middle-section {
@@ -894,15 +899,6 @@ body {
     }
 }
 
-
-@media only screen and (max-width: 1400px) {
-
-}
-
-@media only screen and (max-width: 1200px) {
-
-}
-
 @media only screen and (max-width: 992px) {
     .topbar .form-group {
         width: 100%;
@@ -928,8 +924,25 @@ body {
         font-size: 20px;
     }
 
+    .mobile-topbar img {
+        width: 30px;
+        height: 30px;
+    }
+
+    .mobile-topbar .dropdown-toggle {
+        padding: 0;
+    }
+
     .mobile-topbar a {
         color: #211F1F;
+    }
+
+    .mobile-topbar h4 {
+        margin-bottom: 0 !important;
+    }
+
+    .mobile-topbar .mt-1 {
+        margin-top: 0 !important;
     }
 
     .files-section .slider-files {

@@ -36,10 +36,10 @@ class ReallocationRequest extends FormRequest
 
         if ($this->isMethod('PATCH')) {
             $reallocation = Reallocation::query()
-                ->with(['item' => fn($query) => $query->where('foreignable_id', $cutting->id)])
+                ->with(['item' => fn ($query) => $query->where('foreignable_id', $cutting->id)])
                 ->find($this->route('reallocation'));
 
-            if (!empty($reallocation->item)) {
+            if (! empty($reallocation->item)) {
                 $cutting->available_half_tonnes = $cutting->available_half_tonnes + $reallocation->item->half_tonnes;
                 $cutting->available_one_tonnes  = $cutting->available_one_tonnes + $reallocation->item->one_tonnes;
                 $cutting->available_two_tonnes  = $cutting->available_two_tonnes + $reallocation->item->two_tonnes;

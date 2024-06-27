@@ -36,7 +36,7 @@ class DispatchRequest extends FormRequest
         ];
 
         $inputs     = $this->input('selected_allocation', []);
-        $allocation = AllocationHelper::getAvailableAllocationForDispatch([$inputs['type'] . '_id' => $inputs['id']])
+        $allocation = AllocationHelper::getAvailableAllocationForDispatch([$inputs['type'].'_id' => $inputs['id']])
             ->where('type', $inputs['type'])
             ->first();
 
@@ -45,7 +45,7 @@ class DispatchRequest extends FormRequest
                 ->with(['item' => fn ($query) => $query->where('foreignable_id', $allocation->id)])
                 ->find($this->route('dispatch'));
 
-            if (!empty($dispatch->item)) {
+            if (! empty($dispatch->item)) {
                 $allocation->available_half_tonnes = $allocation->available_half_tonnes + $dispatch->item->half_tonnes;
                 $allocation->available_one_tonnes  = $allocation->available_one_tonnes + $dispatch->item->one_tonnes;
                 $allocation->available_two_tonnes  = $allocation->available_two_tonnes + $dispatch->item->two_tonnes;

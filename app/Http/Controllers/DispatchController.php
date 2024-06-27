@@ -3,19 +3,19 @@
 namespace App\Http\Controllers;
 
 use Carbon\Carbon;
-use Inertia\Inertia;
 use App\Models\User;
+use Inertia\Inertia;
 use App\Models\Cutting;
-use App\Models\Dispatch;
 use App\Models\Category;
+use App\Models\Dispatch;
 use App\Models\Allocation;
 use App\Helpers\BuyerHelper;
 use App\Models\Reallocation;
 use Illuminate\Http\Request;
-use App\Models\DispatchReturn;
 use App\Models\AllocationItem;
-use App\Helpers\CategoriesHelper;
+use App\Models\DispatchReturn;
 use App\Helpers\AllocationHelper;
+use App\Helpers\CategoriesHelper;
 use App\Helpers\NotificationHelper;
 use App\Helpers\DeleteRecordsHelper;
 use App\Http\Requests\ReturnRequest;
@@ -147,7 +147,7 @@ class DispatchController extends Controller
     public function destroy(string $id)
     {
         $dispatch = Dispatch::find($id);
-        $buyerId = $dispatch->buyer_id;
+        $buyerId  = $dispatch->buyer_id;
         DeleteRecordsHelper::deleteReturnItems($dispatch);
         $dispatch->item()->delete();
         $dispatch->delete();
@@ -165,7 +165,7 @@ class DispatchController extends Controller
     public function returns(ReturnRequest $request)
     {
         $inputs = $request->validated('dispatch');
-        
+
         $return = DispatchReturn::create($request->validated());
 
         if (! empty($request->validated('created_at'))) {
@@ -205,8 +205,8 @@ class DispatchController extends Controller
                             'item.foreignable.grower:id,grower_name',
                         ],
                         Allocation::class   => [
-                            'categories.category', 
-                            'grower:id,grower_name'
+                            'categories.category',
+                            'grower:id,grower_name',
                         ],
                     ]);
                 },
@@ -227,7 +227,7 @@ class DispatchController extends Controller
                                     return $query->where('paddock', 'LIKE', "%{$search}%")
                                         ->orWhereRelation('buyer', 'buyer_name', 'LIKE', "%{$search}%")
                                         ->orWhereRelation('categories.category', 'name', 'LIKE', "%{$search}%");
-                                } else if ($type === Cutting::class) {
+                                } elseif ($type === Cutting::class) {
                                     return $query->whereRelation('item.foreignable', 'paddock', 'LIKE', "%{$search}%")
                                         ->orWhereRelation('item.foreignable.buyer', 'buyer_name', 'LIKE', "%{$search}%")
                                         ->orWhereRelation('item.foreignable.categories.category', 'name', 'LIKE', "%{$search}%");
@@ -251,9 +251,10 @@ class DispatchController extends Controller
     {
         if ($type === 'reallocation') {
             return Reallocation::class;
-        } else if ($type === 'cutting') {
+        } elseif ($type === 'cutting') {
             return Cutting::class;
         }
+
         return Allocation::class;
     }
 }

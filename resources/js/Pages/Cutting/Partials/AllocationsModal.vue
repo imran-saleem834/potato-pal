@@ -98,15 +98,21 @@ watch(
                 <template v-for="allocation in allocations" :key="allocation.id">
                   <tr>
                     <td>
-                      {{ getSingleCategoryNameByType(allocation.categories, 'grower-group') || '-' }}
+                      {{
+                        getSingleCategoryNameByType(allocation.categories, 'grower-group') || '-'
+                      }}
                     </td>
                     <td>{{ allocation.grower?.grower_name || '-' }}</td>
                     <td>{{ allocation.paddock }}</td>
                     <td>
-                      {{ getSingleCategoryNameByType(allocation.categories, 'seed-variety') || '-' }}
+                      {{
+                        getSingleCategoryNameByType(allocation.categories, 'seed-variety') || '-'
+                      }}
                     </td>
                     <td>
-                      {{ getSingleCategoryNameByType(allocation.categories, 'seed-generation') || '-' }}
+                      {{
+                        getSingleCategoryNameByType(allocation.categories, 'seed-generation') || '-'
+                      }}
                     </td>
                     <td>
                       {{ getSingleCategoryNameByType(allocation.categories, 'seed-type') || '-' }}

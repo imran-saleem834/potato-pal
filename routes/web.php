@@ -43,51 +43,69 @@ Route::middleware([
     Route::inertia('/dashboard', 'Dashboard');
     Route::inertia('/', 'Dashboard')->name('dashboard');
 
-    Route::resource('/users', UserController::class)->except(['create', 'edit']);
+    Route::middleware(['admin'])->group(function () {
+        Route::resource('/users', UserController::class)->except(['create', 'edit']);
 
-    Route::resource('/categories', CategoryController::class);
+        Route::resource('/categories', CategoryController::class);
 
-    Route::post('/receivals/{id}/push/unload', [ReceivalController::class, 'pushForUnload'])
-        ->name('receivals.push.unload');
-    Route::post('/receivals/{id}/push/tia-sample', [ReceivalController::class, 'pushForTiaSample'])
-        ->name('receivals.push.tia-sample');
-    Route::post('/receivals/{id}/duplicate', [ReceivalController::class, 'duplicate'])->name('receivals.duplicate');
-    Route::resource('/receivals', ReceivalController::class);
+        Route::resource('/labels', LabelController::class);
+        Route::resource('/invoices', InvoiceController::class);
 
-    Route::delete('/unloading/{unloading}/single', [UnloadingController::class, 'destroySingle'])
-        ->name('unloading.single.destroy');
-    Route::post('/unloading/{id}/push/grading', [UnloadingController::class, 'pushForGrading'])
-        ->name('unloading.push.grading');
-    Route::resource('/unloading', UnloadingController::class);
-    Route::resource('/cuttings', CuttingController::class);
-    Route::resource('/gradings', GradingController::class);
-    Route::resource('/labels', LabelController::class);
-    Route::resource('/invoices', InvoiceController::class);
+        Route::get('/labels/{label}/print/{type}', [LabelController::class, 'label'])->name('labels.print');
 
-    Route::get('/labels/{label}/print/{type}', [LabelController::class, 'label'])->name('labels.print');
+        Route::resource('/reports', ReportController::class);
+        Route::get('/reports/{report}/result', [ReportController::class, 'result'])->name('reports.result');
+    });
 
-    Route::resource('/tia-samples', TiaSampleController::class);
+    Route::middleware(['receivals'])->group(function () {
+        Route::post('/receivals/{id}/push/unload', [ReceivalController::class, 'pushForUnload'])
+            ->name('receivals.push.unload');
+        Route::post('/receivals/{id}/push/tia-sample', [ReceivalController::class, 'pushForTiaSample'])
+            ->name('receivals.push.tia-sample');
+        Route::post('/receivals/{id}/duplicate', [ReceivalController::class, 'duplicate'])
+            ->name('receivals.duplicate');
+        Route::resource('/receivals', ReceivalController::class);
+    });
 
-    Route::resource('/allocations', AllocationController::class)->except(['create', 'edit', 'show']);
-    Route::resource('/reallocations', ReallocationController::class)->except(['create', 'edit']);
-    Route::resource('/dispatches', DispatchController::class)->except(['create', 'edit', 'show']);
-    Route::post('/returns', [DispatchController::class, 'returns'])->name('returns.store');
+    Route::middleware(['unloading'])->group(function () {
+        Route::delete('/unloading/{unloading}/single', [UnloadingController::class, 'destroySingle'])
+            ->name('unloading.single.destroy');
+        Route::post('/unloading/{id}/push/grading', [UnloadingController::class, 'pushForGrading'])
+            ->name('unloading.push.grading');
+        Route::resource('/unloading', UnloadingController::class);
+    });
 
-    Route::get('/growers/{id}/receivals', [AllocationController::class, 'receivals'])->name('growers.receivals');
-    Route::get('/buyers/{id}/c/allocations', [CuttingController::class, 'allocations'])->name('c.buyers.allocations');
-    Route::get('/buyers/{id}/cuttings', [ReallocationController::class, 'cuttings'])->name('buyers.cuttings');
-    Route::get('/buyers/{id}/d/allocations', [DispatchController::class, 'allocations'])->name('d.buyers.allocations');
+    Route::resource('/tia-samples', TiaSampleController::class)->middleware('tia-sampling');
 
-    Route::get('/weighbridges', [WeighbridgeController::class, 'index'])->name('weighbridges.index');
+    Route::middleware(['allocations'])->group(function () {
+        Route::resource('/allocations', AllocationController::class)->except(['create', 'edit', 'show']);
+        Route::get('/growers/{id}/receivals', [AllocationController::class, 'receivals'])->name('growers.receivals');
+    });
 
-    Route::resource('/reports', ReportController::class);
-    Route::get('/reports/{report}/result', [ReportController::class, 'result'])->name('reports.result');
+    Route::middleware(['reallocations'])->group(function () {
+        Route::resource('/reallocations', ReallocationController::class)->except(['create', 'edit']);
+        Route::get('/buyers/{id}/cuttings', [ReallocationController::class, 'cuttings'])->name('buyers.cuttings');
+    });
 
-    Route::resource('/notifications', NotificationController::class);
+    Route::middleware(['dispatch'])->group(function () {
+        Route::resource('/dispatches', DispatchController::class)->except(['create', 'edit', 'show']);
+        Route::post('/returns', [DispatchController::class, 'returns'])->name('returns.store');
 
-    Route::resource('/notes', NoteController::class);
+        Route::get('/buyers/{id}/d/allocations', [DispatchController::class, 'allocations'])->name('d.buyers.allocations');
+    });
 
-    Route::resource('/files', FileController::class);
+    Route::middleware(['cutting'])->group(function () {
+        Route::resource('/cuttings', CuttingController::class);
+        Route::get('/buyers/{id}/c/allocations', [CuttingController::class, 'allocations'])->name('c.buyers.allocations');
+    });
+
+    Route::get('/weighbridges', [WeighbridgeController::class, 'index'])
+        ->middleware('weighbridges')
+        ->name('weighbridges.index');
+    Route::resource('/gradings', GradingController::class)->middleware('grading');
+    Route::resource('/notifications', NotificationController::class)->middleware('notifications');
+    Route::resource('/notes', NoteController::class)->middleware('notes');
+    Route::resource('/files', FileController::class)->middleware('files');
 
     Route::get('/media/files', [MediaController::class, 'files'])->name('media.files');
     Route::post('/media/{model}/{id}/attach', [MediaController::class, 'attach'])->name('media.attach');
@@ -121,7 +139,8 @@ Route::get('/abc', function () {
 });
 
 Route::get('/abc2', function () {
-    $receivals = \App\Models\Receival::with('unloads.receival.categories.category', 'unloads.categories.category')->get();
+    $receivals = \App\Models\Receival::with('unloads.receival.categories.category',
+        'unloads.categories.category')->get();
     foreach ($receivals as $receival) {
         \App\Helpers\ReceivalHelper::updateUniqueKey($receival);
     }

@@ -80,18 +80,20 @@ class AllocationHelper
             ->map(function ($allocation) {
                 $allocation       = static::setAvailableForAllocation($allocation);
                 $allocation->type = 'allocation';
+
                 return $allocation;
             });
 
-        $with = Arr::map($with, fn($w) => 'item.foreignable.' . $w);
+        $with = Arr::map($with, fn ($w) => 'item.foreignable.'.$w);
 
         $filter['id'] = $filter['cutting_id'] ?? null;
         $cuttings     = static::getAvailableCuttingsForReallocation($filter, $with)->map(function ($cutting) {
             $cutting->type = 'cutting';
+
             return $cutting;
         });
 
-        $with = Arr::map($with, fn($w) => 'item.foreignable.' . $w);
+        $with = Arr::map($with, fn ($w) => 'item.foreignable.'.$w);
 
         $reallocations = Reallocation::query()
             ->with(array_merge(['item', 'returnItems', 'dispatchItems', 'buyer:id,buyer_name'], $with))
@@ -105,6 +107,7 @@ class AllocationHelper
             ->map(function ($reallocation) {
                 $reallocation       = self::setAvailableForReallocation($reallocation);
                 $reallocation->type = 'reallocation';
+
                 return $reallocation;
             });
 

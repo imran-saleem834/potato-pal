@@ -97,24 +97,47 @@ watch(
               <tbody>
                 <template v-for="cutting in cuttings" :key="cutting.id">
                   <tr>
-                    <td>{{ getSingleCategoryNameByType(cutting.item.foreignable.categories, 'grower-group') || '-' }}</td>
+                    <td>
+                      {{
+                        getSingleCategoryNameByType(
+                          cutting.item.foreignable.categories,
+                          'grower-group',
+                        ) || '-'
+                      }}
+                    </td>
                     <td>{{ cutting.item.foreignable.grower?.grower_name || '-' }}</td>
                     <td>{{ cutting.item.foreignable.paddock }}</td>
                     <td>
                       {{
-                        getSingleCategoryNameByType(cutting.item.foreignable.categories, 'seed-variety') || '-'
+                        getSingleCategoryNameByType(
+                          cutting.item.foreignable.categories,
+                          'seed-variety',
+                        ) || '-'
                       }}
                     </td>
                     <td>
                       {{
-                        getSingleCategoryNameByType(cutting.item.foreignable.categories, 'seed-generation') || '-'
+                        getSingleCategoryNameByType(
+                          cutting.item.foreignable.categories,
+                          'seed-generation',
+                        ) || '-'
                       }}
                     </td>
                     <td>
-                      {{ getSingleCategoryNameByType(cutting.item.foreignable.categories, 'seed-type') || '-' }}
+                      {{
+                        getSingleCategoryNameByType(
+                          cutting.item.foreignable.categories,
+                          'seed-type',
+                        ) || '-'
+                      }}
                     </td>
                     <td>
-                      {{ getSingleCategoryNameByType(cutting.item.foreignable.categories, 'seed-class') || '-' }}
+                      {{
+                        getSingleCategoryNameByType(
+                          cutting.item.foreignable.categories,
+                          'seed-class',
+                        ) || '-'
+                      }}
                     </td>
                     <td>{{ `${cutting.available_half_tonnes} Bins` }}</td>
                     <td>{{ `${cutting.available_one_tonnes} Bins` }}</td>

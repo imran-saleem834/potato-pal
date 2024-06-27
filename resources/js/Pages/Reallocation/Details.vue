@@ -234,7 +234,12 @@ defineExpose({
         </div>
         <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 mb-3">
           <label class="form-label d-none">Comments</label>
-          <TextInput v-model="form.comment" :error="form.errors.comment" type="text" placeholder="Comments" />
+          <TextInput
+            v-model="form.comment"
+            :error="form.errors.comment"
+            type="text"
+            placeholder="Comments"
+          />
         </div>
       </div>
       <div v-if="isEdit || isNewItem" class="w-100 text-end">

@@ -48,17 +48,17 @@ class CuttingRequest extends FormRequest
 
         if ($this->isMethod('PATCH')) {
             $cutting = Cutting::query()
-                ->with(['item' => fn($query) => $query->where('foreignable_id', $allocation->id)])
+                ->with(['item' => fn ($query) => $query->where('foreignable_id', $allocation->id)])
                 ->find($this->route('cutting'));
 
-            if (!empty($cutting->item)) {
+            if (! empty($cutting->item)) {
                 $binsInKg += $cutting->item->no_of_bins * $cutting->item->bin_size;
             }
         }
 
         $allocation->available_no_of_bins = $binsInKg / $allocation->item->bin_size;
 
-        $rules["selected_allocation.no_of_bins"] = [
+        $rules['selected_allocation.no_of_bins'] = [
             'required',
             'numeric',
             'gt:0',

@@ -13,15 +13,24 @@ defineProps({
         <span class="text-danger">Returns:</span>
       </div>
       <template v-for="item in items" :key="item.id">
-        <div v-if="item.half_tonnes > 0" class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+        <div
+          v-if="item.half_tonnes > 0"
+          class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1"
+        >
           <span>Half Tonnes: </span>
           <span class="text-primary">{{ `${item.half_tonnes} Bins` }}</span>
         </div>
-        <div v-if="item.one_tonnes > 0" class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+        <div
+          v-if="item.one_tonnes > 0"
+          class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1"
+        >
           <span>One Tonnes: </span>
           <span class="text-primary">{{ `${item.one_tonnes} Bins` }}</span>
         </div>
-        <div v-if="item.two_tonnes > 0" class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+        <div
+          v-if="item.two_tonnes > 0"
+          class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1"
+        >
           <span>Two Tonnes: </span>
           <span class="text-primary">{{ `${item.two_tonnes} Bins` }}</span>
         </div>

@@ -3,7 +3,7 @@ import { Link } from '@inertiajs/vue3';
 import * as bootstrap from 'bootstrap';
 import { computed, onMounted, onUpdated } from 'vue';
 import { getSingleCategoryNameByType } from '@/helper.js';
-import ReturnItems from "@/Components/ReturnItems.vue";
+import ReturnItems from '@/Components/ReturnItems.vue';
 
 const props = defineProps({
   reallocation: Object,
@@ -81,9 +81,15 @@ onUpdated(() => {
         <td class="d-none d-xl-table-cell text-primary">
           {{ getSingleCategoryNameByType(allocation.categories, 'seed-class') || '-' }}
         </td>
-        <td v-if="reallocation.item.half_tonnes > 0" class="text-primary">{{ `${reallocation.item.half_tonnes} Bins` }}</td>
-        <td v-if="reallocation.item.one_tonnes > 0" class="text-primary">{{ `${reallocation.item.one_tonnes} Bins` }}</td>
-        <td v-if="reallocation.item.two_tonnes > 0" class="text-primary">{{ `${reallocation.item.two_tonnes} Bins` }}</td>
+        <td v-if="reallocation.item.half_tonnes > 0" class="text-primary">
+          {{ `${reallocation.item.half_tonnes} Bins` }}
+        </td>
+        <td v-if="reallocation.item.one_tonnes > 0" class="text-primary">
+          {{ `${reallocation.item.one_tonnes} Bins` }}
+        </td>
+        <td v-if="reallocation.item.two_tonnes > 0" class="text-primary">
+          {{ `${reallocation.item.two_tonnes} Bins` }}
+        </td>
       </tr>
     </tbody>
   </table>

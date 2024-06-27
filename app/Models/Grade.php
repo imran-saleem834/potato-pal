@@ -58,12 +58,12 @@ class Grade extends Model
 
     protected function start(): Attribute
     {
-        return Attribute::make(fn ($value) => substr($value,0,5));
+        return Attribute::make(fn ($value) => substr($value, 0, 5));
     }
 
     protected function end(): Attribute
     {
-        return Attribute::make(fn ($value) => substr($value,0,5));
+        return Attribute::make(fn ($value) => substr($value, 0, 5));
     }
 
     public function scopeSearch(Builder $query, $search)

@@ -346,9 +346,16 @@ defineExpose({
           <tr>
             <th>Waste</th>
             <td>
-              <TextInput v-model="form.waste" :error="form.errors.waste" :disabled="!isForm" type="text">
+              <TextInput
+                v-model="form.waste"
+                :error="form.errors.waste"
+                :disabled="!isForm"
+                type="text"
+              >
                 <template #addon>
-                  <div class="input-group-text d-none d-md-inline-block d-lg-none d-xl-inline-block">
+                  <div
+                    class="input-group-text d-none d-md-inline-block d-lg-none d-xl-inline-block"
+                  >
                     tonnes
                   </div>
                 </template>

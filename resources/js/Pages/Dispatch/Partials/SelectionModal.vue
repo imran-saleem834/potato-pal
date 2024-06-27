@@ -67,7 +67,9 @@ watch(
     <div class="modal-dialog modal-xl">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="allocations-modal-Label">Select Allocation, Reallocation OR Cutting</h5>
+          <h5 class="modal-title" id="allocations-modal-Label">
+            Select Allocation, Reallocation OR Cutting
+          </h5>
           <button
             type="button"
             class="btn-close"
@@ -107,9 +109,11 @@ watch(
               <tbody>
                 <template v-for="allocation in allocations" :key="allocation.id">
                   <tr
-                    v-if="allocation.available_half_tonnes > 0 || 
-                          allocation.available_one_tonnes > 0 || 
-                          allocation.available_two_tonnes > 0"
+                    v-if="
+                      allocation.available_half_tonnes > 0 ||
+                      allocation.available_one_tonnes > 0 ||
+                      allocation.available_two_tonnes > 0
+                    "
                   >
                     <td>{{ getAllocation(allocation).grower?.grower_name || '-' }}</td>
                     <td>{{ getAllocation(allocation).paddock }}</td>

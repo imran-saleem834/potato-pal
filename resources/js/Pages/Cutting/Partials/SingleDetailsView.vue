@@ -4,7 +4,7 @@ import { Link } from '@inertiajs/vue3';
 import { getBinSizesValue, getSingleCategoryNameByType } from '@/helper.js';
 import { onMounted, onUpdated } from 'vue';
 import * as bootstrap from 'bootstrap';
-import ReturnItems from "@/Components/ReturnItems.vue";
+import ReturnItems from '@/Components/ReturnItems.vue';
 
 defineProps({
   cutting: Object,
@@ -52,10 +52,15 @@ onUpdated(() => {
         </td>
         <td class="d-none d-md-table-cell text-primary">{{ cutting.item.foreignable.paddock }}</td>
         <td class="d-none d-xl-table-cell text-primary">
-          {{ getSingleCategoryNameByType(cutting.item.foreignable.categories, 'seed-variety') || '-' }}
+          {{
+            getSingleCategoryNameByType(cutting.item.foreignable.categories, 'seed-variety') || '-'
+          }}
         </td>
         <td class="d-none d-md-table-cell text-primary">
-          {{ getSingleCategoryNameByType(cutting.item.foreignable.categories, 'seed-generation') || '-' }}
+          {{
+            getSingleCategoryNameByType(cutting.item.foreignable.categories, 'seed-generation') ||
+            '-'
+          }}
         </td>
         <td class="text-primary">
           {{ getSingleCategoryNameByType(cutting.item.foreignable.categories, 'seed-type') || '-' }}
@@ -77,7 +82,9 @@ onUpdated(() => {
           </a>
         </td>
         <td class="d-none d-xl-table-cell text-primary">
-          {{ getSingleCategoryNameByType(cutting.item.foreignable.categories, 'seed-class') || '-' }}
+          {{
+            getSingleCategoryNameByType(cutting.item.foreignable.categories, 'seed-class') || '-'
+          }}
         </td>
         <td class="text-primary">{{ getBinSizesValue(cutting.item.bin_size) }}</td>
         <td class="text-primary">{{ cutting.item.no_of_bins }}</td>

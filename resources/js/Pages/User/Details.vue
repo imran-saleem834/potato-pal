@@ -2,14 +2,10 @@
 import { computed, watch } from 'vue';
 import { useForm } from '@inertiajs/vue3';
 import { useToast } from 'vue-toastification';
-import {
-  getCategoriesDropDownByType,
-  getCategoryIdsByType,
-  getCategoriesByType,
-} from '@/helper.js';
 import Multiselect from '@vueform/multiselect';
 import TextInput from '@/Components/TextInput.vue';
 import ItemOfCategories from '@/Components/ItemOfCategories.vue';
+import { getCategoriesDropDownByType, getCategoryIdsByType } from '@/helper.js';
 
 const toast = useToast();
 
@@ -17,11 +13,20 @@ const UserAccess = [
   { value: 'admin', label: 'Admin' },
   { value: 'buyer-group', label: 'Buyer Group' },
   { value: 'grower-group', label: 'Grower Group' },
+  { value: 'receivals', label: 'Receivals' },
   { value: 'unloading', label: 'Unloading' },
   { value: 'grower', label: 'Grower' },
   { value: 'buyer', label: 'Buyer' },
   { value: 'transport-companies', label: 'Transport Companies' },
   { value: 'tia-sampling', label: 'TIA Sampling' },
+  { value: 'allocations', label: 'Allocations' },
+  { value: 'reallocations', label: 'Reallocations' },
+  { value: 'dispatch', label: 'Dispatch' },
+  { value: 'cutting', label: 'Cutting' },
+  { value: 'weighbridge', label: 'Weighbridges' },
+  { value: 'notification', label: 'Notifications' },
+  { value: 'notes', label: 'Notes' },
+  { value: 'files', label: 'Files' },
 ];
 
 const props = defineProps({
