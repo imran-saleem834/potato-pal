@@ -1,6 +1,7 @@
 <?php
 
 use Dcblogdev\Xero\Facades\Xero;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\NoteController;
@@ -150,26 +151,30 @@ Route::get('/abc2', function () {
 });
 
 Route::get('/abc3', function () {
-    //    $receivals = \App\Models\Receival::with(['categories' => function($query) {
-    //        return $query->where('type', 'grower-group');
-    //    }, 'categories.category'])->get();
-
-    //    $mcCainStockBuyer = \App\Models\User::where('buyer_name', 'McCain Stock')->first();
-    //    $simplotStockBuyer = \App\Models\User::where('buyer_name', 'Simplot Stock')->first();
-
-    prePrint(\App\Models\User::get()->toArray());
-    exit;
-
-    foreach ($receivals as $receival) {
-        foreach ($receival->categories as $category) {
-            if ($category->category->name === 'McCain Seed') {
-                $receival->dummy_buyer_id = $mcCainStockBuyer->id;
-                $receival->save();
-            } elseif ($category->category->name === 'Simplot Seed') {
-                $receival->dummy_buyer_id = $simplotStockBuyer->id;
-                $receival->save();
-            }
-        }
+    $users = [
+        'receivals@potato-pal.com',
+        'unloading@potato-pal.com',
+        'tia-sampling@potato-pal.com',
+        'allocations@potato-pal.com',
+        'reallocations@potato-pal.com',
+        'dispatch@potato-pal.com',
+        'cutting@potato-pal.com',
+        'weighbridges@potato-pal.com',
+        'notifications@potato-pal.com',
+        'notes@potato-pal.com',
+        'files@potato-pal.com'
+    ];
+    
+    foreach ($users as $user) {
+        [$name, $domain] = explode('@', $user);
+        \App\Models\User::create([
+            'name'              => ucwords(str_replace('-', ' ', $name)),
+            'email'             => $user,
+            'username'          => $name,
+            'email_verified_at' => now(),
+            'role'              => [$name],
+            'password'          => Hash::make(12345678),
+        ]);
     }
 });
 

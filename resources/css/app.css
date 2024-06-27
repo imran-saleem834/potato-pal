@@ -310,11 +310,16 @@ body {
     position: absolute;
     right: 50px;
     top: 45px;
+    font-family: 'Montserrat-Medium';
+}
+
+.logout-text img {
+    width: 40px;
+    height: 40px;
 }
 
 .logout-text a {
     color: rgba(33, 31, 31, 0.87);
-    font-family: 'Montserrat-Medium';
 }
 
 .admin-menu {
@@ -952,6 +957,11 @@ body {
 }
 
 @media only screen and (max-width: 575px) {
+    .logout-text {
+        right: 20px;
+        top: 15px;
+    }
+    
     .admin-access .menu-icon img {
         width: 80px;
         height: 80px;
