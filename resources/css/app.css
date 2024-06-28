@@ -883,6 +883,12 @@ body {
     font-size: 18px;
 }
 
+.modal-logout {
+    bottom: 0;
+    height: auto;
+    position: fixed;
+}
+
 @media print {
     * {
         color-adjust: exact !important;
@@ -961,6 +967,24 @@ body {
         right: 20px;
         top: 15px;
     }
+
+    .admin-menu h5 {
+        margin-bottom: 20px;
+    }
+
+    .admin-access {
+        padding-top: 20px;
+        padding-bottom: 20px;
+    }
+
+    .admin-access .logo {
+        height: 100px;
+        margin-bottom: 10px;
+    }
+    
+    .admin-access .menu-icon {
+         margin: 0 auto 20px auto;
+     }
     
     .admin-access .menu-icon img {
         width: 80px;
