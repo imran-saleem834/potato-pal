@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use Inertia\Inertia;
 use App\Models\Receival;
+use App\Models\Category;
 use App\Models\TiaSample;
 use Illuminate\Http\Request;
+use App\Helpers\ReceivalHelper;
+use App\Models\CategoriesRelation;
 use App\Helpers\NotificationHelper;
 use App\Http\Requests\TiaSampleRequest;
 use Illuminate\Database\Eloquent\Builder;
@@ -28,7 +31,7 @@ class TiaSampleController extends Controller
                     return $subQuery->where('id', 'LIKE', "%$search%")
                         ->orWhere('receival_id', 'LIKE', "%$search%")
                         ->orWhere('processor', 'LIKE', "%$search%")
-                        ->orWhere('inspection_no', 'LIKE', "%$search%")
+                        ->orWhere('status', 'LIKE', "%$search%")
                         ->orWhere('inspection_date', 'LIKE', "%$search%")
                         ->orWhere('size', 'LIKE', "%$search%")
                         ->orWhere('comment', 'LIKE', "%$search%");
@@ -69,9 +72,6 @@ class TiaSampleController extends Controller
     {
         $tiaSample = TiaSample::create($request->validated());
 
-        $receivalId = $request->input('receival_id');
-        Receival::find($receivalId)->update(['tia_status' => $request->input('status')]);
-
         NotificationHelper::addedAction('Tia Sample', $tiaSample->id);
 
         return to_route('tia-samples.index');
@@ -96,8 +96,20 @@ class TiaSampleController extends Controller
         $tiaSample->update($request->validated());
         $tiaSample->save();
 
-        $receivalId = $tiaSample->getAttribute('receival_id');
-        Receival::find($receivalId)->update(['tia_status' => $request->input('status')]);
+        if (ReceivalHelper::isSeedClassPending($tiaSample->receival_id)) {
+            $categoryName = $tiaSample->status === 'not-certified' ? 'Provisional' : ($tiaSample->status === 'qa' ? 'QA only' : 'Certified');
+            $category     = Category::where('type', 'seed-class')->where('name', $categoryName)->first();
+
+            if ($category) {
+                CategoriesRelation::query()
+                    ->where([
+                        'categorizable_id'   => $tiaSample->receival_id,
+                        'categorizable_type' => Receival::class,
+                        'type'               => $category->type,
+                    ])
+                    ->update(['category_id' => $category->id]);
+            }
+        }
 
         NotificationHelper::updatedAction('Tia Sample', $id);
 
@@ -116,7 +128,7 @@ class TiaSampleController extends Controller
         return to_route('tia-samples.index');
     }
 
-    public function getTiaSample(string $id)
+    private function getTiaSample(string $id)
     {
         return TiaSample::query()
             ->with([

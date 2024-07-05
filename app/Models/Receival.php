@@ -37,7 +37,6 @@ class Receival extends Model
         'dummy_buyer_id',
         'comments',
         'status',
-        'tia_status',
         'images',
     ];
 
@@ -92,9 +91,9 @@ class Receival extends Model
         return $this->belongsTo(User::class, 'dummy_buyer_id');
     }
 
-    public function tiaSample()
+    public function tiaSamples()
     {
-        return $this->hasOne(TiaSample::class);
+        return $this->hasMany(TiaSample::class);
     }
 
     public function unloads(): HasMany

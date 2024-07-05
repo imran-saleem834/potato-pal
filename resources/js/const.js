@@ -10,10 +10,9 @@ export var tiaStatusInit = [
 ];
 
 export var tiaStatus = [
-  { value: 'pending', label: 'Pending' },
   { value: 'certified', label: 'Certified' },
   { value: 'not-certified', label: 'Not Certified' },
-  { value: 'rejected', label: 'Rejected' },
+  { value: 'qa', label: 'QA' },
 ];
 
 export var booleanArray = [

@@ -17,7 +17,7 @@ class TiaSample extends Model
     protected $fillable = [
         'receival_id',
         'processor',
-        'inspection_no',
+        'status',
         'inspection_date',
         'size',
         'tubers',
@@ -46,9 +46,12 @@ class TiaSample extends Model
         'disease_root_knot_nematode',
         'disease_common_scab',
         'excessive_dirt',
+        'skin_russeting',
         'minor_skin_cracking',
+        'silver_scurf',
         'skinning',
-        'regarding',
+        'black_dot',
+        'regrading',
         'comment',
         'images',
     ];

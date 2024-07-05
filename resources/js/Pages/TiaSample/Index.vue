@@ -101,6 +101,9 @@ if (width.value > 991) {
       @search="filter"
       :is-edit-record-selected="!!edit"
       :is-new-record-selected="isNewRecord"
+      :access="{
+        new: false
+      }"
       @new="setNewRecord"
       @edit="() => setEdit(tiaSample?.id)"
       @unset="() => setActiveTab(null)"
@@ -120,7 +123,7 @@ if (width.value > 991) {
             :links="tiaSamples.links"
             :active-tab="activeTab"
             :row-1="{ title: 'Grower', value: 'receival.grower.grower_name' }"
-            :row-2="{ title: 'Tia Sample Id', value: 'id' }"
+            :row-2="{ title: 'Receival ID', value: 'receival_id' }"
             @click="getTiaSample"
           />
         </div>

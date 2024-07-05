@@ -156,7 +156,6 @@ class UnloadingController extends Controller
             'unloads.grade:id,unload_id',
             'unloads.categories.category',
             'grower:id,name,grower_name',
-            'tiaSample:id,receival_id',
             'categories.category',
         ])->find($receivalId);
     }

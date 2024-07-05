@@ -50,16 +50,17 @@ class TiaSampleRequest extends FormRequest
     public function rules(): array
     {
         $rules = [
-            'receival_id'         => ['required', 'exists:receivals,id', 'unique:tia_samples,receival_id'],
             'processor'           => ['nullable', Rule::in([500, 1000, 2000])],
-            'inspection_no'       => ['nullable', 'string', 'max:20'],
             'inspection_date'     => ['nullable', 'date'],
             'size'                => ['nullable', 'string', 'max:50'],
             'disease_scoring'     => ['nullable', 'numeric', 'max:6'],
             'excessive_dirt'      => ['nullable', 'boolean'],
+            'skin_russeting'      => ['nullable', 'boolean'],
             'minor_skin_cracking' => ['nullable', 'boolean'],
+            'silver_scurf'        => ['nullable', 'boolean'],
             'skinning'            => ['nullable', 'boolean'],
-            'regarding'           => ['nullable', 'boolean'],
+            'black_dot'           => ['nullable', 'boolean'],
+            'regrading'           => ['nullable', 'boolean'],
             'comment'             => ['nullable', 'string', 'max:191'],
             'status'              => ['required', 'string', 'max:20'],
         ];
@@ -67,14 +68,6 @@ class TiaSampleRequest extends FormRequest
         foreach ($this->arrayInputs as $arrayInput) {
             $rules[$arrayInput]     = ['nullable', 'array'];
             $rules["$arrayInput.*"] = ['nullable', 'numeric'];
-        }
-
-        if ($this->isMethod('PATCH')) {
-            $rules['receival_id'] = [
-                'required',
-                'exists:receivals,id',
-                Rule::unique('tia_samples')->ignore($this->route('tia_sample')),
-            ];
         }
 
         return $rules;
@@ -110,7 +103,6 @@ class TiaSampleRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'receival_id'                  => 'receival',
             'tubers.*'                     => 'tuber',
             'dry_rot.*'                    => 'dry rot',
             'black_scurf.*'                => 'black scurf',

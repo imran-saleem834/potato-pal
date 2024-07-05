@@ -151,31 +151,7 @@ Route::get('/abc2', function () {
 });
 
 Route::get('/abc3', function () {
-    $users = [
-        'receivals@potato-pal.com',
-        'unloading@potato-pal.com',
-        'tia-sampling@potato-pal.com',
-        'allocations@potato-pal.com',
-        'reallocations@potato-pal.com',
-        'dispatch@potato-pal.com',
-        'cutting@potato-pal.com',
-        'weighbridges@potato-pal.com',
-        'notifications@potato-pal.com',
-        'notes@potato-pal.com',
-        'files@potato-pal.com'
-    ];
     
-    foreach ($users as $user) {
-        [$name, $domain] = explode('@', $user);
-        \App\Models\User::create([
-            'name'              => ucwords(str_replace('-', ' ', $name)),
-            'email'             => $user,
-            'username'          => $name,
-            'email_verified_at' => now(),
-            'role'              => [$name],
-            'password'          => Hash::make(12345678),
-        ]);
-    }
 });
 
 Route::get('xero', function () {

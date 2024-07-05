@@ -17,6 +17,7 @@ class BuyerHelper
             ->latest()
             ->groupBy('buyer_id')
             ->get()
+            ->sortBy(fn ($item) => $item->buyer->buyer_name)
             ->map(function ($item) {
                 $item->id = $item->buyer_id;
 

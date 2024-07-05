@@ -3,9 +3,12 @@
 namespace App\Helpers;
 
 use App\Models\Unload;
+use App\Models\Category;
 use App\Models\Receival;
+use App\Models\TiaSample;
 use App\Models\Allocation;
 use App\Models\RemainingReceival;
+use App\Models\CategoriesRelation;
 use Illuminate\Database\Eloquent\Builder;
 
 class ReceivalHelper
@@ -18,6 +21,25 @@ class ReceivalHelper
             $unload->unique_key = static::getUniqueKey($unload);
             $unload->save();
         }
+    }
+
+    public static function pushForTiaSample(int $receivalId): void
+    {
+        if (static::isSeedClassPending($receivalId)) {
+            TiaSample::firstOrCreate(['receival_id' => $receivalId], ['size' => '70mm']);
+        }
+    }
+
+    public static function isSeedClassPending(int $receivalId)
+    {
+        $category = Category::where('name', 'pending')->where('type', 'seed-class')->first();
+
+        return CategoriesRelation::where([
+            'category_id'        => $category->id,
+            'categorizable_id'   => $receivalId,
+            'categorizable_type' => Receival::class,
+            'type'               => $category->type,
+        ])->exists();
     }
 
     private static function getUniqueKey(Unload $unload): ?string

@@ -87,6 +87,8 @@ class ReceivalController extends Controller
         ]);
         CategoriesHelper::createRelationOfTypes($inputs, $receival->id, Receival::class);
 
+        ReceivalHelper::pushForTiaSample($receival->id);
+
         NotificationHelper::addedAction('Receival', $receival->id);
 
         return to_route('receivals.index');
@@ -127,6 +129,8 @@ class ReceivalController extends Controller
             'transport',
         ]);
         CategoriesHelper::createRelationOfTypes($inputs, $receival->id, Receival::class);
+
+        ReceivalHelper::pushForTiaSample($receival->id);
 
         ReceivalHelper::updateUniqueKey($receival);
 
@@ -177,13 +181,7 @@ class ReceivalController extends Controller
      */
     public function pushForTiaSample(Request $request, string $id)
     {
-        $status = $request->input('status');
-        if ($status === 'applied') {
-            $status = 'pending';
-            TiaSample::firstOrCreate(['receival_id' => $id]);
-        }
-
-        Receival::find($id)->update(['tia_status' => $status]);
+        TiaSample::create(['receival_id' => $id, 'size' => '70mm']);
 
         return to_route('receivals.index');
     }
@@ -229,7 +227,7 @@ class ReceivalController extends Controller
             'categories.category',
             'grower'     => fn ($query) => $query->select(['id', 'name', 'grower_name']),
             'dummyBuyer' => fn ($query) => $query->select('id', 'buyer_name'),
-            'tiaSample'  => fn ($query) => $query->select(['id', 'receival_id']),
+            'tiaSamples' => fn ($query) => $query->select(['id', 'receival_id']),
         ])->find($receivalId);
     }
 }

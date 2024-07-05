@@ -13,8 +13,6 @@ import {
   getCategoryIdsByType,
   getCategoriesByType,
 } from '@/helper.js';
-import { tiaStatus, tiaStatusInit } from '@/const.js';
-import UlLiButton from '@/Components/UlLiButton.vue';
 import ItemOfCategories from '@/Components/ItemOfCategories.vue';
 import CustomDatePicker from '@/Components/CustomDatePicker.vue';
 
@@ -171,17 +169,13 @@ defineExpose({
   storeRecord,
 });
 
-const pushForTiaSample = (status) => {
+const pushForAnotherInspection = (status) => {
   statusForm.post(route('receivals.push.tia-sample', { id: props.receival.id, status }), {
     preserveScroll: true,
     preserveState: true,
     onSuccess: () => {
       emit('update');
-      if (status === 'applied') {
-        toast.success('The receival pushed for tia sample successfully!');
-      } else {
-        toast.success('The receival tia sample status updated!');
-      }
+      toast.success('The receival push for tia inspection successfully!');
     },
   });
 };
@@ -365,32 +359,23 @@ const pushForUnload = () => {
               />
             </td>
           </tr>
-          <tr v-if="!isForm">
-            <th>Tia Sample Status</th>
-            <td class="pb-0">
-              <UlLiButton
-                :is-form="true"
-                :value="receival.tia_status"
-                :items="
-                  receival.tia_status && !receival.tia_status.includes('applied')
-                    ? tiaStatus
-                    : tiaStatusInit
-                "
-                @click="pushForTiaSample"
-              />
-            </td>
-          </tr>
-          <tr v-if="!isForm && receival.tia_sample">
-            <th>TIA Sample ID</th>
+          <tr v-if="!isForm && receival.tia_samples.length > 0">
+            <th>Inspection ID</th>
             <td>
               <Link
-                v-if="receival.tia_sample"
-                class="p-0"
-                :href="route('tia-samples.index', { tiaSampleId: receival.tia_sample.id })"
+                v-for="tia_sample in receival.tia_samples"
+                :key="tia_sample.id"
+                class="p-0 me-2"
+                :href="route('tia-samples.index', { tiaSampleId: tia_sample.id })"
               >
-                {{ receival.tia_sample.id }}
+                {{ tia_sample.id }}
               </Link>
-              <template v-else>-</template>
+              <button
+                @click="pushForAnotherInspection"
+                class="border-0 ms-1 text-decoration-underline"
+              >
+                Push for another inspection
+              </button>
             </td>
           </tr>
         </table>

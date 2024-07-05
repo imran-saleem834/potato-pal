@@ -20,6 +20,9 @@ const props = defineProps({
     type: [Number, String, Boolean],
     default: null,
   },
+  style: {
+    default: null,
+  },
 });
 
 const clickable = computed(() => {
@@ -28,7 +31,7 @@ const clickable = computed(() => {
 </script>
 
 <template>
-  <ul class="p-0" :class="{ 'is-invalid': error }">
+  <ul class="p-0" :class="{ 'is-invalid': error }" :style="style">
     <li v-for="item in items" :key="item.value">
       <button
         @click="isForm && $emit('click', item.value)"

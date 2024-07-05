@@ -359,20 +359,6 @@ defineExpose({
             <th>Gen</th>
             <TdOfCategories :categories="receival.categories" type="seed-generation" />
           </tr>
-          <tr>
-            <th>TIA sampling</th>
-            <td class="pb-0">
-              <UlLiButton
-                :is-form="false"
-                :value="receival.tia_status"
-                :items="
-                  receival.tia_status && !receival.tia_status.includes('applied')
-                    ? tiaStatus
-                    : tiaStatusInit
-                "
-              />
-            </td>
-          </tr>
         </table>
       </div>
     </div>

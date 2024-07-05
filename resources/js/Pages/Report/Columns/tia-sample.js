@@ -115,8 +115,8 @@ const columns = [
     },
   },
   {
-    title: 'Inspection No',
-    data: 'inspection_no',
+    title: 'Inspection ID',
+    data: 'id',
   },
   {
     title: 'Inspection Date',

@@ -21,7 +21,6 @@ return new class extends Migration
             $table->foreignId('dummy_buyer_id')->nullable();
             $table->string('comments')->nullable();
             $table->string('status', 20)->nullable();
-            $table->string('tia_status', 20)->nullable();
             $table->text('images')->nullable();
             $table->timestamps();
         });

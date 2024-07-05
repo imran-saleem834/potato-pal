@@ -54,6 +54,20 @@ a.input-group-text:hover {
     background: #E22827 !important;
 }
 
+.disease-scoring-key li {
+    width: calc(15% - 5px);
+    margin-right: 5px !important;
+}
+
+.disease-scoring-key li:nth-of-type(5),
+.disease-scoring-key li:nth-of-type(6) {
+    width: calc(20% - 5px);
+}
+
+.disease-scoring-key li button {
+    width: 100%;
+}
+
 .multiple-inputs li {
     width: calc(15% - 5px);
     margin-right: 5px !important;
@@ -1021,12 +1035,11 @@ body {
         border-bottom: 0;
     }
 
-    .multiple-inputs li {
+    .sample-inputs li {
         width: calc(20% - 5px);
-        margin-right: 5px !important;
     }
 
-    .multiple-inputs li:nth-of-type(5) {
+    .sample-inputs li:nth-of-type(5) {
         width: 20%;
         margin-right: 0 !important;
     }

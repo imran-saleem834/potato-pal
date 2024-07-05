@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('receival_id');
             $table->float('processor')->nullable();
-            $table->string('inspection_no', 20)->nullable();
+            $table->string('status', 20)->nullable();
             $table->date('inspection_date')->nullable();
             $table->string('size', 50)->nullable();
             $table->string('tubers', 255)->nullable();
@@ -44,9 +44,12 @@ return new class extends Migration
             $table->string('disease_root_knot_nematode', 255)->nullable();
             $table->string('disease_common_scab', 255)->nullable();
             $table->boolean('excessive_dirt')->default(false);
+            $table->boolean('skin_russeting')->default(false);
             $table->boolean('minor_skin_cracking')->default(false);
+            $table->boolean('silver_scurf')->default(false);
             $table->boolean('skinning')->default(false);
-            $table->boolean('regarding')->default(false);
+            $table->boolean('black_dot')->default(false);
+            $table->boolean('regrading')->default(false);
             $table->string('comment', 255)->nullable();
             $table->text('images')->nullable();
             $table->timestamps();

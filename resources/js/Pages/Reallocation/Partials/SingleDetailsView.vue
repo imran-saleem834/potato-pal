@@ -96,11 +96,15 @@ onUpdated(() => {
 
   <h4 class="mt-3 mb-2">Reallocation Details:</h4>
   <div class="row allocation-items-box">
+    <div class="col-12 col-sm-6 col-md-3 mb-1 pb-1">
+      <span>Reallocate ID: </span>
+      <span class="text-primary">{{ reallocation.id }}</span>
+    </div>
     <div class="col-12 col-sm-6 col-md-4 mb-1 pb-1">
       <span>Reallocate from buyer: </span>
       <span class="text-primary">{{ reallocation.allocation_buyer.buyer_name }}</span>
     </div>
-    <div class="col-12 col-sm-6 col-md-4 mb-1 pb-1">
+    <div class="col-12 col-sm-6 col-md-5 mb-1 pb-1">
       <span>Comments: </span>
       <span class="text-primary">{{ reallocation.comment }}</span>
     </div>

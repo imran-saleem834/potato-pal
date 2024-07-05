@@ -11,6 +11,10 @@ defineProps({
 <template>
   <div class="row allocation-items-box">
     <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+      <span>Allocation ID: </span>
+      <span class="text-primary">{{ allocation.id }}</span>
+    </div>
+    <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
       <span>Grower: </span>
       <Link :href="route('users.index', { userId: allocation.grower_id })" class="text-primary">
         {{ allocation.grower?.grower_name }}
@@ -66,7 +70,7 @@ defineProps({
         {{ getSingleCategoryNameByType(allocation.categories, 'seed-type') || '-' }}
       </span>
     </div>
-    <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+    <div class="col-12 mb-1 pb-1">
       <span>Comments: </span>
       <span class="text-primary">{{ allocation.comment }}</span>
     </div>
