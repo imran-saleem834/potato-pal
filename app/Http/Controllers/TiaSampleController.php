@@ -92,7 +92,7 @@ class TiaSampleController extends Controller
      */
     public function update(TiaSampleRequest $request, string $id)
     {
-        $tiaSample = TiaSample::find($id);
+        $tiaSample = TiaSample::with(['receival:id,grower_id'])->find($id);
         $tiaSample->update($request->validated());
         $tiaSample->save();
 
@@ -108,6 +108,8 @@ class TiaSampleController extends Controller
                         'type'               => $category->type,
                     ])
                     ->update(['category_id' => $category->id]);
+
+                ReceivalHelper::calculateRemainingReceivals($tiaSample->receival->grower_id);
             }
         }
 

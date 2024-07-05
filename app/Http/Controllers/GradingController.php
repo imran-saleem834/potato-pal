@@ -18,6 +18,7 @@ class GradingController extends Controller
      */
     public function index(Request $request)
     {
+        $route   = explode('.', $request->route()->getName())[0];
         $grades = Grade::query()
             ->with([
                 'unload'                 => fn ($query) => $query->select(['id', 'receival_id']),
@@ -25,6 +26,7 @@ class GradingController extends Controller
                 'unload.receival.grower' => fn ($query) => $query->select(['id', 'grower_name']),
             ])
             ->select(['id', 'unload_id'])
+            ->where('category', $route)
             ->when($request->input('search'), function (Builder $query, $search) {
                 return $query->where(function (Builder $subQuery) use ($search) {
                     return $subQuery->search($search);
@@ -42,6 +44,7 @@ class GradingController extends Controller
             'single'     => $this->getGrade($gradeId),
             'unloads'    => $this->getUnloads(),
             'categories' => Grade::CATEGORIES,
+            'routeName'  => $route,
             'filters'    => $request->only(['search']),
         ]);
     }
@@ -86,11 +89,12 @@ class GradingController extends Controller
      */
     public function store(GradeRequest $request)
     {
-        $grade = Grade::create($request->validated());
+        $route = explode('.', $request->route()->getName())[0];
+        $grade = Grade::create(array_merge(['category' => $route], $request->validated()));
 
         NotificationHelper::addedAction('Grade', $grade->id);
 
-        return to_route('gradings.index');
+        return back();
     }
 
     /**
@@ -104,7 +108,7 @@ class GradingController extends Controller
 
         NotificationHelper::updatedAction('Grade', $id);
 
-        return to_route('gradings.index');
+        return back();
     }
 
     /**
@@ -116,7 +120,7 @@ class GradingController extends Controller
 
         NotificationHelper::deleteAction('Grade', $id);
 
-        return to_route('gradings.index');
+        return back();
     }
 
     private function getGrade($gradeId)

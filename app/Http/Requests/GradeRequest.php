@@ -2,9 +2,6 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Grade;
-use Illuminate\Support\Arr;
-use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class GradeRequest extends FormRequest
@@ -26,7 +23,6 @@ class GradeRequest extends FormRequest
     {
         return [
             'unload_id'           => ['required', 'numeric', 'exists:unloads,id'],
-            'category'            => ['required', 'string', Rule::in(Arr::pluck(Grade::CATEGORIES, ['value']))],
             'bins_tipped'         => ['nullable', 'array'],
             'bins_tipped.*'       => ['nullable', 'numeric', 'gte:0', 'max:999999'],
             'whole_seed'          => ['nullable', 'array'],

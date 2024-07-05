@@ -287,8 +287,11 @@ const deleteUnload = (id) => {
   });
 };
 
-const gradingForm = useForm({});
-const pushForGrading = (id) => {
+const gradingForm = useForm({
+  category: '',
+});
+const pushForGrading = (id, category) => {
+  gradingForm.category = category;
   gradingForm.post(route('unloading.push.grading', id), {
     preserveScroll: true,
     preserveState: true,
@@ -654,27 +657,21 @@ defineExpose({
             </tr>
           </template>
           <tr v-if="unload.id && receival.status === 'completed'">
-            <th>Grading</th>
-            <td v-if="unload.grade?.id">
-              <Link class="p-0" :href="route('gradings.index', { gradeId: unload.grade.id })">
-                {{ unload.grade.id }}
-              </Link>
-            </td>
-            <td v-else class="pb-0">
-              <ul class="p-0">
-                <li>
-                  <button
-                    class="btn btn-dark"
-                    @click="pushForGrading(unload.id)"
-                    :disabled="gradingForm.processing"
-                  >
-                    <template v-if="gradingForm.processing">
-                      <i class="bi bi-arrow-repeat d-inline-block spin"></i> Loading...
-                    </template>
-                    <template v-else> Push for Grading</template>
-                  </button>
-                </li>
-              </ul>
+            <th>Push for</th>
+            <td class="pb-0">
+              <UlLiButton
+                :is-form="true"
+                :items="[
+                    { value : 'grading', label : 'Grading' },
+                    { value : 'sizing', label : 'Sizing' },
+                    { value : 'chemical-applicant', label : 'Chemical Applicant' },
+                    { value : 'bulk-bagging', label : 'Bulk Bagging' },
+                ]"
+                @click="(value) => pushForGrading(unload.id, value)"
+              />
+              <template v-if="gradingForm.processing">
+                <i class="bi bi-arrow-repeat d-inline-block spin"></i> Loading...
+              </template>
             </td>
           </tr>
         </table>

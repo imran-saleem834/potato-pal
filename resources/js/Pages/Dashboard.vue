@@ -63,10 +63,28 @@ const menus = [
     label: 'Weighbridge',
   },
   {
-    route: route('gradings.index'),
+    route: route('grading.index'),
     image: 'menu13.png',
     permission: ['admin', 'grading'],
     label: 'Grading',
+  },
+  {
+    route: route('sizing.index'),
+    image: 'menu13.png',
+    permission: ['admin', 'grading'],
+    label: 'Sizing',
+  },
+  {
+    route: route('chemical-applicant.index'),
+    image: 'menu13.png',
+    permission: ['admin', 'grading'],
+    label: 'Chemical Applicant',
+  },
+  {
+    route: route('bulk-bagging.index'),
+    image: 'menu13.png',
+    permission: ['admin', 'grading'],
+    label: 'Bulk Bagging',
   },
   {
     route: route('categories.index'),

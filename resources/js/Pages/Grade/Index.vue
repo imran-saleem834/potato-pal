@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { router, useForm } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import TopBar from '@/Components/TopBar.vue';
@@ -15,7 +15,7 @@ const props = defineProps({
   grades: Object,
   single: Object,
   unloads: Object,
-  categories: Object,
+  routeName: String,
   filters: Object,
   errors: Object,
 });
@@ -41,7 +41,7 @@ watch(
 
 watch(search, (value) => {
   router.get(
-    route('gradings.index'),
+    route(`${props.routeName}.index`),
     { search: value },
     { preserveState: true, preserveScroll: true },
   );
@@ -50,7 +50,7 @@ watch(search, (value) => {
 const filter = (keyword) => (search.value = keyword);
 
 const getGrade = (id) => {
-  axios.get(route('gradings.show', id)).then((response) => {
+  axios.get(route(`${props.routeName}.show`, id)).then((response) => {
     grade.value = response.data;
 
     setActiveTab(response.data.id);
@@ -77,7 +77,7 @@ const setNewRecord = () => {
 
 const deleteGrade = (id) => {
   const form = useForm({});
-  form.delete(route('gradings.destroy', id), {
+  form.delete(route(`${props.routeName}.destroy`, id), {
     preserveState: true,
     onSuccess: () => {
       setActiveTab(grade.value?.id);
@@ -86,15 +86,27 @@ const deleteGrade = (id) => {
   });
 };
 
+const title = computed(() => {
+  if (props.routeName === 'grading') {
+    return 'Grading';
+  } else if (props.routeName === 'sizing') {
+    return 'Sizing';
+  } else if (props.routeName === 'chemical-applicant') {
+    return 'Chemical Applicant';
+  } else {
+    return 'Bulk Bagging';
+  }
+});
+
 if (width.value > 991) {
   setActiveTab(grade.value?.id);
 }
 </script>
 
 <template>
-  <AppLayout title="Grading">
+  <AppLayout :title="title">
     <TopBar
-      type="Grading"
+      :type="title"
       :title="grade?.grower?.grower_name || 'New'"
       :active-tab="activeTab"
       :search="search"
@@ -120,7 +132,7 @@ if (width.value > 991) {
             :links="grades.links"
             :active-tab="activeTab"
             :row-1="{ title: 'Grower', value: 'unload.receival.grower.grower_name' }"
-            :row-2="{ title: 'Grade Id', value: 'id' }"
+            :row-2="{ title: `${title} ID`, value: 'id' }"
             @click="getGrade"
           />
         </div>
@@ -135,7 +147,7 @@ if (width.value > 991) {
               :is-edit="!!edit"
               :is-new="isNewRecord"
               :unloads="unloads"
-              :categories="categories"
+              :route-name="routeName"
               @update="() => getGrade(activeTab)"
               @create="() => setActiveTab(grade?.id)"
               @unset="() => setActiveTab(null)"

@@ -14,10 +14,10 @@ const toast = useToast();
 const props = defineProps({
   grade: Object,
   colSize: String,
+  routeName: String,
   isEdit: Boolean,
   isNew: Boolean,
   unloads: Array,
-  categories: Array,
 });
 
 const emit = defineEmits(['update', 'create', 'unset']);
@@ -30,7 +30,6 @@ const tonnes = {
 
 const form = useForm({
   unload_id: props.grade.unload_id,
-  category: props.grade.category,
   bins_tipped: props.grade.bins_tipped || { ...tonnes },
   whole_seed: props.grade.whole_seed || { ...tonnes },
   oversize: props.grade.oversize || { ...tonnes },
@@ -52,7 +51,6 @@ watch(
   (grade) => {
     form.clearErrors();
     form.unload_id = grade.unload_id;
-    form.category = grade.category;
     form.bins_tipped = grade.bins_tipped || { ...tonnes };
     form.whole_seed = grade.whole_seed || { ...tonnes };
     form.oversize = grade.oversize || { ...tonnes };
@@ -73,7 +71,7 @@ watch(
 const isForm = computed(() => props.isEdit || props.isNew);
 
 const updateRecord = () => {
-  form.patch(route('gradings.update', props.grade.id), {
+  form.patch(route(`${props.routeName}.update`, props.grade.id), {
     preserveScroll: true,
     preserveState: true,
     onSuccess: () => {
@@ -84,7 +82,7 @@ const updateRecord = () => {
 };
 
 const storeRecord = () => {
-  form.post(route('gradings.store'), {
+  form.post(route(`${props.routeName}.store`), {
     preserveScroll: true,
     preserveState: true,
     onSuccess: () => {
@@ -160,30 +158,6 @@ defineExpose({
           <tr v-if="!isForm">
             <th>Time added</th>
             <td>{{ moment(grade.created_at).format('DD/MM/YYYY hh:mm A') }}</td>
-          </tr>
-          <tr>
-            <th>Category</th>
-            <td class="pb-0">
-              <Multiselect
-                v-if="isForm"
-                v-model="form.category"
-                mode="single"
-                placeholder="Choose a category"
-                :searchable="true"
-                :create-option="true"
-                :options="categories"
-                :class="{ 'is-invalid': form.errors.category }"
-              />
-              <template v-else-if="form.category">
-                {{ categories.find((category) => category.value === form.category)?.label }}
-              </template>
-              <template v-else>-</template>
-              <div
-                v-if="form.errors.category"
-                class="invalid-feedback"
-                v-text="form.errors.category"
-              />
-            </td>
           </tr>
         </table>
       </div>

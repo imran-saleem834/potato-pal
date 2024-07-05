@@ -103,7 +103,10 @@ Route::middleware([
     Route::get('/weighbridges', [WeighbridgeController::class, 'index'])
         ->middleware('weighbridges')
         ->name('weighbridges.index');
-    Route::resource('/gradings', GradingController::class)->middleware('grading');
+    Route::resource('/grading', GradingController::class)->middleware('grading');
+    Route::resource('/sizing', GradingController::class)->middleware('grading');
+    Route::resource('/chemical-applicant', GradingController::class)->middleware('grading');
+    Route::resource('/bulk-bagging', GradingController::class)->middleware('grading');
     Route::resource('/notifications', NotificationController::class)->middleware('notifications');
     Route::resource('/notes', NoteController::class)->middleware('notes');
     Route::resource('/files', FileController::class)->middleware('files');

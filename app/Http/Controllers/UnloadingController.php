@@ -140,20 +140,19 @@ class UnloadingController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function pushForGrading(string $id)
+    public function pushForGrading(Request $request, string $id)
     {
         $unload = Unload::find($id);
 
-        Grade::create(['unload_id' => $unload->id]);
+        Grade::create(['unload_id' => $unload->id, 'category' => $request->input('category')]);
 
-        return to_route('unloading.index', ['receivalId' => $unload->receival_id]);
+        return back();
     }
 
     private function getReceivalUnloads($receivalId)
     {
         return Receival::with([
             'unloads.weighbridges',
-            'unloads.grade:id,unload_id',
             'unloads.categories.category',
             'grower:id,name,grower_name',
             'categories.category',
