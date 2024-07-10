@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Inertia\Inertia;
-use App\Models\Grade;
+use App\Models\Grading;
 use App\Models\Label;
 use App\Models\Report;
 use App\Models\Unload;
@@ -454,7 +454,7 @@ class ReportController extends Controller
             $report->filters['seed_generations'] ?? [],
         );
 
-        return Grade::query()
+        return Grading::query()
 //            ->with([
 //                'buyer:id,buyer_name',
 //                'grower:id,grower_name',

@@ -25,7 +25,7 @@ class AllocationController extends Controller
      */
     public function index(Request $request)
     {
-        $allocationBuyers = BuyerHelper::getListOfModelBuyers(Allocation::class);
+        $allocationBuyers = BuyerHelper::getListOfModelBuyers(Allocation::class, $request->input('buyer'));
 
         $firstBuyerId = $allocationBuyers->first()->buyer_id ?? '';
         $inputBuyerId = $request->input('buyerId', $firstBuyerId);
@@ -40,7 +40,7 @@ class AllocationController extends Controller
             'single'           => $allocations,
             'growers'          => fn () => BuyerHelper::getAvailableGrowers(),
             'buyers'           => fn () => BuyerHelper::getAvailableBuyers(),
-            'filters'          => $request->only(['search']),
+            'filters'          => $request->only(['search', 'buyer']),
         ]);
     }
 
@@ -170,8 +170,11 @@ class AllocationController extends Controller
                 'returnItems.returns',
                 'categories.category',
                 'grower:id,grower_name',
+                'sizing.categories.category',
             ])
             ->withSum(['cuttingItems'], 'no_of_bins')
+            ->withSum(['baggings'], 'no_of_bulk_bags_out')
+            ->withSum(['baggings'], 'net_weight_bags_out')
             ->when($search, function ($query, $search) {
                 return $query->where(function ($subQuery) use ($search) {
                     return $subQuery

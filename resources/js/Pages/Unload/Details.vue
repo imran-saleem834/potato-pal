@@ -287,17 +287,14 @@ const deleteUnload = (id) => {
   });
 };
 
-const gradingForm = useForm({
-  category: '',
-});
-const pushForGrading = (id, category) => {
-  gradingForm.category = category;
-  gradingForm.post(route('unloading.push.grading', id), {
+const gradingForm = useForm({ });
+const pushForSizing = (id) => {
+  gradingForm.post(route('unloading.push.sizing', id), {
     preserveScroll: true,
     preserveState: true,
     onSuccess: () => {
       emit('update');
-      toast.success('The unloading pushed for grading successfully!');
+      toast.success('The unloading pushed for sizing successfully!');
     },
   });
 };
@@ -662,12 +659,9 @@ defineExpose({
               <UlLiButton
                 :is-form="true"
                 :items="[
-                    { value : 'grading', label : 'Grading' },
                     { value : 'sizing', label : 'Sizing' },
-                    { value : 'chemical-applicant', label : 'Chemical Applicant' },
-                    { value : 'bulk-bagging', label : 'Bulk Bagging' },
                 ]"
-                @click="(value) => pushForGrading(unload.id, value)"
+                @click="(value) => pushForSizing(unload.id)"
               />
               <template v-if="gradingForm.processing">
                 <i class="bi bi-arrow-repeat d-inline-block spin"></i> Loading...

@@ -42,9 +42,4 @@ class Unload extends Model
     {
         return $this->hasMany(Weighbridge::class);
     }
-
-    public function grade(): HasOne
-    {
-        return $this->hasOne(Grade::class);
-    }
 }

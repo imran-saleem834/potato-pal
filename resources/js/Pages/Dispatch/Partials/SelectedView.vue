@@ -36,6 +36,7 @@ const allocation = computed(() => {
           <th>Half tonnes</th>
           <th>One tonnes</th>
           <th>Two tonnes</th>
+          <th>Bulk Bags</th>
         </tr>
       </thead>
       <tbody>
@@ -51,7 +52,10 @@ const allocation = computed(() => {
           <td class="text-primary">
             <template v-if="selected.type === 'cutting'">Cut Seed</template>
             <template v-else>
-              {{ getSingleCategoryNameByType(allocation.categories, 'seed-type') || '-' }}
+              <template v-if="allocation.sizing">
+                {{ getSingleCategoryNameByType(allocation.sizing.categories, 'seed-type') || '-' }}
+              </template>
+              <template v-else>{{ getSingleCategoryNameByType(allocation.categories, 'seed-type') || '-' }}</template>
             </template>
             <a
               data-bs-toggle="tooltip"
@@ -76,6 +80,7 @@ const allocation = computed(() => {
           <td class="text-primary">{{ `${selected.available_half_tonnes} Bins` }}</td>
           <td class="text-primary">{{ `${selected.available_one_tonnes} Bins` }}</td>
           <td class="text-primary">{{ `${selected.available_two_tonnes} Bins` }}</td>
+          <td class="text-primary">{{ allocation.baggings_sum_no_of_bulk_bags_out || '0' }}</td>
         </tr>
       </tbody>
     </table>

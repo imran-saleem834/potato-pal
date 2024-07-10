@@ -70,6 +70,7 @@ class AllocationHelper
     {
         $allocations = Allocation::query()
             ->with(array_merge(['item', 'cuttingItems', 'dispatchItems', 'returnItems'], $with))
+            ->withSum(['baggings'], 'no_of_bulk_bags_out')
             ->when($filter['buyer_id'] ?? null, function ($query, $buyerId) {
                 return $query->whereIn('buyer_id', Arr::wrap($buyerId));
             })

@@ -24,7 +24,7 @@ class CuttingController extends Controller
      */
     public function index(Request $request)
     {
-        $cuttingBuyers = BuyerHelper::getListOfModelBuyers(Cutting::class);
+        $cuttingBuyers = BuyerHelper::getListOfModelBuyers(Cutting::class, $request->input('buyer'));
 
         $firstBuyerId = $cuttingBuyers->first()->buyer_id ?? '';
         $inputBuyerId = $request->input('buyerId', $firstBuyerId);
@@ -40,7 +40,7 @@ class CuttingController extends Controller
             'allocations'   => [],
             'categories'    => fn () => Category::whereIn('type', Cutting::CATEGORY_TYPES)->get(),
             'buyers'        => fn () => BuyerHelper::getAvailableBuyers(),
-            'filters'       => $request->only(['search']),
+            'filters'       => $request->only(['search', 'buyer']),
         ]);
     }
 
@@ -48,7 +48,7 @@ class CuttingController extends Controller
     {
         $allocations = AllocationHelper::getAvailableAllocationForCutting(
             ['buyer_id' => $id],
-            ['categories.category', 'grower:id,grower_name']
+            ['categories.category', 'grower:id,grower_name', 'sizing.categories.category']
         );
 
         return response()->json($allocations->toArray());
@@ -156,20 +156,21 @@ class CuttingController extends Controller
                 'categories.category',
                 'item.foreignable.grower:id,grower_name',
                 'item.foreignable.categories.category',
+                'item.foreignable.sizing.categories.category',
             ])
             ->when($search, function ($query, $search) {
                 return $query->where(function ($subQuery) use ($search) {
                     return $subQuery
                         ->where('cut_date', 'LIKE', "%{$search}%")
                         ->orWhere('comment', 'LIKE', "%{$search}%")
-                        ->orWhereRelation('categories.category', function (Builder $query) use ($search) {
-                            return $query->where('name', 'LIKE', "%{$search}%");
-                        })
-                        ->orWhereRelation('item.foreignable', function (Builder $query) use ($search) {
-                            return $query->where('paddock', 'LIKE', "%{$search}%");
-                        })
-                        ->orWhereRelation('item.foreignable.categories.category', function (Builder $query) use ($search) {
-                            return $query->where('name', 'LIKE', "%{$search}%");
+                        ->orWhereRelation('categories.category', 'name', 'LIKE', "%{$search}%")
+                        ->orWhereHas('item', function (Builder $query) use ($search) {
+                            return $query
+                                ->where('foreignable_type', Allocation::class)
+                                ->whereHasMorph('foreignable', [Allocation::class], function (Builder $query) use ($search) {
+                                    return $query->where('paddock', 'LIKE', "%{$search}%")
+                                        ->orWhereRelation('categories.category', 'name', 'LIKE', "%{$search}%");
+                                });
                         });
                 });
             })

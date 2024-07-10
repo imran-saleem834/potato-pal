@@ -103,6 +103,7 @@ watch(
                   <th>Half tonnes</th>
                   <th>One tonnes</th>
                   <th>Two tonnes</th>
+                  <th>Bulk Bags</th>
                   <th>Select</th>
                 </tr>
               </thead>
@@ -136,12 +137,10 @@ watch(
                     <td>
                       <template v-if="allocation.type === 'cutting'">Cut Seed</template>
                       <template v-else>
-                        {{
-                          getSingleCategoryNameByType(
-                            getAllocation(allocation).categories,
-                            'seed-type',
-                          ) || '-'
-                        }}
+                        <template v-if="getAllocation(allocation).sizing">
+                          {{ getSingleCategoryNameByType(getAllocation(allocation).sizing.categories, 'seed-type') || '-' }}
+                        </template>
+                        <template v-else>{{ getSingleCategoryNameByType(getAllocation(allocation).categories, 'seed-type') || '-' }}</template>
                       </template>
                     </td>
                     <td>
@@ -155,6 +154,7 @@ watch(
                     <td>{{ `${allocation.available_half_tonnes} Bins` }}</td>
                     <td>{{ `${allocation.available_one_tonnes} Bins` }}</td>
                     <td>{{ `${allocation.available_two_tonnes} Bins` }}</td>
+                    <td>{{ allocation.baggings_sum_no_of_bulk_bags_out || '0' }}</td>
                     <td>
                       <input
                         type="checkbox"

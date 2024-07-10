@@ -60,7 +60,10 @@ onUpdated(() => {
           {{ getSingleCategoryNameByType(allocation.categories, 'seed-generation') || '-' }}
         </td>
         <td class="text-primary">
-          {{ getSingleCategoryNameByType(allocation.categories, 'seed-type') || '-' }}
+          <template v-if="allocation.sizing">
+            {{ getSingleCategoryNameByType(allocation.sizing.categories, 'seed-type') || '-' }}
+          </template>
+          <template v-else>{{ getSingleCategoryNameByType(allocation.categories, 'seed-type') || '-' }}</template>
           <a
             data-bs-toggle="tooltip"
             data-bs-html="true"

@@ -3,17 +3,28 @@
 namespace App\Helpers;
 
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 
 class BuyerHelper
 {
-    public static function getListOfModelBuyers($model)
+    public static function getListOfModelBuyers($model, $search = '')
     {
         return $model::query()
             ->select('buyer_id')
             ->with([
-                'buyer:id,buyer_name',
+                'buyer:id,buyer_name,name',
                 'buyer.categories.category',
             ])
+            ->when($search, function ($query, $search) {
+                return $query->where(function ($subQuery) use ($search) {
+                    return $subQuery
+                        ->whereRelation('buyer', function (Builder $query) use ($search) {
+                            return $query->where('name', 'LIKE', "%{$search}%")
+                                ->orWhere('buyer_name', 'LIKE', "%{$search}%");
+                        })
+                        ->orWhereRelation('buyer.categories.category', 'name', 'LIKE', "%{$search}%");
+                });
+            })
             ->latest()
             ->groupBy('buyer_id')
             ->get()
@@ -22,7 +33,8 @@ class BuyerHelper
                 $item->id = $item->buyer_id;
 
                 return $item;
-            });
+            })
+            ->values();
     }
 
     public static function getAvailableBuyers()

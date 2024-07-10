@@ -53,6 +53,14 @@ defineProps({
       <span class="text-primary">{{ allocation.cutting_items_sum_no_of_bins || '0' }}</span>
     </div>
     <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+      <span>No of bulk bags out: </span>
+      <span class="text-primary">{{ allocation.baggings_sum_no_of_bulk_bags_out || '0' }}</span>
+    </div>
+    <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+      <span>Net weight of bulk bags: </span>
+      <span class="text-primary">{{ allocation.baggings_sum_net_weight_bags_out || '0' }}</span>
+    </div>
+    <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
       <span>Class: </span>
       <span class="text-primary">
         {{ getSingleCategoryNameByType(allocation.categories, 'seed-class') || '-' }}
@@ -67,7 +75,10 @@ defineProps({
     <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
       <span>Seed type: </span>
       <span class="text-primary">
-        {{ getSingleCategoryNameByType(allocation.categories, 'seed-type') || '-' }}
+        <template v-if="allocation.sizing">
+          {{ getSingleCategoryNameByType(allocation.sizing.categories, 'seed-type') || '-' }}
+        </template>
+        <template v-else>{{ getSingleCategoryNameByType(allocation.categories, 'seed-type') || '-' }}</template>
       </span>
     </div>
     <div class="col-12 mb-1 pb-1">

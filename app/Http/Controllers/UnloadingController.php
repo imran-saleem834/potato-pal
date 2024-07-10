@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Carbon\Carbon;
 use Inertia\Inertia;
-use App\Models\Grade;
+use App\Models\Sizing;
 use App\Models\Unload;
 use App\Models\Category;
 use App\Models\Receival;
@@ -140,11 +140,9 @@ class UnloadingController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function pushForGrading(Request $request, string $id)
+    public function pushForSizing(Request $request, string $id)
     {
-        $unload = Unload::find($id);
-
-        Grade::create(['unload_id' => $unload->id, 'category' => $request->input('category')]);
+        Sizing::create(['sizeable_type' => Unload::class, 'sizeable_id' => $id]);
 
         return back();
     }

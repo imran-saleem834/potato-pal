@@ -63,7 +63,10 @@ onUpdated(() => {
           }}
         </td>
         <td class="text-primary">
-          {{ getSingleCategoryNameByType(cutting.item.foreignable.categories, 'seed-type') || '-' }}
+          <template v-if="cutting.item.foreignable.sizing">
+            {{ getSingleCategoryNameByType(cutting.item.foreignable.sizing.categories, 'seed-type') || '-' }}
+          </template>
+          <template v-else>{{ getSingleCategoryNameByType(cutting.item.foreignable.categories, 'seed-type') || '-' }}</template>
           <a
             data-bs-toggle="tooltip"
             data-bs-html="true"

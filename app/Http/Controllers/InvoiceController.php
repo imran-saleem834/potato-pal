@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Inertia\Inertia;
-use App\Models\Grade;
+use App\Models\Grading;
 use App\Models\Cutting;
 use App\Models\Invoice;
 use App\Models\Receival;
@@ -55,7 +55,7 @@ class InvoiceController extends Controller
 
     private function getGrades()
     {
-        return Grade::query()
+        return Grading::query()
             ->with([
                 'unload:id,receival_id',
                 'unload.receival:id,grower_id',

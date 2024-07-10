@@ -16,6 +16,7 @@ const { width, height } = useWindowSize();
 const props = defineProps({
   dispatchBuyers: Object,
   single: Object,
+  summery: Object,
   filters: Object,
   errors: Object,
 });
@@ -25,6 +26,7 @@ const activeTab = ref(null);
 const isNewRecord = ref(false);
 const isNewItemRecord = ref(false);
 const search = ref(props.filters.search);
+const buyer = ref(props.filters.buyer);
 const details = ref(null);
 const selectIdentifier = ref(null);
 const selection = reactive({});
@@ -42,7 +44,7 @@ watch(
 watch(search, (value) => {
   router.get(
     route('dispatches.index'),
-    { search: value, buyerId: activeTab.value.buyer_id },
+    { search: value, buyer: buyer.value, buyerId: activeTab.value.buyer_id },
     {
       preserveState: true,
       preserveScroll: true,
@@ -51,7 +53,19 @@ watch(search, (value) => {
   );
 });
 
-const filter = (keyword) => (search.value = keyword);
+watch(buyer, (value) => {
+  router.get(
+    route('dispatches.index'),
+    { search: search.value, buyer: value, buyerId: activeTab.value.buyer_id },
+    {
+      preserveState: true,
+      preserveScroll: true,
+      only: ['dispatchBuyers', 'summery', 'single'],
+    },
+  );
+});
+
+const filter = (keyword) => (buyer.value = keyword);
 
 const getDispatch = (id) => {
   router.get(
@@ -60,7 +74,7 @@ const getDispatch = (id) => {
     {
       preserveState: true,
       preserveScroll: true,
-      only: ['single'],
+      only: ['summery', 'single'],
       onSuccess: () => {
         const newUrl = window.location.href.split('?')[0];
         history.pushState({}, null, newUrl);
@@ -126,7 +140,7 @@ if (width.value > 991) {
             :items="dispatchBuyers"
             :active-tab="activeTab?.id"
             :row-1="{ title: 'Buyer Name', value: 'buyer.buyer_name' }"
-            :row-2="{ title: 'Buyer Id', value: 'id' }"
+            :row-2="{ title: 'Contact Name', value: 'buyer.name' }"
             @click="getDispatch"
           />
         </div>
@@ -149,7 +163,7 @@ if (width.value > 991) {
                 <table class="table input-table mb-0">
                   <thead>
                     <tr>
-                      <th class="d-none d-sm-table-cell">Buyer ID</th>
+                      <th class="d-none d-sm-table-cell">Contact Name</th>
                       <th>Buyer Name</th>
                       <th>Buyer Group</th>
                     </tr>
@@ -158,7 +172,7 @@ if (width.value > 991) {
                     <tr class="align-middle border-0">
                       <td class="pb-0 d-none d-sm-table-cell border-0">
                         <Link :href="route('users.index', { userId: activeTab?.buyer_id })">
-                          {{ activeTab?.buyer_id }}
+                          {{ activeTab?.buyer?.name }}
                         </Link>
                       </td>
                       <td class="pb-0 border-0">
@@ -185,6 +199,18 @@ if (width.value > 991) {
                         </ul>
                       </td>
                     </tr>
+                  </tbody>
+                  <thead>
+                  <tr>
+                    <th class="d-none d-sm-table-cell" colspan="3">Summery</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr class="align-middle border-0">
+                    <th class="pb-0 border-0">Half Tonnes: {{ summery.sum_half_tonnes }}</th>
+                    <td class="pb-0 border-0">One Tonnes: {{ summery.sum_one_tonnes }}</td>
+                    <td class="pb-0 border-0">Two Tonnes: {{ summery.sum_two_tonnes }}</td>
+                  </tr>
                   </tbody>
                 </table>
               </div>

@@ -1,7 +1,6 @@
 <?php
 
 use Dcblogdev\Xero\Facades\Xero;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\NoteController;
@@ -11,6 +10,7 @@ use App\Http\Controllers\MediaController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\CuttingController;
 use App\Http\Controllers\GradingController;
+use App\Http\Controllers\SizingController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DispatchController;
@@ -18,9 +18,11 @@ use App\Http\Controllers\ReceivalController;
 use App\Http\Controllers\TiaSampleController;
 use App\Http\Controllers\UnloadingController;
 use App\Http\Controllers\AllocationController;
+use App\Http\Controllers\BulkBaggingController;
 use App\Http\Controllers\WeighbridgeController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ReallocationController;
+use App\Http\Controllers\ChemicalApplicantController;
 
 /*
 |--------------------------------------------------------------------------
@@ -71,8 +73,8 @@ Route::middleware([
     Route::middleware(['unloading'])->group(function () {
         Route::delete('/unloading/{unloading}/single', [UnloadingController::class, 'destroySingle'])
             ->name('unloading.single.destroy');
-        Route::post('/unloading/{id}/push/grading', [UnloadingController::class, 'pushForGrading'])
-            ->name('unloading.push.grading');
+        Route::post('/unloading/{id}/push/sizing', [UnloadingController::class, 'pushForSizing'])
+            ->name('unloading.push.sizing');
         Route::resource('/unloading', UnloadingController::class);
     });
 
@@ -103,10 +105,14 @@ Route::middleware([
     Route::get('/weighbridges', [WeighbridgeController::class, 'index'])
         ->middleware('weighbridges')
         ->name('weighbridges.index');
+    
     Route::resource('/grading', GradingController::class)->middleware('grading');
-    Route::resource('/sizing', GradingController::class)->middleware('grading');
-    Route::resource('/chemical-applicant', GradingController::class)->middleware('grading');
-    Route::resource('/bulk-bagging', GradingController::class)->middleware('grading');
+    Route::resource('/sizing', SizingController::class)->middleware('grading');
+    Route::resource('/chemical-applicant', ChemicalApplicantController::class)->middleware('grading');
+    Route::resource('/bulk-bagging', BulkBaggingController::class)->middleware('grading');
+    Route::get('/buyers/{id}/allocations', [GradingController::class, 'allocations'])->name('buyers.allocations');
+    Route::get('/growers/{id}/unloads', [SizingController::class, 'unloads'])->name('grower.unloads');
+    
     Route::resource('/notifications', NotificationController::class)->middleware('notifications');
     Route::resource('/notes', NoteController::class)->middleware('notes');
     Route::resource('/files', FileController::class)->middleware('files');

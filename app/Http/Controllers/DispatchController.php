@@ -31,7 +31,7 @@ class DispatchController extends Controller
      */
     public function index(Request $request)
     {
-        $dispatchBuyers = BuyerHelper::getListOfModelBuyers(Dispatch::class);
+        $dispatchBuyers = BuyerHelper::getListOfModelBuyers(Dispatch::class, $request->input('buyer'));
 
         $firstBuyerId = $dispatchBuyers->first()->buyer_id ?? '';
         $inputBuyerId = $request->input('buyerId', $firstBuyerId);
@@ -40,13 +40,21 @@ class DispatchController extends Controller
         if ($dispatchs->isEmpty() && ((int) $inputBuyerId) !== ((int) $firstBuyerId)) {
             $dispatchs = $this->getDispatchs($firstBuyerId, $request->input('search'));
         }
+        
+        $summery = AllocationItem::query()
+            ->selectRaw('SUM(half_tonnes) as sum_half_tonnes, SUM(one_tonnes) as sum_one_tonnes, SUM(two_tonnes) as sum_two_tonnes')
+            ->where('allocatable_type', Dispatch::class)
+            ->whereNull('returned_id')
+            ->whereRelation('allocatable', 'buyer_id', '=', $inputBuyerId)
+            ->first();
 
         return Inertia::render('Dispatch/Index', [
             'dispatchBuyers' => $dispatchBuyers,
+            'summery'        => $summery,
             'single'         => $dispatchs,
             'buyers'         => fn () => $this->getAvailableBuyers(),
             'categories'     => Category::whereIn('type', ['transport'])->get(),
-            'filters'        => $request->only(['search']),
+            'filters'        => $request->only(['search', 'buyer']),
         ]);
     }
 
@@ -64,7 +72,7 @@ class DispatchController extends Controller
     {
         $allocations = AllocationHelper::getAvailableAllocationForDispatch(
             ['buyer_id' => $id],
-            ['categories.category', 'grower:id,grower_name']
+            ['categories.category', 'grower:id,grower_name', 'sizing.categories.category']
         );
 
         return response()->json($allocations);
@@ -199,14 +207,17 @@ class DispatchController extends Controller
                         Reallocation::class => [
                             'item.foreignable.item.foreignable.categories.category',
                             'item.foreignable.item.foreignable.grower:id,grower_name',
+                            'item.foreignable.item.foreignable.sizing.categories.category',
                         ],
                         Cutting::class => [
                             'item.foreignable.categories.category',
                             'item.foreignable.grower:id,grower_name',
+                            'item.foreignable.sizing.categories.category',
                         ],
                         Allocation::class   => [
                             'categories.category',
                             'grower:id,grower_name',
+                            'sizing.categories.category',
                         ],
                     ]);
                 },
@@ -216,28 +227,31 @@ class DispatchController extends Controller
                 return $query->where(function ($subQuery) use ($search) {
                     return $subQuery
                         ->where('comment', 'LIKE', "%{$search}%")
-                        ->orWhereRelation('categories.category', function (Builder $query) use ($search) {
-                            return $query->where('name', 'LIKE', "%{$search}%");
-                        })
-                        ->orWhereHasMorph(
-                            'item.foreignable',
-                            [Allocation::class, Cutting::class, Reallocation::class],
-                            function (Builder $query, string $type) use ($search) {
-                                if ($type === Allocation::class) {
-                                    return $query->where('paddock', 'LIKE', "%{$search}%")
-                                        ->orWhereRelation('buyer', 'buyer_name', 'LIKE', "%{$search}%")
-                                        ->orWhereRelation('categories.category', 'name', 'LIKE', "%{$search}%");
-                                } elseif ($type === Cutting::class) {
-                                    return $query->whereRelation('item.foreignable', 'paddock', 'LIKE', "%{$search}%")
-                                        ->orWhereRelation('item.foreignable.buyer', 'buyer_name', 'LIKE', "%{$search}%")
-                                        ->orWhereRelation('item.foreignable.categories.category', 'name', 'LIKE', "%{$search}%");
+                        ->orWhereRelation('categories.category', 'name', 'LIKE', "%{$search}%")
+                        ->orWhereHas('item', function (Builder $query) use ($search) {
+                            return $query->whereHasMorph(
+                                'foreignable',
+                                [Allocation::class, Cutting::class, Reallocation::class],
+                                function (Builder $query, string $type) use ($search) {
+                                    if ($type === Allocation::class) {
+                                        return $query->where('paddock', 'LIKE', "%{$search}%")
+                                            ->orWhereRelation('buyer', 'buyer_name', 'LIKE', "%{$search}%")
+                                            ->orWhereRelation('categories.category', 'name', 'LIKE', "%{$search}%")
+                                            ->orWhereRelation('sizing.categories.category', 'name', 'LIKE', "%{$search}%");
+                                    } elseif ($type === Cutting::class) {
+                                        return $query->whereRelation('item.foreignable', 'paddock', 'LIKE', "%{$search}%")
+                                            ->orWhereRelation('item.foreignable.buyer', 'buyer_name', 'LIKE', "%{$search}%")
+                                            ->orWhereRelation('item.foreignable.categories.category', 'name', 'LIKE', "%{$search}%")
+                                            ->orWhereRelation('item.foreignable.sizing.categories.category', 'name', 'LIKE', "%{$search}%");
+                                    }
+    
+                                    return $query->whereRelation('item.foreignable.item.foreignable', 'paddock', 'LIKE', "%{$search}%")
+                                        ->orWhereRelation('item.foreignable.item.foreignable.buyer', 'buyer_name', 'LIKE', "%{$search}%")
+                                        ->orWhereRelation('item.foreignable.item.foreignable.categories.category', 'name', 'LIKE', "%{$search}%")
+                                        ->orWhereRelation('item.foreignable.item.foreignable.sizing.categories.category', 'name', 'LIKE', "%{$search}%");
                                 }
-
-                                return $query->whereRelation('item.foreignable.item.foreignable', 'paddock', 'LIKE', "%{$search}%")
-                                    ->orWhereRelation('item.foreignable.item.foreignable.buyer', 'buyer_name', 'LIKE', "%{$search}%")
-                                    ->orWhereRelation('item.foreignable.item.foreignable.categories.category', 'name', 'LIKE', "%{$search}%");
-                            }
-                        );
+                            );
+                        });
                 });
             })
             ->where('buyer_id', $buyerId)
