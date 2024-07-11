@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use App\Models\AllocationItem;
 use App\Helpers\ReceivalHelper;
 use App\Helpers\CategoriesHelper;
+use App\Models\CategoriesRelation;
 use App\Helpers\NotificationHelper;
 use App\Helpers\DeleteRecordsHelper;
 use App\Http\Requests\AllocationRequest;
@@ -160,6 +161,47 @@ class AllocationController extends Controller
         }
 
         return to_route('allocations.index');
+    }
+
+    public function duplicate(Request $request, string $id)
+    {
+        $allocation = Allocation::with(['categories', 'item'])->find($id);
+        
+        $request->validate([
+            'buyer_id'   => ['required', 'numeric', 'exists:users,id'],
+            'no_of_bins' => ['required', 'numeric', 'gt:0', "max:{$allocation->item->no_of_bins}"],
+            'weight'     => ['required', 'numeric', 'gt:0', "max:{$allocation->item->weight}"],
+        ]);
+
+        $newAllocation = Allocation::create(array_merge(
+            $request->only('buyer_id'),
+            $allocation->only(['grower_id', 'unique_key', 'paddock', 'comment'])
+        ));
+
+        AllocationItem::create([
+            'allocatable_type' => Allocation::class,
+            'allocatable_id'   => $newAllocation->id,
+            'bin_size'         => $allocation->item->bin_size,
+            'no_of_bins'       => $request->input('no_of_bins'),
+            'weight'           => $request->input('weight'),
+        ]);
+
+        foreach ($allocation->categories as $category) {
+            CategoriesRelation::create([
+                'category_id'        => $category->category_id,
+                'categorizable_id'   => $newAllocation->id,
+                'categorizable_type' => Allocation::class,
+                'type'               => $category->type,
+            ]);
+        }
+
+        $allocation->item->weight     = abs($allocation->item->weight - $request->input('weight'));
+        $allocation->item->no_of_bins = abs($allocation->item->no_of_bins - $request->input('no_of_bins'));
+        $allocation->item->save();
+
+        NotificationHelper::duplicatedAction('Allocation', $allocation->id);
+
+        return back();
     }
 
     private function getAllocations($buyerId, $search = '')

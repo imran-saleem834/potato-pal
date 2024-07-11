@@ -8,6 +8,7 @@ import { useToast } from 'vue-toastification';
 import ConfirmedModal from '@/Components/ConfirmedModal.vue';
 import SingleDetailsView from '@/Pages/Allocation/Partials/SingleDetailsView.vue';
 import SelectedReceivalView from '@/Pages/Allocation/Partials/SelectedReceivalView.vue';
+import ReallocationModal from '@/Pages/Allocation/Partials/ReallocationModal.vue';
 
 const toast = useToast();
 
@@ -32,6 +33,7 @@ const emit = defineEmits(['grower', 'create', 'delete']);
 
 const isEdit = ref(false);
 const loader = ref(false);
+const reallocate = ref({});
 
 const form = useForm({
   buyer_id: props.allocation.buyer_id,
@@ -289,6 +291,14 @@ defineExpose({
           <template v-else><i class="bi bi-trash"></i></template>
         </button>
       </div>
+      <div class="btn-group position-absolute bottom-0 end-0">
+        <button 
+          class="btn btn-black p-1 z-1"
+          data-bs-toggle="modal"
+          :data-bs-target="`#relocate-${uniqueKey}`"
+          @click="() => reallocate = allocation"
+        >Relocate</button>
+      </div>
 
       <SingleDetailsView :allocation="allocation" />
     </template>
@@ -312,5 +322,11 @@ defineExpose({
     title="You want to update this record?"
     ok="Yes, Update!"
     @ok="updateRecord"
+  />
+
+  <ReallocationModal
+    :id="`relocate-${uniqueKey}`"
+    :allocation="reallocate"
+    @close="() => reallocate = {}"
   />
 </template>

@@ -83,6 +83,7 @@ Route::middleware([
     Route::middleware(['allocations'])->group(function () {
         Route::resource('/allocations', AllocationController::class)->except(['create', 'edit', 'show']);
         Route::get('/growers/{id}/receivals', [AllocationController::class, 'receivals'])->name('growers.receivals');
+        Route::post('/allocations/{id}/duplicate', [AllocationController::class, 'duplicate'])->name('allocation.duplicate');
     });
 
     Route::middleware(['reallocations'])->group(function () {
