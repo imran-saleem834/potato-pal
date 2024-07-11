@@ -161,7 +161,8 @@ class ReallocationController extends Controller
                                             ->whereHasMorph('foreignable', [Allocation::class], function (Builder $query) use ($search) {
                                                 return $query->where('paddock', 'LIKE', "%{$search}%")
                                                     ->orWhereRelation('grower', 'grower_name', 'LIKE', "%{$search}%")
-                                                    ->orWhereRelation('categories.category', 'name', 'LIKE', "%{$search}%");
+                                                    ->orWhereRelation('categories.category', 'name', 'LIKE', "%{$search}%")
+                                                    ->orWhereRelation('sizing.categories.category', 'name', 'LIKE', "%{$search}%");
                                             });
                                     });
                                 });

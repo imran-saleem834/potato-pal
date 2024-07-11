@@ -217,17 +217,14 @@ class AllocationController extends Controller
             ->withSum(['cuttingItems'], 'no_of_bins')
             ->withSum(['baggings'], 'no_of_bulk_bags_out')
             ->withSum(['baggings'], 'net_weight_bags_out')
-            ->when($search, function ($query, $search) {
-                return $query->where(function ($subQuery) use ($search) {
+            ->when($search, function (Builder $query, $search) {
+                return $query->where(function (Builder $subQuery) use ($search) {
                     return $subQuery
                         ->where('paddock', 'LIKE', "%{$search}%")
                         ->orWhere('comment', 'LIKE', "%{$search}%")
-                        ->orWhereRelation('grower', function (Builder $query) use ($search) {
-                            return $query->where('grower_name', 'LIKE', "%{$search}%");
-                        })
-                        ->orWhereRelation('categories.category', function (Builder $query) use ($search) {
-                            return $query->where('name', 'LIKE', "%{$search}%");
-                        });
+                        ->orWhereRelation('grower','grower_name', 'LIKE', "%{$search}%")
+                        ->orWhereRelation('categories.category', 'name', 'LIKE', "%{$search}%")
+                        ->orWhereRelation('sizing.categories.category', 'name', 'LIKE', "%{$search}%");
                 });
             })
             ->where('buyer_id', $buyerId)

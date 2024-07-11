@@ -59,16 +59,12 @@ class Receival extends Model
             ->orWhere('driver_name', 'LIKE', "%$search%")
             ->orWhere('comments', 'LIKE', "%$search%")
             ->orWhere('status', 'LIKE', "%$search%")
-            ->orWhereRelation('categories.category', function (Builder $catQuery) use ($search) {
-                return $catQuery->where('name', 'LIKE', "%{$search}%");
-            })
+            ->orWhereRelation('categories.category', 'name', 'LIKE', "%{$search}%")
             ->orWhereRelation('grower', function (Builder $query) use ($search) {
                 return $query->where('name', 'LIKE', "%{$search}%")
                     ->orWhere('grower_name', 'LIKE', "%{$search}%");
             })
-            ->orWhereRelation('grower.categories.category', function (Builder $catQuery) use ($search) {
-                return $catQuery->where('name', 'LIKE', "%{$search}%");
-            })
+            ->orWhereRelation('grower.categories.category', 'name', 'LIKE', "%{$search}%")
             ->orWhereRelation('unloads', function (Builder $catQuery) use ($search) {
                 return $catQuery->where('channel', 'LIKE', "%{$search}%")
                     ->orWhere('no_of_bins', 'LIKE', "%{$search}%")
@@ -76,9 +72,7 @@ class Receival extends Model
                     ->orWhereRaw("CONCAT(`weight`, ' kg') LIKE '%{$search}%'")
                     ->orWhereRaw("CONCAT(`bin_size`, ' kg') LIKE '%{$search}%'");
             })
-            ->orWhereRelation('unloads.categories.category', function (Builder $catQuery) use ($search) {
-                return $catQuery->where('name', 'LIKE', "%{$search}%");
-            });
+            ->orWhereRelation('unloads.categories.category', 'name', 'LIKE', "%{$search}%");
     }
 
     public function grower()

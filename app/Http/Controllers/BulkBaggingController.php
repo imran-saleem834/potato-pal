@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Helpers\BuyerHelper;
 use App\Helpers\NotificationHelper;
 use App\Http\Requests\BulkBaggingRequest;
+use Illuminate\Database\Eloquent\Builder;
 
 class BulkBaggingController extends Controller
 {
@@ -87,8 +88,8 @@ class BulkBaggingController extends Controller
                 'allocation.grower',
                 'allocation.categories.category',
             ])
-            ->when($search, function ($query, $search) {
-                return $query->where(function ($subQuery) use ($search) {
+            ->when($search, function (Builder $query, $search) {
+                return $query->where(function (Builder $subQuery) use ($search) {
                     return $subQuery
                         ->where('no_of_crew', 'LIKE', "%{$search}%")
                         ->orWhere('comments', 'LIKE', "%{$search}%")

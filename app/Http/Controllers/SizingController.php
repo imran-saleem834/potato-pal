@@ -169,7 +169,7 @@ class SizingController extends Controller
                                 }
                                 return $query->whereRelation('receival', function (Builder $query) use ($search) {
                                     return $query
-                                        ->where('paddock', 'LIKE', "%{$search}%")
+                                        ->where('paddocks', 'LIKE', "%{$search}%")
                                         ->orWhere('comments', 'LIKE', "%$search%")
                                         ->orWhereRelation('categories.category', 'name', 'LIKE', "%{$search}%")
                                         ->orWhereRelation('grower', function (Builder $query) use ($search) {
@@ -196,8 +196,8 @@ class SizingController extends Controller
                 'user:id,buyer_name,grower_name',
                 'user.categories.category',
             ])
-            ->when($search, function ($query, $search) {
-                return $query->where(function ($subQuery) use ($search) {
+            ->when($search, function (Builder $query, $search) {
+                return $query->where(function (Builder $subQuery) use ($search) {
                     return $subQuery
                         ->whereRelation('user', function (Builder $query) use ($search) {
                             return $query->where('name', 'LIKE', "%{$search}%")

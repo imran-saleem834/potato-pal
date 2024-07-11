@@ -7,6 +7,7 @@ use App\Helpers\BuyerHelper;
 use Illuminate\Http\Request;
 use App\Models\ChemicalApplicant;
 use App\Helpers\NotificationHelper;
+use Illuminate\Database\Eloquent\Builder;
 use App\Http\Requests\ChemicalApplicantRequest;
 
 class ChemicalApplicantController extends Controller
@@ -87,8 +88,8 @@ class ChemicalApplicantController extends Controller
                 'allocation.grower',
                 'allocation.categories.category',
             ])
-            ->when($search, function ($query, $search) {
-                return $query->where(function ($subQuery) use ($search) {
+            ->when($search, function (Builder $query, $search) {
+                return $query->where(function (Builder $subQuery) use ($search) {
                     return $subQuery
                         ->where('no_of_crew', 'LIKE', "%{$search}%")
                         ->orWhere('comments', 'LIKE', "%{$search}%")

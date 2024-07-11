@@ -158,8 +158,8 @@ class CuttingController extends Controller
                 'item.foreignable.categories.category',
                 'item.foreignable.sizing.categories.category',
             ])
-            ->when($search, function ($query, $search) {
-                return $query->where(function ($subQuery) use ($search) {
+            ->when($search, function (Builder $query, $search) {
+                return $query->where(function (Builder $subQuery) use ($search) {
                     return $subQuery
                         ->where('cut_date', 'LIKE', "%{$search}%")
                         ->orWhere('comment', 'LIKE', "%{$search}%")
@@ -169,7 +169,9 @@ class CuttingController extends Controller
                                 ->where('foreignable_type', Allocation::class)
                                 ->whereHasMorph('foreignable', [Allocation::class], function (Builder $query) use ($search) {
                                     return $query->where('paddock', 'LIKE', "%{$search}%")
-                                        ->orWhereRelation('categories.category', 'name', 'LIKE', "%{$search}%");
+                                        ->orWhereRelation('grower', 'grower_name', 'LIKE', "%{$search}%")
+                                        ->orWhereRelation('categories.category', 'name', 'LIKE', "%{$search}%")
+                                        ->orWhereRelation('sizing.categories.category', 'name', 'LIKE', "%{$search}%");
                                 });
                         });
                 });
