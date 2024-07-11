@@ -1,19 +1,9 @@
 <script setup>
-import { watchEffect } from 'vue';
 import { toTonnes, getBinSizesValue, getSingleCategoryNameByType } from '@/helper.js';
 
-const props = defineProps({
+defineProps({
   loader: Boolean,
   allocation: Object,
-  form: {
-    required: true,
-  },
-});
-
-const emit = defineEmits(['update:modelValue']);
-
-watchEffect(() => {
-  emit('update:modelValue', props.form);
 });
 </script>
 

@@ -251,13 +251,11 @@ defineExpose({
       </template>
       <SelectedAllocationView
         v-if="isAllocation"
-        :form="form"
         :loader="loader"
         :allocation="form.selected_allocation"
       />
       <SelectedUnloadView
         v-else
-        :form="form"
         :loader="loader"
         :unload="form.selected_unload"
       />
