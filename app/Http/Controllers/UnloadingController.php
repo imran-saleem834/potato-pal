@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use App\Helpers\ReceivalHelper;
 use App\Helpers\CategoriesHelper;
 use App\Helpers\NotificationHelper;
+use App\Helpers\DeleteRecordsHelper;
 use App\Http\Requests\UnloadRequest;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -102,16 +103,17 @@ class UnloadingController extends Controller
      */
     public function destroy(string $id)
     {
-        $unloadIds = Unload::where('receival_id', $id)->pluck('id')->toArray();
+        $receival = Receival::with(['unloads'])->find($id);
+        $growerId = $receival->grower_id;
+        
+        foreach ($receival->unloads as $unload) {
+            DeleteRecordsHelper::deleteUnload($unload);
+        }
 
-        Weighbridge::whereIn('unload_id', $unloadIds)->delete();
-        Unload::where('receival_id', $id)->delete();
-
-        $receival         = Receival::find($id);
         $receival->status = null;
         $receival->save();
 
-        ReceivalHelper::calculateRemainingReceivals($receival->grower_id);
+        ReceivalHelper::calculateRemainingReceivals($growerId);
 
         NotificationHelper::deleteAction('Unload', $id);
 
@@ -123,12 +125,11 @@ class UnloadingController extends Controller
      */
     public function destroySingle(string $id)
     {
-        Weighbridge::where('unload_id', $id)->delete();
-
-        $unload     = Unload::with(['receival:id,grower_id'])->select(['id', 'receival_id'])->find($id);
+        $unload     = Unload::with(['receival:id,grower_id'])->find($id);
         $receivalId = $unload->receival->id;
         $growerId   = $unload->receival->grower_id;
-        $unload->delete();
+
+        DeleteRecordsHelper::deleteUnload($unload);
 
         ReceivalHelper::calculateRemainingReceivals($growerId);
 

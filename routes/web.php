@@ -161,7 +161,7 @@ Route::get('/abc2', function () {
 });
 
 Route::get('/abc3', function () {
-    
+    \App\Helpers\DeleteRecordsHelper::deleteUser(87);
 });
 
 Route::get('xero', function () {

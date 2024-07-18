@@ -143,9 +143,7 @@ class AllocationController extends Controller
      */
     public function destroy(string $id)
     {
-        CategoriesHelper::deleteCategoryRelations($id, Allocation::class);
-
-        $allocation = Allocation::with(['dispatchItems', 'reallocationItems.allocatable.dispatchItems'])->find($id);
+        $allocation = Allocation::find($id);
         $buyerId    = $allocation->buyer_id;
         $growerId   = $allocation->grower_id;
 

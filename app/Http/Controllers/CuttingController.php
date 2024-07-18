@@ -130,9 +130,7 @@ class CuttingController extends Controller
      */
     public function destroy(string $id)
     {
-        CategoriesHelper::deleteCategoryRelations($id, Cutting::class);
-
-        $cutting = Cutting::with(['reallocationItems.allocatable.dispatchItems', 'dispatchItems'])->find($id);
+        $cutting = Cutting::find($id);
         $buyerId = $cutting->buyer_id;
 
         DeleteRecordsHelper::deleteCutting($cutting);

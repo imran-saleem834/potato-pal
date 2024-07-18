@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Carbon\Carbon;
 use App\Models\User;
 use Inertia\Inertia;
-use App\Models\Unload;
 use App\Models\Category;
 use App\Models\Receival;
 use App\Models\TiaSample;
@@ -13,6 +12,7 @@ use Illuminate\Http\Request;
 use App\Helpers\ReceivalHelper;
 use App\Helpers\CategoriesHelper;
 use App\Helpers\NotificationHelper;
+use App\Helpers\DeleteRecordsHelper;
 use App\Http\Requests\ReceivalRequest;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -146,13 +146,10 @@ class ReceivalController extends Controller
      */
     public function destroy(string $id)
     {
-        CategoriesHelper::deleteCategoryRelations($id, Receival::class);
-
         $receival = Receival::find($id);
         $growerId = $receival->grower_id;
-        $receival->delete();
-
-        Unload::where('receival_id', $id)->delete();
+        
+        DeleteRecordsHelper::deleteReceival($receival);
 
         ReceivalHelper::calculateRemainingReceivals($growerId);
 

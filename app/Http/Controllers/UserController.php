@@ -6,9 +6,11 @@ use App\Models\User;
 use Inertia\Inertia;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use App\Helpers\ReceivalHelper;
 use App\Helpers\CategoriesHelper;
 use App\Http\Requests\UserRequest;
 use App\Helpers\NotificationHelper;
+use App\Helpers\DeleteRecordsHelper;
 use Illuminate\Database\Eloquent\Builder;
 
 class UserController extends Controller
@@ -112,9 +114,9 @@ class UserController extends Controller
      */
     public function destroy(string $id)
     {
-        CategoriesHelper::deleteCategoryRelations($id, User::class);
+        DeleteRecordsHelper::deleteUser($id);
 
-        User::destroy($id);
+        ReceivalHelper::calculateRemainingReceivals($id);
 
         NotificationHelper::deleteAction('User', $id);
 
