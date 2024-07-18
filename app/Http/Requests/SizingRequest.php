@@ -34,8 +34,8 @@ class SizingRequest extends FormRequest
             'seed_type'              => ['nullable', 'numeric', 'exists:categories,id'],
             'fungicide'              => ['nullable', 'numeric', 'exists:categories,id'],
             'weight'                 => ['nullable', 'numeric', 'gte:0', 'max:999999'],
-            'start'                  => ['nullable', 'date_format:H:i'],
-            'end'                    => ['nullable', 'date_format:H:i'],
+            'start'                  => ['nullable', 'date_format:Y-m-d H:i:s'],
+            'end'                    => ['nullable', 'date_format:Y-m-d H:i:s'],
             'no_of_crew'             => ['nullable', 'numeric', 'gte:0', 'max:999999'],
             'comments'               => ['nullable', 'string', 'max:191'],
         ];

@@ -126,6 +126,8 @@ class SizingController extends Controller
      */
     public function destroy(string $id)
     {
+        CategoriesHelper::deleteCategoryRelations($id, Sizing::class);
+        
         Sizing::destroy($id);
 
         NotificationHelper::deleteAction('Sizing', $id);

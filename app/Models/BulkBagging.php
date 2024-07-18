@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -37,16 +36,6 @@ class BulkBagging extends Model
     protected $casts = [
         'bins_tipped' => 'array',
     ];
-
-    protected function start(): Attribute
-    {
-        return Attribute::make(fn ($value) => substr($value, 0, 5));
-    }
-
-    protected function end(): Attribute
-    {
-        return Attribute::make(fn ($value) => substr($value, 0, 5));
-    }
 
     public function buyer()
     {

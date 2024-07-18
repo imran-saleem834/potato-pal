@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
 import { useForm } from '@inertiajs/vue3';
+import { DatePicker } from 'v-calendar';
 import Multiselect from '@vueform/multiselect';
 import { useToast } from 'vue-toastification';
 import TextInput from '@/Components/TextInput.vue';
@@ -284,11 +285,53 @@ defineExpose({
         </div>
         <div class="col-12 col-sm-6 col-md-4 col-lg-6 col-xl-4 mb-3">
           <label class="form-label">Start Time</label>
-          <TextInput type="time" v-model="form.start" :error="form.errors.start" />
+          <DatePicker
+            v-model.string="form.start"
+            mode="dateTime"
+            :masks="{
+              modelValue: 'YYYY-MM-DD HH:mm:ss',
+            }"
+          >
+            <template #default="{ togglePopover }">
+              <input
+                type="text"
+                class="form-control"
+                :class="{ 'is-invalid': form.errors.start }"
+                :value="form.start"
+                @click="togglePopover"
+              />
+              <div
+                v-if="form.errors.start"
+                class="invalid-feedback"
+                v-text="form.errors.start"
+              />
+            </template>
+          </DatePicker>
         </div>
         <div class="col-12 col-sm-6 col-md-4 col-lg-6 col-xl-4 mb-3">
           <label class="form-label">End Time</label>
-          <TextInput type="time" v-model="form.end" :error="form.errors.end" />
+          <DatePicker
+            v-model.string="form.end"
+            mode="dateTime"
+            :masks="{
+              modelValue: 'YYYY-MM-DD HH:mm:ss',
+            }"
+          >
+            <template #default="{ togglePopover }">
+              <input
+                type="text"
+                class="form-control"
+                :class="{ 'is-invalid': form.errors.end }"
+                :value="form.end"
+                @click="togglePopover"
+              />
+              <div
+                v-if="form.errors.end"
+                class="invalid-feedback"
+                v-text="form.errors.end"
+              />
+            </template>
+          </DatePicker>
         </div>
         <div class="col-12 col-sm-6 col-md-4 col-lg-6 col-xl-4 mb-3">
           <label class="form-label">Comments</label>

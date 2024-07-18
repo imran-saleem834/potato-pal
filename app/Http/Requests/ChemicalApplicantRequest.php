@@ -31,8 +31,8 @@ class ChemicalApplicantRequest extends FormRequest
             'bins_out.*'                   => ['nullable', 'numeric', 'gte:0', 'max:999999'],
             'fungicide'                    => ['nullable', 'boolean'],
             'fungicide_used'               => ['nullable', 'numeric', 'gte:0', 'max:999999'],
-            'start'                        => ['nullable', 'date_format:H:i'],
-            'end'                          => ['nullable', 'date_format:H:i'],
+            'start'                        => ['nullable', 'date_format:Y-m-d H:i:s'],
+            'end'                          => ['nullable', 'date_format:Y-m-d H:i:s'],
             'no_of_crew'                   => ['nullable', 'numeric', 'gte:0', 'max:999999'],
             'comments'                     => ['nullable', 'string', 'max:191'],
         ];
