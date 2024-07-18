@@ -19,8 +19,8 @@ return new class extends Migration
             $table->string('bins_out')->nullable();
             $table->boolean('fungicide')->default(false);
             $table->float('fungicide_used')->nullable();
-            $table->time('start')->nullable();
-            $table->time('end')->nullable();
+            $table->timestamp('start')->nullable();
+            $table->timestamp('end')->nullable();
             $table->integer('no_of_crew')->nullable();
             $table->string('comments')->nullable();
             $table->timestamps();

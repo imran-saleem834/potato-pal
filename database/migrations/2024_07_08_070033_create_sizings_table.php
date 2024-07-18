@@ -17,8 +17,8 @@ return new class extends Migration
             $table->morphs('sizeable');
             $table->string('bins_tipped')->nullable();
             $table->float('weight')->nullable();
-            $table->time('start')->nullable();
-            $table->time('end')->nullable();
+            $table->timestamp('start')->nullable();
+            $table->timestamp('end')->nullable();
             $table->integer('no_of_crew')->nullable();
             $table->string('comments')->nullable();
             $table->timestamps();

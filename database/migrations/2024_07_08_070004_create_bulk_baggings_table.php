@@ -19,8 +19,8 @@ return new class extends Migration
             $table->float('weight')->nullable();
             $table->float('no_of_bulk_bags_out')->nullable();
             $table->float('net_weight_bags_out')->nullable();
-            $table->time('start')->nullable();
-            $table->time('end')->nullable();
+            $table->timestamp('start')->nullable();
+            $table->timestamp('end')->nullable();
             $table->integer('no_of_crew')->nullable();
             $table->string('comments')->nullable();
             $table->timestamps();
