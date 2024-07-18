@@ -1,5 +1,10 @@
 <?php
 
+use App\Helpers\CategoriesHelper;
+use App\Models\Allocation;
+use App\Models\Reallocation;
+use App\Models\RemainingReceival;
+use App\Models\User;
 use Dcblogdev\Xero\Facades\Xero;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FileController;
@@ -161,7 +166,36 @@ Route::get('/abc2', function () {
 });
 
 Route::get('/abc3', function () {
-    \App\Helpers\DeleteRecordsHelper::deleteUser(87);
+    // \App\Helpers\DeleteRecordsHelper::deleteUser(87);
+    
+    $receivals = \App\Models\Receival::where('grower_id', 87)->get();
+    foreach ($receivals as $receival) {
+        \App\Helpers\DeleteRecordsHelper::deleteReceival($receival);
+    }
+
+    RemainingReceival::where('grower_id', 87)->delete();
+
+    $allocations = Allocation::query()
+        ->where(function ($query) {
+            return $query
+                ->where('buyer_id', 87)
+                ->orWhere('grower_id', 87);
+        })->get();
+    foreach ($allocations as $allocation) {
+        \App\Helpers\DeleteRecordsHelper::deleteAllocation($allocation);
+    }
+
+    $reallocations = Reallocation::query()
+        ->where(function ($query) {
+            return $query
+                ->where('buyer_id', 87)
+                ->orWhere('allocation_buyer_id', 87);
+        })->get();
+    foreach ($reallocations as $reallocation) {
+        \App\Helpers\DeleteRecordsHelper::deleteReallocation($reallocation);
+    }
+
+    CategoriesHelper::deleteCategoryRelations(87, User::class);
 });
 
 Route::get('xero', function () {
