@@ -5,12 +5,12 @@ namespace App\Http\Controllers;
 use Inertia\Inertia;
 use App\Helpers\BuyerHelper;
 use Illuminate\Http\Request;
-use App\Models\ChemicalApplicant;
+use App\Models\ChemicalApplication;
 use App\Helpers\NotificationHelper;
 use Illuminate\Database\Eloquent\Builder;
-use App\Http\Requests\ChemicalApplicantRequest;
+use App\Http\Requests\ChemicalApplicationRequest;
 
-class ChemicalApplicantController extends Controller
+class ChemicalApplicationController extends Controller
 {
     /**
      * @param Request $request
@@ -18,19 +18,19 @@ class ChemicalApplicantController extends Controller
      */
     public function index(Request $request)
     {
-        $navBuyers = BuyerHelper::getListOfModelBuyers(ChemicalApplicant::class, $request->input('buyer'));
+        $navBuyers = BuyerHelper::getListOfModelBuyers(ChemicalApplication::class, $request->input('buyer'));
 
         $firstBuyerId = $navBuyers->first()->buyer_id ?? '';
         $inputBuyerId = $request->input('buyerId', $firstBuyerId);
 
-        $chemicalApplicants = $this->getChemicalApplicants($inputBuyerId, $request->input('search'));
-        if ($chemicalApplicants->isEmpty() && ((int)$inputBuyerId) !== ((int)$firstBuyerId)) {
-            $chemicalApplicants = $this->getChemicalApplicants($firstBuyerId, $request->input('search'));
+        $chemicalApplications = $this->getChemicalApplications($inputBuyerId, $request->input('search'));
+        if ($chemicalApplications->isEmpty() && ((int)$inputBuyerId) !== ((int)$firstBuyerId)) {
+            $chemicalApplications = $this->getChemicalApplications($firstBuyerId, $request->input('search'));
         }
 
-        return Inertia::render('ChemicalApplicant/Index', [
+        return Inertia::render('ChemicalApplication/Index', [
             'navBuyers' => $navBuyers,
-            'single'    => $chemicalApplicants,
+            'single'    => $chemicalApplications,
             'buyers'    => fn() => BuyerHelper::getAvailableBuyers(),
             'filters'   => $request->only(['search', 'buyer']),
         ]);
@@ -39,14 +39,14 @@ class ChemicalApplicantController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(ChemicalApplicantRequest $request)
+    public function store(ChemicalApplicationRequest $request)
     {
         $allocation = $request->validated('selected_allocation');
         $inputs     = ['allocation_id' => $allocation['id'], 'buyer_id' => $allocation['buyer_id']];
 
-        $chemicalApplicant = ChemicalApplicant::create(array_merge($request->validated(), $inputs));
+        $chemicalApplication = ChemicalApplication::create(array_merge($request->validated(), $inputs));
 
-        NotificationHelper::addedAction('ChemicalApplicant', $chemicalApplicant->id);
+        NotificationHelper::addedAction('ChemicalApplication', $chemicalApplication->id);
 
         return back();
     }
@@ -54,16 +54,16 @@ class ChemicalApplicantController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(ChemicalApplicantRequest $request, string $id)
+    public function update(ChemicalApplicationRequest $request, string $id)
     {
         $allocation = $request->validated('selected_allocation');
         $inputs     = ['allocation_id' => $allocation['id'], 'buyer_id' => $allocation['buyer_id']];
 
-        $chemicalApplicant = ChemicalApplicant::find($id);
-        $chemicalApplicant->update(array_merge($request->validated(), $inputs));
-        $chemicalApplicant->save();
+        $chemicalApplication = ChemicalApplication::find($id);
+        $chemicalApplication->update(array_merge($request->validated(), $inputs));
+        $chemicalApplication->save();
 
-        NotificationHelper::updatedAction('ChemicalApplicant', $id);
+        NotificationHelper::updatedAction('ChemicalApplication', $id);
 
         return back();
     }
@@ -73,16 +73,16 @@ class ChemicalApplicantController extends Controller
      */
     public function destroy(string $id)
     {
-        ChemicalApplicant::destroy($id);
+        ChemicalApplication::destroy($id);
 
-        NotificationHelper::deleteAction('ChemicalApplicant', $id);
+        NotificationHelper::deleteAction('ChemicalApplication', $id);
 
         return back();
     }
 
-    private function getChemicalApplicants($buyerId, $search = '')
+    private function getChemicalApplications($buyerId, $search = '')
     {
-        return ChemicalApplicant::query()
+        return ChemicalApplication::query()
             ->with([
                 'allocation.item',
                 'allocation.grower',

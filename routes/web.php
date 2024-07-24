@@ -1,10 +1,5 @@
 <?php
 
-use App\Helpers\CategoriesHelper;
-use App\Models\Allocation;
-use App\Models\Reallocation;
-use App\Models\RemainingReceival;
-use App\Models\User;
 use Dcblogdev\Xero\Facades\Xero;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FileController;
@@ -27,7 +22,7 @@ use App\Http\Controllers\BulkBaggingController;
 use App\Http\Controllers\WeighbridgeController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ReallocationController;
-use App\Http\Controllers\ChemicalApplicantController;
+use App\Http\Controllers\ChemicalApplicationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -114,7 +109,7 @@ Route::middleware([
     
     Route::resource('/grading', GradingController::class)->middleware('grading');
     Route::resource('/sizing', SizingController::class)->middleware('grading');
-    Route::resource('/chemical-applicant', ChemicalApplicantController::class)->middleware('grading');
+    Route::resource('/chemical-application', ChemicalApplicationController::class)->middleware('grading');
     Route::resource('/bulk-bagging', BulkBaggingController::class)->middleware('grading');
     Route::get('/buyers/{id}/allocations', [GradingController::class, 'allocations'])->name('buyers.allocations');
     Route::get('/growers/{id}/unloads', [SizingController::class, 'unloads'])->name('grower.unloads');
@@ -166,36 +161,7 @@ Route::get('/abc2', function () {
 });
 
 Route::get('/abc3', function () {
-    // \App\Helpers\DeleteRecordsHelper::deleteUser(87);
     
-    $receivals = \App\Models\Receival::where('grower_id', 87)->get();
-    foreach ($receivals as $receival) {
-        \App\Helpers\DeleteRecordsHelper::deleteReceival($receival);
-    }
-
-    RemainingReceival::where('grower_id', 87)->delete();
-
-    $allocations = Allocation::query()
-        ->where(function ($query) {
-            return $query
-                ->where('buyer_id', 87)
-                ->orWhere('grower_id', 87);
-        })->get();
-    foreach ($allocations as $allocation) {
-        \App\Helpers\DeleteRecordsHelper::deleteAllocation($allocation);
-    }
-
-    $reallocations = Reallocation::query()
-        ->where(function ($query) {
-            return $query
-                ->where('buyer_id', 87)
-                ->orWhere('allocation_buyer_id', 87);
-        })->get();
-    foreach ($reallocations as $reallocation) {
-        \App\Helpers\DeleteRecordsHelper::deleteReallocation($reallocation);
-    }
-
-    CategoriesHelper::deleteCategoryRelations(87, User::class);
 });
 
 Route::get('xero', function () {

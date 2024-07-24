@@ -75,10 +75,10 @@ const menus = [
     label: 'Sizing',
   },
   {
-    route: route('chemical-applicant.index'),
+    route: route('chemical-application.index'),
     image: 'menu13.png',
     permission: ['admin', 'grading'],
-    label: 'Chemical Applicant',
+    label: 'Chemical Application',
   },
   {
     route: route('bulk-bagging.index'),

@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('chemical_applicants', function (Blueprint $table) {
+        Schema::create('chemical_applications', function (Blueprint $table) {
             $table->id();
             $table->foreignId('buyer_id');
             $table->foreignId('allocation_id');
@@ -32,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('chemical_applicants');
+        Schema::dropIfExists('chemical_applications');
     }
 };

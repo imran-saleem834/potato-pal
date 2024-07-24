@@ -8,14 +8,14 @@ import { useToast } from 'vue-toastification';
 import UlLiButton from '@/Components/UlLiButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import ConfirmedModal from '@/Components/ConfirmedModal.vue';
-import SingleDetailsView from '@/Pages/ChemicalApplicant/Partials/SingleDetailsView.vue';
-import SelectedAllocationView from '@/Pages/ChemicalApplicant/Partials/SelectedAllocationView.vue';
+import SingleDetailsView from '@/Pages/ChemicalApplication/Partials/SingleDetailsView.vue';
+import SelectedAllocationView from '@/Pages/ChemicalApplication/Partials/SelectedAllocationView.vue';
 
 const toast = useToast();
 
 const props = defineProps({
   uniqueKey: String,
-  chemicalApplicant: {
+  chemicalApplication: {
     type: Object,
     default: {},
   },
@@ -42,36 +42,36 @@ const tonnes = {
 };
 
 const form = useForm({
-  buyer_id: props.chemicalApplicant.buyer_id,
-  allocation_id: props.chemicalApplicant.allocation_id,
-  bins_tipped: props.chemicalApplicant.bins_tipped || { ...tonnes },
-  bins_out: props.chemicalApplicant.bins_out || { ...tonnes },
-  fungicide: props.chemicalApplicant.fungicide,
-  fungicide_used: props.chemicalApplicant.fungicide_used,
-  start: props.chemicalApplicant.start,
-  end: props.chemicalApplicant.end,
-  no_of_crew: props.chemicalApplicant.no_of_crew,
-  comments: props.chemicalApplicant.comments,
+  buyer_id: props.chemicalApplication.buyer_id,
+  allocation_id: props.chemicalApplication.allocation_id,
+  bins_tipped: props.chemicalApplication.bins_tipped || { ...tonnes },
+  bins_out: props.chemicalApplication.bins_out || { ...tonnes },
+  fungicide: props.chemicalApplication.fungicide,
+  fungicide_used: props.chemicalApplication.fungicide_used,
+  start: props.chemicalApplication.start,
+  end: props.chemicalApplication.end,
+  no_of_crew: props.chemicalApplication.no_of_crew,
+  comments: props.chemicalApplication.comments,
   selected_allocation: {},
 });
 
 watch(
-  () => props.chemicalApplicant,
-  (chemicalApplicant) => {
+  () => props.chemicalApplication,
+  (chemicalApplication) => {
     if (props.isNewItem || isEdit.value) {
       return;
     }
     form.clearErrors();
-    form.buyer_id = chemicalApplicant.buyer_id;
-    form.allocation_id = chemicalApplicant.allocation_id;
-    form.bins_tipped = chemicalApplicant.bins_tipped || { ...tonnes };
-    form.bins_out = chemicalApplicant.bins_out || { ...tonnes };
-    form.fungicide = chemicalApplicant.fungicide;
-    form.fungicide_used = chemicalApplicant.fungicide_used;
-    form.start = chemicalApplicant.start;
-    form.end = chemicalApplicant.end;
-    form.no_of_crew = chemicalApplicant.no_of_crew;
-    form.comments = chemicalApplicant.comments;
+    form.buyer_id = chemicalApplication.buyer_id;
+    form.allocation_id = chemicalApplication.allocation_id;
+    form.bins_tipped = chemicalApplication.bins_tipped || { ...tonnes };
+    form.bins_out = chemicalApplication.bins_out || { ...tonnes };
+    form.fungicide = chemicalApplication.fungicide;
+    form.fungicide_used = chemicalApplication.fungicide_used;
+    form.start = chemicalApplication.start;
+    form.end = chemicalApplication.end;
+    form.no_of_crew = chemicalApplication.no_of_crew;
+    form.comments = chemicalApplication.comments;
   },
 );
 
@@ -95,10 +95,10 @@ const setIsEdit = () => {
   loader.value = true;
 
   axios
-    .get(route('buyers.allocations', props.chemicalApplicant.buyer_id))
+    .get(route('buyers.allocations', props.chemicalApplication.buyer_id))
     .then((response) => {
       form.selected_allocation = response.data.find(
-        (item) => props.chemicalApplicant.allocation_id === item.id,
+        (item) => props.chemicalApplication.allocation_id === item.id,
       );
     })
     .catch(() => {})
@@ -108,34 +108,34 @@ const setIsEdit = () => {
 };
 
 const updateRecord = () => {
-  form.patch(route(`chemical-applicant.update`, props.chemicalApplicant.id), {
+  form.patch(route(`chemical-application.update`, props.chemicalApplication.id), {
     preserveScroll: true,
     preserveState: true,
     onSuccess: () => {
       isEdit.value = false;
-      toast.success('The chemical applicant has been updated successfully!');
+      toast.success('The chemical application has been updated successfully!');
     },
   });
 };
 
 const storeRecord = () => {
-  form.post(route(`chemical-applicant.store`), {
+  form.post(route(`chemical-application.store`), {
     preserveScroll: true,
     preserveState: true,
     onSuccess: () => {
       emit('create');
-      toast.success('The chemical applicant has been created successfully!');
+      toast.success('The chemical application has been created successfully!');
     },
   });
 };
 
-const deleteChemicalApplicant = () => {
-  form.delete(route('chemical-applicant.destroy', props.chemicalApplicant.id), {
+const deleteChemicalApplication = () => {
+  form.delete(route('chemical-application.destroy', props.chemicalApplication.id), {
     preserveScroll: true,
     preserveState: true,
     onSuccess: () => {
       emit('delete');
-      toast.success('The chemical applicant has been deleted successfully!');
+      toast.success('The chemical application has been deleted successfully!');
     },
   });
 };
@@ -171,7 +171,7 @@ defineExpose({
     </table>
   </div>
 
-  <h4 v-if="isNew">Chemical Applicant Details</h4>
+  <h4 v-if="isNew">Chemical Application Details</h4>
   <div class="user-boxes position-relative" :class="{ 'pe-5': !isForm }">
     <table v-if="isForm && form.buyer_id" class="table input-table">
       <tr>
@@ -346,7 +346,7 @@ defineExpose({
         <button
           v-if="isEdit"
           data-bs-toggle="modal"
-          :data-bs-target="`#update-chemical-applicant-${uniqueKey}`"
+          :data-bs-target="`#update-chemical-application-${uniqueKey}`"
           class="btn btn-red"
         >
           <template v-if="form.processing">
@@ -357,7 +357,7 @@ defineExpose({
         <button
           v-if="isNewItem"
           data-bs-toggle="modal"
-          :data-bs-target="`#store-chemical-applicant-${uniqueKey}`"
+          :data-bs-target="`#store-chemical-application-${uniqueKey}`"
           class="btn btn-red"
         >
           <template v-if="form.processing">
@@ -372,7 +372,7 @@ defineExpose({
         <button @click="setIsEdit" class="btn btn-red p-1 z-1"><i class="bi bi-pen"></i></button>
         <button
           data-bs-toggle="modal"
-          :data-bs-target="`#delete-chemical-applicant-${uniqueKey}`"
+          :data-bs-target="`#delete-chemical-application-${uniqueKey}`"
           class="btn btn-red p-1 z-1"
         >
           <template v-if="form.processing">
@@ -382,25 +382,25 @@ defineExpose({
         </button>
       </div>
 
-      <SingleDetailsView :chemical-applicant="chemicalApplicant" />
+      <SingleDetailsView :chemical-application="chemicalApplication" />
     </template>
   </div>
 
   <ConfirmedModal
-    :id="`delete-chemical-applicant-${uniqueKey}`"
+    :id="`delete-chemical-application-${uniqueKey}`"
     cancel="No, Keep it"
     ok="Yes, Delete!"
-    @ok="deleteChemicalApplicant"
+    @ok="deleteChemicalApplication"
   />
 
   <ConfirmedModal
-    :id="`store-chemical-applicant-${uniqueKey}`"
+    :id="`store-chemical-application-${uniqueKey}`"
     title="You want to store this record?"
     @ok="storeRecord"
   />
 
   <ConfirmedModal
-    :id="`update-chemical-applicant-${uniqueKey}`"
+    :id="`update-chemical-application-${uniqueKey}`"
     title="You want to update this record?"
     ok="Yes, Update!"
     @ok="updateRecord"

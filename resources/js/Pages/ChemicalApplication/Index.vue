@@ -3,12 +3,12 @@ import { reactive, ref, watch } from 'vue';
 import { router, Link } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import TopBar from '@/Components/TopBar.vue';
-import Details from '@/Pages/ChemicalApplicant/Details.vue';
+import Details from '@/Pages/ChemicalApplication/Details.vue';
 import LeftBar from '@/Components/LeftBar.vue';
 import Pagination from '@/Components/Pagination.vue';
 import { getCategoriesByType } from '@/helper.js';
 import { useWindowSize } from 'vue-window-size';
-import AllocationsModal from '@/Pages/ChemicalApplicant/Partials/AllocationsModal.vue';
+import AllocationsModal from '@/Pages/ChemicalApplication/Partials/AllocationsModal.vue';
 
 const { width, height } = useWindowSize();
 
@@ -20,7 +20,7 @@ const props = defineProps({
   errors: Object,
 });
 
-const chemicalApplicants = ref(props.single || {});
+const chemicalApplications = ref(props.single || {});
 const activeTab = ref(null);
 const isNewRecord = ref(false);
 const isNewItemRecord = ref(false);
@@ -34,14 +34,14 @@ watch(
   () => props?.single,
   (single) => {
     if (props.errors.length === undefined || props.errors.length <= 0) {
-      chemicalApplicants.value = single || [];
+      chemicalApplications.value = single || [];
     }
   },
 );
 
 watch(search, (value) => {
   router.get(
-    route('chemical-applicant.index'),
+    route('chemical-application.index'),
     { search: value, buyer: buyer.value, buyerId: activeTab.value.buyer_id },
     {
       preserveState: true,
@@ -53,7 +53,7 @@ watch(search, (value) => {
 
 watch(buyer, (value) => {
   router.get(
-    route('chemical-applicant.index'),
+    route('chemical-application.index'),
     { search: search.value, buyer: value, buyerId: activeTab.value.buyer_id },
     {
       preserveState: true,
@@ -65,9 +65,9 @@ watch(buyer, (value) => {
 
 const filter = (keyword) => (buyer.value = keyword);
 
-const getChemicalApplicants = (id) => {
+const getChemicalApplications = (id) => {
   router.get(
-    route('chemical-applicant.index'),
+    route('chemical-application.index'),
     { buyerId: id },
     {
       preserveState: true,
@@ -92,7 +92,7 @@ const setActiveTab = (id) => {
 const setNewRecord = () => {
   isNewRecord.value = true;
   isNewItemRecord.value = false;
-  chemicalApplicants.value.data = [];
+  chemicalApplications.value.data = [];
   activeTab.value = null;
 };
 
@@ -102,14 +102,14 @@ const setUpdateSelection = (identifier, id) => {
 };
 
 if (width.value > 991) {
-  setActiveTab(chemicalApplicants.value.data[0]?.buyer_id);
+  setActiveTab(chemicalApplications.value.data[0]?.buyer_id);
 }
 </script>
 
 <template>
-  <AppLayout title="Chemical Applicants">
+  <AppLayout title="Chemical Application">
     <TopBar
-      type="Chemical Applicants"
+      type="Chemical Application"
       :title="activeTab?.buyer?.buyer_name || 'New'"
       :active-tab="activeTab?.id"
       :search="search"
@@ -135,7 +135,7 @@ if (width.value > 991) {
             :active-tab="activeTab?.id"
             :row-1="{ title: 'Buyer Name', value: 'buyer.buyer_name' }"
             :row-2="{ title: 'Contact Name', value: 'buyer.name' }"
-            @click="getChemicalApplicants"
+            @click="getChemicalApplications"
           />
         </div>
         <div
@@ -198,14 +198,14 @@ if (width.value > 991) {
               </div>
               <div v-if="activeTab" class="row align-items-center">
                 <div class="col-12 col-sm-4 col-lg-3 mb-3 mb-sm-4">
-                  <h4 class="m-0">Chemical Applicant Details</h4>
+                  <h4 class="m-0">Chemical Application Details</h4>
                 </div>
                 <div class="col-12 col-sm-4 col-lg-5 mb-3 mb-sm-4">
                   <input
                     v-model="search"
                     type="text"
                     class="form-control"
-                    placeholder="Search chemical applicants..."
+                    placeholder="Search chemical applications..."
                   />
                 </div>
                 <div class="col-12 col-sm-4 col-lg-4 mb-3 mb-sm-4 text-end">
@@ -214,7 +214,7 @@ if (width.value > 991) {
                     :disabled="isNewItemRecord"
                     @click="isNewItemRecord = true"
                   >
-                    <i class="bi bi-plus-lg"></i> Add chemical applicant
+                    <i class="bi bi-plus-lg"></i> Add chemical application
                   </button>
                 </div>
               </div>
@@ -222,28 +222,28 @@ if (width.value > 991) {
                 v-if="isNewItemRecord"
                 ref="details"
                 unique-key="newItemRecord"
-                :chemical-applicant="{ buyer_id: activeTab?.buyer_id }"
+                :chemical-application="{ buyer_id: activeTab?.buyer_id }"
                 :is-new-item="true"
                 :selected-allocation="selection['newItemRecord']?.selected || {}"
                 @allocation="(id) => setUpdateSelection('newItemRecord', id)"
                 @create="() => setActiveTab(activeTab?.buyer_id)"
               />
-              <template v-for="chemicalApplicant in chemicalApplicants?.data" :key="chemicalApplicant.id">
+              <template v-for="chemicalApplication in chemicalApplications?.data" :key="chemicalApplication.id">
                 <Details
                   ref="details"
-                  :unique-key="`${chemicalApplicant.id}`"
-                  :chemical-applicant="chemicalApplicant"
-                  :selected-allocation="selection[chemicalApplicant.id]?.selected || {}"
-                  @allocation="(buyerId) => setUpdateSelection(chemicalApplicant.id, buyerId)"
-                  @delete="() => setActiveTab(chemicalApplicant?.data[0]?.buyer_id)"
+                  :unique-key="`${chemicalApplication.id}`"
+                  :chemical-application="chemicalApplication"
+                  :selected-allocation="selection[chemicalApplication.id]?.selected || {}"
+                  @allocation="(buyerId) => setUpdateSelection(chemicalApplication.id, buyerId)"
+                  @delete="() => setActiveTab(chemicalApplication?.data[0]?.buyer_id)"
                 />
               </template>
               <div class="float-end">
-                <Pagination :links="chemicalApplicants.links" />
+                <Pagination :links="chemicalApplications.links" />
               </div>
             </template>
           </div>
-          <div class="col-12" v-if="chemicalApplicants?.data?.length <= 0 && !isNewRecord">
+          <div class="col-12" v-if="chemicalApplications?.data?.length <= 0 && !isNewRecord">
             <p class="text-center" style="margin-top: calc(50vh - 120px)">No Records Found</p>
           </div>
         </div>
