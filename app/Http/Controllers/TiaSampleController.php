@@ -21,20 +21,35 @@ class TiaSampleController extends Controller
     public function index(Request $request)
     {
         $tiaSamples = TiaSample::query()
-            ->with([
-                'receival'        => fn ($query) => $query->select(['id', 'grower_id']),
-                'receival.grower' => fn ($query) => $query->select(['id', 'grower_name']),
-            ])
+            ->with(['receival:id,grower_id', 'receival.grower:id,grower_name'])
             ->select('id', 'receival_id')
             ->when($request->input('search'), function (Builder $query, $search) {
-                return $query->where(function (Builder $subQuery) use ($search) {
-                    return $subQuery->where('id', 'LIKE', "%$search%")
-                        ->orWhere('receival_id', 'LIKE', "%$search%")
-                        ->orWhere('processor', 'LIKE', "%$search%")
+                return $query->where(function (Builder $query) use ($search) {
+                    return $query->where('id', 'LIKE', "%$search%")
                         ->orWhere('status', 'LIKE', "%$search%")
                         ->orWhere('inspection_date', 'LIKE', "%$search%")
                         ->orWhere('size', 'LIKE', "%$search%")
-                        ->orWhere('comment', 'LIKE', "%$search%");
+                        ->orWhere('comment', 'LIKE', "%$search%")
+                        ->orWhereRelation('receival', function (Builder $query) use ($search) {
+                            return $query->where('id', 'LIKE', "%$search%")
+                                ->where('paddocks', 'LIKE', "%$search%")
+                                ->orWhere('grower_docket_no', 'LIKE', "%$search%")
+                                ->orWhere('chc_receival_docket_no', 'LIKE', "%$search%")
+                                ->orWhereRelation('categories.category', 'name', 'LIKE', "%{$search}%")
+                                ->orWhereRelation('grower', function (Builder $query) use ($search) {
+                                    return $query->where('name', 'LIKE', "%{$search}%")
+                                        ->orWhere('grower_name', 'LIKE', "%{$search}%");
+                                })
+                                ->orWhereRelation('grower.categories.category', 'name', 'LIKE', "%{$search}%")
+                                ->orWhereRelation('unloads', function (Builder $catQuery) use ($search) {
+                                    return $catQuery->where('channel', 'LIKE', "%{$search}%")
+                                        ->orWhere('no_of_bins', 'LIKE', "%{$search}%")
+                                        ->orWhere('system', 'LIKE', "%{$search}%")
+                                        ->orWhere('weight', 'LIKE', "%{$search}%")
+                                        ->orWhere('bin_size', 'LIKE', "%{$search}%");
+                                })
+                                ->orWhereRelation('unloads.categories.category', 'name', 'LIKE', "%{$search}%");
+                        });
                 });
             })
             ->latest()
@@ -66,18 +81,6 @@ class TiaSampleController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
-     */
-    public function store(TiaSampleRequest $request)
-    {
-        $tiaSample = TiaSample::create($request->validated());
-
-        NotificationHelper::addedAction('Tia Sample', $tiaSample->id);
-
-        return to_route('tia-samples.index');
-    }
-
-    /**
      * Display the specified resource.
      */
     public function show(string $id)
@@ -92,26 +95,11 @@ class TiaSampleController extends Controller
      */
     public function update(TiaSampleRequest $request, string $id)
     {
-        $tiaSample = TiaSample::with(['receival:id,grower_id'])->find($id);
+        $tiaSample = TiaSample::find($id);
         $tiaSample->update($request->validated());
         $tiaSample->save();
-
-        if (ReceivalHelper::isSeedClassPending($tiaSample->receival_id)) {
-            $categoryName = $tiaSample->status === 'not-certified' ? 'Provisional' : ($tiaSample->status === 'qa' ? 'QA only' : 'Certified');
-            $category     = Category::where('type', 'seed-class')->where('name', $categoryName)->first();
-
-            if ($category) {
-                CategoriesRelation::query()
-                    ->where([
-                        'categorizable_id'   => $tiaSample->receival_id,
-                        'categorizable_type' => Receival::class,
-                        'type'               => $category->type,
-                    ])
-                    ->update(['category_id' => $category->id]);
-
-                ReceivalHelper::calculateRemainingReceivals($tiaSample->receival->grower_id);
-            }
-        }
+        
+        $this->updateSeedClassBaseOnStatus($tiaSample);
 
         NotificationHelper::updatedAction('Tia Sample', $id);
 
@@ -136,7 +124,32 @@ class TiaSampleController extends Controller
             ->with([
                 'receival.grower.categories.category',
                 'receival.categories.category',
+                'receival.unloads.categories.category',
             ])
             ->find($id);
+    }
+
+    private function updateSeedClassBaseOnStatus(TiaSample $tiaSample)
+    {
+        if (!ReceivalHelper::isSeedClassPending($tiaSample->receival_id)) {
+            return;
+        }
+        
+        $tiaSample->loadMissing(['receival:id,grower_id']);
+
+        $categoryName = $tiaSample->status === 'not-certified' ? 'Provisional' : ($tiaSample->status === 'qa' ? 'QA only' : 'Certified');
+        $category     = Category::where('type', 'seed-class')->where('name', $categoryName)->first();
+
+        if ($category) {
+            CategoriesRelation::query()
+                ->where([
+                    'categorizable_id'   => $tiaSample->receival_id,
+                    'categorizable_type' => Receival::class,
+                    'type'               => $category->type,
+                ])
+                ->update(['category_id' => $category->id]);
+
+            ReceivalHelper::calculateRemainingReceivals($tiaSample->receival->grower_id);
+        }
     }
 }

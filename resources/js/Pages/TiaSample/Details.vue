@@ -9,6 +9,7 @@ import UlLiButton from '@/Components/UlLiButton.vue';
 import TdOfCategories from '@/Components/TdOfCategories.vue';
 import CustomDatePicker from '@/Components/CustomDatePicker.vue';
 import { binSizes, tiaStatus, booleanArray } from '@/const.js';
+import { toTonnes, getSingleCategoryNameByType } from '@/helper.js';
 
 const toast = useToast();
 
@@ -30,10 +31,10 @@ const addEmptyValues = (name, values, noOfValues) => {
   if (name === 'tubers' && values[4]) {
     return values;
   }
-  if (values[4] && !values[4].toString().includes('%')) {
+  if (values[4] && !values[4].toString().includes('%') && noOfValues !== 6) {
     values[4] = values[4] + '%';
   }
-  if (values[5] && !values[5].toString().includes('%')) {
+  if (values[5] && !values[5].toString().includes('%') && noOfValues !== 6) {
     values[5] = values[5] + '%';
   }
   return values;
@@ -140,7 +141,6 @@ samples.concat(sample2).forEach((sample) => {
 });
 
 const form = useForm({
-  processor: props.tiaSample.processor,
   inspection_date: props.tiaSample.inspection_date
     ? props.tiaSample.inspection_date.split('T')[0]
     : new Date().toJSON().split('T')[0],
@@ -166,7 +166,6 @@ const form = useForm({
   minimal_insect_feeding: props.tiaSample.minimal_insect_feeding,
   oversize: props.tiaSample.oversize,
   undersize: props.tiaSample.undersize,
-  disease_scoring: props.tiaSample.disease_scoring,
   disease_powdery_scab: props.tiaSample.disease_powdery_scab,
   disease_root_knot_nematode: props.tiaSample.disease_root_knot_nematode,
   disease_common_scab: props.tiaSample.disease_common_scab,
@@ -185,12 +184,10 @@ watch(
   () => props.tiaSample,
   (tiaSample) => {
     form.clearErrors();
-    form.processor = tiaSample.processor;
     form.inspection_date = tiaSample.inspection_date
       ? tiaSample.inspection_date.split('T')[0]
       : new Date().toJSON().split('T')[0];
     form.size = tiaSample.size;
-    form.disease_scoring = tiaSample.disease_scoring;
     form.excessive_dirt = tiaSample.excessive_dirt;
     form.skin_russeting = tiaSample.skin_russeting;
     form.minor_skin_cracking = tiaSample.minor_skin_cracking;
@@ -323,17 +320,9 @@ defineExpose({
               <template v-else>-</template>
             </td>
           </tr>
-          <tr>
-            <th>Tonnes</th>
-            <td class="pb-0">
-              <UlLiButton
-                :is-form="isForm"
-                :value="form.processor"
-                :error="form.errors.processor"
-                :items="binSizes"
-                @click="(value) => (form.processor = value)"
-              />
-            </td>
+          <tr v-for="unload in tiaSample?.receival?.unloads || []" :key="unload.id">
+            <td>{{ getSingleCategoryNameByType(unload.categories, 'seed-type') }}</td>
+            <td>{{ `${unload.no_of_bins} Bins, Weight: ${toTonnes(unload.weight)}` }}</td>
           </tr>
           <tr>
             <th>Inspection ID</th>
@@ -456,9 +445,7 @@ defineExpose({
             <th class="fw-bold d-none d-sm-table-cell">DISEASE SCORING KEY</th>
             <td class="pb-0 disease-scoring-key" colspan="3">
               <UlLiButton
-                :is-form="isForm"
-                :value="form.disease_scoring"
-                :error="form.errors.disease_scoring"
+                :is-form="false"
                 :items="[
                   { value: 1, label: '1' },
                   { value: 2, label: '2' },
@@ -467,7 +454,6 @@ defineExpose({
                   { value: 5, label: '5' },
                   { value: 6, label: '6' },
                 ]"
-                @click="(value) => (form.disease_scoring = value)"
               />
             </td>
           </tr>
@@ -487,9 +473,8 @@ defineExpose({
                     <input
                       type="text"
                       class="form-control"
-                      :disabled="index === 4 || !isForm"
+                      :disabled="!isForm"
                       v-model="form[sample.name][index]"
-                      @keyup="changeSampleValue(sample.name, 4)"
                     />
                   </li>
 

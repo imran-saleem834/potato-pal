@@ -16,7 +16,6 @@ class TiaSample extends Model
      */
     protected $fillable = [
         'receival_id',
-        'processor',
         'status',
         'inspection_date',
         'size',
@@ -41,7 +40,6 @@ class TiaSample extends Model
         'minimal_insect_feeding',
         'oversize',
         'undersize',
-        'disease_scoring',
         'disease_powdery_scab',
         'disease_root_knot_nematode',
         'disease_common_scab',

@@ -425,22 +425,6 @@ defineExpose({
               </div>
             </td>
           </tr>
-          <tr>
-            <th>Disease Scoring Key</th>
-            <td>
-              <Multiselect
-                v-model="form.filters.disease_scoring"
-                mode="tags"
-                placeholder="Choose a disease scoring"
-                :searchable="true"
-                :class="{ 'is-invalid': form.errors['filters.disease_scoring'] }"
-                :options="[1, 2, 3, 4, 5, 6]"
-              />
-              <div v-if="form.errors['filters.disease_scoring']" class="invalid-feedback">
-                {{ form.errors['filters.disease_scoring'] }}
-              </div>
-            </td>
-          </tr>
         </table>
       </div>
 

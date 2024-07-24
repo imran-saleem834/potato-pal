@@ -50,10 +50,8 @@ class TiaSampleRequest extends FormRequest
     public function rules(): array
     {
         $rules = [
-            'processor'           => ['nullable', Rule::in([500, 1000, 2000])],
             'inspection_date'     => ['nullable', 'date'],
             'size'                => ['nullable', 'string', 'max:50'],
-            'disease_scoring'     => ['nullable', 'numeric', 'max:6'],
             'excessive_dirt'      => ['nullable', 'boolean'],
             'skin_russeting'      => ['nullable', 'boolean'],
             'minor_skin_cracking' => ['nullable', 'boolean'],

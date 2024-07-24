@@ -1,6 +1,6 @@
 import moment from 'moment';
-import { getCategoriesByType, getSingleCategoryNameByType } from '@/helper.js';
 import { binSizes } from '@/const.js';
+import { getCategoriesByType, getSingleCategoryNameByType } from '@/helper.js';
 
 const samples = [
   { title: 'Dry Rot', data: 'dry_rot', allow: '2%' },
@@ -149,11 +149,6 @@ const columns = [
     },
   },
 ];
-
-samples.push({
-  title: 'Disease Key',
-  data: 'disease_scoring',
-});
 
 const sample2 = [
   { title: 'Powdery Scab', data: 'disease_powdery_scab' },

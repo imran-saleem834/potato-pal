@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('tia_samples', function (Blueprint $table) {
             $table->id();
             $table->foreignId('receival_id');
-            $table->float('processor')->nullable();
             $table->string('status', 20)->nullable();
             $table->date('inspection_date')->nullable();
             $table->string('size', 50)->nullable();
@@ -39,7 +38,6 @@ return new class extends Migration
             $table->string('minimal_insect_feeding', 255)->nullable();
             $table->string('oversize', 255)->nullable();
             $table->string('undersize', 255)->nullable();
-            $table->tinyInteger('disease_scoring')->nullable();
             $table->string('disease_powdery_scab', 255)->nullable();
             $table->string('disease_root_knot_nematode', 255)->nullable();
             $table->string('disease_common_scab', 255)->nullable();
