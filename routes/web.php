@@ -164,6 +164,10 @@ Route::get('/abc3', function () {
     
 });
 
+Route::get('/download-receivals', function () {
+    return Maatwebsite\Excel\Facades\Excel::download(new App\Exports\ReceivalsExport, 'receivals.xlsx');
+});
+
 Route::get('xero', function () {
     if (! Xero::isConnected()) {
         return redirect('xero/connect');
