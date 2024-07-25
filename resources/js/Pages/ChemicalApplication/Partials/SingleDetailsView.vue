@@ -10,16 +10,12 @@ defineProps({
 
 onMounted(() => {
   const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-  const tooltipList = [...tooltipTriggerList].map(
-    (tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl),
-  );
+  const tooltipList = [...tooltipTriggerList].map((tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl));
 });
 
 onUpdated(() => {
   const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-  const tooltipList = [...tooltipTriggerList].map(
-    (tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl),
-  );
+  const tooltipList = [...tooltipTriggerList].map((tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl));
 });
 </script>
 
@@ -48,17 +44,14 @@ onUpdated(() => {
         <td class="d-none d-md-table-cell text-primary">
           {{ chemicalApplication.allocation?.grower?.grower_name }}
         </td>
-        <td class="d-none d-md-table-cell text-primary">{{ chemicalApplication.allocation.paddock }}</td>
+        <td class="d-none d-md-table-cell text-primary">
+          {{ chemicalApplication.allocation.paddock }}
+        </td>
         <td class="d-none d-xl-table-cell text-primary">
-          {{
-            getSingleCategoryNameByType(chemicalApplication.allocation.categories, 'seed-variety') || '-'
-          }}
+          {{ getSingleCategoryNameByType(chemicalApplication.allocation.categories, 'seed-variety') || '-' }}
         </td>
         <td class="d-none d-md-table-cell text-primary">
-          {{
-            getSingleCategoryNameByType(chemicalApplication.allocation.categories, 'seed-generation') ||
-            '-'
-          }}
+          {{ getSingleCategoryNameByType(chemicalApplication.allocation.categories, 'seed-generation') || '-' }}
         </td>
         <td class="text-primary">
           {{ getSingleCategoryNameByType(chemicalApplication.allocation.categories, 'seed-type') || '-' }}
@@ -80,11 +73,11 @@ onUpdated(() => {
           </a>
         </td>
         <td class="d-none d-xl-table-cell text-primary">
-          {{
-            getSingleCategoryNameByType(chemicalApplication.allocation.categories, 'seed-class') || '-'
-          }}
+          {{ getSingleCategoryNameByType(chemicalApplication.allocation.categories, 'seed-class') || '-' }}
         </td>
-        <td class="text-primary">{{ getBinSizesValue(chemicalApplication.allocation.item.bin_size) }}</td>
+        <td class="text-primary">
+          {{ getBinSizesValue(chemicalApplication.allocation.item.bin_size) }}
+        </td>
         <td class="text-primary">{{ chemicalApplication.allocation.item.no_of_bins }}</td>
       </tr>
     </tbody>

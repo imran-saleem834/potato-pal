@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use Inertia\Inertia;
 use App\Models\BulkBagging;
-use Illuminate\Http\Request;
 use App\Helpers\BuyerHelper;
+use Illuminate\Http\Request;
 use App\Helpers\NotificationHelper;
 use App\Http\Requests\BulkBaggingRequest;
 use Illuminate\Database\Eloquent\Builder;
@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Builder;
 class BulkBaggingController extends Controller
 {
     /**
-     * @param Request $request
+     * @param  Request  $request
      * Display a listing of the resource.
      */
     public function index(Request $request)
@@ -24,14 +24,14 @@ class BulkBaggingController extends Controller
         $inputBuyerId = $request->input('buyerId', $firstBuyerId);
 
         $bulkBaggings = $this->getBulkBaggings($inputBuyerId, $request->input('search'));
-        if ($bulkBaggings->isEmpty() && ((int)$inputBuyerId) !== ((int)$firstBuyerId)) {
+        if ($bulkBaggings->isEmpty() && ((int) $inputBuyerId) !== ((int) $firstBuyerId)) {
             $bulkBaggings = $this->getBulkBaggings($firstBuyerId, $request->input('search'));
         }
 
         return Inertia::render('BulkBagging/Index', [
             'navBuyers' => $navBuyers,
             'single'    => $bulkBaggings,
-            'buyers'    => fn() => BuyerHelper::getAvailableBuyers(),
+            'buyers'    => fn () => BuyerHelper::getAvailableBuyers(),
             'filters'   => $request->only(['search', 'buyer']),
         ]);
     }

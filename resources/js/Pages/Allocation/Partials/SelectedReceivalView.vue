@@ -38,9 +38,7 @@ defineProps({
             {{ getSingleCategoryNameByType(receival.receival_categories, 'seed-variety') || '-' }}
           </td>
           <td class="d-none d-md-table-cell text-primary">
-            {{
-              getSingleCategoryNameByType(receival.receival_categories, 'seed-generation') || '-'
-            }}
+            {{ getSingleCategoryNameByType(receival.receival_categories, 'seed-generation') || '-' }}
           </td>
           <td class="text-primary">
             {{ getSingleCategoryNameByType(receival.unload_categories, 'seed-type') }}

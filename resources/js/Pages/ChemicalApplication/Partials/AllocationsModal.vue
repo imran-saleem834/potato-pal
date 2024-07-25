@@ -71,10 +71,7 @@ watch(
               <span class="visually-hidden">Loading...</span>
             </div>
           </div>
-          <div
-            v-if="!loader && allocations.length <= 0"
-            class="d-flex justify-content-center text-danger fs-5 my-3"
-          >
+          <div v-if="!loader && allocations.length <= 0" class="d-flex justify-content-center text-danger fs-5 my-3">
             Data not found
           </div>
           <div v-if="!loader && allocations.length" class="table-responsive">
@@ -97,21 +94,15 @@ watch(
                 <template v-for="allocation in allocations" :key="allocation.id">
                   <tr>
                     <td>
-                      {{
-                        getSingleCategoryNameByType(allocation.categories, 'grower-group') || '-'
-                      }}
+                      {{ getSingleCategoryNameByType(allocation.categories, 'grower-group') || '-' }}
                     </td>
                     <td>{{ allocation.grower?.grower_name || '-' }}</td>
                     <td>{{ allocation.paddock }}</td>
                     <td>
-                      {{
-                        getSingleCategoryNameByType(allocation.categories, 'seed-variety') || '-'
-                      }}
+                      {{ getSingleCategoryNameByType(allocation.categories, 'seed-variety') || '-' }}
                     </td>
                     <td>
-                      {{
-                        getSingleCategoryNameByType(allocation.categories, 'seed-generation') || '-'
-                      }}
+                      {{ getSingleCategoryNameByType(allocation.categories, 'seed-generation') || '-' }}
                     </td>
                     <td>
                       {{ getSingleCategoryNameByType(allocation.categories, 'seed-type') || '-' }}
@@ -122,11 +113,7 @@ watch(
                     <td>{{ getBinSizesValue(allocation.item.bin_size) }}</td>
                     <td>{{ toTonnes(allocation.item.weight) }}</td>
                     <td>
-                      <input
-                        type="checkbox"
-                        @click="onSelectAllocation(allocation)"
-                        data-bs-dismiss="modal"
-                      />
+                      <input type="checkbox" @click="onSelectAllocation(allocation)" data-bs-dismiss="modal" />
                     </td>
                   </tr>
                 </template>

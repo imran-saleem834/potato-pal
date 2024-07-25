@@ -26,11 +26,7 @@ const activeTab = ref(null);
 const search = ref(props.filters.search);
 
 watch(search, (value) => {
-  router.get(
-    route('weighbridges.index'),
-    { search: value },
-    { preserveState: true, preserveScroll: true },
-  );
+  router.get(route('weighbridges.index'), { search: value }, { preserveState: true, preserveScroll: true });
 });
 
 const filter = (keyword) => (search.value = keyword);
@@ -79,19 +75,13 @@ if (width.value > 991) {
               <div class="row allocation-items-box">
                 <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
                   <span>Receival ID: </span>
-                  <Link
-                    :href="route('receivals.index', { receivalId: activeTab.receival_id })"
-                    class="text-primary"
-                  >
+                  <Link :href="route('receivals.index', { receivalId: activeTab.receival_id })" class="text-primary">
                     {{ activeTab.receival_id }}
                   </Link>
                 </div>
                 <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
                   <span>Unload ID: </span>
-                  <Link
-                    :href="route('unloading.index', { receivalId: activeTab.receival_id })"
-                    class="text-primary"
-                  >
+                  <Link :href="route('unloading.index', { receivalId: activeTab.receival_id })" class="text-primary">
                     {{ activeTab.id }}
                   </Link>
                 </div>
@@ -106,11 +96,7 @@ if (width.value > 991) {
               </div>
             </div>
 
-            <div
-              v-for="weighbridge in activeTab?.weighbridges"
-              :key="weighbridge.id"
-              class="user-boxes"
-            >
+            <div v-for="weighbridge in activeTab?.weighbridges" :key="weighbridge.id" class="user-boxes">
               <div class="row allocation-items-box">
                 <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
                   <span>Unload Time: </span>

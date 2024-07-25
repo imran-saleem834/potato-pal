@@ -95,9 +95,7 @@ const setIsEdit = () => {
   axios
     .get(route('buyers.allocations', props.grading.buyer_id))
     .then((response) => {
-      form.selected_allocation = response.data.find(
-        (item) => props.grading.allocation_id === item.id,
-      );
+      form.selected_allocation = response.data.find((item) => props.grading.allocation_id === item.id);
     })
     .catch(() => {})
     .finally(() => {
@@ -159,11 +157,7 @@ defineExpose({
             @change="onChangeBuyer"
             :class="{ 'is-invalid': form.errors.buyer_id }"
           />
-          <div
-            v-if="form.errors.buyer_id"
-            class="invalid-feedback p-0 m-0"
-            v-text="form.errors.buyer_id"
-          />
+          <div v-if="form.errors.buyer_id" class="invalid-feedback p-0 m-0" v-text="form.errors.buyer_id" />
         </td>
       </tr>
     </table>
@@ -191,15 +185,15 @@ defineExpose({
     </table>
 
     <template v-if="isForm">
-      <SelectedAllocationView
-        :form="form"
-        :loader="loader"
-        :allocation="form.selected_allocation"
-      />
+      <SelectedAllocationView :form="form" :loader="loader" :allocation="form.selected_allocation" />
       <label class="form-label">Bins Tipped</label>
       <div class="row">
         <div class="col-12 col-sm-6 col-md-4 col-lg-6 col-xl-4 mb-3">
-          <TextInput type="text" v-model="form['bins_tipped'].half_tonne" :error="form.errors[`bins_tipped.half_tonne`]">
+          <TextInput
+            type="text"
+            v-model="form['bins_tipped'].half_tonne"
+            :error="form.errors[`bins_tipped.half_tonne`]"
+          >
             <template #prefix-addon>
               <div class="input-group-text">Half tonne</div>
             </template>
@@ -232,7 +226,11 @@ defineExpose({
       <label class="form-label">Graded into</label>
       <div class="row">
         <div class="col-12 col-sm-6 col-md-4 col-lg-6 col-xl-4 mb-3">
-          <TextInput type="text" v-model="form['bins_graded'].half_tonne" :error="form.errors[`bins_graded.half_tonne`]">
+          <TextInput
+            type="text"
+            v-model="form['bins_graded'].half_tonne"
+            :error="form.errors[`bins_graded.half_tonne`]"
+          >
             <template #prefix-addon>
               <div class="input-group-text">Half tonne</div>
             </template>
@@ -300,11 +298,7 @@ defineExpose({
                 :value="form.start"
                 @click="togglePopover"
               />
-              <div
-                v-if="form.errors.start"
-                class="invalid-feedback"
-                v-text="form.errors.start"
-              />
+              <div v-if="form.errors.start" class="invalid-feedback" v-text="form.errors.start" />
             </template>
           </DatePicker>
         </div>
@@ -325,11 +319,7 @@ defineExpose({
                 :value="form.end"
                 @click="togglePopover"
               />
-              <div
-                v-if="form.errors.end"
-                class="invalid-feedback"
-                v-text="form.errors.end"
-              />
+              <div v-if="form.errors.end" class="invalid-feedback" v-text="form.errors.end" />
             </template>
           </DatePicker>
         </div>
@@ -366,11 +356,7 @@ defineExpose({
     <template v-else>
       <div class="btn-group position-absolute top-0 end-0">
         <button @click="setIsEdit" class="btn btn-red p-1 z-1"><i class="bi bi-pen"></i></button>
-        <button
-          data-bs-toggle="modal"
-          :data-bs-target="`#delete-grading-${uniqueKey}`"
-          class="btn btn-red p-1 z-1"
-        >
+        <button data-bs-toggle="modal" :data-bs-target="`#delete-grading-${uniqueKey}`" class="btn btn-red p-1 z-1">
           <template v-if="form.processing">
             <i class="bi bi-arrow-repeat d-inline-block spin"></i>
           </template>
@@ -382,18 +368,9 @@ defineExpose({
     </template>
   </div>
 
-  <ConfirmedModal
-    :id="`delete-grading-${uniqueKey}`"
-    cancel="No, Keep it"
-    ok="Yes, Delete!"
-    @ok="deleteGrading"
-  />
+  <ConfirmedModal :id="`delete-grading-${uniqueKey}`" cancel="No, Keep it" ok="Yes, Delete!" @ok="deleteGrading" />
 
-  <ConfirmedModal
-    :id="`store-grading-${uniqueKey}`"
-    title="You want to store this record?"
-    @ok="storeRecord"
-  />
+  <ConfirmedModal :id="`store-grading-${uniqueKey}`" title="You want to store this record?" @ok="storeRecord" />
 
   <ConfirmedModal
     :id="`update-grading-${uniqueKey}`"

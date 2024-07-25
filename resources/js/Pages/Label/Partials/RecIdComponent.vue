@@ -27,10 +27,7 @@ const allocation = computed(() => {
     </div>
 
     <template v-for="index in [0, 1]" :key="index">
-      <div
-        class="d-flex justify-content-between align-items-center"
-        :class="{ 'pt-5': index === 1 }"
-      >
+      <div class="d-flex justify-content-between align-items-center" :class="{ 'pt-5': index === 1 }">
         <strong v-if="index === 0">DRIVERS DKT</strong>
         <strong v-if="index === 1">CHC OFFICE COPY</strong>
 
@@ -97,14 +94,8 @@ const allocation = computed(() => {
       <template v-if="index === 0">
         <div class="p-3 mb-2" style="background: #e5e5e5; font-size: 13px">
           <div>CHERRY HILL COOLSTORES P/L ABN 36 159 091 228</div>
-          <div>
-            32 CHERRY HILL ROAD, Latrobe Tasmania 7307 Australia | PO Box: 167, Latrobe Tasmania
-            7307 Australia
-          </div>
-          <div>
-            Ph: (03) 6426 1590 | Email: admin@cherryhillcoolstores.net.au |
-            www.cherryhillcoolstores.net.au
-          </div>
+          <div>32 CHERRY HILL ROAD, Latrobe Tasmania 7307 Australia | PO Box: 167, Latrobe Tasmania 7307 Australia</div>
+          <div>Ph: (03) 6426 1590 | Email: admin@cherryhillcoolstores.net.au | www.cherryhillcoolstores.net.au</div>
         </div>
         <div class="page-break"></div>
       </template>
@@ -115,10 +106,7 @@ const allocation = computed(() => {
 
   <div class="rec-labels rec-id-tia-sample row pt-5">
     <template v-for="index in [0, 1]" :key="index">
-      <div
-        class="col-6 fw-bold"
-        :class="{ 'border border-top-0 border-bottom-0 border-start-0': index === 0 }"
-      >
+      <div class="col-6 fw-bold" :class="{ 'border border-top-0 border-bottom-0 border-start-0': index === 0 }">
         <h5 class="text-center fw-bold">TIA SAMPLE</h5>
         <h2 class="fw-bold">Innovator G3</h2>
         <table class="table input-table table-borderless">

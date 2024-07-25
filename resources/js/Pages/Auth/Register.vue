@@ -116,12 +116,7 @@ const submit = () => {
             </div>
           </div>
           <div class="mb-3">
-            <input
-              type="submit"
-              value="Create Account"
-              class="btn btn-lg-red"
-              :disabled="form.processing"
-            />
+            <input type="submit" value="Create Account" class="btn btn-lg-red" :disabled="form.processing" />
           </div>
         </LoginCard>
       </div>

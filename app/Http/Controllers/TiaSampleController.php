@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use Inertia\Inertia;
-use App\Models\Receival;
 use App\Models\Category;
+use App\Models\Receival;
 use App\Models\TiaSample;
 use Illuminate\Http\Request;
 use App\Helpers\ReceivalHelper;
@@ -98,7 +98,7 @@ class TiaSampleController extends Controller
         $tiaSample = TiaSample::find($id);
         $tiaSample->update($request->validated());
         $tiaSample->save();
-        
+
         $this->updateSeedClassBaseOnStatus($tiaSample);
 
         NotificationHelper::updatedAction('Tia Sample', $id);
@@ -131,10 +131,10 @@ class TiaSampleController extends Controller
 
     private function updateSeedClassBaseOnStatus(TiaSample $tiaSample)
     {
-        if (!ReceivalHelper::isSeedClassPending($tiaSample->receival_id)) {
+        if (! ReceivalHelper::isSeedClassPending($tiaSample->receival_id)) {
             return;
         }
-        
+
         $tiaSample->loadMissing(['receival:id,grower_id']);
 
         $categoryName = $tiaSample->status === 'not-certified' ? 'Provisional' : ($tiaSample->status === 'qa' ? 'QA only' : 'Certified');

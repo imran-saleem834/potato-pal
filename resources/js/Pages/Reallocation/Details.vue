@@ -148,11 +148,7 @@ defineExpose({
             :options="$page.props.buyers"
             :class="{ 'is-invalid': form.errors.buyer_id }"
           />
-          <div
-            v-if="form.errors.buyer_id"
-            class="invalid-feedback p-0 m-0"
-            v-text="form.errors.buyer_id"
-          />
+          <div v-if="form.errors.buyer_id" class="invalid-feedback p-0 m-0" v-text="form.errors.buyer_id" />
         </td>
       </tr>
     </table>
@@ -234,12 +230,7 @@ defineExpose({
         </div>
         <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 mb-3">
           <label class="form-label d-none">Comments</label>
-          <TextInput
-            v-model="form.comment"
-            :error="form.errors.comment"
-            type="text"
-            placeholder="Comments"
-          />
+          <TextInput v-model="form.comment" :error="form.errors.comment" type="text" placeholder="Comments" />
         </div>
       </div>
       <div v-if="isEdit || isNewItem" class="w-100 text-end">
@@ -293,11 +284,7 @@ defineExpose({
     @ok="deleteReallocation"
   />
 
-  <ConfirmedModal
-    :id="`store-reallocation-${uniqueKey}`"
-    title="You want to store this record?"
-    @ok="storeRecord"
-  />
+  <ConfirmedModal :id="`store-reallocation-${uniqueKey}`" title="You want to store this record?" @ok="storeRecord" />
 
   <ConfirmedModal
     :id="`update-reallocation-${uniqueKey}`"

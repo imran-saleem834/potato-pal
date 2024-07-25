@@ -61,9 +61,7 @@ const getObjectProperty = (obj, key) => {
     </table>
     <i class="bi bi-chevron-right angle-right"></i>
   </a>
-  <div v-if="items.length <= 0" class="text-center" style="margin-top: calc(50vh - 120px)">
-    No Records Found
-  </div>
+  <div v-if="items.length <= 0" class="text-center" style="margin-top: calc(50vh - 120px)">No Records Found</div>
   <div v-if="links.length > 0" class="float-end mt-3 me-2">
     <Pagination :links="links" />
   </div>

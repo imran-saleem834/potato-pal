@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Foundation\Http\FormRequest;
 
 class SizingRequest extends FormRequest
 {
@@ -29,11 +29,12 @@ class SizingRequest extends FormRequest
             'selected_unload'        => ['required_if:type,unload', 'array'],
             'selected_unload.id'     => ['required_if:type,unload', 'numeric', 'exists:unloads,id'],
             'user_id'                => ['required', 'numeric', 'exists:users,id'],
-            'bins_tipped'            => ['nullable', 'array'],
-            'bins_tipped.*'          => ['nullable', 'numeric', 'gte:0', 'max:999999'],
-            'seed_type'              => ['nullable', 'numeric', 'exists:categories,id'],
-            'fungicide'              => ['nullable', 'numeric', 'exists:categories,id'],
-            'weight'                 => ['nullable', 'numeric', 'gte:0', 'max:999999'],
+            'items'                  => ['required', 'array'],
+            'items.*.seed_type'      => ['required', 'numeric', 'exists:categories,id'],
+            'items.*.fungicide'      => ['nullable', 'numeric', 'exists:categories,id'],
+            'items.*.half_tonnes'    => ['nullable', 'numeric', 'gte:0', 'max:999999'],
+            'items.*.one_tonnes'     => ['nullable', 'numeric', 'gte:0', 'max:999999'],
+            'items.*.two_tonnes'     => ['nullable', 'numeric', 'gte:0', 'max:999999'],
             'start'                  => ['nullable', 'date_format:Y-m-d H:i:s'],
             'end'                    => ['nullable', 'date_format:Y-m-d H:i:s'],
             'no_of_crew'             => ['nullable', 'numeric', 'gte:0', 'max:999999'],
@@ -49,9 +50,13 @@ class SizingRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'selected_allocation'          => 'allocation',
-            'selected_allocation.id'       => 'allocation',
-            'selected_allocation.buyer_id' => 'allocation',
+            'selected_allocation'    => 'allocation',
+            'selected_allocation.id' => 'allocation',
+            'items.*.seed_type'      => 'seed type',
+            'items.*.fungicide'      => 'fungicide type',
+            'items.*.half_tonnes'    => 'half tonnes',
+            'items.*.one_tonnes'     => 'one tonnes',
+            'items.*.two_tonnes'     => 'two_tonnes',
         ];
     }
 }

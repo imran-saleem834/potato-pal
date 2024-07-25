@@ -52,8 +52,7 @@ const form = useForm({
   buyer_group: getCategoryIdsByType(props.user.categories, 'buyer-group'),
   buyer_name: props.user.buyer_name,
   buyer_tags: props.user.buyer_tags,
-  paddocks:
-    props.user.paddocks === undefined || props.user.paddocks === null ? [] : props.user.paddocks,
+  paddocks: props.user.paddocks === undefined || props.user.paddocks === null ? [] : props.user.paddocks,
   password: '',
   password_confirmation: '',
 });
@@ -85,8 +84,7 @@ const isBuyerSelected = computed(() => form.role?.find((r) => r === 'buyer'));
 const isGrowerSelected = computed(() => form.role?.find((r) => r === 'grower'));
 
 const addMorePaddocks = () => form.paddocks.push({ name: '', address: '', gps: '', hectares: '' });
-const removePaddocks = (index) =>
-  (form.paddocks = form.paddocks.filter((paddocks, i) => i !== index));
+const removePaddocks = (index) => (form.paddocks = form.paddocks.filter((paddocks, i) => i !== index));
 
 const updateRecord = () => {
   form.patch(route('users.update', props.user.id), {
@@ -194,12 +192,7 @@ const autocompleteInput = (index) => {
           <tr>
             <th>Email</th>
             <td>
-              <TextInput
-                v-if="isForm"
-                v-model="form.email"
-                :error="form.errors.email"
-                type="text"
-              />
+              <TextInput v-if="isForm" v-model="form.email" :error="form.errors.email" type="text" />
               <template v-else-if="user.email">{{ user.email }}</template>
               <template v-else>-</template>
             </td>
@@ -207,12 +200,7 @@ const autocompleteInput = (index) => {
           <tr>
             <th>Username</th>
             <td>
-              <TextInput
-                v-if="isForm"
-                v-model="form.username"
-                :error="form.errors.username"
-                type="text"
-              />
+              <TextInput v-if="isForm" v-model="form.username" :error="form.errors.username" type="text" />
               <template v-else-if="user.username">{{ user.username }}</template>
               <template v-else>-</template>
             </td>
@@ -220,12 +208,7 @@ const autocompleteInput = (index) => {
           <tr>
             <th>Phone</th>
             <td>
-              <TextInput
-                v-if="isForm"
-                v-model="form.phone"
-                :error="form.errors.phone"
-                type="text"
-              />
+              <TextInput v-if="isForm" v-model="form.phone" :error="form.errors.phone" type="text" />
               <template v-else-if="user.phone">{{ user.phone }}</template>
               <template v-else>-</template>
             </td>
@@ -304,12 +287,7 @@ const autocompleteInput = (index) => {
           <tr>
             <th>Buyer</th>
             <td>
-              <TextInput
-                v-if="isForm"
-                v-model="form.buyer_name"
-                :error="form.errors.buyer_name"
-                type="text"
-              />
+              <TextInput v-if="isForm" v-model="form.buyer_name" :error="form.errors.buyer_name" type="text" />
               <template v-else-if="user.buyer_name">{{ user.buyer_name }}</template>
               <template v-else>-</template>
             </td>
@@ -360,12 +338,7 @@ const autocompleteInput = (index) => {
           <tr>
             <th>Grower</th>
             <td>
-              <TextInput
-                v-if="isForm"
-                v-model="form.grower_name"
-                :error="form.errors.grower_name"
-                type="text"
-              />
+              <TextInput v-if="isForm" v-model="form.grower_name" :error="form.errors.grower_name" type="text" />
               <template v-else-if="user.grower_name">{{ user.grower_name }}</template>
               <template v-else>-</template>
             </td>
@@ -450,9 +423,7 @@ const autocompleteInput = (index) => {
             </td>
           </tr>
         </table>
-        <div v-if="form.paddocks.length <= 0" class="text-center" style="margin: 50px 0">
-          No Records Found
-        </div>
+        <div v-if="form.paddocks.length <= 0" class="text-center" style="margin: 50px 0">No Records Found</div>
         <div v-if="isForm" class="d-flex justify-content-end mt-3">
           <button class="btn btn-red" type="button" @click="addMorePaddocks">+ Add</button>
         </div>

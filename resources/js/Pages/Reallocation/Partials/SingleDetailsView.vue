@@ -9,22 +9,22 @@ const props = defineProps({
   reallocation: Object,
 });
 
+const isSizing = computed(() => props.reallocation.item.foreignable.type === 'sizing');
 const allocation = computed(() => {
+  if (props.reallocation.item.foreignable.type === 'sizing') {
+    return props.reallocation.item.foreignable.item.foreignable.allocatable.sizeable;
+  }
   return props.reallocation.item.foreignable.item.foreignable;
 });
 
 onMounted(() => {
   const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-  const tooltipList = [...tooltipTriggerList].map(
-    (tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl),
-  );
+  const tooltipList = [...tooltipTriggerList].map((tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl));
 });
 
 onUpdated(() => {
   const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-  const tooltipList = [...tooltipTriggerList].map(
-    (tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl),
-  );
+  const tooltipList = [...tooltipTriggerList].map((tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl));
 });
 </script>
 
@@ -60,10 +60,14 @@ onUpdated(() => {
           {{ getSingleCategoryNameByType(allocation.categories, 'seed-generation') || '-' }}
         </td>
         <td class="text-primary">
-          <template v-if="allocation.sizing">
-            {{ getSingleCategoryNameByType(allocation.sizing.categories, 'seed-type') || '-' }}
+          <template v-if="isSizing">
+            {{
+              getSingleCategoryNameByType(reallocation.item.foreignable.item.foreignable.categories, 'seed-type') || '-'
+            }}
           </template>
-          <template v-else>{{ getSingleCategoryNameByType(allocation.categories, 'seed-type') || '-' }}</template>
+          <template v-else>
+            {{ getSingleCategoryNameByType(allocation.categories, 'seed-type') || '-' }}
+          </template>
           <a
             data-bs-toggle="tooltip"
             data-bs-html="true"

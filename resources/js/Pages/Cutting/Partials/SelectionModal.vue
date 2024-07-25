@@ -1,9 +1,9 @@
 <script setup>
-import { computed, ref, watch } from 'vue';
+import { ref, watch } from 'vue';
 import DataTable from 'datatables.net-vue3';
 import DataTablesCore from 'datatables.net';
 import UlLiButton from '@/Components/UlLiButton.vue';
-import { getSingleCategoryNameByType } from '@/helper.js';
+import { toTonnes, getBinSizesValue, getSingleCategoryNameByType } from '@/helper.js';
 
 DataTable.use(DataTablesCore);
 
@@ -23,7 +23,7 @@ const type = ref('allocation');
 const loadAvailableSelections = () => {
   loader.value = true;
   axios
-    .get(route(`dispatch.buyers.${type.value}`, props.buyerId))
+    .get(route(`cutting.buyers.${type.value}`, props.buyerId))
     .then((response) => {
       data.value = response.data;
     })
@@ -39,7 +39,7 @@ const onCloseModal = () => {
 };
 
 const onSelect = (row) => {
-  row.dispatch_type = type.value;
+  row.type = type;
   emit('select', row);
   onCloseModal();
 };
@@ -49,23 +49,8 @@ const onChangeType = (value) => {
   loadAvailableSelections();
 };
 
-const isCutting = computed(() => type.value === 'cutting');
-const isSizing = computed(() => type.value === 'sizing');
-const isAllocation = computed(() => type.value === 'allocation');
-const isReallocation = computed(() => type.value === 'reallocation');
-
 const getAllocation = (row) => {
-  if (isReallocation.value) {
-    if (row.item.foreignable.type === 'sizing') {
-      return row.item.foreignable.item.foreignable.allocatable.sizeable;
-    }
-    return row.item.foreignable.item.foreignable;
-  } else if (isCutting.value) {
-    if (row.type === 'sizing') {
-      return row.item.foreignable.allocatable.sizeable;
-    }
-    return row.item.foreignable;
-  } else if (isSizing.value) {
+  if (type.value === 'sizing') {
     return row.allocatable.sizeable;
   }
   return row;
@@ -82,11 +67,11 @@ watch(
 </script>
 
 <template>
-  <div class="modal fade" id="dispatch-modal" tabindex="-1" role="dialog">
+  <div class="modal fade" id="allocations-modal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-xl">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="dispatch-modal-Label">Select for dispatch</h5>
+          <h5 class="modal-title" id="allocations-modal-Label">Select for cutting</h5>
           <button
             type="button"
             class="btn-close"
@@ -103,8 +88,6 @@ watch(
                 :value="type"
                 :items="[
                   { value: 'allocation', label: 'Allocation' },
-                  { value: 'reallocation', label: 'Reallocation' },
-                  { value: 'cutting', label: 'Cutting' },
                   { value: 'sizing', label: 'Sizing' },
                 ]"
                 @click="onChangeType"
@@ -123,24 +106,32 @@ watch(
             <table class="table mb-0">
               <thead>
                 <tr>
+                  <th>Grower Group</th>
                   <th>Grower</th>
                   <th>Paddock</th>
                   <th>Variety</th>
                   <th>Gen</th>
                   <th>Seed type</th>
                   <th>Class</th>
-                  <th>Half tonnes</th>
-                  <th>One tonnes</th>
-                  <th>Two tonnes</th>
-                  <th v-if="isAllocation">Bulk Bags</th>
+                  <template v-if="type === 'sizing'">
+                    <th>Half tonnes</th>
+                    <th>One tonnes</th>
+                    <th>Two tonnes</th>
+                  </template>
+                  <template v-else>
+                    <th>Bin size</th>
+                    <th>Weight</th>
+                    <th>Bins available to cut</th>
+                  </template>
                   <th>Select</th>
                 </tr>
               </thead>
               <tbody>
                 <template v-for="row in data" :key="row.id">
-                  <tr
-                    v-if="row.available_half_tonnes > 0 || row.available_one_tonnes > 0 || row.available_two_tonnes > 0"
-                  >
+                  <tr>
+                    <td>
+                      {{ getSingleCategoryNameByType(getAllocation(row).categories, 'grower-group') || '-' }}
+                    </td>
                     <td>{{ getAllocation(row).grower?.grower_name || '-' }}</td>
                     <td>{{ getAllocation(row).paddock }}</td>
                     <td>
@@ -149,35 +140,25 @@ watch(
                     <td>
                       {{ getSingleCategoryNameByType(getAllocation(row).categories, 'seed-generation') || '-' }}
                     </td>
-                    <td>
-                      <template v-if="isCutting">Cut Seed</template>
-                      <template v-else-if="isSizing">
-                        {{ getSingleCategoryNameByType(row.categories, 'seed-type') || '-' }}
-                      </template>
-                      <template v-else-if="isReallocation">
-                        <template v-if="row.item.foreignable.type === 'sizing'">
-                          {{
-                            getSingleCategoryNameByType(
-                              row.item.foreignable.item.foreignable.categories,
-                              'seed-type',
-                            ) || '-'
-                          }}
-                        </template>
-                        <template v-else>
-                          {{ getSingleCategoryNameByType(getAllocation(row).categories, 'seed-type') || '-' }}
-                        </template>
-                      </template>
-                      <template v-else>
-                        {{ getSingleCategoryNameByType(getAllocation(row).categories, 'seed-type') || '-' }}
-                      </template>
+                    <td v-if="type === 'sizing'">
+                      {{ getSingleCategoryNameByType(row.categories, 'seed-type') || '-' }}
+                    </td>
+                    <td v-else>
+                      {{ getSingleCategoryNameByType(getAllocation(row).categories, 'seed-type') || '-' }}
                     </td>
                     <td>
                       {{ getSingleCategoryNameByType(getAllocation(row).categories, 'seed-class') || '-' }}
                     </td>
-                    <td>{{ `${row.available_half_tonnes} Bins` }}</td>
-                    <td>{{ `${row.available_one_tonnes} Bins` }}</td>
-                    <td>{{ `${row.available_two_tonnes} Bins` }}</td>
-                    <td v-if="isAllocation">{{ row.baggings_sum_no_of_bulk_bags_out || '0' }}</td>
+                    <template v-if="type === 'sizing'">
+                      <td>{{ `${row.available_half_tonnes} Bins` }}</td>
+                      <td>{{ `${row.available_one_tonnes} Bins` }}</td>
+                      <td>{{ `${row.available_two_tonnes} Bins` }}</td>
+                    </template>
+                    <template v-else>
+                      <td>{{ getBinSizesValue(row.item.bin_size) }}</td>
+                      <td>{{ toTonnes(row.item.weight) }}</td>
+                      <td>{{ row.available_no_of_bins }}</td>
+                    </template>
                     <td>
                       <input type="checkbox" @click="onSelect(row)" data-bs-dismiss="modal" />
                     </td>

@@ -29,21 +29,14 @@ const details = ref(null);
 watch(
   () => props?.single,
   (single) => {
-    if (
-      Object.values(props.errors).length === undefined ||
-      Object.values(props.errors).length <= 0
-    ) {
+    if (Object.values(props.errors).length === undefined || Object.values(props.errors).length <= 0) {
       receival.value = single || {};
     }
   },
 );
 
 watch(search, (value) => {
-  router.get(
-    route('unloading.index'),
-    { search: value },
-    { preserveState: true, preserveScroll: true },
-  );
+  router.get(route('unloading.index'), { search: value }, { preserveState: true, preserveScroll: true });
 });
 
 const filter = (keyword) => (search.value = keyword);

@@ -20,14 +20,9 @@ const props = defineProps({
         <div class="mb-4">
           <img src="/images/hourglass-start.png" alt="hourglass" />
         </div>
-        <p>
-          Your account is under progress once <span class="block"></span> completed you’ll be
-          notified.
-        </p>
+        <p>Your account is under progress once <span class="block"></span> completed you’ll be notified.</p>
 
-        <a href="tel:0364261590" class="btn btn-lg-red">
-          <span class="fa fa-call"></span> (03) 6426 1590
-        </a>
+        <a href="tel:0364261590" class="btn btn-lg-red"> <span class="fa fa-call"></span> (03) 6426 1590 </a>
 
         <p>For any inquiries free to give us a call</p>
       </div>

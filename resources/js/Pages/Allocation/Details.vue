@@ -118,8 +118,7 @@ const setIsEdit = () => {
       .get(route('growers.receivals', props.allocation.grower_id))
       .then((response) => {
         form.select_receival =
-          response.data.find((receival) => receival.unique_key === props.allocation.unique_key) ||
-          {};
+          response.data.find((receival) => receival.unique_key === props.allocation.unique_key) || {};
       })
       .catch(() => {})
       .finally(() => {
@@ -180,11 +179,7 @@ defineExpose({
             :options="$page.props.buyers"
             :class="{ 'is-invalid': form.errors.buyer_id }"
           />
-          <div
-            v-if="form.errors.buyer_id"
-            class="invalid-feedback p-0 m-0"
-            v-text="form.errors.buyer_id"
-          />
+          <div v-if="form.errors.buyer_id" class="invalid-feedback p-0 m-0" v-text="form.errors.buyer_id" />
         </td>
       </tr>
     </table>
@@ -215,16 +210,8 @@ defineExpose({
               @click="emit('grower', form.grower_id)"
             />
           </div>
-          <div
-            v-if="form.errors.grower_id"
-            class="invalid-feedback p-0 m-0"
-            v-text="form.errors.grower_id"
-          />
-          <div
-            v-if="form.errors.unique_key"
-            class="invalid-feedback p-0 m-0"
-            v-text="form.errors.unique_key"
-          />
+          <div v-if="form.errors.grower_id" class="invalid-feedback p-0 m-0" v-text="form.errors.grower_id" />
+          <div v-if="form.errors.unique_key" class="invalid-feedback p-0 m-0" v-text="form.errors.unique_key" />
         </td>
       </tr>
     </table>
@@ -241,9 +228,7 @@ defineExpose({
           <label class="form-label">Allocated weight</label>
           <TextInput v-model="form.weight" :error="form.errors.weight" type="text">
             <template #addon>
-              <div class="input-group-text d-none d-md-inline-block d-lg-none d-xl-inline-block">
-                tonnes
-              </div>
+              <div class="input-group-text d-none d-md-inline-block d-lg-none d-xl-inline-block">tonnes</div>
             </template>
           </TextInput>
         </div>
@@ -280,11 +265,7 @@ defineExpose({
     <template v-else>
       <div class="btn-group position-absolute top-0 end-0">
         <button @click="setIsEdit" class="btn btn-red p-1 z-1"><i class="bi bi-pen"></i></button>
-        <button
-          data-bs-toggle="modal"
-          :data-bs-target="`#delete-allocation-${uniqueKey}`"
-          class="btn btn-red p-1 z-1"
-        >
+        <button data-bs-toggle="modal" :data-bs-target="`#delete-allocation-${uniqueKey}`" class="btn btn-red p-1 z-1">
           <template v-if="form.processing">
             <i class="bi bi-arrow-repeat d-inline-block spin"></i>
           </template>
@@ -292,12 +273,14 @@ defineExpose({
         </button>
       </div>
       <div class="btn-group position-absolute bottom-0 end-0">
-        <button 
+        <button
           class="btn btn-black p-1 z-1"
           data-bs-toggle="modal"
           :data-bs-target="`#relocate-${uniqueKey}`"
-          @click="() => reallocate = allocation"
-        >Relocate</button>
+          @click="() => (reallocate = allocation)"
+        >
+          Relocate
+        </button>
       </div>
 
       <SingleDetailsView :allocation="allocation" />
@@ -311,11 +294,7 @@ defineExpose({
     @ok="deleteAllocation"
   />
 
-  <ConfirmedModal
-    :id="`store-allocation-${uniqueKey}`"
-    title="You want to store this record?"
-    @ok="storeRecord"
-  />
+  <ConfirmedModal :id="`store-allocation-${uniqueKey}`" title="You want to store this record?" @ok="storeRecord" />
 
   <ConfirmedModal
     :id="`update-allocation-${uniqueKey}`"
@@ -324,9 +303,5 @@ defineExpose({
     @ok="updateRecord"
   />
 
-  <ReallocationModal
-    :id="`relocate-${uniqueKey}`"
-    :allocation="reallocate"
-    @close="() => reallocate = {}"
-  />
+  <ReallocationModal :id="`relocate-${uniqueKey}`" :allocation="reallocate" @close="() => (reallocate = {})" />
 </template>

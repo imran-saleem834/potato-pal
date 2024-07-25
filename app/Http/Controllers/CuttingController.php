@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use Inertia\Inertia;
+use App\Models\Sizing;
 use App\Models\Cutting;
 use App\Models\Category;
 use App\Models\Allocation;
+use App\Models\SizingItem;
 use App\Helpers\BuyerHelper;
 use Illuminate\Http\Request;
 use App\Models\AllocationItem;
@@ -15,6 +17,7 @@ use App\Helpers\NotificationHelper;
 use App\Helpers\DeleteRecordsHelper;
 use App\Http\Requests\CuttingRequest;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class CuttingController extends Controller
 {
@@ -48,10 +51,24 @@ class CuttingController extends Controller
     {
         $allocations = AllocationHelper::getAvailableAllocationForCutting(
             ['buyer_id' => $id],
-            ['categories.category', 'grower:id,grower_name', 'sizing.categories.category']
+            ['categories.category', 'grower:id,grower_name']
         );
 
         return response()->json($allocations->toArray());
+    }
+
+    public function sizing(Request $request, $id)
+    {
+        $sizings = AllocationHelper::getAvailableSizingForDispatch(
+            ['user_id' => $id],
+            [
+                'categories.category',
+                'allocatable.sizeable.categories.category',
+                'allocatable.sizeable.grower:id,grower_name',
+            ]
+        );
+
+        return response()->json($sizings->toArray());
     }
 
     /**
@@ -66,10 +83,10 @@ class CuttingController extends Controller
         AllocationItem::create([
             'allocatable_type' => Cutting::class,
             'allocatable_id'   => $cutting->id,
-            'foreignable_type' => Allocation::class,
+            'foreignable_type' => $this->getForeignableType($cutting->type),
             'foreignable_id'   => $inputs['id'],
-            'bin_size'         => $inputs['item']['bin_size'],
-            'no_of_bins'       => $inputs['no_of_bins'],
+            'bin_size'         => $inputs['item']['bin_size'] ?? null,
+            'no_of_bins'       => $inputs['no_of_bins'] ?? null,
             'half_tonnes'      => $request->validated('half_tonnes') ?? 0,
             'one_tonnes'       => $request->validated('one_tonnes') ?? 0,
             'two_tonnes'       => $request->validated('two_tonnes') ?? 0,
@@ -97,13 +114,13 @@ class CuttingController extends Controller
             [
                 'allocatable_type' => Cutting::class,
                 'allocatable_id'   => $cutting->id,
-                'foreignable_type' => Allocation::class,
+                'foreignable_type' => $this->getForeignableType($cutting->type),
                 'foreignable_id'   => $inputs['id'],
                 'returned_id'      => null,
             ],
             [
-                'bin_size'    => $inputs['item']['bin_size'],
-                'no_of_bins'  => $inputs['no_of_bins'],
+                'bin_size'    => $inputs['item']['bin_size'] ?? null,
+                'no_of_bins'  => $inputs['no_of_bins'] ?? null,
                 'half_tonnes' => $request->validated('half_tonnes') ?? 0,
                 'one_tonnes'  => $request->validated('one_tonnes') ?? 0,
                 'two_tonnes'  => $request->validated('two_tonnes') ?? 0,
@@ -150,11 +167,21 @@ class CuttingController extends Controller
     {
         return Cutting::query()
             ->with([
-                'returnItems.returns',
                 'categories.category',
-                'item.foreignable.grower:id,grower_name',
-                'item.foreignable.categories.category',
-                'item.foreignable.sizing.categories.category',
+                'item.foreignable' => function (MorphTo $morphTo) {
+                    $morphTo->morphWith([
+                        Allocation::class   => [
+                            'categories.category',
+                            'grower:id,grower_name',
+                        ],
+                        SizingItem::class   => [
+                            'categories.category',
+                            'allocatable.sizeable.categories.category',
+                            'allocatable.sizeable.grower:id,grower_name',
+                        ],
+                    ]);
+                },
+                'returnItems.returns',
             ])
             ->when($search, function (Builder $query, $search) {
                 return $query->where(function (Builder $subQuery) use ($search) {
@@ -168,8 +195,26 @@ class CuttingController extends Controller
                                 ->whereHasMorph('foreignable', [Allocation::class], function (Builder $query) use ($search) {
                                     return $query->where('paddock', 'LIKE', "%{$search}%")
                                         ->orWhereRelation('grower', 'grower_name', 'LIKE', "%{$search}%")
-                                        ->orWhereRelation('categories.category', 'name', 'LIKE', "%{$search}%")
-                                        ->orWhereRelation('sizing.categories.category', 'name', 'LIKE', "%{$search}%");
+                                        ->orWhereRelation('categories.category', 'name', 'LIKE', "%{$search}%");
+                                });
+                        })
+                        ->orWhereHas('item', function (Builder $query) use ($search) {
+                            return $query
+                                ->where('foreignable_type', SizingItem::class)
+                                ->whereHasMorph('foreignable', [SizingItem::class], function (Builder $query) use ($search) {
+                                    return $query->where(function (Builder $query) use ($search) {
+                                        return $query->whereRelation('categories.category', 'name', 'LIKE', "%{$search}%");
+                                    })->orWhere(function (Builder $query) use ($search) {
+                                        return $query->where('allocatable_type', Sizing::class)
+                                            ->whereHasMorph('allocatable', [Sizing::class], function (Builder $query) use ($search) {
+                                                return $query
+                                                    ->whereHasMorph('sizeable', [Allocation::class], function (Builder $query) use ($search) {
+                                                        return $query->where('paddock', 'LIKE', "%{$search}%")
+                                                            ->orWhereRelation('grower', 'grower_name', 'LIKE', "%{$search}%")
+                                                            ->orWhereRelation('categories.category', 'name', 'LIKE', "%{$search}%");
+                                                    });
+                                            });
+                                    });
                                 });
                         });
                 });
@@ -179,5 +224,10 @@ class CuttingController extends Controller
             ->paginate(10)
             ->withQueryString()
             ->onEachSide(1);
+    }
+
+    private function getForeignableType($type)
+    {
+        return $type === 'sizing' ? SizingItem::class : Allocation::class;
     }
 }

@@ -22,8 +22,8 @@ const submit = () => {
     <div class="container-fluid">
       <LoginCard type="forget-password" @submit="submit">
         <p class="mb-3 terms-condition">
-          Forgot your password? No problem. Just let us know your email address and we will email
-          you a password reset link that will allow you to choose a new one.
+          Forgot your password? No problem. Just let us know your email address and we will email you a password reset
+          link that will allow you to choose a new one.
         </p>
         <div class="mb-3 position-relative">
           <i class="bi bi-envelope form-control-feedback"></i>
@@ -40,12 +40,7 @@ const submit = () => {
           <div v-if="form.errors.email" class="invalid-feedback">{{ form.errors.email }}</div>
         </div>
         <div class="mb-3 position-relative">
-          <input
-            type="submit"
-            value="Email Password Reset Link"
-            class="btn btn-lg-red"
-            :disabled="form.processing"
-          />
+          <input type="submit" value="Email Password Reset Link" class="btn btn-lg-red" :disabled="form.processing" />
         </div>
       </LoginCard>
     </div>

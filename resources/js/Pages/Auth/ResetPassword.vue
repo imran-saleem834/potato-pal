@@ -72,12 +72,7 @@ const submit = () => {
           </div>
         </div>
         <div class="mb-3 position-relative">
-          <input
-            type="submit"
-            value="Reset Password"
-            class="btn btn-lg-red"
-            :disabled="form.processing"
-          />
+          <input type="submit" value="Reset Password" class="btn btn-lg-red" :disabled="form.processing" />
         </div>
       </LoginCard>
     </div>

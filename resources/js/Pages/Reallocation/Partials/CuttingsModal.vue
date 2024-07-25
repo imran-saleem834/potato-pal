@@ -41,6 +41,13 @@ const onSelectCutting = (cutting) => {
   onCloseModal();
 };
 
+const getAllocation = (cutting) => {
+  if (cutting.type === 'sizing') {
+    return cutting.item.foreignable.allocatable.sizeable;
+  }
+  return cutting.item.foreignable;
+};
+
 watch(
   () => props.buyerId,
   (buyerId) => {
@@ -71,10 +78,7 @@ watch(
               <span class="visually-hidden">Loading...</span>
             </div>
           </div>
-          <div
-            v-if="!loader && cuttings.length <= 0"
-            class="d-flex justify-content-center text-danger fs-5 my-3"
-          >
+          <div v-if="!loader && cuttings.length <= 0" class="d-flex justify-content-center text-danger fs-5 my-3">
             Data not found
           </div>
           <div v-if="!loader && cuttings.length" class="table-responsive">
@@ -98,54 +102,30 @@ watch(
                 <template v-for="cutting in cuttings" :key="cutting.id">
                   <tr>
                     <td>
-                      {{
-                        getSingleCategoryNameByType(
-                          cutting.item.foreignable.categories,
-                          'grower-group',
-                        ) || '-'
-                      }}
+                      {{ getSingleCategoryNameByType(getAllocation(cutting).categories, 'grower-group') || '-' }}
                     </td>
-                    <td>{{ cutting.item.foreignable.grower?.grower_name || '-' }}</td>
-                    <td>{{ cutting.item.foreignable.paddock }}</td>
+                    <td>{{ getAllocation(cutting).grower?.grower_name || '-' }}</td>
+                    <td>{{ getAllocation(cutting).paddock }}</td>
                     <td>
-                      {{
-                        getSingleCategoryNameByType(
-                          cutting.item.foreignable.categories,
-                          'seed-variety',
-                        ) || '-'
-                      }}
+                      {{ getSingleCategoryNameByType(getAllocation(cutting).categories, 'seed-variety') || '-' }}
                     </td>
                     <td>
-                      {{
-                        getSingleCategoryNameByType(
-                          cutting.item.foreignable.categories,
-                          'seed-generation',
-                        ) || '-'
-                      }}
+                      {{ getSingleCategoryNameByType(getAllocation(cutting).categories, 'seed-generation') || '-' }}
+                    </td>
+                    <td v-if="cutting.type === 'sizing'">
+                      {{ getSingleCategoryNameByType(cutting.item.foreignable.categories, 'seed-type') || '-' }}
+                    </td>
+                    <td v-else>
+                      {{ getSingleCategoryNameByType(getAllocation(cutting).categories, 'seed-type') || '-' }}
                     </td>
                     <td>
-                      <template v-if="cutting.item.foreignable.sizing">
-                        {{ getSingleCategoryNameByType(cutting.item.foreignable.sizing.categories, 'seed-type') || '-' }}
-                      </template>
-                      <template v-else>{{ getSingleCategoryNameByType(cutting.item.foreignable.categories, 'seed-type') || '-' }}</template>
-                    </td>
-                    <td>
-                      {{
-                        getSingleCategoryNameByType(
-                          cutting.item.foreignable.categories,
-                          'seed-class',
-                        ) || '-'
-                      }}
+                      {{ getSingleCategoryNameByType(getAllocation(cutting).categories, 'seed-class') || '-' }}
                     </td>
                     <td>{{ `${cutting.available_half_tonnes} Bins` }}</td>
                     <td>{{ `${cutting.available_one_tonnes} Bins` }}</td>
                     <td>{{ `${cutting.available_two_tonnes} Bins` }}</td>
                     <td>
-                      <input
-                        type="checkbox"
-                        @click="onSelectCutting(cutting)"
-                        data-bs-dismiss="modal"
-                      />
+                      <input type="checkbox" @click="onSelectCutting(cutting)" data-bs-dismiss="modal" />
                     </td>
                   </tr>
                 </template>

@@ -2,10 +2,13 @@
 
 namespace App\Helpers;
 
+use App\Models\Sizing;
 use App\Models\Cutting;
 use App\Models\Allocation;
+use App\Models\SizingItem;
 use Illuminate\Support\Arr;
 use App\Models\Reallocation;
+use Illuminate\Database\Eloquent\Builder;
 
 class AllocationHelper
 {
@@ -13,10 +16,10 @@ class AllocationHelper
     {
         return Allocation::query()
             ->with(array_merge(['item', 'cuttingItems', 'dispatchItems', 'returnItems'], $with))
-            ->when($filter['buyer_id'] ?? null, function ($query, $buyerId) {
+            ->when($filter['buyer_id'] ?? null, function (Builder $query, $buyerId) {
                 return $query->whereIn('buyer_id', Arr::wrap($buyerId));
             })
-            ->when($filter['id'] ?? null, function ($query, $id) {
+            ->when($filter['id'] ?? null, function (Builder $query, $id) {
                 return $query->whereIn('id', Arr::wrap($id));
             })
             ->get()
@@ -54,10 +57,10 @@ class AllocationHelper
     {
         return Cutting::query()
             ->with(array_merge(['item.foreignable', 'dispatchItems', 'returnItems', 'reallocationItems'], $with))
-            ->when($filter['buyer_id'] ?? null, function ($query, $buyerId) {
+            ->when($filter['buyer_id'] ?? null, function (Builder $query, $buyerId) {
                 return $query->whereIn('buyer_id', Arr::wrap($buyerId));
             })
-            ->when($filter['id'] ?? null, function ($query, $id) {
+            ->when($filter['id'] ?? null, function (Builder $query, $id) {
                 return $query->whereIn('id', Arr::wrap($id));
             })
             ->get()
@@ -68,51 +71,67 @@ class AllocationHelper
 
     public static function getAvailableAllocationForDispatch(array $filter, ?array $with = [])
     {
-        $allocations = Allocation::query()
+        return Allocation::query()
             ->with(array_merge(['item', 'cuttingItems', 'dispatchItems', 'returnItems'], $with))
             ->withSum(['baggings'], 'no_of_bulk_bags_out')
-            ->when($filter['buyer_id'] ?? null, function ($query, $buyerId) {
+            ->when($filter['buyer_id'] ?? null, function (Builder $query, $buyerId) {
                 return $query->whereIn('buyer_id', Arr::wrap($buyerId));
             })
-            ->when($filter['allocation_id'] ?? null, function ($query, $id) {
+            ->when($filter['id'] ?? null, function (Builder $query, $id) {
                 return $query->whereIn('id', Arr::wrap($id));
             })
             ->get()
             ->map(function ($allocation) {
-                $allocation       = static::setAvailableForAllocation($allocation);
-                $allocation->type = 'allocation';
-
-                return $allocation;
+                return static::setAvailableForAllocation($allocation);
             });
+    }
 
-        $with = Arr::map($with, fn ($w) => 'item.foreignable.'.$w);
+    public static function getAvailableSizingForDispatch(array $filter, ?array $with = [])
+    {
+        return SizingItem::query()
+            ->with(array_merge(['allocatable.sizeable', 'cuttingItems', 'dispatchItems', 'returnItems'], $with))
+            ->where('allocatable_type', Sizing::class)
+            ->whereHasMorph('allocatable', [Sizing::class], function (Builder $query) use ($filter) {
+                return $query
+                    ->where('sizeable_type', Allocation::class)
+                    ->when($filter['user_id'] ?? null, function (Builder $query, $userId) {
+                        return $query->whereIn('user_id', Arr::wrap($userId));
+                    });
+            })
+            ->when($filter['id'] ?? null, function (Builder $query, $id) {
+                return $query->whereIn('id', Arr::wrap($id));
+            })
+            ->get()
+            ->map(function ($model) {
+                $model->available_half_tonnes = $model->half_tonnes;
+                $model->available_one_tonnes  = $model->one_tonnes;
+                $model->available_two_tonnes  = $model->two_tonnes;
 
-        $filter['id'] = $filter['cutting_id'] ?? null;
-        $cuttings     = static::getAvailableCuttingsForReallocation($filter, $with)->map(function ($cutting) {
-            $cutting->type = 'cutting';
+                // Remove cutting bins
+                foreach ($model->cuttingItems as $item) {
+                    $model->available_half_tonnes -= $item->half_tonnes;
+                    $model->available_one_tonnes  -= $item->one_tonnes;
+                    $model->available_two_tonnes  -= $item->two_tonnes;
+                }
 
-            return $cutting;
-        });
+                return static::removeDispatchAndSetReturnBins($model);
+            });
+    }
 
-        $with = Arr::map($with, fn ($w) => 'item.foreignable.'.$w);
-
-        $reallocations = Reallocation::query()
+    public static function getAvailableReallocationForDispatch(array $filter, ?array $with = [])
+    {
+        return Reallocation::query()
             ->with(array_merge(['item', 'returnItems', 'dispatchItems', 'buyer:id,buyer_name'], $with))
-            ->when($filter['buyer_id'] ?? null, function ($query, $buyerId) {
+            ->when($filter['buyer_id'] ?? null, function (Builder $query, $buyerId) {
                 return $query->whereIn('buyer_id', Arr::wrap($buyerId));
             })
-            ->when($filter['reallocation_id'] ?? null, function ($query, $id) {
+            ->when($filter['id'] ?? null, function (Builder $query, $id) {
                 return $query->whereIn('id', Arr::wrap($id));
             })
             ->get()
             ->map(function ($reallocation) {
-                $reallocation       = self::setAvailableForReallocation($reallocation);
-                $reallocation->type = 'reallocation';
-
-                return $reallocation;
+                return self::setAvailableForReallocation($reallocation);
             });
-
-        return $allocations->concat($cuttings)->concat($reallocations);
     }
 
     public static function setAvailableForAllocation($model)

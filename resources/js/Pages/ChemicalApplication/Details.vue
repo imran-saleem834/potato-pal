@@ -97,9 +97,7 @@ const setIsEdit = () => {
   axios
     .get(route('buyers.allocations', props.chemicalApplication.buyer_id))
     .then((response) => {
-      form.selected_allocation = response.data.find(
-        (item) => props.chemicalApplication.allocation_id === item.id,
-      );
+      form.selected_allocation = response.data.find((item) => props.chemicalApplication.allocation_id === item.id);
     })
     .catch(() => {})
     .finally(() => {
@@ -161,11 +159,7 @@ defineExpose({
             @change="onChangeBuyer"
             :class="{ 'is-invalid': form.errors.buyer_id }"
           />
-          <div
-            v-if="form.errors.buyer_id"
-            class="invalid-feedback p-0 m-0"
-            v-text="form.errors.buyer_id"
-          />
+          <div v-if="form.errors.buyer_id" class="invalid-feedback p-0 m-0" v-text="form.errors.buyer_id" />
         </td>
       </tr>
     </table>
@@ -193,15 +187,15 @@ defineExpose({
     </table>
 
     <template v-if="isForm">
-      <SelectedAllocationView
-        :form="form"
-        :loader="loader"
-        :allocation="form.selected_allocation"
-      />
+      <SelectedAllocationView :form="form" :loader="loader" :allocation="form.selected_allocation" />
       <label class="form-label">Bins Tipped</label>
       <div class="row">
         <div class="col-12 col-sm-6 col-md-4 col-lg-6 col-xl-4 mb-3">
-          <TextInput type="text" v-model="form['bins_tipped'].half_tonne" :error="form.errors[`bins_tipped.half_tonne`]">
+          <TextInput
+            type="text"
+            v-model="form['bins_tipped'].half_tonne"
+            :error="form.errors[`bins_tipped.half_tonne`]"
+          >
             <template #prefix-addon>
               <div class="input-group-text">Half tonne</div>
             </template>
@@ -304,11 +298,7 @@ defineExpose({
                 :value="form.start"
                 @click="togglePopover"
               />
-              <div
-                v-if="form.errors.start"
-                class="invalid-feedback"
-                v-text="form.errors.start"
-              />
+              <div v-if="form.errors.start" class="invalid-feedback" v-text="form.errors.start" />
             </template>
           </DatePicker>
         </div>
@@ -329,11 +319,7 @@ defineExpose({
                 :value="form.end"
                 @click="togglePopover"
               />
-              <div
-                v-if="form.errors.end"
-                class="invalid-feedback"
-                v-text="form.errors.end"
-              />
+              <div v-if="form.errors.end" class="invalid-feedback" v-text="form.errors.end" />
             </template>
           </DatePicker>
         </div>

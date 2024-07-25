@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('cuttings', function (Blueprint $table) {
             $table->id();
             $table->foreignId('buyer_id');
+            $table->string('type', 50)->nullable();
             $table->float('half_tonnes')->nullable();
             $table->float('one_tonnes')->nullable();
             $table->float('two_tonnes')->nullable();

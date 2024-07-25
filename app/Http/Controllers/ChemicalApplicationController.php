@@ -5,15 +5,15 @@ namespace App\Http\Controllers;
 use Inertia\Inertia;
 use App\Helpers\BuyerHelper;
 use Illuminate\Http\Request;
-use App\Models\ChemicalApplication;
 use App\Helpers\NotificationHelper;
+use App\Models\ChemicalApplication;
 use Illuminate\Database\Eloquent\Builder;
 use App\Http\Requests\ChemicalApplicationRequest;
 
 class ChemicalApplicationController extends Controller
 {
     /**
-     * @param Request $request
+     * @param  Request  $request
      * Display a listing of the resource.
      */
     public function index(Request $request)
@@ -24,14 +24,14 @@ class ChemicalApplicationController extends Controller
         $inputBuyerId = $request->input('buyerId', $firstBuyerId);
 
         $chemicalApplications = $this->getChemicalApplications($inputBuyerId, $request->input('search'));
-        if ($chemicalApplications->isEmpty() && ((int)$inputBuyerId) !== ((int)$firstBuyerId)) {
+        if ($chemicalApplications->isEmpty() && ((int) $inputBuyerId) !== ((int) $firstBuyerId)) {
             $chemicalApplications = $this->getChemicalApplications($firstBuyerId, $request->input('search'));
         }
 
         return Inertia::render('ChemicalApplication/Index', [
             'navBuyers' => $navBuyers,
             'single'    => $chemicalApplications,
-            'buyers'    => fn() => BuyerHelper::getAvailableBuyers(),
+            'buyers'    => fn () => BuyerHelper::getAvailableBuyers(),
             'filters'   => $request->only(['search', 'buyer']),
         ]);
     }

@@ -36,16 +36,7 @@ const access = computed(() => ({
   ...props.access,
 }));
 
-const emit = defineEmits([
-  'unset',
-  'edit',
-  'new',
-  'store',
-  'update',
-  'delete',
-  'duplicate',
-  'print',
-]);
+const emit = defineEmits(['unset', 'edit', 'new', 'store', 'update', 'delete', 'duplicate', 'print']);
 </script>
 
 <template>
@@ -67,32 +58,16 @@ const emit = defineEmits([
       </a>
     </li>
     <li v-if="!isNewRecordSelected && isEditRecordSelected">
-      <a
-        role="button"
-        title="Update"
-        class="btn btn-red"
-        data-bs-toggle="modal"
-        data-bs-target="#update-record"
-      >
+      <a role="button" title="Update" class="btn btn-red" data-bs-toggle="modal" data-bs-target="#update-record">
         <i class="bi bi-check-lg"></i> <span class="d-none d-md-inline-block">Update</span>
       </a>
     </li>
     <li v-if="isNewRecordSelected">
-      <a
-        role="button"
-        title="Create"
-        class="btn btn-red"
-        data-bs-toggle="modal"
-        data-bs-target="#store-record"
-      >
+      <a role="button" title="Create" class="btn btn-red" data-bs-toggle="modal" data-bs-target="#store-record">
         <i class="bi bi-check-lg"></i> <span class="d-none d-md-inline-block">Create</span>
       </a>
     </li>
-    <li
-      v-if="!isNewRecordSelected && access.new && access.edit"
-      class="d-inline-block d-lg-none"
-      title="Add new"
-    >
+    <li v-if="!isNewRecordSelected && access.new && access.edit" class="d-inline-block d-lg-none" title="Add new">
       <a role="button" @click="$emit('new')" class="btn btn-red">
         <i class="bi bi-plus-lg"></i> <span class="d-none d-md-inline-block">Add</span>
       </a>

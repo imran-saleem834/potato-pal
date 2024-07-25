@@ -23,10 +23,7 @@ const allocation = computed(() => {
       class="border-bottom border-bottom-dashed"
       :class="{ 'page-break': index === 2 }"
     >
-      <div
-        class="d-flex justify-content-between align-items-center mt-3 mb-1"
-        :class="{ 'pt-3': index === 3 }"
-      >
+      <div class="d-flex justify-content-between align-items-center mt-3 mb-1" :class="{ 'pt-3': index === 3 }">
         <div>
           <strong v-if="index >= 3">OSize</strong>
           <strong v-else>&nbsp;</strong>

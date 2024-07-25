@@ -9,20 +9,16 @@ const props = defineProps({
 });
 
 const isAllocation = computed(() => props.sizing.sizeable_type === 'App\\Models\\Allocation');
-const receival = computed(() => isAllocation.value ? props.sizing.sizeable : props.sizing.sizeable.receival);
+const receival = computed(() => (isAllocation.value ? props.sizing.sizeable : props.sizing.sizeable.receival));
 
 onMounted(() => {
   const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-  const tooltipList = [...tooltipTriggerList].map(
-    (tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl),
-  );
+  const tooltipList = [...tooltipTriggerList].map((tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl));
 });
 
 onUpdated(() => {
   const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-  const tooltipList = [...tooltipTriggerList].map(
-    (tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl),
-  );
+  const tooltipList = [...tooltipTriggerList].map((tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl));
 });
 </script>
 
@@ -99,46 +95,46 @@ onUpdated(() => {
 
   <h4 class="mt-0 mb-3">Sizing Details:</h4>
   <div class="row allocation-items-box">
-    <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-      <span>Bins Tipped:</span>
-    </div>
-    <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-      <span>Half Tonne: </span>
-      <span class="text-primary">{{ sizing.bins_tipped?.half_tonne || '0' }} Bins</span>
-    </div>
-    <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-      <span>One Tonne: </span>
-      <span class="text-primary">{{ sizing.bins_tipped?.one_tonne || '0' }} Bins</span>
-    </div>
-    <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-      <span>Two Tonne: </span>
-      <span class="text-primary">{{ sizing.bins_tipped?.two_tonne || '0' }} Bins</span>
-    </div>
-    <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-      <span>Weight: </span>
-      <span class="text-primary">{{ sizing.weight }} tonnes</span>
-    </div>
-    <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-      <span>Seed Type: </span>
-      <span class="text-primary">{{ getSingleCategoryNameByType(sizing.categories, 'seed-type') || '-' }}</span>
-    </div>
-    <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-      <span>Fungicide: </span>
-      <span class="text-primary">{{ getSingleCategoryNameByType(sizing.categories, 'fungicide') || '-' }}</span>
-    </div>
-    <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+    <template v-for="item in sizing.items" :key="item.id">
+      <div class="col-12 col-md-3 col-lg-6 col-xl-3 mb-1 pb-1">
+        <span>Seed Type: </span>
+        <span class="text-primary">{{ getSingleCategoryNameByType(item.categories, 'seed-type') || '-' }}</span>
+      </div>
+      <div class="col-12 col-md-3 col-lg-6 col-xl-3 mb-1 pb-1">
+        <span>Fungicide: </span>
+        <span class="text-primary">{{ getSingleCategoryNameByType(item.categories, 'fungicide') || '-' }}</span>
+      </div>
+      <div class="col-12 col-md-2 col-lg-4 col-xl-2 mb-1 pb-1">
+        <span>Half Tonne: </span>
+        <span class="text-primary">{{ item.half_tonnes || '0' }} Bins</span>
+      </div>
+      <div class="col-12 col-md-2 col-lg-4 col-xl-2 mb-1 pb-1">
+        <span>One Tonne: </span>
+        <span class="text-primary">{{ item.one_tonnes || '0' }} Bins</span>
+      </div>
+      <div class="col-12 col-md-2 col-lg-4 col-xl-2 mb-1 pb-1">
+        <span>Two Tonne: </span>
+        <span class="text-primary">{{ item.two_tonnes || '0' }} Bins</span>
+      </div>
+      <div class="w-100 col-12 border mb-2 d-none d-sm-block"></div>
+    </template>
+    <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 mb-1 pb-1">
       <span>Start Time: </span>
       <span class="text-primary">{{ sizing.start }}</span>
     </div>
-    <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+    <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 mb-1 pb-1">
       <span>End Time: </span>
       <span class="text-primary">{{ sizing.end }}</span>
     </div>
-    <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+    <div class="col-12 col-md-2 col-lg-4 col-xl-2 mb-1 pb-1">
       <span>No of crew: </span>
       <span class="text-primary">{{ sizing.no_of_crew }}</span>
     </div>
-    <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+    <div class="col-12 col-md-2 col-lg-4 col-xl-2 mb-1 pb-1">
+      <span>Sizing ID: </span>
+      <span class="text-primary">{{ sizing.id }}</span>
+    </div>
+    <div class="col-12 col-md-2 col-lg-4 col-xl-2 mb-1 pb-1">
       <span>Comments: </span>
       <span class="text-primary">{{ sizing.comments }}</span>
     </div>

@@ -30,21 +30,14 @@ const details = ref(null);
 watch(
   () => props?.single,
   (single) => {
-    if (
-      Object.values(props.errors).length === undefined ||
-      Object.values(props.errors).length <= 0
-    ) {
+    if (Object.values(props.errors).length === undefined || Object.values(props.errors).length <= 0) {
       user.value = single || {};
     }
   },
 );
 
 watch(search, (value) => {
-  router.get(
-    route('users.index'),
-    { search: value },
-    { preserveState: true, preserveScroll: true },
-  );
+  router.get(route('users.index'), { search: value }, { preserveState: true, preserveScroll: true });
 });
 
 const filter = (keyword) => (search.value = keyword);
@@ -112,10 +105,7 @@ if (width.value > 991) {
     <!-- tab-section -->
     <div class="tab-section">
       <div class="row g-0">
-        <div
-          class="col-12 col-lg-5 col-xl-4 nav-left d-lg-block"
-          :class="{ 'd-none': activeTab || isNewRecord }"
-        >
+        <div class="col-12 col-lg-5 col-xl-4 nav-left d-lg-block" :class="{ 'd-none': activeTab || isNewRecord }">
           <LeftBar
             :items="users.data"
             :links="users.links"
@@ -125,10 +115,7 @@ if (width.value > 991) {
             @click="getUser"
           />
         </div>
-        <div
-          class="col-12 col-lg-7 col-xl-8 d-lg-block"
-          :class="{ 'd-none': !activeTab && !isNewRecord }"
-        >
+        <div class="col-12 col-lg-7 col-xl-8 d-lg-block" :class="{ 'd-none': !activeTab && !isNewRecord }">
           <div class="tab-content" v-if="Object.values(user).length > 0 || isNewRecord">
             <Details
               ref="details"

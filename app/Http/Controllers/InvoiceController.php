@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use Inertia\Inertia;
-use App\Models\Grading;
 use App\Models\Cutting;
+use App\Models\Grading;
 use App\Models\Invoice;
 use App\Models\Receival;
 use Illuminate\Http\Request;

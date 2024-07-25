@@ -47,9 +47,7 @@ const form = useForm({
   driver_name: props.receival.driver_name,
   dummy_buyer_id: props.receival.dummy_buyer_id,
   comments: props.receival.comments,
-  created_at: props.receival.created_at
-    ? props.receival.created_at.split('.')[0].replace('T', ' ')
-    : null,
+  created_at: props.receival.created_at ? props.receival.created_at.split('.')[0].replace('T', ' ') : null,
 });
 
 const statusForm = useForm({});
@@ -71,9 +69,7 @@ watch(
     form.driver_name = receival.driver_name;
     form.dummy_buyer_id = receival.dummy_buyer_id;
     form.comments = receival.comments;
-    form.created_at = receival.created_at
-      ? receival.created_at.split('.')[0].replace('T', ' ')
-      : null;
+    form.created_at = receival.created_at ? receival.created_at.split('.')[0].replace('T', ' ') : null;
 
     updatePaddock(receival.grower_id);
     resetGrowerGroups(receival.grower_id);
@@ -248,11 +244,7 @@ const pushForUnload = () => {
                 :class="{ 'is-invalid': form.errors.grower_group }"
               />
               <ItemOfCategories v-else :categories="receival.categories" type="grower-group" />
-              <div
-                v-if="form.errors.grower_group"
-                class="invalid-feedback"
-                v-text="form.errors.grower_group"
-              />
+              <div v-if="form.errors.grower_group" class="invalid-feedback" v-text="form.errors.grower_group" />
             </td>
           </tr>
           <tr>
@@ -283,11 +275,7 @@ const pushForUnload = () => {
                 </li>
               </ul>
               <template v-else>-</template>
-              <div
-                v-if="form.errors.paddocks"
-                class="invalid-feedback"
-                v-text="form.errors.paddocks"
-              />
+              <div v-if="form.errors.paddocks" class="invalid-feedback" v-text="form.errors.paddocks" />
             </td>
           </tr>
         </table>
@@ -310,11 +298,7 @@ const pushForUnload = () => {
                 :class="{ 'is-invalid': form.errors.seed_variety }"
               />
               <ItemOfCategories v-else :categories="receival.categories" type="seed-variety" />
-              <div
-                v-if="form.errors.seed_variety"
-                class="invalid-feedback"
-                v-text="form.errors.seed_variety"
-              />
+              <div v-if="form.errors.seed_variety" class="invalid-feedback" v-text="form.errors.seed_variety" />
             </td>
           </tr>
           <tr>
@@ -331,11 +315,7 @@ const pushForUnload = () => {
                 :class="{ 'is-invalid': form.errors.seed_generation }"
               />
               <ItemOfCategories v-else :categories="receival.categories" type="seed-generation" />
-              <div
-                v-if="form.errors.seed_generation"
-                class="invalid-feedback"
-                v-text="form.errors.seed_generation"
-              />
+              <div v-if="form.errors.seed_generation" class="invalid-feedback" v-text="form.errors.seed_generation" />
             </td>
           </tr>
           <tr>
@@ -352,11 +332,7 @@ const pushForUnload = () => {
                 :class="{ 'is-invalid': form.errors.seed_class }"
               />
               <ItemOfCategories v-else :categories="receival.categories" type="seed-class" />
-              <div
-                v-if="form.errors.seed_class"
-                class="invalid-feedback"
-                v-text="form.errors.seed_class"
-              />
+              <div v-if="form.errors.seed_class" class="invalid-feedback" v-text="form.errors.seed_class" />
             </td>
           </tr>
           <tr v-if="!isForm && receival.tia_samples.length > 0">
@@ -370,10 +346,7 @@ const pushForUnload = () => {
               >
                 {{ tia_sample.id }}
               </Link>
-              <button
-                @click="pushForAnotherInspection"
-                class="border-0 ms-1 text-decoration-underline"
-              >
+              <button @click="pushForAnotherInspection" class="border-0 ms-1 text-decoration-underline">
                 Push for another inspection
               </button>
             </td>
@@ -383,12 +356,7 @@ const pushForUnload = () => {
 
       <h4 v-if="!isNew">Docket Receipts</h4>
       <div v-if="!isNew" class="user-boxes notes-list">
-        <Images
-          type="receivals"
-          :id="receival.id || 0"
-          :images="receival.images || []"
-          @update="emit('update')"
-        />
+        <Images type="receivals" :id="receival.id || 0" :images="receival.images || []" @update="emit('update')" />
       </div>
     </div>
     <div :class="colSize">
@@ -406,12 +374,7 @@ const pushForUnload = () => {
                   >
                     {{ toCamelCase(receival.status) }}
                   </button>
-                  <button
-                    v-else
-                    class="btn btn-black"
-                    @click="pushForUnload"
-                    :disabled="statusForm.processing"
-                  >
+                  <button v-else class="btn btn-black" @click="pushForUnload" :disabled="statusForm.processing">
                     <template v-if="statusForm.processing">
                       <i class="bi bi-arrow-repeat d-inline-block spin"></i> Loading...
                     </template>
@@ -424,11 +387,7 @@ const pushForUnload = () => {
           <tr>
             <th>Unloading ID</th>
             <td>
-              <Link
-                v-if="receival.status"
-                class="p-0"
-                :href="route('unloading.index', { receivalId: receival.id })"
-              >
+              <Link v-if="receival.status" class="p-0" :href="route('unloading.index', { receivalId: receival.id })">
                 {{ receival.id }}
               </Link>
               <template v-else>-</template>
@@ -484,11 +443,7 @@ const pushForUnload = () => {
                 :class="{ 'is-invalid': form.errors.delivery_type }"
               />
               <ItemOfCategories v-else :categories="receival.categories" type="delivery-type" />
-              <div
-                v-if="form.errors.delivery_type"
-                class="invalid-feedback"
-                v-text="form.errors.delivery_type"
-              />
+              <div v-if="form.errors.delivery_type" class="invalid-feedback" v-text="form.errors.delivery_type" />
             </td>
           </tr>
           <tr>
@@ -505,22 +460,13 @@ const pushForUnload = () => {
                 :class="{ 'is-invalid': form.errors.transport }"
               />
               <ItemOfCategories v-else :categories="receival.categories" type="transport" />
-              <div
-                v-if="form.errors.transport"
-                class="invalid-feedback"
-                v-text="form.errors.transport"
-              />
+              <div v-if="form.errors.transport" class="invalid-feedback" v-text="form.errors.transport" />
             </td>
           </tr>
           <tr>
             <th>Driver</th>
             <td>
-              <TextInput
-                v-if="isForm"
-                v-model="form.driver_name"
-                :error="form.errors.driver_name"
-                type="text"
-              />
+              <TextInput v-if="isForm" v-model="form.driver_name" :error="form.errors.driver_name" type="text" />
               <template v-else-if="receival.driver_name">{{ receival.driver_name }}</template>
               <template v-else>-</template>
             </td>
@@ -541,22 +487,13 @@ const pushForUnload = () => {
                 {{ receival.dummy_buyer?.buyer_name }}
               </template>
               <template v-else>-</template>
-              <div
-                v-if="form.errors.dummy_buyer_id"
-                class="invalid-feedback"
-                v-text="form.errors.dummy_buyer_id"
-              />
+              <div v-if="form.errors.dummy_buyer_id" class="invalid-feedback" v-text="form.errors.dummy_buyer_id" />
             </td>
           </tr>
           <tr>
             <th>Comments</th>
             <td>
-              <TextInput
-                v-if="isForm"
-                v-model="form.comments"
-                :error="form.errors.comments"
-                type="text"
-              />
+              <TextInput v-if="isForm" v-model="form.comments" :error="form.errors.comments" type="text" />
               <template v-else-if="receival.comments">{{ receival.comments }}</template>
               <template v-else>-</template>
             </td>

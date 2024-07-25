@@ -24,11 +24,7 @@ const search = ref(props.filters.search);
 const filter = (keyword) => (search.value = keyword);
 
 watch(search, (value) => {
-  router.get(
-    route('reports.show', props.type),
-    { search: value },
-    { preserveState: true, preserveScroll: true },
-  );
+  router.get(route('reports.show', props.type), { search: value }, { preserveState: true, preserveScroll: true });
 });
 
 const deleteReport = (id) => {
@@ -65,9 +61,7 @@ const deleteReport = (id) => {
           </li>
           <li><i class="bi bi-chevron-right"></i></li>
           <li>
-            <Link :href="route('reports.index')">
-              <span class="fa fa-arrow-left"></span> Reports
-            </Link>
+            <Link :href="route('reports.index')"> <span class="fa fa-arrow-left"></span> Reports </Link>
           </li>
           <li><i class="bi bi-chevron-right"></i></li>
           <li>
@@ -80,11 +74,7 @@ const deleteReport = (id) => {
     <div class="tab-section p-2 mt-4">
       <div class="container-fluid">
         <div class="row">
-          <div
-            v-for="report in reports.data"
-            :key="report.id"
-            class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-3"
-          >
+          <div v-for="report in reports.data" :key="report.id" class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-3">
             <div class="user-boxes">
               <table class="table input-table">
                 <tr>

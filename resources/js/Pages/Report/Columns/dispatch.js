@@ -26,9 +26,7 @@ export default [
     title: 'Grower',
     data: 'id',
     render: function (data, type, row) {
-      const grower = row.reallocation_id
-        ? row.reallocation.allocation.grower
-        : row.allocation.grower;
+      const grower = row.reallocation_id ? row.reallocation.allocation.grower : row.allocation.grower;
       const url = route('users.index', { userId: grower.id });
       return `<a href="${url}" class="text-black inertia-link">${grower.grower_name}</a>`;
     },

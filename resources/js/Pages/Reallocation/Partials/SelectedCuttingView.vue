@@ -1,9 +1,18 @@
 <script setup>
+import { computed } from 'vue';
 import { getSingleCategoryNameByType } from '@/helper.js';
 
 const props = defineProps({
   loader: Boolean,
   cutting: Object,
+});
+
+const isSizing = computed(() => props.cutting.type === 'sizing');
+const allocation = computed(() => {
+  if (props.cutting.type === 'sizing') {
+    return props.cutting.item.foreignable.allocatable.sizeable;
+  }
+  return props.cutting.item.foreignable;
 });
 </script>
 
@@ -30,40 +39,32 @@ const props = defineProps({
       </thead>
       <tbody>
         <tr>
+          <td class="d-none d-md-table-cell text-primary">{{ allocation.grower.grower_name }}</td>
+          <td class="d-none d-md-table-cell text-primary">{{ allocation.paddock }}</td>
           <td class="d-none d-md-table-cell text-primary">
-            {{ cutting.item.foreignable.grower.grower_name }}
+            {{ getSingleCategoryNameByType(allocation.categories, 'seed-variety') || '-' }}
           </td>
           <td class="d-none d-md-table-cell text-primary">
-            {{ cutting.item.foreignable.paddock }}
-          </td>
-          <td class="d-none d-md-table-cell text-primary">
-            {{
-              getSingleCategoryNameByType(cutting.item.foreignable.categories, 'seed-variety') ||
-              '-'
-            }}
-          </td>
-          <td class="d-none d-md-table-cell text-primary">
-            {{
-              getSingleCategoryNameByType(cutting.item.foreignable.categories, 'seed-generation') ||
-              '-'
-            }}
+            {{ getSingleCategoryNameByType(allocation.categories, 'seed-generation') || '-' }}
           </td>
           <td class="text-primary">
-            <template v-if="cutting.item.foreignable.sizing">
-              {{ getSingleCategoryNameByType(cutting.item.foreignable.sizing.categories, 'seed-type') || '-' }}
+            <template v-if="isSizing">
+              {{ getSingleCategoryNameByType(cutting.item.foreignable.categories, 'seed-type') || '-' }}
             </template>
-            <template v-else>{{ getSingleCategoryNameByType(cutting.item.foreignable.categories, 'seed-type') || '-' }}</template>
+            <template v-else>
+              {{ getSingleCategoryNameByType(allocation.categories, 'seed-type') || '-' }}
+            </template>
             <a
               data-bs-toggle="tooltip"
               data-bs-html="true"
               class="d-md-none"
               :data-bs-title="`
               <div class='text-start'>
-                Grower: ${cutting.item.foreignable.grower.grower_name}<br/>
-                Paddock: ${cutting.item.foreignable.paddock}<br/>
-                Variety: ${getSingleCategoryNameByType(cutting.item.foreignable.categories, 'seed-variety') || '-'}<br/>
-                Gen.: ${getSingleCategoryNameByType(cutting.item.foreignable.categories, 'seed-generation') || '-'}<br/>
-                Class: ${getSingleCategoryNameByType(cutting.item.foreignable.categories, 'seed-class') || '-'}
+                Grower: ${allocation.grower.grower_name}<br/>
+                Paddock: ${allocation.paddock}<br/>
+                Variety: ${getSingleCategoryNameByType(allocation.categories, 'seed-variety') || '-'}<br/>
+                Gen.: ${getSingleCategoryNameByType(allocation.categories, 'seed-generation') || '-'}<br/>
+                Class: ${getSingleCategoryNameByType(allocation.categories, 'seed-class') || '-'}
               </div>
             `"
             >
@@ -71,9 +72,7 @@ const props = defineProps({
             </a>
           </td>
           <td class="d-none d-md-table-cell text-primary">
-            {{
-              getSingleCategoryNameByType(cutting.item.foreignable.categories, 'seed-class') || '-'
-            }}
+            {{ getSingleCategoryNameByType(allocation.categories, 'seed-class') || '-' }}
           </td>
           <td class="text-primary">{{ `${cutting.available_half_tonnes} Bins` }}</td>
           <td class="text-primary">{{ `${cutting.available_one_tonnes} Bins` }}</td>

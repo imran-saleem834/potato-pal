@@ -80,12 +80,7 @@ const deleteRecord = () => {
       <tr>
         <th>Name</th>
         <td>
-          <TextInput
-            v-if="edit || isNew"
-            v-model="form.name"
-            :error="form.errors.name"
-            type="text"
-          />
+          <TextInput v-if="edit || isNew" v-model="form.name" :error="form.errors.name" type="text" />
           <template v-else>
             <span class="fw-bold">{{ category.name }}</span>
           </template>

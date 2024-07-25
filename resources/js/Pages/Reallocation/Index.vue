@@ -125,10 +125,7 @@ if (width.value > 991) {
 
     <div class="tab-section">
       <div class="row g-0">
-        <div
-          class="col-12 col-lg-5 col-xl-4 nav-left d-lg-block"
-          :class="{ 'd-none': activeTab || isNewRecord }"
-        >
+        <div class="col-12 col-lg-5 col-xl-4 nav-left d-lg-block" :class="{ 'd-none': activeTab || isNewRecord }">
           <LeftBar
             :items="reallocationBuyers"
             :active-tab="activeTab?.id"
@@ -137,10 +134,7 @@ if (width.value > 991) {
             @click="getReallocations"
           />
         </div>
-        <div
-          class="col-12 col-lg-7 col-xl-8 d-lg-block"
-          :class="{ 'd-none': !activeTab && !isNewRecord }"
-        >
+        <div class="col-12 col-lg-7 col-xl-8 d-lg-block" :class="{ 'd-none': !activeTab && !isNewRecord }">
           <div class="tab-content">
             <Details
               v-if="isNewRecord"
@@ -174,17 +168,9 @@ if (width.value > 991) {
                         </Link>
                       </td>
                       <td class="pb-0 border-0">
-                        <ul
-                          v-if="
-                            getCategoriesByType(activeTab.buyer?.categories, 'buyer-group').length >
-                            0
-                          "
-                        >
+                        <ul v-if="getCategoriesByType(activeTab.buyer?.categories, 'buyer-group').length > 0">
                           <li
-                            v-for="category in getCategoriesByType(
-                              activeTab.buyer.categories,
-                              'buyer-group',
-                            )"
+                            v-for="category in getCategoriesByType(activeTab.buyer.categories, 'buyer-group')"
                             :key="category.id"
                           >
                             <a>{{ category.category.name }}</a>
@@ -200,19 +186,10 @@ if (width.value > 991) {
                   <h4 class="m-0">Reallocations Details</h4>
                 </div>
                 <div class="col-12 col-sm-4 col-lg-5 mb-3 mb-sm-4">
-                  <input
-                    v-model="search"
-                    type="text"
-                    class="form-control"
-                    placeholder="Search Reallocations..."
-                  />
+                  <input v-model="search" type="text" class="form-control" placeholder="Search Reallocations..." />
                 </div>
                 <div class="col-12 col-sm-4 col-lg-4 mb-3 mb-sm-4 text-end">
-                  <button
-                    class="btn btn-black"
-                    :disabled="isNewItemRecord"
-                    @click="isNewItemRecord = true"
-                  >
+                  <button class="btn btn-black" :disabled="isNewItemRecord" @click="isNewItemRecord = true">
                     <i class="bi bi-plus-lg"></i> Add reallocation
                   </button>
                 </div>

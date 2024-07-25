@@ -7,11 +7,24 @@ const props = defineProps({
   selected: Object,
 });
 
+const isCutting = computed(() => props.selected.dispatch_type === 'cutting');
+const isSizing = computed(() => props.selected.dispatch_type === 'sizing');
+const isAllocation = computed(() => props.selected.dispatch_type === 'allocation');
+const isReallocation = computed(() => props.selected.dispatch_type === 'reallocation');
+
 const allocation = computed(() => {
-  if (props.selected.type === 'reallocation') {
+  if (isReallocation.value) {
+    if (props.selected.item.foreignable.type === 'sizing') {
+      return props.selected.item.foreignable.item.foreignable.allocatable.sizeable;
+    }
     return props.selected.item.foreignable.item.foreignable;
-  } else if (props.selected.type === 'cutting') {
+  } else if (isCutting.value) {
+    if (props.selected.type === 'sizing') {
+      return props.selected.item.foreignable.allocatable.sizeable;
+    }
     return props.selected.item.foreignable;
+  } else if (isSizing.value) {
+    return props.selected.allocatable.sizeable;
   }
   return props.selected;
 });
@@ -36,7 +49,7 @@ const allocation = computed(() => {
           <th>Half tonnes</th>
           <th>One tonnes</th>
           <th>Two tonnes</th>
-          <th>Bulk Bags</th>
+          <th v-if="isAllocation">Bulk Bags</th>
         </tr>
       </thead>
       <tbody>
@@ -50,12 +63,22 @@ const allocation = computed(() => {
             {{ getSingleCategoryNameByType(allocation.categories, 'seed-generation') || '-' }}
           </td>
           <td class="text-primary">
-            <template v-if="selected.type === 'cutting'">Cut Seed</template>
-            <template v-else>
-              <template v-if="allocation.sizing">
-                {{ getSingleCategoryNameByType(allocation.sizing.categories, 'seed-type') || '-' }}
+            <template v-if="isCutting">Cut Seed</template>
+            <template v-else-if="isSizing">
+              {{ getSingleCategoryNameByType(selected.categories, 'seed-type') || '-' }}
+            </template>
+            <template v-else-if="isReallocation">
+              <template v-if="selected.item.foreignable.type === 'sizing'">
+                {{
+                  getSingleCategoryNameByType(selected.item.foreignable.item.foreignable.categories, 'seed-type') || '-'
+                }}
               </template>
-              <template v-else>{{ getSingleCategoryNameByType(allocation.categories, 'seed-type') || '-' }}</template>
+              <template v-else>
+                {{ getSingleCategoryNameByType(allocation.categories, 'seed-type') || '-' }}
+              </template>
+            </template>
+            <template v-else>
+              {{ getSingleCategoryNameByType(allocation.categories, 'seed-type') || '-' }}
             </template>
             <a
               data-bs-toggle="tooltip"
@@ -80,7 +103,9 @@ const allocation = computed(() => {
           <td class="text-primary">{{ `${selected.available_half_tonnes} Bins` }}</td>
           <td class="text-primary">{{ `${selected.available_one_tonnes} Bins` }}</td>
           <td class="text-primary">{{ `${selected.available_two_tonnes} Bins` }}</td>
-          <td class="text-primary">{{ allocation.baggings_sum_no_of_bulk_bags_out || '0' }}</td>
+          <td v-if="isAllocation" class="text-primary">
+            {{ allocation.baggings_sum_no_of_bulk_bags_out || '0' }}
+          </td>
         </tr>
       </tbody>
     </table>

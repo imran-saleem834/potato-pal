@@ -170,21 +170,13 @@ defineExpose({
           <tr>
             <th>Start</th>
             <td>
-              <TextInput
-                type="date"
-                v-model="form.filters.start"
-                :error="form.errors['filters.start']"
-              />
+              <TextInput type="date" v-model="form.filters.start" :error="form.errors['filters.start']" />
             </td>
           </tr>
           <tr>
             <th>End</th>
             <td>
-              <TextInput
-                type="date"
-                v-model="form.filters.end"
-                :error="form.errors['filters.end']"
-              />
+              <TextInput type="date" v-model="form.filters.end" :error="form.errors['filters.end']" />
             </td>
           </tr>
         </table>
@@ -470,13 +462,8 @@ defineExpose({
         </table>
       </div>
 
-      <h4 v-if="isAllocationForm || isReallocationForm || isCuttingForm || isDispatchForm">
-        Buyer Filter
-      </h4>
-      <div
-        v-if="isAllocationForm || isReallocationForm || isCuttingForm || isDispatchForm"
-        class="user-boxes"
-      >
+      <h4 v-if="isAllocationForm || isReallocationForm || isCuttingForm || isDispatchForm">Buyer Filter</h4>
+      <div v-if="isAllocationForm || isReallocationForm || isCuttingForm || isDispatchForm" class="user-boxes">
         <table class="table input-table mb-0">
           <tr>
             <th>Buyers</th>

@@ -110,10 +110,7 @@ const buyers = computed(() => {
       }));
   } else if (form.labelable_type === 'App\\Models\\Reallocation') {
     return props.reallocations
-      .filter(
-        (reallocation, index, self) =>
-          index === self.findIndex((t) => t.buyer_id === reallocation.buyer_id),
-      )
+      .filter((reallocation, index, self) => index === self.findIndex((t) => t.buyer_id === reallocation.buyer_id))
       .map((reallocation) => ({
         value: reallocation.buyer_id,
         label: reallocation.buyer.buyer_name,
@@ -121,10 +118,7 @@ const buyers = computed(() => {
   }
 
   return props.allocations
-    .filter(
-      (allocation, index, self) =>
-        index === self.findIndex((t) => t.buyer_id === allocation.buyer_id),
-    )
+    .filter((allocation, index, self) => index === self.findIndex((t) => t.buyer_id === allocation.buyer_id))
     .map((allocation) => ({ value: allocation.buyer_id, label: allocation.buyer.buyer_name }));
 });
 
@@ -145,8 +139,7 @@ const exGrowers = computed(() => {
       .filter((reallocation) => reallocation.buyer_id === form.buyer_id)
       .filter(
         (reallocation, index, self) =>
-          index ===
-          self.findIndex((t) => t.allocation.grower_id === reallocation.allocation.grower_id),
+          index === self.findIndex((t) => t.allocation.grower_id === reallocation.allocation.grower_id),
       )
       .map((reallocation) => ({
         value: reallocation.allocation.grower_id,
@@ -156,10 +149,7 @@ const exGrowers = computed(() => {
 
   return props.allocations
     .filter((allocation) => allocation.buyer_id === form.buyer_id)
-    .filter(
-      (allocation, index, self) =>
-        index === self.findIndex((t) => t.grower_id === allocation.grower_id),
-    )
+    .filter((allocation, index, self) => index === self.findIndex((t) => t.grower_id === allocation.grower_id))
     .map((allocation) => ({ value: allocation.grower_id, label: allocation.grower.grower_name }));
 });
 
@@ -169,8 +159,7 @@ const paddockOptions = computed(() => {
       .filter((cutting) => cutting.allocation.buyer_id === form.buyer_id)
       .filter((cutting) => cutting.allocation.grower_id === form.grower_id)
       .filter(
-        (cutting, index, self) =>
-          index === self.findIndex((t) => t.allocation.paddock === cutting.allocation.paddock),
+        (cutting, index, self) => index === self.findIndex((t) => t.allocation.paddock === cutting.allocation.paddock),
       )
       .map((cutting) => ({ value: cutting.allocation.paddock, label: cutting.allocation.paddock }));
   } else if (form.labelable_type === 'App\\Models\\Reallocation') {
@@ -190,10 +179,7 @@ const paddockOptions = computed(() => {
   return props.allocations
     .filter((allocation) => allocation.buyer_id === form.buyer_id)
     .filter((allocation) => allocation.grower_id === form.grower_id)
-    .filter(
-      (allocation, index, self) =>
-        index === self.findIndex((t) => t.paddock === allocation.paddock),
-    )
+    .filter((allocation, index, self) => index === self.findIndex((t) => t.paddock === allocation.paddock))
     .map((allocation) => ({ value: allocation.paddock, label: allocation.paddock }));
 });
 
@@ -319,11 +305,7 @@ const printObj = {
                 :class="{ 'is-invalid': form.errors.buyer_id }"
                 :options="buyers"
               />
-              <Link
-                v-else-if="label.buyer"
-                class="p-0"
-                :href="route('users.index', { userId: label.buyer_id })"
-              >
+              <Link v-else-if="label.buyer" class="p-0" :href="route('users.index', { userId: label.buyer_id })">
                 {{ label.buyer.buyer_name }}
               </Link>
               <template v-else>-</template>
@@ -344,11 +326,7 @@ const printObj = {
                 :class="{ 'is-invalid': form.errors.grower_id }"
                 :options="exGrowers"
               />
-              <Link
-                v-else-if="label.grower"
-                class="p-0"
-                :href="route('users.index', { userId: label.grower_id })"
-              >
+              <Link v-else-if="label.grower" class="p-0" :href="route('users.index', { userId: label.grower_id })">
                 {{ label.grower.grower_name }}
               </Link>
               <template v-else>-</template>
@@ -450,12 +428,7 @@ const printObj = {
           <tr>
             <th>Override Comments</th>
             <td>
-              <TextInput
-                v-if="isForm"
-                v-model="form.comments"
-                :error="form.errors.comments"
-                type="text"
-              />
+              <TextInput v-if="isForm" v-model="form.comments" :error="form.errors.comments" type="text" />
               <template v-else-if="form.comments">{{ form.comments }}</template>
               <template>-</template>
             </td>

@@ -30,21 +30,14 @@ const details = ref(null);
 watch(
   () => props?.single,
   (single) => {
-    if (
-      Object.values(props.errors).length === undefined ||
-      Object.values(props.errors).length <= 0
-    ) {
+    if (Object.values(props.errors).length === undefined || Object.values(props.errors).length <= 0) {
       tiaSample.value = single || {};
     }
   },
 );
 
 watch(search, (value) => {
-  router.get(
-    route('tia-samples.index'),
-    { search: value },
-    { preserveState: true, preserveScroll: true },
-  );
+  router.get(route('tia-samples.index'), { search: value }, { preserveState: true, preserveScroll: true });
 });
 
 const filter = (keyword) => (search.value = keyword);
@@ -102,7 +95,7 @@ if (width.value > 991) {
       :is-edit-record-selected="!!edit"
       :is-new-record-selected="isNewRecord"
       :access="{
-        new: false
+        new: false,
       }"
       @new="setNewRecord"
       @edit="() => setEdit(tiaSample?.id)"
@@ -114,10 +107,7 @@ if (width.value > 991) {
 
     <div class="tab-section tia-sample-tab-section">
       <div class="row g-0">
-        <div
-          class="col-12 col-lg-5 col-xl-4 nav-left d-lg-block"
-          :class="{ 'd-none': activeTab || isNewRecord }"
-        >
+        <div class="col-12 col-lg-5 col-xl-4 nav-left d-lg-block" :class="{ 'd-none': activeTab || isNewRecord }">
           <LeftBar
             :items="tiaSamples.data"
             :links="tiaSamples.links"
@@ -127,10 +117,7 @@ if (width.value > 991) {
             @click="getTiaSample"
           />
         </div>
-        <div
-          class="col-12 col-lg-7 col-xl-8 d-lg-block"
-          :class="{ 'd-none': !activeTab && !isNewRecord }"
-        >
+        <div class="col-12 col-lg-7 col-xl-8 d-lg-block" :class="{ 'd-none': !activeTab && !isNewRecord }">
           <div class="tab-content" v-if="Object.values(tiaSample).length > 0 || isNewRecord">
             <Details
               ref="details"

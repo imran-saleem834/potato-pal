@@ -67,11 +67,9 @@ const changeSampleValue = (name, length) => {
 
 const updateTotal = (length) => {
   let addition = 0;
-  ['dry_rot', 'black_scurf', 'powdery_scab', 'root_knot_nematode', 'soft_rots', 'pink_rot'].forEach(
-    (name) => {
-      addition += parseFloat(form[name][length].replace('%', '') || 0);
-    },
-  );
+  ['dry_rot', 'black_scurf', 'powdery_scab', 'root_knot_nematode', 'soft_rots', 'pink_rot'].forEach((name) => {
+    addition += parseFloat(form[name][length].replace('%', '') || 0);
+  });
 
   form['sub_total'][length] = round(addition) + '%';
 
@@ -133,11 +131,7 @@ const sample2 = [
 ];
 
 samples.concat(sample2).forEach((sample) => {
-  props.tiaSample[sample.name] = addEmptyValues(
-    sample.name,
-    props.tiaSample[sample.name] || [],
-    sample.inputs || 5,
-  );
+  props.tiaSample[sample.name] = addEmptyValues(sample.name, props.tiaSample[sample.name] || [], sample.inputs || 5);
 });
 
 const form = useForm({
@@ -198,11 +192,7 @@ watch(
     form.comment = tiaSample.comment;
     form.status = tiaSample.status;
     samples.concat(sample2).forEach((sample) => {
-      form[sample.name] = addEmptyValues(
-        sample.name,
-        tiaSample[sample.name] || [],
-        sample.inputs || 5,
-      );
+      form[sample.name] = addEmptyValues(sample.name, tiaSample[sample.name] || [], sample.inputs || 5);
     });
   },
 );
@@ -290,10 +280,7 @@ defineExpose({
           </tr>
           <tr>
             <th>Cool Store</th>
-            <TdOfCategories
-              :categories="tiaSample?.receival?.grower?.categories"
-              type="cool-store"
-            />
+            <TdOfCategories :categories="tiaSample?.receival?.grower?.categories" type="cool-store" />
           </tr>
         </table>
       </div>
@@ -331,13 +318,7 @@ defineExpose({
           <tr>
             <th>Inspection Date</th>
             <td>
-              <CustomDatePicker
-                v-if="isForm"
-                :form="form"
-                field="inspection_date"
-                mode="date"
-                format="YYYY-MM-DD"
-              />
+              <CustomDatePicker v-if="isForm" :form="form" field="inspection_date" mode="date" format="YYYY-MM-DD" />
               <template v-else-if="tiaSample.inspection_date">
                 {{ moment(tiaSample.inspection_date).format('DD/MM/YYYY') }}
               </template>
@@ -377,10 +358,7 @@ defineExpose({
                 <td colspan="2" class="p-0 m-0">
                   <table class="table table-borderless p-0 m-0">
                     <tr class="border-0">
-                      <td
-                        :class="{ 'fw-bold': sample.bold }"
-                        class="d-table-cell d-sm-none border-0 pb-0"
-                      >
+                      <td :class="{ 'fw-bold': sample.bold }" class="d-table-cell d-sm-none border-0 pb-0">
                         {{ sample.title }}
                       </td>
                       <td class="pb-0 text-end" style="width: 40%">{{ sample.allow }}</td>
@@ -409,10 +387,7 @@ defineExpose({
                     </li>
                     <li class="d-none d-sm-inline-block">{{ sample.allow }}</li>
 
-                    <template
-                      v-for="(value, index) in form[sample.name]"
-                      :key="`${index}-${sample.name}-error`"
-                    >
+                    <template v-for="(value, index) in form[sample.name]" :key="`${index}-${sample.name}-error`">
                       <div class="w-100 text-start" v-if="form.errors[`${sample.name}.${index}`]">
                         <div class="is-invalid"></div>
                         <div class="invalid-feedback m-0 p-0">
@@ -459,29 +434,19 @@ defineExpose({
           </tr>
           <template v-for="sample in sample2" :key="sample.name">
             <tr class="d-table-row d-sm-none border-0">
-              <td colspan="2" class="fw-bold border-0" :class="{ 'fw-bold': sample.bold }">{{ sample.title }}</td>
+              <td colspan="2" class="fw-bold border-0" :class="{ 'fw-bold': sample.bold }">
+                {{ sample.title }}
+              </td>
             </tr>
             <tr>
               <th class="d-none d-sm-table-cell">{{ sample.title }}</th>
               <td colspan="3">
                 <ul class="multiple-inputs p-0 m-0">
-                  <li
-                    v-for="(value, index) in form[sample.name]"
-                    :key="`${index}-${sample.name}`"
-                    :class="sample.name"
-                  >
-                    <input
-                      type="text"
-                      class="form-control"
-                      :disabled="!isForm"
-                      v-model="form[sample.name][index]"
-                    />
+                  <li v-for="(value, index) in form[sample.name]" :key="`${index}-${sample.name}`" :class="sample.name">
+                    <input type="text" class="form-control" :disabled="!isForm" v-model="form[sample.name][index]" />
                   </li>
 
-                  <template
-                    v-for="(value, index) in form[sample.name]"
-                    :key="`${index}-${sample.name}-error`"
-                  >
+                  <template v-for="(value, index) in form[sample.name]" :key="`${index}-${sample.name}-error`">
                     <div class="w-100 text-start" v-if="form.errors[`${sample.name}.${index}`]">
                       <div class="is-invalid"></div>
                       <div class="invalid-feedback m-0 p-0">
@@ -502,7 +467,7 @@ defineExpose({
                 :error="form.errors.excessive_dirt"
                 :items="booleanArray"
                 @click="(value) => (form.excessive_dirt = value)"
-                style="width: 130px;"
+                style="width: 130px"
               />
             </td>
             <th class="d-none d-sm-table-cell">Skin russeting</th>
@@ -611,12 +576,7 @@ defineExpose({
           <tr>
             <th>Comment</th>
             <td colspan="3">
-              <TextInput
-                v-if="isForm"
-                v-model="form.comment"
-                :error="form.errors.comment"
-                type="text"
-              />
+              <TextInput v-if="isForm" v-model="form.comment" :error="form.errors.comment" type="text" />
               <template v-else-if="tiaSample.comment">{{ tiaSample.comment }}</template>
               <template v-else>-</template>
             </td>
@@ -638,12 +598,7 @@ defineExpose({
 
       <h4 v-if="!isNew">Images</h4>
       <div v-if="!isNew" class="user-boxes notes-list">
-        <Images
-          type="tia-samples"
-          :id="tiaSample.id || 0"
-          :images="tiaSample.images || []"
-          @update="emit('update')"
-        />
+        <Images type="tia-samples" :id="tiaSample.id || 0" :images="tiaSample.images || []" @update="emit('update')" />
       </div>
     </div>
   </div>

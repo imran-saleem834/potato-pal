@@ -30,7 +30,9 @@ defineProps({
       </thead>
       <tbody>
         <tr>
-          <td class="d-none d-md-table-cell text-primary">{{ unload.receival.grower.grower_name }}</td>
+          <td class="d-none d-md-table-cell text-primary">
+            {{ unload.receival.grower.grower_name }}
+          </td>
           <td class="d-none d-md-table-cell text-primary">{{ unload.receival.paddocks[0] }}</td>
           <td class="d-none d-md-table-cell text-primary">
             {{ getSingleCategoryNameByType(unload.receival.categories, 'seed-variety') || '-' }}

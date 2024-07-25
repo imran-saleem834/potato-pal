@@ -127,10 +127,7 @@ if (width.value > 991) {
 
     <div class="tab-section">
       <div class="row g-0">
-        <div
-          class="col-12 col-lg-5 col-xl-4 nav-left d-lg-block"
-          :class="{ 'd-none': activeTab || isNewRecord }"
-        >
+        <div class="col-12 col-lg-5 col-xl-4 nav-left d-lg-block" :class="{ 'd-none': activeTab || isNewRecord }">
           <LeftBar
             :items="navBuyers"
             :active-tab="activeTab?.id"
@@ -139,10 +136,7 @@ if (width.value > 991) {
             @click="getSizings"
           />
         </div>
-        <div
-          class="col-12 col-lg-7 col-xl-8 d-lg-block"
-          :class="{ 'd-none': !activeTab && !isNewRecord }"
-        >
+        <div class="col-12 col-lg-7 col-xl-8 d-lg-block" :class="{ 'd-none': !activeTab && !isNewRecord }">
           <div class="tab-content">
             <Details
               v-if="isNewRecord"
@@ -157,64 +151,44 @@ if (width.value > 991) {
               <div v-if="activeTab" class="user-boxes">
                 <table class="table input-table mb-0">
                   <thead>
-                  <tr>
-                    <th class="d-none d-sm-table-cell">Grower Name</th>
-                    <th>Buyer Name</th>
-                    <th>Buyer Group</th>
-                  </tr>
+                    <tr>
+                      <th class="d-none d-sm-table-cell">Grower Name</th>
+                      <th>Buyer Name</th>
+                      <th>Buyer Group</th>
+                    </tr>
                   </thead>
                   <tbody>
-                  <tr class="align-middle border-0">
-                    <td class="pb-0 d-none d-sm-table-cell border-0">
-                      <Link :href="route('users.index', { userId: activeTab?.user_id })">
-                        {{ activeTab?.user?.grower_name }}
-                      </Link>
-                    </td>
-                    <td class="pb-0 border-0">
-                      <Link :href="route('users.index', { userId: activeTab?.user_id })">
-                        {{ activeTab?.user?.buyer_name }}
-                      </Link>
-                    </td>
-                    <td class="pb-0 border-0">
-                      <ul
-                        v-if="
-                          getCategoriesByType(activeTab?.user?.categories, 'buyer-group')
-                            .length > 0
-                        "
-                      >
-                        <li
-                          v-for="category in getCategoriesByType(
-                            activeTab?.user?.categories,
-                            'buyer-group',
-                          )"
-                          :key="category.id"
-                        >
-                          <a>{{ category.category.name }}</a>
-                        </li>
-                      </ul>
-                    </td>
-                  </tr>
+                    <tr class="align-middle border-0">
+                      <td class="pb-0 d-none d-sm-table-cell border-0">
+                        <Link :href="route('users.index', { userId: activeTab?.user_id })">
+                          {{ activeTab?.user?.grower_name }}
+                        </Link>
+                      </td>
+                      <td class="pb-0 border-0">
+                        <Link :href="route('users.index', { userId: activeTab?.user_id })">
+                          {{ activeTab?.user?.buyer_name }}
+                        </Link>
+                      </td>
+                      <td class="pb-0 border-0">
+                        <ul v-if="getCategoriesByType(activeTab?.user?.categories, 'buyer-group').length > 0">
+                          <li
+                            v-for="category in getCategoriesByType(activeTab?.user?.categories, 'buyer-group')"
+                            :key="category.id"
+                          >
+                            <a>{{ category.category.name }}</a>
+                          </li>
+                        </ul>
+                      </td>
+                    </tr>
                   </tbody>
                 </table>
               </div>
               <div v-if="activeTab" class="row align-items-center">
-                <div class="col-12 col-sm-4 col-lg-3 mb-3 mb-sm-4">
-                  <h4 class="m-0">Sizing Details</h4>
+                <div class="col-12 col-sm-8 col-lg-7 mb-3 mb-sm-4">
+                  <input v-model="search" type="text" class="form-control" placeholder="Search Sizings..." />
                 </div>
-                <div class="col-12 col-sm-4 col-lg-5 mb-3 mb-sm-4">
-                  <input
-                    v-model="search"
-                    type="text"
-                    class="form-control"
-                    placeholder="Search Sizings..."
-                  />
-                </div>
-                <div class="col-12 col-sm-4 col-lg-4 mb-3 mb-sm-4 text-end">
-                  <button
-                    class="btn btn-black"
-                    :disabled="isNewItemRecord"
-                    @click="isNewItemRecord = true"
-                  >
+                <div class="col-12 col-sm-4 col-lg-5 mb-3 mb-sm-4 text-end">
+                  <button class="btn btn-black" :disabled="isNewItemRecord" @click="isNewItemRecord = true">
                     <i class="bi bi-plus-lg"></i> Add sizing
                   </button>
                 </div>

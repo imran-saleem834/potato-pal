@@ -75,10 +75,7 @@ defineProps({
     <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
       <span>Seed type: </span>
       <span class="text-primary">
-        <template v-if="allocation.sizing">
-          {{ getSingleCategoryNameByType(allocation.sizing.categories, 'seed-type') || '-' }}
-        </template>
-        <template v-else>{{ getSingleCategoryNameByType(allocation.categories, 'seed-type') || '-' }}</template>
+        {{ getSingleCategoryNameByType(allocation.categories, 'seed-type') || '-' }}
       </span>
     </div>
     <div class="col-12 mb-1 pb-1">

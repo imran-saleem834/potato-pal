@@ -25,24 +25,22 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  selectedAllocation: Object,
+  selected: Object,
 });
 
-const emit = defineEmits(['allocation', 'setReturnDispatch', 'create', 'delete']);
+const emit = defineEmits(['toSelect', 'setReturnDispatch', 'create', 'delete']);
 
 const isEdit = ref(false);
 const loader = ref(false);
 
 const form = useForm({
   buyer_id: props.dispatch.buyer_id,
-  type: props.dispatch.type,
+  dispatch_type: props.dispatch.dispatch_type,
   half_tonnes: props.dispatch.item?.half_tonnes,
   one_tonnes: props.dispatch.item?.one_tonnes,
   two_tonnes: props.dispatch.item?.two_tonnes,
   comment: props.dispatch.comment,
-  created_at: props.dispatch.created_at
-    ? props.dispatch.created_at.split('.')[0].replace('T', ' ')
-    : null,
+  created_at: props.dispatch.created_at ? props.dispatch.created_at.split('.')[0].replace('T', ' ') : null,
   buyer_group: getCategoryIdsByType(props.dispatch.categories, 'buyer-group'),
   transport: getCategoryIdsByType(props.dispatch.categories, 'transport'),
   docket_no: props.dispatch.docket_no,
@@ -57,14 +55,12 @@ watch(
     }
     form.clearErrors();
     form.buyer_id = dispatch.buyer_id;
-    form.type = dispatch.type;
+    form.dispatch_type = dispatch.dispatch_type;
     form.half_tonnes = dispatch.item?.half_tonnes;
     form.one_tonnes = dispatch.item?.one_tonnes;
     form.two_tonnes = dispatch.item?.two_tonnes;
     form.comment = dispatch.comment;
-    form.created_at = dispatch.created_at
-      ? dispatch.created_at.split('.')[0].replace('T', ' ')
-      : null;
+    form.created_at = dispatch.created_at ? dispatch.created_at.split('.')[0].replace('T', ' ') : null;
     form.buyer_group = getCategoryIdsByType(dispatch.categories, 'buyer-group');
     form.transport = getCategoryIdsByType(dispatch.categories, 'transport');
     form.docket_no = dispatch.docket_no;
@@ -72,18 +68,16 @@ watch(
 );
 
 watch(
-  () => props.selectedAllocation,
-  (allocation) => {
-    if (Object.values(allocation).length) {
-      form.selected_allocation = allocation;
-      form.type = allocation.type;
+  () => props.selected,
+  (selected) => {
+    if (Object.values(selected).length) {
+      form.selected_allocation = selected;
+      form.dispatch_type = selected.dispatch_type;
     }
   },
 );
 
-const onChangeBuyer = () => {
-  form.selected_allocation = {};
-};
+const onChangeBuyer = () => (form.selected_allocation = {});
 
 const isForm = computed(() => {
   return isEdit.value || props.isNew || props.isNewItem;
@@ -94,14 +88,10 @@ const setIsEdit = () => {
   loader.value = true;
 
   axios
-    .get(route('d.buyers.allocations', props.dispatch.buyer_id))
+    .get(route(`dispatch.buyers.${form.dispatch_type}`, props.dispatch.buyer_id))
     .then((response) => {
-      form.selected_allocation = response.data.find((allocation) => {
-        return (
-          props.dispatch.item.foreignable_id === allocation.id &&
-          props.dispatch.type === allocation.type
-        );
-      });
+      form.selected_allocation = response.data.find((row) => props.dispatch.item.foreignable_id === row.id);
+      form.selected_allocation.dispatch_type = form.dispatch_type;
       form.half_tonnes = props.dispatch.item.half_tonnes;
       form.one_tonnes = props.dispatch.item.one_tonnes;
       form.two_tonnes = props.dispatch.item.two_tonnes;
@@ -144,8 +134,7 @@ const deleteDispatch = () => {
 };
 
 const buyerGroups = computed(() => {
-  const categories =
-    page.props.buyers.find((buyer) => buyer.value === form.buyer_id)?.categories || [];
+  const categories = page.props.buyers.find((buyer) => buyer.value === form.buyer_id)?.categories || [];
   return categories.map((category) => category.category);
 });
 
@@ -169,11 +158,7 @@ defineExpose({
             @change="onChangeBuyer"
             :class="{ 'is-invalid': form.errors.buyer_id }"
           />
-          <div
-            v-if="form.errors.buyer_id"
-            class="invalid-feedback p-0 m-0"
-            v-text="form.errors.buyer_id"
-          />
+          <div v-if="form.errors.buyer_id" class="invalid-feedback p-0 m-0" v-text="form.errors.buyer_id" />
         </td>
       </tr>
     </table>
@@ -187,9 +172,9 @@ defineExpose({
           <button
             class="btn btn-red input-group-text px-1 px-sm-2"
             data-bs-toggle="modal"
-            data-bs-target="#allocations-modal"
-            v-text="'Select Allocation / Reallocation / Cutting'"
-            @click="emit('allocation', form.buyer_id)"
+            data-bs-target="#dispatch-modal"
+            v-text="'Select for dispatch'"
+            @click="emit('toSelect', form.buyer_id)"
           />
           <div
             v-if="form.errors.selected_allocation"
@@ -234,12 +219,7 @@ defineExpose({
           </TextInput>
         </div>
         <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 mb-3">
-          <TextInput
-            v-model="form.comment"
-            :error="form.errors.comment"
-            type="text"
-            placeholder="Comments"
-          />
+          <TextInput v-model="form.comment" :error="form.errors.comment" type="text" placeholder="Comments" />
         </div>
         <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 mb-3">
           <label class="form-label">Dispatch Time</label>
@@ -258,11 +238,7 @@ defineExpose({
                 :value="form.created_at"
                 @click="togglePopover"
               />
-              <div
-                v-if="form.errors[`created_at`]"
-                class="invalid-feedback"
-                v-text="form.errors[`created_at`]"
-              />
+              <div v-if="form.errors[`created_at`]" class="invalid-feedback" v-text="form.errors[`created_at`]" />
             </template>
           </DatePicker>
         </div>
@@ -327,11 +303,7 @@ defineExpose({
     <template v-else>
       <div class="btn-group position-absolute top-0 end-0">
         <button @click="setIsEdit" class="btn btn-red p-1 z-1"><i class="bi bi-pen"></i></button>
-        <button
-          data-bs-toggle="modal"
-          :data-bs-target="`#delete-dispatch-${uniqueKey}`"
-          class="btn btn-red p-1 z-1"
-        >
+        <button data-bs-toggle="modal" :data-bs-target="`#delete-dispatch-${uniqueKey}`" class="btn btn-red p-1 z-1">
           <template v-if="form.processing">
             <i class="bi bi-arrow-repeat d-inline-block spin"></i>
           </template>
@@ -349,18 +321,9 @@ defineExpose({
     </template>
   </div>
 
-  <ConfirmedModal
-    :id="`delete-dispatch-${uniqueKey}`"
-    cancel="No, Keep it"
-    ok="Yes, Delete!"
-    @ok="deleteDispatch"
-  />
+  <ConfirmedModal :id="`delete-dispatch-${uniqueKey}`" cancel="No, Keep it" ok="Yes, Delete!" @ok="deleteDispatch" />
 
-  <ConfirmedModal
-    :id="`store-dispatch-${uniqueKey}`"
-    title="You want to store this record?"
-    @ok="storeRecord"
-  />
+  <ConfirmedModal :id="`store-dispatch-${uniqueKey}`" title="You want to store this record?" @ok="storeRecord" />
 
   <ConfirmedModal
     :id="`update-dispatch-${uniqueKey}`"

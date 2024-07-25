@@ -125,10 +125,7 @@ if (width.value > 991) {
 
     <div class="tab-section">
       <div class="row g-0">
-        <div
-          class="col-12 col-lg-5 col-xl-4 nav-left d-lg-block"
-          :class="{ 'd-none': activeTab || isNewRecord }"
-        >
+        <div class="col-12 col-lg-5 col-xl-4 nav-left d-lg-block" :class="{ 'd-none': activeTab || isNewRecord }">
           <LeftBar
             :items="navBuyers"
             :active-tab="activeTab?.id"
@@ -137,10 +134,7 @@ if (width.value > 991) {
             @click="getBulkBaggings"
           />
         </div>
-        <div
-          class="col-12 col-lg-7 col-xl-8 d-lg-block"
-          :class="{ 'd-none': !activeTab && !isNewRecord }"
-        >
+        <div class="col-12 col-lg-7 col-xl-8 d-lg-block" :class="{ 'd-none': !activeTab && !isNewRecord }">
           <div class="tab-content">
             <Details
               v-if="isNewRecord"
@@ -155,43 +149,35 @@ if (width.value > 991) {
               <div v-if="activeTab" class="user-boxes">
                 <table class="table input-table mb-0">
                   <thead>
-                  <tr>
-                    <th class="d-none d-sm-table-cell">Contact Name</th>
-                    <th>Buyer Name</th>
-                    <th>Buyer Group</th>
-                  </tr>
+                    <tr>
+                      <th class="d-none d-sm-table-cell">Contact Name</th>
+                      <th>Buyer Name</th>
+                      <th>Buyer Group</th>
+                    </tr>
                   </thead>
                   <tbody>
-                  <tr class="align-middle border-0">
-                    <td class="pb-0 d-none d-sm-table-cell border-0">
-                      <Link :href="route('users.index', { userId: activeTab?.buyer_id })">
-                        {{ activeTab?.buyer?.name }}
-                      </Link>
-                    </td>
-                    <td class="pb-0 border-0">
-                      <Link :href="route('users.index', { userId: activeTab?.buyer_id })">
-                        {{ activeTab?.buyer?.buyer_name }}
-                      </Link>
-                    </td>
-                    <td class="pb-0 border-0">
-                      <ul
-                        v-if="
-                          getCategoriesByType(activeTab?.buyer?.categories, 'buyer-group')
-                            .length > 0
-                        "
-                      >
-                        <li
-                          v-for="category in getCategoriesByType(
-                            activeTab?.buyer?.categories,
-                            'buyer-group',
-                          )"
-                          :key="category.id"
-                        >
-                          <a>{{ category.category.name }}</a>
-                        </li>
-                      </ul>
-                    </td>
-                  </tr>
+                    <tr class="align-middle border-0">
+                      <td class="pb-0 d-none d-sm-table-cell border-0">
+                        <Link :href="route('users.index', { userId: activeTab?.buyer_id })">
+                          {{ activeTab?.buyer?.name }}
+                        </Link>
+                      </td>
+                      <td class="pb-0 border-0">
+                        <Link :href="route('users.index', { userId: activeTab?.buyer_id })">
+                          {{ activeTab?.buyer?.buyer_name }}
+                        </Link>
+                      </td>
+                      <td class="pb-0 border-0">
+                        <ul v-if="getCategoriesByType(activeTab?.buyer?.categories, 'buyer-group').length > 0">
+                          <li
+                            v-for="category in getCategoriesByType(activeTab?.buyer?.categories, 'buyer-group')"
+                            :key="category.id"
+                          >
+                            <a>{{ category.category.name }}</a>
+                          </li>
+                        </ul>
+                      </td>
+                    </tr>
                   </tbody>
                 </table>
               </div>
@@ -200,19 +186,10 @@ if (width.value > 991) {
                   <h4 class="m-0">Bulk Bagging Details</h4>
                 </div>
                 <div class="col-12 col-sm-4 col-lg-5 mb-3 mb-sm-4">
-                  <input
-                    v-model="search"
-                    type="text"
-                    class="form-control"
-                    placeholder="Search Bulk Baggings..."
-                  />
+                  <input v-model="search" type="text" class="form-control" placeholder="Search Bulk Baggings..." />
                 </div>
                 <div class="col-12 col-sm-4 col-lg-4 mb-3 mb-sm-4 text-end">
-                  <button
-                    class="btn btn-black"
-                    :disabled="isNewItemRecord"
-                    @click="isNewItemRecord = true"
-                  >
+                  <button class="btn btn-black" :disabled="isNewItemRecord" @click="isNewItemRecord = true">
                     <i class="bi bi-plus-lg"></i> Add bulk bagging
                   </button>
                 </div>

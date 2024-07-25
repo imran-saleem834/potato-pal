@@ -3,8 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Sizing extends Model
 {
@@ -23,21 +23,10 @@ class Sizing extends Model
         'user_id',
         'sizeable_id',
         'sizeable_type',
-        'bins_tipped',
-        'weight',
         'start',
         'end',
         'no_of_crew',
         'comments',
-    ];
-
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'bins_tipped' => 'array',
     ];
 
     public function user()
@@ -45,13 +34,14 @@ class Sizing extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function categories(): MorphMany
-    {
-        return $this->morphMany(CategoriesRelation::class, 'categorizable');
-    }
-
     public function sizeable()
     {
         return $this->morphTo();
+    }
+
+    public function items(): MorphMany
+    {
+        return $this->morphMany(AllocationItem::class, 'allocatable')
+            ->whereNull('returned_id');
     }
 }

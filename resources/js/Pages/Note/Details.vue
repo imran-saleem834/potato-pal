@@ -104,16 +104,8 @@ defineExpose({
                 :class="{ 'is-invalid': hasArrayErrors('tags') }"
               />
               <div v-if="form.errors.tags" class="invalid-feedback" v-text="form.errors.tags" />
-              <div
-                v-if="form.errors['tags.0']"
-                class="invalid-feedback"
-                v-text="form.errors['tags.0']"
-              />
-              <div
-                v-if="form.errors['tags.1']"
-                class="invalid-feedback"
-                v-text="form.errors['tags.1']"
-              />
+              <div v-if="form.errors['tags.0']" class="invalid-feedback" v-text="form.errors['tags.0']" />
+              <div v-if="form.errors['tags.1']" class="invalid-feedback" v-text="form.errors['tags.1']" />
             </td>
           </tr>
         </table>
@@ -124,13 +116,7 @@ defineExpose({
 
         <hr v-if="!isForm" />
 
-        <Images
-          v-if="!isNew"
-          type="notes"
-          :id="note?.id || 0"
-          :images="note?.images || []"
-          @update="emit('update')"
-        />
+        <Images v-if="!isNew" type="notes" :id="note?.id || 0" :images="note?.images || []" @update="emit('update')" />
       </div>
     </div>
   </div>

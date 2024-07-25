@@ -12,7 +12,7 @@ use App\Models\Weighbridge;
 use App\Models\Reallocation;
 use App\Models\RemainingReceival;
 
-// Todo: Delete Grading, Bulk Bagging, Sizing, Chemical Applicant
+// Todo: Delete Grading, Bulk Bagging, Sizing, Chemical Application
 class DeleteRecordsHelper
 {
     public static function deleteUnload($unload)
@@ -69,7 +69,7 @@ class DeleteRecordsHelper
             $reallocation = $reallocationItem->allocatable;
             static::deleteReallocation($reallocation);  // Delete Reallocation
         }
-        
+
         $cutting->loadMissing('dispatchItems');
         foreach ($cutting->dispatchItems as $dispatchItem) {
             $dispatchItem->allocatable()->delete();     // Delete Dispatch
@@ -77,7 +77,7 @@ class DeleteRecordsHelper
         }
 
         CategoriesHelper::deleteCategoryRelations($cutting->id, Cutting::class);
-        
+
         $cutting->item()->delete();
         $cutting->delete();
     }

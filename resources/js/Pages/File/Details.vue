@@ -117,11 +117,7 @@ defineExpose({
   <template v-else>
     <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
       <div class="carousel-inner">
-        <div
-          v-if="Object.values(file).length > 0"
-          class="carousel-item active"
-          @click="emit('showImg')"
-        >
+        <div v-if="Object.values(file).length > 0" class="carousel-item active" @click="emit('showImg')">
           <img :src="`storage/${file.image}`" :alt="file.title" style="cursor: zoom-in" />
           <h5 class="mt-3">{{ moment(file.created_at).format('DD, MMM YYYY hh:mm') }}</h5>
           <p>{{ file.title }}</p>

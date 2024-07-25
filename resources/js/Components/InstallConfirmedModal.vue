@@ -41,9 +41,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div data-bs-target="#install-app" data-bs-toggle="modal" ref="installBtn" class="d-none">
-    Install
-  </div>
+  <div data-bs-target="#install-app" data-bs-toggle="modal" ref="installBtn" class="d-none">Install</div>
 
   <div class="modal fade" id="install-app" tabindex="-1" role="dialog">
     <div class="modal-dialog">

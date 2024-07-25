@@ -10,16 +10,12 @@ defineProps({
 
 onMounted(() => {
   const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-  const tooltipList = [...tooltipTriggerList].map(
-    (tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl),
-  );
+  const tooltipList = [...tooltipTriggerList].map((tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl));
 });
 
 onUpdated(() => {
   const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-  const tooltipList = [...tooltipTriggerList].map(
-    (tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl),
-  );
+  const tooltipList = [...tooltipTriggerList].map((tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl));
 });
 </script>
 
@@ -50,15 +46,10 @@ onUpdated(() => {
         </td>
         <td class="d-none d-md-table-cell text-primary">{{ bulkBagging.allocation.paddock }}</td>
         <td class="d-none d-xl-table-cell text-primary">
-          {{
-            getSingleCategoryNameByType(bulkBagging.allocation.categories, 'seed-variety') || '-'
-          }}
+          {{ getSingleCategoryNameByType(bulkBagging.allocation.categories, 'seed-variety') || '-' }}
         </td>
         <td class="d-none d-md-table-cell text-primary">
-          {{
-            getSingleCategoryNameByType(bulkBagging.allocation.categories, 'seed-generation') ||
-            '-'
-          }}
+          {{ getSingleCategoryNameByType(bulkBagging.allocation.categories, 'seed-generation') || '-' }}
         </td>
         <td class="text-primary">
           {{ getSingleCategoryNameByType(bulkBagging.allocation.categories, 'seed-type') || '-' }}
@@ -80,9 +71,7 @@ onUpdated(() => {
           </a>
         </td>
         <td class="d-none d-xl-table-cell text-primary">
-          {{
-            getSingleCategoryNameByType(bulkBagging.allocation.categories, 'seed-class') || '-'
-          }}
+          {{ getSingleCategoryNameByType(bulkBagging.allocation.categories, 'seed-class') || '-' }}
         </td>
         <td class="text-primary">{{ getBinSizesValue(bulkBagging.allocation.item.bin_size) }}</td>
         <td class="text-primary">{{ bulkBagging.allocation.item.no_of_bins }}</td>

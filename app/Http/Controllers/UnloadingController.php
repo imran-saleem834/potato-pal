@@ -105,7 +105,7 @@ class UnloadingController extends Controller
     {
         $receival = Receival::with(['unloads'])->find($id);
         $growerId = $receival->grower_id;
-        
+
         foreach ($receival->unloads as $unload) {
             DeleteRecordsHelper::deleteUnload($unload);
         }

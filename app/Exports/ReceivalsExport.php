@@ -8,14 +8,14 @@ use Maatwebsite\Excel\Concerns\FromCollection;
 class ReceivalsExport implements FromCollection
 {
     /**
-    * @return \Illuminate\Support\Collection
-    */
+     * @return \Illuminate\Support\Collection
+     */
     public function collection()
     {
         $eager = [
             'categories.category',
             'grower:id,grower_name',
-            'dummyBuyer:id,buyer_name'
+            'dummyBuyer:id,buyer_name',
         ];
         $receivals = Receival::with($eager)->get()->map(function ($receival) {
             return [

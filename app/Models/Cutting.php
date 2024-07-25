@@ -19,6 +19,7 @@ class Cutting extends Model
      */
     protected $fillable = [
         'buyer_id',
+        'type',
         'cut_date',
         'comment',
     ];

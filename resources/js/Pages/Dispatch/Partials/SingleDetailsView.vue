@@ -10,27 +10,36 @@ const props = defineProps({
   dispatch: Object,
 });
 
+const isCutting = computed(() => props.dispatch.dispatch_type === 'cutting');
+const isSizing = computed(() => props.dispatch.dispatch_type === 'sizing');
+const isAllocation = computed(() => props.dispatch.dispatch_type === 'allocation');
+const isReallocation = computed(() => props.dispatch.dispatch_type === 'reallocation');
+
 const allocation = computed(() => {
-  if (props.dispatch.type === 'reallocation') {
+  if (isReallocation.value) {
+    if (props.dispatch.item.foreignable.item.foreignable.type === 'sizing') {
+      return props.dispatch.item.foreignable.item.foreignable.item.foreignable.allocatable.sizeable;
+    }
     return props.dispatch.item.foreignable.item.foreignable.item.foreignable;
-  } else if (props.dispatch.type === 'cutting') {
+  } else if (isCutting.value) {
+    if (props.dispatch.item.foreignable.type === 'sizing') {
+      return props.dispatch.item.foreignable.item.foreignable.allocatable.sizeable;
+    }
     return props.dispatch.item.foreignable.item.foreignable;
+  } else if (isSizing.value) {
+    return props.dispatch.item.foreignable.allocatable.sizeable;
   }
   return props.dispatch.item.foreignable;
 });
 
 onMounted(() => {
   const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-  const tooltipList = [...tooltipTriggerList].map(
-    (tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl),
-  );
+  const tooltipList = [...tooltipTriggerList].map((tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl));
 });
 
 onUpdated(() => {
   const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-  const tooltipList = [...tooltipTriggerList].map(
-    (tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl),
-  );
+  const tooltipList = [...tooltipTriggerList].map((tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl));
 });
 </script>
 
@@ -60,12 +69,25 @@ onUpdated(() => {
           {{ getSingleCategoryNameByType(allocation.categories, 'seed-generation') || '-' }}
         </td>
         <td class="text-primary">
-          <template v-if="dispatch.type === 'cutting'">Cut Seed</template>
-          <template v-else>
-            <template v-if="allocation.sizing">
-              {{ getSingleCategoryNameByType(allocation.sizing.categories, 'seed-type') || '-' }}
+          <template v-if="isCutting">Cut Seed</template>
+          <template v-else-if="isSizing">
+            {{ getSingleCategoryNameByType(dispatch.item.foreignable.categories, 'seed-type') || '-' }}
+          </template>
+          <template v-else-if="isReallocation">
+            <template v-if="dispatch.item.foreignable.item.foreignable.type === 'sizing'">
+              {{
+                getSingleCategoryNameByType(
+                  dispatch.item.foreignable.item.foreignable.item.foreignable.categories,
+                  'seed-type',
+                ) || '-'
+              }}
             </template>
-            <template v-else>{{ getSingleCategoryNameByType(allocation.categories, 'seed-type') || '-' }}</template>
+            <template v-else>
+              {{ getSingleCategoryNameByType(allocation.categories, 'seed-type') || '-' }}
+            </template>
+          </template>
+          <template v-else>
+            {{ getSingleCategoryNameByType(allocation.categories, 'seed-type') || '-' }}
           </template>
           <a
             data-bs-toggle="tooltip"
@@ -113,22 +135,23 @@ onUpdated(() => {
       </span>
     </div>
     <div class="col-12 col-sm-6 col-md-3 mb-1 pb-1">
-      <span v-if="dispatch.type === 'allocation'">From Allocation: </span>
-      <span v-else-if="dispatch.type === 'cutting'">From Cutting: </span>
+      <span v-if="isAllocation">From Allocation: </span>
+      <span v-else-if="isCutting">From Cutting: </span>
+      <span v-else-if="isSizing">From Sizing: </span>
       <span v-else>From Reallocation: </span>
       <span class="text-primary">
         <Link
+          v-if="isSizing"
+          :href="route('sizing.index', { userId: dispatch.item.foreignable?.allocatable?.user_id })"
+        >
+          {{ dispatch.item.foreignable?.allocatable.id }}
+        </Link>
+        <Link
+          v-else
           :href="
-            route(
-              dispatch.type === 'allocation'
-                ? 'allocations.index'
-                : dispatch.type === 'cutting'
-                  ? 'cuttings.index'
-                  : 'reallocations.index',
-              {
-                buyerId: dispatch.item.foreignable?.buyer_id,
-              },
-            )
+            route(isAllocation ? 'allocations.index' : isCutting ? 'cuttings.index' : 'reallocations.index', {
+              buyerId: dispatch.item.foreignable?.buyer_id,
+            })
           "
         >
           {{ dispatch.item.foreignable.id }}

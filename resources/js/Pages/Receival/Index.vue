@@ -52,21 +52,14 @@ const details = ref(null);
 watch(
   () => props?.single,
   (single) => {
-    if (
-      Object.values(props.errors).length === undefined ||
-      Object.values(props.errors).length <= 0
-    ) {
+    if (Object.values(props.errors).length === undefined || Object.values(props.errors).length <= 0) {
       receival.value = single || {};
     }
   },
 );
 
 watch(search, (value) => {
-  router.get(
-    route('receivals.index'),
-    { search: value },
-    { preserveState: true, preserveScroll: true },
-  );
+  router.get(route('receivals.index'), { search: value }, { preserveState: true, preserveScroll: true });
 });
 
 const filter = (keyword) => (search.value = keyword);
@@ -153,10 +146,7 @@ if (width.value > 991) {
     <!-- tab-section -->
     <div class="tab-section">
       <div class="row g-0">
-        <div
-          class="col-12 col-lg-5 col-xl-4 nav-left d-lg-block"
-          :class="{ 'd-none': activeTab || isNewRecord }"
-        >
+        <div class="col-12 col-lg-5 col-xl-4 nav-left d-lg-block" :class="{ 'd-none': activeTab || isNewRecord }">
           <LeftBar
             :items="receivals.data"
             :links="receivals.links"
@@ -166,10 +156,7 @@ if (width.value > 991) {
             @click="getReceival"
           />
         </div>
-        <div
-          class="col-12 col-lg-7 col-xl-8 d-lg-block"
-          :class="{ 'd-none': !activeTab && !isNewRecord }"
-        >
+        <div class="col-12 col-lg-7 col-xl-8 d-lg-block" :class="{ 'd-none': !activeTab && !isNewRecord }">
           <div class="tab-content" v-if="Object.values(receival).length > 0 || isNewRecord">
             <Details
               ref="details"
@@ -213,12 +200,7 @@ if (width.value > 991) {
         <div class="modal-content">
           <div class="modal-header">
             <h1 class="modal-title fs-5" id="exampleModalLabel">Duplicate</h1>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
             <div class="tab-section">
@@ -230,9 +212,7 @@ if (width.value > 991) {
                       <template v-if="duplicateReceival[input]">
                         <li class="mb-2">
                           <button
-                            @click="
-                              () => (duplicateForm.inputs[input] = !duplicateForm.inputs[input])
-                            "
+                            @click="() => (duplicateForm.inputs[input] = !duplicateForm.inputs[input])"
                             :class="duplicateForm.inputs[input] ? 'btn btn-black' : 'btn btn-dark'"
                           >
                             <template v-if="input === 'paddocks'">
@@ -243,18 +223,11 @@ if (width.value > 991) {
                         </li>
                       </template>
                       <template
-                        v-else-if="
-                          getCategoriesByType(
-                            duplicateReceival.categories,
-                            input.replaceAll('_', '-'),
-                          ).length
-                        "
+                        v-else-if="getCategoriesByType(duplicateReceival.categories, input.replaceAll('_', '-')).length"
                       >
                         <li class="mb-2">
                           <button
-                            @click="
-                              () => (duplicateForm.inputs[input] = !duplicateForm.inputs[input])
-                            "
+                            @click="() => (duplicateForm.inputs[input] = !duplicateForm.inputs[input])"
                             :class="duplicateForm.inputs[input] ? 'btn btn-black' : 'btn btn-dark'"
                           >
                             <template
@@ -264,10 +237,7 @@ if (width.value > 991) {
                               )"
                               :key="category.id"
                             >
-                              <template
-                                v-if="key > 0 && ['delivery_type', 'transport'].includes(input)"
-                                >,</template
-                              >
+                              <template v-if="key > 0 && ['delivery_type', 'transport'].includes(input)">,</template>
                               {{ category.category.name }}
                             </template>
                           </button>
@@ -281,14 +251,7 @@ if (width.value > 991) {
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button
-              type="button"
-              class="btn btn-red"
-              data-bs-dismiss="modal"
-              @click="duplicateRecord"
-            >
-              Create
-            </button>
+            <button type="button" class="btn btn-red" data-bs-dismiss="modal" @click="duplicateRecord">Create</button>
           </div>
         </div>
       </div>

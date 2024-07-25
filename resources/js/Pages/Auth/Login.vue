@@ -31,12 +31,7 @@ const submit = () => {
 
   <div class="login-section">
     <div class="container-fluid">
-      <LoginCard
-        type="login"
-        :canResetPassword="canResetPassword"
-        :status="status"
-        @submit="submit"
-      >
+      <LoginCard type="login" :canResetPassword="canResetPassword" :status="status" @submit="submit">
         <div class="mb-3 position-relative">
           <i class="bi bi-envelope form-control-feedback"></i>
           <input
@@ -66,9 +61,7 @@ const submit = () => {
           <div v-if="form.errors.password" class="invalid-feedback">{{ form.errors.password }}</div>
         </div>
         <div class="mb-3 checkbox">
-          <label>
-            <input v-model="form.remember" type="checkbox" name="remember" :value="1" /> Remember me
-          </label>
+          <label> <input v-model="form.remember" type="checkbox" name="remember" :value="1" /> Remember me </label>
         </div>
         <div class="mb-3">
           <input type="submit" value="Log in" class="btn btn-lg-red" :disabled="form.processing" />

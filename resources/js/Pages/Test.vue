@@ -103,25 +103,13 @@ window.onload = setupPubNub;
     <div style="padding: 50px">
       <br />
       <br />
-      <button
-        class="btn btn-primary"
-        :class="{ 'btn-success': channel === 'BU1' }"
-        @click="() => (channel = 'BU1')"
-      >
+      <button class="btn btn-primary" :class="{ 'btn-success': channel === 'BU1' }" @click="() => (channel = 'BU1')">
         BU1
       </button>
-      <button
-        class="btn btn-primary"
-        :class="{ 'btn-success': channel === 'BU2' }"
-        @click="() => (channel = 'BU2')"
-      >
+      <button class="btn btn-primary" :class="{ 'btn-success': channel === 'BU2' }" @click="() => (channel = 'BU2')">
         BU2
       </button>
-      <button
-        class="btn btn-primary"
-        :class="{ 'btn-success': channel === 'BU3' }"
-        @click="() => (channel = 'BU3')"
-      >
+      <button class="btn btn-primary" :class="{ 'btn-success': channel === 'BU3' }" @click="() => (channel = 'BU3')">
         BU3
       </button>
       <br />

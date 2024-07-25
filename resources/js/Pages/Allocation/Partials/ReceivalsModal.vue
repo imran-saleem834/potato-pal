@@ -71,10 +71,7 @@ watch(
               <span class="visually-hidden">Loading...</span>
             </div>
           </div>
-          <div
-            v-if="!loader && receivals.length <= 0"
-            class="d-flex justify-content-center text-danger fs-5 my-3"
-          >
+          <div v-if="!loader && receivals.length <= 0" class="d-flex justify-content-center text-danger fs-5 my-3">
             Data not found
           </div>
           <div v-if="!loader && receivals.length" class="table-responsive">
@@ -101,20 +98,14 @@ watch(
                     data-bs-dismiss="modal"
                   >
                     <td>
-                      {{
-                        getSingleCategoryNameByType(receival.receival_categories, 'grower-group')
-                      }}
+                      {{ getSingleCategoryNameByType(receival.receival_categories, 'grower-group') }}
                     </td>
                     <td>{{ receival.paddock }}</td>
                     <td>
-                      {{
-                        getSingleCategoryNameByType(receival.receival_categories, 'seed-variety')
-                      }}
+                      {{ getSingleCategoryNameByType(receival.receival_categories, 'seed-variety') }}
                     </td>
                     <td>
-                      {{
-                        getSingleCategoryNameByType(receival.receival_categories, 'seed-generation')
-                      }}
+                      {{ getSingleCategoryNameByType(receival.receival_categories, 'seed-generation') }}
                     </td>
                     <td>
                       {{ getSingleCategoryNameByType(receival.unload_categories, 'seed-type') }}

@@ -73,10 +73,7 @@ if (width.value > 991) {
 
     <div class="tab-section">
       <div class="row g-0">
-        <div
-          class="col-12 col-lg-5 col-xl-4 nav-left d-lg-block"
-          :class="{ 'd-none': activeTab || isNewRecord }"
-        >
+        <div class="col-12 col-lg-5 col-xl-4 nav-left d-lg-block" :class="{ 'd-none': activeTab || isNewRecord }">
           <a
             role="button"
             v-for="optionType in optionTypes"
@@ -95,29 +92,14 @@ if (width.value > 991) {
             <i class="bi bi-chevron-right angle-right"></i>
           </a>
         </div>
-        <div
-          class="col-12 col-lg-7 col-xl-8 d-lg-block"
-          :class="{ 'd-none': !activeTab && !isNewRecord }"
-        >
+        <div class="col-12 col-lg-7 col-xl-8 d-lg-block" :class="{ 'd-none': !activeTab && !isNewRecord }">
           <div class="tab-content">
             <div class="row">
               <div v-if="isNewRecord" class="col-12 col-sm-6 col-md-4 col-lg-6 col-xl-4">
-                <Details
-                  :type="activeTab"
-                  :is-new="true"
-                  @updateRecord="() => (isNewRecord = false)"
-                />
+                <Details :type="activeTab" :is-new="true" @updateRecord="() => (isNewRecord = false)" />
               </div>
-              <div
-                v-for="category in categories"
-                :key="category.id"
-                class="col-12 col-sm-6 col-md-4 col-lg-6 col-xl-4"
-              >
-                <Details
-                  :category="category"
-                  :type="activeTab"
-                  @updateRecord="() => (isNewRecord = false)"
-                />
+              <div v-for="category in categories" :key="category.id" class="col-12 col-sm-6 col-md-4 col-lg-6 col-xl-4">
+                <Details :category="category" :type="activeTab" @updateRecord="() => (isNewRecord = false)" />
               </div>
               <div class="col-12" v-if="categories.length <= 0 && !isNewRecord">
                 <p class="text-center" style="margin-top: calc(50vh - 120px)">No Records Found</p>

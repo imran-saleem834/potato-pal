@@ -8,9 +8,9 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\LabelController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\SizingController;
 use App\Http\Controllers\CuttingController;
 use App\Http\Controllers\GradingController;
-use App\Http\Controllers\SizingController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DispatchController;
@@ -95,25 +95,36 @@ Route::middleware([
         Route::resource('/dispatches', DispatchController::class)->except(['create', 'edit', 'show']);
         Route::post('/returns', [DispatchController::class, 'returns'])->name('returns.store');
 
-        Route::get('/buyers/{id}/d/allocations', [DispatchController::class, 'allocations'])->name('d.buyers.allocations');
+        Route::group(['prefix' => 'buyers/{id}/dispatch', 'as' => 'dispatch.buyers.'], function () {
+            Route::get('/allocations', [DispatchController::class, 'allocations'])->name('allocation');
+            Route::get('/reallocations', [DispatchController::class, 'reallocations'])->name('reallocation');
+            Route::get('/cuttings', [DispatchController::class, 'cuttings'])->name('cutting');
+            Route::get('/sizings', [DispatchController::class, 'sizings'])->name('sizing');
+        });
     });
 
     Route::middleware(['cutting'])->group(function () {
         Route::resource('/cuttings', CuttingController::class);
-        Route::get('/buyers/{id}/c/allocations', [CuttingController::class, 'allocations'])->name('c.buyers.allocations');
+
+        Route::group(['prefix' => 'buyers/{id}/cutting', 'as' => 'cutting.buyers.'], function () {
+            Route::get('/allocations', [CuttingController::class, 'allocations'])->name('allocation');
+            Route::get('/sizing', [CuttingController::class, 'sizing'])->name('sizing');
+        });
     });
 
     Route::get('/weighbridges', [WeighbridgeController::class, 'index'])
         ->middleware('weighbridges')
         ->name('weighbridges.index');
-    
-    Route::resource('/grading', GradingController::class)->middleware('grading');
+
     Route::resource('/sizing', SizingController::class)->middleware('grading');
+    Route::get('/buyers/{id}/sizing/allocations', [SizingController::class, 'allocations'])->name('sizing.buyers.allocations');
+    Route::get('/growers/{id}/sizing/unloads', [SizingController::class, 'unloads'])->name('sizing.grower.unloads');
+
+    Route::resource('/grading', GradingController::class)->middleware('grading');
     Route::resource('/chemical-application', ChemicalApplicationController::class)->middleware('grading');
     Route::resource('/bulk-bagging', BulkBaggingController::class)->middleware('grading');
     Route::get('/buyers/{id}/allocations', [GradingController::class, 'allocations'])->name('buyers.allocations');
-    Route::get('/growers/{id}/unloads', [SizingController::class, 'unloads'])->name('grower.unloads');
-    
+
     Route::resource('/notifications', NotificationController::class)->middleware('notifications');
     Route::resource('/notes', NoteController::class)->middleware('notes');
     Route::resource('/files', FileController::class)->middleware('files');
@@ -161,7 +172,7 @@ Route::get('/abc2', function () {
 });
 
 Route::get('/abc3', function () {
-    
+
 });
 
 Route::get('/download-receivals', function () {

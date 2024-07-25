@@ -38,7 +38,9 @@ const logout = () => {
           />
         </a>
         <ul class="dropdown-menu dropdown-menu-end">
-          <li><h6 class="dropdown-header">{{ $page.props.auth.user.name }}</h6></li>
+          <li>
+            <h6 class="dropdown-header">{{ $page.props.auth.user.name }}</h6>
+          </li>
           <li><a class="dropdown-item" href="javascript:;" @click.prevent="logout">Logout</a></li>
         </ul>
       </li>

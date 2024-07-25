@@ -10,7 +10,7 @@ import ConfirmedModal from '@/Components/ConfirmedModal.vue';
 import SingleDetailsView from '@/Pages/Sizing/Partials/SingleDetailsView.vue';
 import SelectedUnloadView from '@/Pages/Sizing/Partials/SelectedUnloadView.vue';
 import SelectedAllocationView from '@/Pages/Sizing/Partials/SelectedAllocationView.vue';
-import { getCategoryIdsByType, getCategoriesDropDownByType } from "@/helper.js";
+import { getCategoryIdsByType, getCategoriesDropDownByType } from '@/helper.js';
 
 const toast = useToast();
 
@@ -36,19 +36,22 @@ const emit = defineEmits(['toSelect', 'create', 'delete']);
 const isEdit = ref(false);
 const loader = ref(false);
 
-const tonnes = {
-  half_tonne: 0,
-  one_tonne: 0,
-  two_tonne: 0,
+const item = {
+  seed_type: null,
+  fungicide: null,
+  half_tonnes: 0,
+  one_tonnes: 0,
+  two_tonnes: 0,
 };
 
 const form = useForm({
-  type: props.sizing?.sizeable_type ? (props.sizing.sizeable_type === 'App\\Models\\Allocation' ? 'allocation' : 'unload') : null,
+  type: props.sizing?.sizeable_type
+    ? props.sizing.sizeable_type === 'App\\Models\\Allocation'
+      ? 'allocation'
+      : 'unload'
+    : null,
   user_id: props.sizing.user_id,
-  bins_tipped: props.sizing.bins_tipped || { ...tonnes },
-  fungicide: getCategoryIdsByType(props.sizing.categories, 'fungicide')[0],
-  seed_type: getCategoryIdsByType(props.sizing.categories, 'seed-type')[0],
-  weight: props.sizing.weight,
+  items: props.sizing.items || [{ ...item }],
   start: props.sizing.start,
   end: props.sizing.end,
   no_of_crew: props.sizing.no_of_crew,
@@ -64,16 +67,19 @@ watch(
       return;
     }
     form.clearErrors();
-    form.type = sizing?.sizeable_type ? (sizing.sizeable_type === 'App\\Models\\Allocation' ? 'allocation' : 'unload') : null;
+    form.type = sizing?.sizeable_type
+      ? sizing.sizeable_type === 'App\\Models\\Allocation'
+        ? 'allocation'
+        : 'unload'
+      : null;
     form.user_id = sizing.user_id;
-    form.bins_tipped = sizing.bins_tipped || { ...tonnes };
-    form.fungicide = getCategoryIdsByType(sizing.categories, 'fungicide')[0];
-    form.seed_type = getCategoryIdsByType(sizing.categories, 'seed-type')[0];
-    form.weight = sizing.weight;
+    form.items = sizing.items || [{ ...item }];
     form.start = sizing.start;
     form.end = sizing.end;
     form.no_of_crew = sizing.no_of_crew;
     form.comments = sizing.comments;
+
+    updateItemsOnChangeSizing();
   },
 );
 
@@ -89,6 +95,16 @@ watch(
     }
   },
 );
+
+const updateItemsOnChangeSizing = () => {
+  form.items.forEach((item, index) => {
+    form.items[index].seed_type = getCategoryIdsByType(item.categories, 'seed-type')[0];
+    form.items[index].fungicide = getCategoryIdsByType(item.categories, 'fungicide')[0];
+    form.items[index].half_tonnes = item.half_tonnes;
+    form.items[index].one_tonnes = item.one_tonnes;
+    form.items[index].two_tonnes = item.two_tonnes;
+  });
+};
 
 const isForm = computed(() => {
   return isEdit.value || props.isNew || props.isNewItem;
@@ -112,21 +128,29 @@ const onChangeInnerType = (value) => {
   onChangeUser();
 };
 
+const addMoreSeedType = () => {
+  form.items.push({ ...item });
+};
+
 const setIsEdit = () => {
   isEdit.value = true;
   loader.value = true;
 
+  const params = {
+    isEdit: true,
+  };
+
+  console.log(params);
+
   axios
-    .get(route(isAllocation.value ? 'buyers.allocations' : 'grower.unloads', props.sizing.user_id))
+    .get(route(isAllocation.value ? 'sizing.buyers.allocations' : 'sizing.grower.unloads', props.sizing.user_id), {
+      params,
+    })
     .then((response) => {
       if (isAllocation.value) {
-        form.selected_allocation = response.data.find(
-          (item) => props.sizing.sizeable_id === item.id,
-        );
+        form.selected_allocation = response.data.find((item) => props.sizing.sizeable_id === item.id);
       } else {
-        form.selected_unload = response.data.find(
-          (item) => props.sizing.sizeable_id === item.id,
-        );
+        form.selected_unload = response.data.find((item) => props.sizing.sizeable_id === item.id);
       }
     })
     .catch(() => {})
@@ -168,6 +192,8 @@ const deleteSizing = () => {
   });
 };
 
+updateItemsOnChangeSizing();
+
 defineExpose({
   updateRecord,
   storeRecord,
@@ -185,8 +211,8 @@ defineExpose({
             :value="form.type"
             :error="form.errors.type"
             :items="[
-              { value: 'unload', label: 'Unload' }, 
-              { value: 'allocation', label: 'Allocation' } 
+              { value: 'unload', label: 'Unload' },
+              { value: 'allocation', label: 'Allocation' },
             ]"
             @click="onChangeType"
           />
@@ -204,11 +230,7 @@ defineExpose({
             @change="onChangeUser"
             :class="{ 'is-invalid': form.errors.user_id }"
           />
-          <div
-            v-if="form.errors.user_id"
-            class="invalid-feedback p-0 m-0"
-            v-text="form.errors.user_id"
-          />
+          <div v-if="form.errors.user_id" class="invalid-feedback p-0 m-0" v-text="form.errors.user_id" />
         </td>
       </tr>
     </table>
@@ -216,7 +238,7 @@ defineExpose({
 
   <h4 v-if="isNew">Sizing Details</h4>
   <div class="user-boxes position-relative" :class="{ 'pe-5': !isForm }">
-    <div  v-if="isForm && form.user_id" class="d-flex justify-content-between mb-2">
+    <div v-if="isForm && form.user_id" class="d-flex justify-content-between mb-2">
       <div>
         <template v-if="!isNew">
           <UlLiButton
@@ -224,9 +246,9 @@ defineExpose({
             :value="form.type"
             :error="form.errors.type"
             :items="[
-                { value: 'unload', label: 'Unload' }, 
-                { value: 'allocation', label: 'Allocation' } 
-              ]"
+              { value: 'unload', label: 'Unload' },
+              { value: 'allocation', label: 'Allocation' },
+            ]"
             @click="onChangeInnerType"
           />
         </template>
@@ -250,43 +272,73 @@ defineExpose({
         <div class="is-invalid"></div>
         <div class="invalid-feedback p-0 m-0" v-text="form.errors.selected_unload" />
       </template>
-      <SelectedAllocationView
-        v-if="isAllocation"
-        :loader="loader"
-        :allocation="form.selected_allocation"
-      />
-      <SelectedUnloadView
-        v-else
-        :loader="loader"
-        :unload="form.selected_unload"
-      />
-      <label class="form-label">Bins Tipped</label>
-      <div class="row">
-        <div class="col-12 col-sm-6 col-md-4 col-lg-6 col-xl-4 mb-3">
-          <TextInput type="text" v-model="form['bins_tipped'].half_tonne" :error="form.errors[`bins_tipped.half_tonne`]">
-            <template #prefix-addon>
-              <div class="input-group-text">Half tonne</div>
-            </template>
+      <SelectedAllocationView v-if="isAllocation" :loader="loader" :allocation="form.selected_allocation" />
+      <SelectedUnloadView v-else :loader="loader" :unload="form.selected_unload" />
+      <div class="d-flex justify-content-between">
+        <label class="form-label fw-bold">Sizing Details</label>
+
+        <button class="btn btn-black btn-sm px-2 mb-2" v-text="'Add more seed type'" @click="addMoreSeedType" />
+      </div>
+      <div v-for="(item, index) in form.items" :key="index" class="row">
+        <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 mb-3">
+          <label class="form-label">Seed Type</label>
+          <Multiselect
+            v-model="form.items[index].seed_type"
+            mode="single"
+            placeholder="Choose a seed type"
+            :searchable="true"
+            :options="getCategoriesDropDownByType($page.props.categories, 'seed-type')"
+            :class="{ 'is-invalid': form.errors[`items.${index}.seed_type`] }"
+          />
+          <div v-if="form.errors[`items.${index}.seed_type`]" class="invalid-feedback">
+            {{ form.errors[`items.${index}.seed_type`] }}
+          </div>
+        </div>
+        <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 mb-3">
+          <label class="form-label">Fungicide</label>
+          <Multiselect
+            v-model="form.items[index].fungicide"
+            mode="single"
+            placeholder="Choose a fungicide"
+            :searchable="true"
+            :options="getCategoriesDropDownByType($page.props.categories, 'fungicide')"
+            :class="{ 'is-invalid': form.errors[`items.${index}.fungicide`] }"
+          />
+          <div v-if="form.errors[`items.${index}.fungicide`]" class="invalid-feedback">
+            {{ form.errors[`items.${index}.fungicide`] }}
+          </div>
+        </div>
+        <div class="col-12 col-sm-4 col-md-2 col-lg-4 col-xl-2 mb-3">
+          <label class="form-label">Half Tonne</label>
+          <TextInput
+            type="text"
+            v-model="form.items[index].half_tonnes"
+            :error="form.errors[`items.${index}.half_tonnes`]"
+          >
             <template #addon>
               <div class="input-group-text">Bins</div>
             </template>
           </TextInput>
         </div>
-        <div class="col-12 col-sm-6 col-md-4 col-lg-6 col-xl-4 mb-3">
-          <TextInput type="text" v-model="form['bins_tipped'].one_tonne" :error="form.errors[`bins_tipped.one_tonne`]">
-            <template #prefix-addon>
-              <div class="input-group-text">One tonne</div>
-            </template>
+        <div class="col-12 col-sm-4 col-md-2 col-lg-4 col-xl-2 mb-3">
+          <label class="form-label">One Tonne</label>
+          <TextInput
+            type="text"
+            v-model="form.items[index].one_tonnes"
+            :error="form.errors[`items.${index}.one_tonnes`]"
+          >
             <template #addon>
               <div class="input-group-text">Bins</div>
             </template>
           </TextInput>
         </div>
-        <div class="col-12 col-sm-6 col-md-4 col-lg-6 col-xl-4 mb-3">
-          <TextInput type="text" v-model="form['bins_tipped'].two_tonne" :error="form.errors[`bins_tipped.two_tonne`]">
-            <template #prefix-addon>
-              <div class="input-group-text">Two tonne</div>
-            </template>
+        <div class="col-12 col-sm-4 col-md-2 col-lg-4 col-xl-2 mb-3">
+          <label class="form-label">Two Tonne</label>
+          <TextInput
+            type="text"
+            v-model="form.items[index].two_tonnes"
+            :error="form.errors[`items.${index}.two_tonnes`]"
+          >
             <template #addon>
               <div class="input-group-text">Bins</div>
             </template>
@@ -294,43 +346,7 @@ defineExpose({
         </div>
       </div>
       <div class="row">
-        <div class="col-12 col-sm-6 col-md-4 col-lg-6 col-xl-4 mb-3">
-          <label class="form-label">Seed Type</label>
-          <Multiselect
-            v-model="form.seed_type"
-            mode="single"
-            placeholder="Choose a seed type"
-            :searchable="true"
-            :options="getCategoriesDropDownByType($page.props.categories, 'seed-type')"
-            :class="{ 'is-invalid': form.errors.seed_type }"
-          />
-          <div
-            v-if="form.errors.seed_type"
-            class="invalid-feedback"
-            v-text="form.errors.seed_type"
-          />
-        </div>
-        <div class="col-12 col-sm-6 col-md-4 col-lg-6 col-xl-4 mb-3">
-          <label class="form-label">Fungicide</label>
-          <Multiselect
-            v-model="form.fungicide"
-            mode="single"
-            placeholder="Choose a fungicide"
-            :searchable="true"
-            :options="getCategoriesDropDownByType($page.props.categories, 'fungicide')"
-            :class="{ 'is-invalid': form.errors.fungicide }"
-          />
-          <div
-            v-if="form.errors.fungicide"
-            class="invalid-feedback"
-            v-text="form.errors.fungicide"
-          />
-        </div>
-        <div class="col-12 col-sm-6 col-md-4 col-lg-6 col-xl-4 mb-3">
-          <label class="form-label">No of crew</label>
-          <TextInput v-model="form.no_of_crew" :error="form.errors.no_of_crew" type="text" />
-        </div>
-        <div class="col-12 col-sm-6 col-md-4 col-lg-6 col-xl-4 mb-3">
+        <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 mb-3">
           <label class="form-label">Start Time</label>
           <DatePicker
             v-model.string="form.start"
@@ -347,15 +363,11 @@ defineExpose({
                 :value="form.start"
                 @click="togglePopover"
               />
-              <div
-                v-if="form.errors.start"
-                class="invalid-feedback"
-                v-text="form.errors.start"
-              />
+              <div v-if="form.errors.start" class="invalid-feedback" v-text="form.errors.start" />
             </template>
           </DatePicker>
         </div>
-        <div class="col-12 col-sm-6 col-md-4 col-lg-6 col-xl-4 mb-3">
+        <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 mb-3">
           <label class="form-label">End Time</label>
           <DatePicker
             v-model.string="form.end"
@@ -372,15 +384,15 @@ defineExpose({
                 :value="form.end"
                 @click="togglePopover"
               />
-              <div
-                v-if="form.errors.end"
-                class="invalid-feedback"
-                v-text="form.errors.end"
-              />
+              <div v-if="form.errors.end" class="invalid-feedback" v-text="form.errors.end" />
             </template>
           </DatePicker>
         </div>
-        <div class="col-12 col-sm-6 col-md-4 col-lg-6 col-xl-4 mb-3">
+        <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 mb-3">
+          <label class="form-label">No of crew</label>
+          <TextInput v-model="form.no_of_crew" :error="form.errors.no_of_crew" type="text" />
+        </div>
+        <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 mb-3">
           <label class="form-label">Comments</label>
           <TextInput v-model="form.comments" :error="form.errors.comments" type="text" />
         </div>
@@ -413,11 +425,7 @@ defineExpose({
     <template v-else>
       <div class="btn-group position-absolute top-0 end-0">
         <button @click="setIsEdit" class="btn btn-red p-1 z-1"><i class="bi bi-pen"></i></button>
-        <button
-          data-bs-toggle="modal"
-          :data-bs-target="`#delete-sizing-${uniqueKey}`"
-          class="btn btn-red p-1 z-1"
-        >
+        <button data-bs-toggle="modal" :data-bs-target="`#delete-sizing-${uniqueKey}`" class="btn btn-red p-1 z-1">
           <template v-if="form.processing">
             <i class="bi bi-arrow-repeat d-inline-block spin"></i>
           </template>
@@ -429,18 +437,9 @@ defineExpose({
     </template>
   </div>
 
-  <ConfirmedModal
-    :id="`delete-sizing-${uniqueKey}`"
-    cancel="No, Keep it"
-    ok="Yes, Delete!"
-    @ok="deleteSizing"
-  />
+  <ConfirmedModal :id="`delete-sizing-${uniqueKey}`" cancel="No, Keep it" ok="Yes, Delete!" @ok="deleteSizing" />
 
-  <ConfirmedModal
-    :id="`store-sizing-${uniqueKey}`"
-    title="You want to store this record?"
-    @ok="storeRecord"
-  />
+  <ConfirmedModal :id="`store-sizing-${uniqueKey}`" title="You want to store this record?" @ok="storeRecord" />
 
   <ConfirmedModal
     :id="`update-sizing-${uniqueKey}`"

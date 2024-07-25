@@ -75,9 +75,7 @@ const defaultUnloadFields = {
 const updateUnloadForm = () => {
   form.unloads.forEach((unload, index) => {
     form.unloads[index].seed_type = getCategoryIdsByType(unload.categories, 'seed-type')[0];
-    form.unloads[index].created_at = unload.created_at
-      ? unload.created_at.split('.')[0].replace('T', ' ')
-      : null;
+    form.unloads[index].created_at = unload.created_at ? unload.created_at.split('.')[0].replace('T', ' ') : null;
 
     bins.value[index] = null;
     weight.value[index] = null;
@@ -87,8 +85,7 @@ const updateUnloadForm = () => {
 
 const updateUnloadsOnChangeReceival = (receival) => {
   form.fungicide = getCategoryIdsByType(receival.categories, 'fungicide');
-  form.unloads =
-    receival.unloads.length <= 0 ? [{ ...defaultUnloadFields }] : [...receival.unloads];
+  form.unloads = receival.unloads.length <= 0 ? [{ ...defaultUnloadFields }] : [...receival.unloads];
 
   updateUnloadForm();
 };
@@ -230,10 +227,8 @@ const acceptWeight = (index) => {
   if (isNaN(Number(weight.value[index]))) {
     return;
   }
-  form.unloads[index].no_of_bins =
-    parseInt(form.unloads[index].no_of_bins ?? 0) + parseInt(bins.value[index]);
-  form.unloads[index].weight =
-    parseFloat(form.unloads[index].weight ?? 0) + parseFloat(weight.value[index]);
+  form.unloads[index].no_of_bins = parseInt(form.unloads[index].no_of_bins ?? 0) + parseInt(bins.value[index]);
+  form.unloads[index].weight = parseFloat(form.unloads[index].weight ?? 0) + parseFloat(weight.value[index]);
 
   form.unloads[index].weighbridges.push({
     channel: form.unloads[index].channel,
@@ -287,7 +282,7 @@ const deleteUnload = (id) => {
   });
 };
 
-const gradingForm = useForm({ });
+const gradingForm = useForm({});
 const pushForSizing = (id) => {
   gradingForm.post(route('unloading.push.sizing', id), {
     preserveScroll: true,
@@ -314,11 +309,7 @@ defineExpose({
           <tr>
             <th>Grower</th>
             <td>
-              <Link
-                v-if="receival.grower"
-                class="p-0"
-                :href="route('users.index', { userId: receival.grower.id })"
-              >
+              <Link v-if="receival.grower" class="p-0" :href="route('users.index', { userId: receival.grower.id })">
                 {{ receival.grower?.grower_name }}
               </Link>
               <template v-else>-</template>
@@ -395,25 +386,14 @@ defineExpose({
                 :class="{ 'is-invalid': form.errors.fungicide }"
               />
               <ItemOfCategories v-else :categories="receival.categories" type="fungicide" />
-              <div
-                v-if="form.errors.fungicide"
-                class="invalid-feedback"
-                v-text="form.errors.fungicide"
-              />
+              <div v-if="form.errors.fungicide" class="invalid-feedback" v-text="form.errors.fungicide" />
             </td>
           </tr>
         </table>
       </div>
       <div v-for="(unload, index) in form.unloads" class="user-boxes position-relative">
-        <div
-          v-if="!isForm && form.unloads.length > 1"
-          class="btn-group position-absolute top-0 end-0"
-        >
-          <button
-            data-bs-toggle="modal"
-            :data-bs-target="`#delete-unload-${unload.id}`"
-            class="btn btn-red p-1 z-1"
-          >
+        <div v-if="!isForm && form.unloads.length > 1" class="btn-group position-absolute top-0 end-0">
+          <button data-bs-toggle="modal" :data-bs-target="`#delete-unload-${unload.id}`" class="btn btn-red p-1 z-1">
             <template v-if="form.processing">
               <i class="bi bi-arrow-repeat d-inline-block spin"></i>
             </template>
@@ -621,9 +601,7 @@ defineExpose({
                   />
                 </div>
                 <div class="d-inline-block align-top">
-                  <button @click="startWeighing(index)" class="btn btn-red me-2">
-                    Start Weight
-                  </button>
+                  <button @click="startWeighing(index)" class="btn btn-red me-2">Start Weight</button>
                   <button @click="getWeight(index)" class="btn btn-red">Get Weight</button>
                 </div>
               </td>
@@ -658,9 +636,7 @@ defineExpose({
             <td class="pb-0">
               <UlLiButton
                 :is-form="true"
-                :items="[
-                    { value : 'sizing', label : 'Sizing' },
-                ]"
+                :items="[{ value: 'sizing', label: 'Sizing' }]"
                 @click="(value) => pushForSizing(unload.id)"
               />
               <template v-if="gradingForm.processing">

@@ -7,13 +7,9 @@ import * as bootstrap from 'bootstrap';
 import TextInput from '@/Components/TextInput.vue';
 import ConfirmedModal from '@/Components/ConfirmedModal.vue';
 import CustomDatePicker from '@/Components/CustomDatePicker.vue';
+import SelectedView from '@/Pages/Cutting/Partials/SelectedView.vue';
 import SingleDetailsView from '@/Pages/Cutting/Partials/SingleDetailsView.vue';
-import SelectedAllocationView from '@/Pages/Cutting/Partials/SelectedAllocationView.vue';
-import {
-  getCategoryIdsByType,
-  getCategoryByKeyword,
-  getCategoriesDropDownByType,
-} from '@/helper.js';
+import { getCategoryIdsByType, getCategoryByKeyword, getCategoriesDropDownByType } from '@/helper.js';
 
 const page = usePage();
 const toast = useToast();
@@ -32,7 +28,7 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  selectedAllocations: Object,
+  selected: Object,
 });
 
 const emit = defineEmits(['allocation', 'create', 'delete']);
@@ -53,6 +49,7 @@ const getDefaultCategoryId = (categories, type, keyword) => {
 
 const form = useForm({
   buyer_id: props.cutting.buyer_id,
+  type: props.cutting.type,
   half_tonnes: props.cutting.item?.half_tonnes,
   one_tonnes: props.cutting.item?.one_tonnes,
   two_tonnes: props.cutting.item?.two_tonnes,
@@ -71,6 +68,7 @@ watch(
     }
     form.clearErrors();
     form.buyer_id = cutting.buyer_id;
+    form.type = cutting.type;
     form.half_tonnes = cutting.item?.half_tonnes;
     form.one_tonnes = cutting.item?.one_tonnes;
     form.two_tonnes = cutting.item?.two_tonnes;
@@ -82,10 +80,11 @@ watch(
 );
 
 watch(
-  () => props.selectedAllocations,
-  (allocation) => {
-    if (Object.values(allocation).length > 0) {
-      form.selected_allocation = allocation;
+  () => props.selected,
+  (selected) => {
+    if (Object.values(selected).length > 0) {
+      form.selected_allocation = selected;
+      form.type = selected.type;
     }
   },
 );
@@ -101,13 +100,12 @@ const setIsEdit = () => {
   loader.value = true;
 
   axios
-    .get(route('c.buyers.allocations', props.cutting.buyer_id))
+    .get(route(`cutting.buyers.${form.type}`, props.cutting.buyer_id))
     .then((response) => {
-      form.selected_allocation = response.data.find(
-        (item) => props.cutting.item.foreignable_id === item.id,
-      );
+      form.selected_allocation = response.data.find((row) => props.cutting.item.foreignable_id === row.id);
       form.selected_allocation.bin_size = props.cutting.item.bin_size;
       form.selected_allocation.no_of_bins = props.cutting.item.no_of_bins;
+      form.selected_allocation.type = form.type;
       form.half_tonnes = props.cutting.item.half_tonnes;
       form.one_tonnes = props.cutting.item.one_tonnes;
       form.two_tonnes = props.cutting.item.two_tonnes;
@@ -154,16 +152,12 @@ const deleteCutting = () => {
 
 onMounted(() => {
   const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-  const tooltipList = [...tooltipTriggerList].map(
-    (tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl),
-  );
+  const tooltipList = [...tooltipTriggerList].map((tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl));
 });
 
 onUpdated(() => {
   const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-  const tooltipList = [...tooltipTriggerList].map(
-    (tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl),
-  );
+  const tooltipList = [...tooltipTriggerList].map((tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl));
 });
 
 defineExpose({
@@ -207,14 +201,10 @@ defineExpose({
               data-bs-toggle="modal"
               data-bs-target="#allocations-modal"
               @click="emit('allocation', form.buyer_id)"
-              v-text="'Select Allocations'"
+              v-text="'Select for cutting'"
             />
           </div>
-          <div
-            v-if="form.errors.buyer_id"
-            class="invalid-feedback p-0 m-0"
-            v-text="form.errors.buyer_id"
-          />
+          <div v-if="form.errors.buyer_id" class="invalid-feedback p-0 m-0" v-text="form.errors.buyer_id" />
           <div
             v-if="form.errors.selected_allocation"
             class="invalid-feedback p-0 m-0"
@@ -225,11 +215,7 @@ defineExpose({
     </table>
 
     <template v-if="isForm">
-      <SelectedAllocationView
-        :form="form"
-        :loader="loader"
-        :allocation="form.selected_allocation"
-      />
+      <SelectedView :form="form" :loader="loader" :selected="form.selected_allocation" />
       <h4 class="mt-0 mb-3">Cutting Details</h4>
       <div class="row">
         <div class="col-12 col-sm-6 col-md-4 col-lg-6 col-xl-4 mb-3">
@@ -278,11 +264,7 @@ defineExpose({
             :options="getCategoriesDropDownByType($page.props.categories, 'cool-store')"
             :class="{ 'is-invalid': form.errors.cool_store }"
           />
-          <div
-            v-if="form.errors.cool_store"
-            class="invalid-feedback"
-            v-text="form.errors.cool_store"
-          />
+          <div v-if="form.errors.cool_store" class="invalid-feedback" v-text="form.errors.cool_store" />
         </div>
         <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 mb-3">
           <label class="form-label">Fungicide</label>
@@ -295,11 +277,7 @@ defineExpose({
             :options="getCategoriesDropDownByType($page.props.categories, 'fungicide')"
             :class="{ 'is-invalid': form.errors.fungicide }"
           />
-          <div
-            v-if="form.errors.fungicide"
-            class="invalid-feedback"
-            v-text="form.errors.fungicide"
-          />
+          <div v-if="form.errors.fungicide" class="invalid-feedback" v-text="form.errors.fungicide" />
         </div>
         <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 mb-3">
           <label class="form-label">Comments</label>
@@ -334,11 +312,7 @@ defineExpose({
     <template v-else>
       <div class="btn-group position-absolute top-0 end-0">
         <button @click="setIsEdit" class="btn btn-red p-1 z-1"><i class="bi bi-pen"></i></button>
-        <button
-          data-bs-toggle="modal"
-          :data-bs-target="`#delete-cutting-${uniqueKey}`"
-          class="btn btn-red p-1 z-1"
-        >
+        <button data-bs-toggle="modal" :data-bs-target="`#delete-cutting-${uniqueKey}`" class="btn btn-red p-1 z-1">
           <template v-if="form.processing">
             <i class="bi bi-arrow-repeat d-inline-block spin"></i>
           </template>
@@ -350,18 +324,9 @@ defineExpose({
     </template>
   </div>
 
-  <ConfirmedModal
-    :id="`delete-cutting-${uniqueKey}`"
-    cancel="No, Keep it"
-    ok="Yes, Delete!"
-    @ok="deleteCutting"
-  />
+  <ConfirmedModal :id="`delete-cutting-${uniqueKey}`" cancel="No, Keep it" ok="Yes, Delete!" @ok="deleteCutting" />
 
-  <ConfirmedModal
-    :id="`store-cutting-${uniqueKey}`"
-    title="You want to store this record?"
-    @ok="storeRecord"
-  />
+  <ConfirmedModal :id="`store-cutting-${uniqueKey}`" title="You want to store this record?" @ok="storeRecord" />
 
   <ConfirmedModal
     :id="`update-cutting-${uniqueKey}`"

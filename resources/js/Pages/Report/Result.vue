@@ -79,9 +79,7 @@ const setupInertiaLinks = () => {
           </li>
           <li><i class="bi bi-chevron-right"></i></li>
           <li>
-            <Link :href="route('reports.index')">
-              <span class="fa fa-arrow-left"></span> Reports
-            </Link>
+            <Link :href="route('reports.index')"> <span class="fa fa-arrow-left"></span> Reports </Link>
           </li>
           <li><i class="bi bi-chevron-right"></i></li>
           <li>

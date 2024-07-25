@@ -49,17 +49,7 @@ const access = computed(() => ({
 const keyword = ref(props.search);
 const isSearchVisible = ref(false);
 
-const emit = defineEmits([
-  'search',
-  'unset',
-  'edit',
-  'new',
-  'store',
-  'update',
-  'delete',
-  'duplicate',
-  'print',
-]);
+const emit = defineEmits(['search', 'unset', 'edit', 'new', 'store', 'update', 'delete', 'duplicate', 'print']);
 
 const search = () => {
   emit('search', keyword.value);
@@ -90,10 +80,7 @@ const search = () => {
             <Link :href="route('dashboard')"><img src="/images/logo.png" alt="logo" /></Link>
           </div>
         </div>
-        <div
-          :class="{ 'd-none': !isSearchVisible }"
-          class="col-12 col-md-6 d-md-block order-3 order-md-2"
-        >
+        <div :class="{ 'd-none': !isSearchVisible }" class="col-12 col-md-6 d-md-block order-3 order-md-2">
           <div v-if="access.search" class="form-group position-relative">
             <i class="bi bi-search form-control-feedback"></i>
             <input
@@ -135,9 +122,7 @@ const search = () => {
 
           <ul>
             <li v-if="!isNewRecordSelected && access.new && access.edit">
-              <a role="button" @click="$emit('new')" class="btn btn-red">
-                <i class="bi bi-plus-lg"></i> Add
-              </a>
+              <a role="button" @click="$emit('new')" class="btn btn-red"> <i class="bi bi-plus-lg"></i> Add </a>
             </li>
           </ul>
         </div>
@@ -150,12 +135,7 @@ const search = () => {
           </h5>
           <ul class="text-start d-inline-block d-md-none">
             <li v-if="activeTab || isNewRecordSelected">
-              <a
-                role="button"
-                @click="$emit('unset')"
-                class="btn btn-transparent"
-                title="Back to list"
-              >
+              <a role="button" @click="$emit('unset')" class="btn btn-transparent" title="Back to list">
                 <i class="bi bi-arrow-90deg-left"></i>
               </a>
             </li>
@@ -183,10 +163,5 @@ const search = () => {
 
   <ConfirmedModal id="store-record" title="You want to store this record?" @ok="$emit('store')" />
 
-  <ConfirmedModal
-    id="update-record"
-    title="You want to update this record?"
-    ok="Yes, Update!"
-    @ok="$emit('update')"
-  />
+  <ConfirmedModal id="update-record" title="You want to update this record?" ok="Yes, Update!" @ok="$emit('update')" />
 </template>

@@ -19,11 +19,7 @@ const props = defineProps({
 const search = ref(props.filters.search);
 
 watch(search, (value) => {
-  router.get(
-    route('notifications.index'),
-    { search: value },
-    { preserveState: true, preserveScroll: true },
-  );
+  router.get(route('notifications.index'), { search: value }, { preserveState: true, preserveScroll: true });
 });
 
 const filter = (keyword) => (search.value = keyword);

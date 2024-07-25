@@ -60,9 +60,7 @@ watch(
     <div class="modal-dialog modal-xl">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 v-if="dispatch" class="modal-title" id="returns-modal-Label">
-            Return {{ dispatch.type }}
-          </h5>
+          <h5 v-if="dispatch" class="modal-title" id="returns-modal-Label">Return {{ dispatch.type }}</h5>
           <button
             type="button"
             class="btn-close"
@@ -98,9 +96,7 @@ watch(
                     {{ getSingleCategoryNameByType(allocation.categories, 'seed-variety') || '-' }}
                   </td>
                   <td>
-                    {{
-                      getSingleCategoryNameByType(allocation.categories, 'seed-generation') || '-'
-                    }}
+                    {{ getSingleCategoryNameByType(allocation.categories, 'seed-generation') || '-' }}
                   </td>
                   <td>
                     {{ getSingleCategoryNameByType(allocation.categories, 'seed-type') || '-' }}
@@ -160,11 +156,7 @@ watch(
                     :value="form.created_at"
                     @click="togglePopover"
                   />
-                  <div
-                    v-if="form.errors[`created_at`]"
-                    class="invalid-feedback"
-                    v-text="form.errors[`created_at`]"
-                  />
+                  <div v-if="form.errors[`created_at`]" class="invalid-feedback" v-text="form.errors[`created_at`]" />
                 </template>
               </DatePicker>
             </div>

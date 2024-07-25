@@ -164,7 +164,7 @@ class AllocationController extends Controller
     public function duplicate(Request $request, string $id)
     {
         $allocation = Allocation::with(['categories', 'item'])->find($id);
-        
+
         $request->validate([
             'buyer_id'   => ['required', 'numeric', 'exists:users,id'],
             'no_of_bins' => ['required', 'numeric', 'gt:0', "max:{$allocation->item->no_of_bins}"],
@@ -210,7 +210,6 @@ class AllocationController extends Controller
                 'returnItems.returns',
                 'categories.category',
                 'grower:id,grower_name',
-                'sizing.categories.category',
             ])
             ->withSum(['cuttingItems'], 'no_of_bins')
             ->withSum(['baggings'], 'no_of_bulk_bags_out')
@@ -220,9 +219,8 @@ class AllocationController extends Controller
                     return $subQuery
                         ->where('paddock', 'LIKE', "%{$search}%")
                         ->orWhere('comment', 'LIKE', "%{$search}%")
-                        ->orWhereRelation('grower','grower_name', 'LIKE', "%{$search}%")
-                        ->orWhereRelation('categories.category', 'name', 'LIKE', "%{$search}%")
-                        ->orWhereRelation('sizing.categories.category', 'name', 'LIKE', "%{$search}%");
+                        ->orWhereRelation('grower', 'grower_name', 'LIKE', "%{$search}%")
+                        ->orWhereRelation('categories.category', 'name', 'LIKE', "%{$search}%");
                 });
             })
             ->where('buyer_id', $buyerId)

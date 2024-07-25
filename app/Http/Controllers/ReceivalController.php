@@ -148,7 +148,7 @@ class ReceivalController extends Controller
     {
         $receival = Receival::find($id);
         $growerId = $receival->grower_id;
-        
+
         DeleteRecordsHelper::deleteReceival($receival);
 
         ReceivalHelper::calculateRemainingReceivals($growerId);

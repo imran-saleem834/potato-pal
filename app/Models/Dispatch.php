@@ -19,7 +19,7 @@ class Dispatch extends Model
      */
     protected $fillable = [
         'buyer_id',
-        'type',
+        'dispatch_type',
         'docket_no',
         'comment',
     ];

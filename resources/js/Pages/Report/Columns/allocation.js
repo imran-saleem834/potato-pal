@@ -16,9 +16,7 @@ export default [
     data: 'grower',
     render: function (data, type, row) {
       const url = route('users.index', { userId: data.id });
-      return row.grower
-        ? `<a href="${url}" class="text-black inertia-link">${data.grower_name}</a>`
-        : '-';
+      return row.grower ? `<a href="${url}" class="text-black inertia-link">${data.grower_name}</a>` : '-';
     },
   },
   {

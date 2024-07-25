@@ -43,7 +43,7 @@ const storeRecord = () => {
       <div class="modal-content">
         <div class="modal-header">
           <h5 v-if="Object.values(allocation).length > 0" class="modal-title" :id="`${id}-label`">
-            {{ $page.props.buyers.find(buyer => buyer.value === allocation.buyer_id).label }}
+            {{ $page.props.buyers.find((buyer) => buyer.value === allocation.buyer_id).label }}
           </h5>
           <button
             type="button"
@@ -72,13 +72,23 @@ const storeRecord = () => {
               </thead>
               <tbody>
                 <tr>
-                  <td>{{ getSingleCategoryNameByType(allocation.categories, 'grower-group') || '-' }}</td>
+                  <td>
+                    {{ getSingleCategoryNameByType(allocation.categories, 'grower-group') || '-' }}
+                  </td>
                   <td>{{ allocation.grower?.grower_name || '-' }}</td>
                   <td>{{ allocation.paddock }}</td>
-                  <td>{{ getSingleCategoryNameByType(allocation.categories, 'seed-variety') || '-' }}</td>
-                  <td>{{ getSingleCategoryNameByType(allocation.categories, 'seed-generation') || '-' }}</td>
-                  <td>{{ getSingleCategoryNameByType(allocation.categories, 'seed-type') || '-' }}</td>
-                  <td>{{ getSingleCategoryNameByType(allocation.categories, 'seed-class') || '-' }}</td>
+                  <td>
+                    {{ getSingleCategoryNameByType(allocation.categories, 'seed-variety') || '-' }}
+                  </td>
+                  <td>
+                    {{ getSingleCategoryNameByType(allocation.categories, 'seed-generation') || '-' }}
+                  </td>
+                  <td>
+                    {{ getSingleCategoryNameByType(allocation.categories, 'seed-type') || '-' }}
+                  </td>
+                  <td>
+                    {{ getSingleCategoryNameByType(allocation.categories, 'seed-class') || '-' }}
+                  </td>
                   <td>{{ getBinSizesValue(allocation.item.bin_size) }}</td>
                   <td>{{ allocation.item.no_of_bins }}</td>
                   <td>{{ allocation.item.weight }} kg</td>
@@ -97,11 +107,7 @@ const storeRecord = () => {
                 :options="$page.props.buyers"
                 :class="{ 'is-invalid': form.errors.buyer_id }"
               />
-              <div
-                v-if="form.errors.buyer_id"
-                class="invalid-feedback p-0 m-0"
-                v-text="form.errors.buyer_id"
-              />
+              <div v-if="form.errors.buyer_id" class="invalid-feedback p-0 m-0" v-text="form.errors.buyer_id" />
             </div>
             <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 mb-3">
               <label class="form-label">No of bins</label>

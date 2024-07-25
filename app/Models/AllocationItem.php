@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class AllocationItem extends Model
@@ -43,5 +44,10 @@ class AllocationItem extends Model
     public function returns(): BelongsTo
     {
         return $this->belongsTo(DispatchReturn::class, 'returned_id');
+    }
+
+    public function categories(): MorphMany
+    {
+        return $this->morphMany(CategoriesRelation::class, 'categorizable');
     }
 }

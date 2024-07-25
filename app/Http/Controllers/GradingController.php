@@ -25,14 +25,14 @@ class GradingController extends Controller
         $inputBuyerId = $request->input('buyerId', $firstBuyerId);
 
         $gradings = $this->getGradings($inputBuyerId, $request->input('search'));
-        if ($gradings->isEmpty() && ((int)$inputBuyerId) !== ((int)$firstBuyerId)) {
+        if ($gradings->isEmpty() && ((int) $inputBuyerId) !== ((int) $firstBuyerId)) {
             $gradings = $this->getGradings($firstBuyerId, $request->input('search'));
         }
 
         return Inertia::render('Grading/Index', [
             'navBuyers' => $navBuyers,
             'single'    => $gradings,
-            'buyers'    => fn() => BuyerHelper::getAvailableBuyers(),
+            'buyers'    => fn () => BuyerHelper::getAvailableBuyers(),
             'filters'   => $request->only(['search', 'buyer']),
         ]);
     }
@@ -63,8 +63,8 @@ class GradingController extends Controller
     public function store(GradingRequest $request)
     {
         $allocation = $request->validated('selected_allocation');
-        $inputs = ['allocation_id' => $allocation['id'], 'buyer_id' => $allocation['buyer_id']];
-        
+        $inputs     = ['allocation_id' => $allocation['id'], 'buyer_id' => $allocation['buyer_id']];
+
         $grading = Grading::create(array_merge($request->validated(), $inputs));
 
         NotificationHelper::addedAction('Grading', $grading->id);
@@ -78,8 +78,8 @@ class GradingController extends Controller
     public function update(GradingRequest $request, string $id)
     {
         $allocation = $request->validated('selected_allocation');
-        $inputs = ['allocation_id' => $allocation['id'], 'buyer_id' => $allocation['buyer_id']];
-        
+        $inputs     = ['allocation_id' => $allocation['id'], 'buyer_id' => $allocation['buyer_id']];
+
         $grading = Grading::find($id);
         $grading->update(array_merge($request->validated(), $inputs));
         $grading->save();

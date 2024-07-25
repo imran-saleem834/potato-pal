@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('dispatches', function (Blueprint $table) {
             $table->id();
             $table->foreignId('buyer_id');
-            $table->string('type', 50)->nullable();
+            $table->string('dispatch_type', 50)->nullable();
             $table->string('docket_no', 50)->nullable();
             $table->string('comment', 255)->nullable();
             $table->timestamps();

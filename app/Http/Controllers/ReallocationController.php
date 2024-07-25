@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use Inertia\Inertia;
+use App\Models\Sizing;
 use App\Models\Cutting;
 use App\Models\Allocation;
+use App\Models\SizingItem;
 use App\Helpers\BuyerHelper;
 use App\Models\Reallocation;
 use Illuminate\Http\Request;
@@ -14,6 +16,7 @@ use App\Helpers\NotificationHelper;
 use App\Helpers\DeleteRecordsHelper;
 use Illuminate\Database\Eloquent\Builder;
 use App\Http\Requests\ReallocationRequest;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class ReallocationController extends Controller
 {
@@ -46,9 +49,19 @@ class ReallocationController extends Controller
         $cuttings = AllocationHelper::getAvailableCuttingsForReallocation(
             ['buyer_id' => $id],
             [
-                'item.foreignable.categories.category', 
-                'item.foreignable.grower:id,grower_name',
-                'item.foreignable.sizing.categories.category'
+                'item.foreignable' => function (MorphTo $morphTo) {
+                    $morphTo->morphWith([
+                        Allocation::class => [
+                            'categories.category',
+                            'grower:id,grower_name',
+                        ],
+                        SizingItem::class     => [
+                            'categories.category',
+                            'allocatable.sizeable.categories.category',
+                            'allocatable.sizeable.grower:id,grower_name',
+                        ],
+                    ]);
+                },
             ]
         );
 
@@ -142,9 +155,19 @@ class ReallocationController extends Controller
             ->with([
                 'returnItems.returns',
                 'allocationBuyer',
-                'item.foreignable.item.foreignable.grower:id,grower_name',
-                'item.foreignable.item.foreignable.categories.category',
-                'item.foreignable.item.foreignable.sizing.categories.category',
+                'item.foreignable.item.foreignable' => function (MorphTo $morphTo) {
+                    $morphTo->morphWith([
+                        Allocation::class => [
+                            'categories.category',
+                            'grower:id,grower_name',
+                        ],
+                        SizingItem::class => [
+                            'categories.category',
+                            'allocatable.sizeable.categories.category',
+                            'allocatable.sizeable.grower:id,grower_name',
+                        ],
+                    ]);
+                },
             ])
             ->when($search, function ($query, $search) {
                 return $query->where(function ($subQuery) use ($search) {
@@ -161,8 +184,24 @@ class ReallocationController extends Controller
                                             ->whereHasMorph('foreignable', [Allocation::class], function (Builder $query) use ($search) {
                                                 return $query->where('paddock', 'LIKE', "%{$search}%")
                                                     ->orWhereRelation('grower', 'grower_name', 'LIKE', "%{$search}%")
-                                                    ->orWhereRelation('categories.category', 'name', 'LIKE', "%{$search}%")
-                                                    ->orWhereRelation('sizing.categories.category', 'name', 'LIKE', "%{$search}%");
+                                                    ->orWhereRelation('categories.category', 'name', 'LIKE', "%{$search}%");
+                                            });
+                                    })->orWhereHas('item', function (Builder $query) use ($search) {
+                                        return $query
+                                            ->where('foreignable_type', SizingItem::class)
+                                            ->whereHasMorph('foreignable', [SizingItem::class], function (Builder $query) use ($search) {
+                                                return $query->where(function (Builder $query) use ($search) {
+                                                    return $query->whereRelation('categories.category', 'name', 'LIKE', "%{$search}%");
+                                                })->orWhere(function (Builder $query) use ($search) {
+                                                    return $query->where('allocatable_type', Sizing::class)
+                                                        ->whereHasMorph('allocatable', [Sizing::class], function (Builder $query) use ($search) {
+                                                            return $query
+                                                                ->whereHasMorph('sizeable', [Allocation::class], function (Builder $query) use ($search) {
+                                                                    return $query->where('paddock', 'LIKE', "%{$search}%")
+                                                                        ->orWhereRelation('categories.category', 'name', 'LIKE', "%{$search}%");
+                                                                });
+                                                        });
+                                                });
                                             });
                                     });
                                 });

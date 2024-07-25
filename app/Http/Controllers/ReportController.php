@@ -4,10 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Inertia\Inertia;
-use App\Models\Grading;
 use App\Models\Label;
 use App\Models\Report;
 use App\Models\Unload;
+use App\Models\Grading;
 use App\Models\Category;
 use App\Models\Dispatch;
 use App\Models\Receival;
@@ -299,14 +299,8 @@ class ReportController extends Controller
                     return $subQuery->whereIn('grower_id', $growerIds);
                 });
             })
-            ->when($report->filters['processor'] ?? null, function (Builder $query, $processor) {
-                return $query->whereIn('processor', $processor);
-            })
             ->when($report->filters['size'] ?? null, function (Builder $query, $size) {
                 return $query->whereIn('size', $size);
-            })
-            ->when($report->filters['disease_scoring'] ?? null, function (Builder $query, $scoring) {
-                return $query->whereIn('disease_scoring', $scoring);
             })
             ->when($receivalCategoryIds, function (Builder $query, $categoryIds) {
                 return $query->whereRelation('receival.categories', function (Builder $subQuery) use ($categoryIds) {

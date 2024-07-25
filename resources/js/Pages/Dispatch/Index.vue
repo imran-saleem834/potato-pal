@@ -132,10 +132,7 @@ if (width.value > 991) {
 
     <div class="tab-section">
       <div class="row g-0">
-        <div
-          class="col-12 col-lg-5 col-xl-4 nav-left d-lg-block"
-          :class="{ 'd-none': activeTab || isNewRecord }"
-        >
+        <div class="col-12 col-lg-5 col-xl-4 nav-left d-lg-block" :class="{ 'd-none': activeTab || isNewRecord }">
           <LeftBar
             :items="dispatchBuyers"
             :active-tab="activeTab?.id"
@@ -144,18 +141,15 @@ if (width.value > 991) {
             @click="getDispatch"
           />
         </div>
-        <div
-          class="col-12 col-lg-7 col-xl-8 d-lg-block"
-          :class="{ 'd-none': !activeTab && !isNewRecord }"
-        >
+        <div class="col-12 col-lg-7 col-xl-8 d-lg-block" :class="{ 'd-none': !activeTab && !isNewRecord }">
           <div class="tab-content">
             <Details
               v-if="isNewRecord"
               ref="details"
               unique-key="newRecord"
               :is-new="true"
-              :selected-allocation="selection['newRecord']?.selected || {}"
-              @allocation="(id) => setUpdateSelection('newRecord', id)"
+              :selected="selection['newRecord']?.selected || {}"
+              @toSelect="(id) => setUpdateSelection('newRecord', id)"
               @create="() => setActiveTab(dispatchBuyers[0]?.buyer_id)"
             />
             <template v-else>
@@ -181,17 +175,9 @@ if (width.value > 991) {
                         </Link>
                       </td>
                       <td class="pb-0 border-0">
-                        <ul
-                          v-if="
-                            getCategoriesByType(activeTab?.buyer?.categories, 'buyer-group')
-                              .length > 0
-                          "
-                        >
+                        <ul v-if="getCategoriesByType(activeTab?.buyer?.categories, 'buyer-group').length > 0">
                           <li
-                            v-for="category in getCategoriesByType(
-                              activeTab?.buyer?.categories,
-                              'buyer-group',
-                            )"
+                            v-for="category in getCategoriesByType(activeTab?.buyer?.categories, 'buyer-group')"
                             :key="category.id"
                           >
                             <a>{{ category.category.name }}</a>
@@ -201,16 +187,16 @@ if (width.value > 991) {
                     </tr>
                   </tbody>
                   <thead>
-                  <tr>
-                    <th class="d-none d-sm-table-cell" colspan="3">Summery</th>
-                  </tr>
+                    <tr>
+                      <th class="d-none d-sm-table-cell" colspan="3">Summery</th>
+                    </tr>
                   </thead>
                   <tbody>
-                  <tr class="align-middle border-0">
-                    <th class="pb-0 border-0">Half Tonnes: {{ summery.sum_half_tonnes }}</th>
-                    <td class="pb-0 border-0">One Tonnes: {{ summery.sum_one_tonnes }}</td>
-                    <td class="pb-0 border-0">Two Tonnes: {{ summery.sum_two_tonnes }}</td>
-                  </tr>
+                    <tr class="align-middle border-0">
+                      <th class="pb-0 border-0">Half Tonnes: {{ summery.sum_half_tonnes }}</th>
+                      <td class="pb-0 border-0">One Tonnes: {{ summery.sum_one_tonnes }}</td>
+                      <td class="pb-0 border-0">Two Tonnes: {{ summery.sum_two_tonnes }}</td>
+                    </tr>
                   </tbody>
                 </table>
               </div>
@@ -219,19 +205,10 @@ if (width.value > 991) {
                   <h4 class="m-0">Dispatches Details</h4>
                 </div>
                 <div class="col-12 col-sm-4 col-lg-5 mb-3 mb-sm-4">
-                  <input
-                    v-model="search"
-                    type="text"
-                    class="form-control"
-                    placeholder="Search dispatches..."
-                  />
+                  <input v-model="search" type="text" class="form-control" placeholder="Search dispatches..." />
                 </div>
                 <div class="col-12 col-sm-4 col-lg-4 mb-3 mb-sm-4 text-end">
-                  <button
-                    class="btn btn-black"
-                    :disabled="isNewItemRecord"
-                    @click="isNewItemRecord = true"
-                  >
+                  <button class="btn btn-black" :disabled="isNewItemRecord" @click="isNewItemRecord = true">
                     <i class="bi bi-plus-lg"></i> Add dispatch
                   </button>
                 </div>
@@ -242,8 +219,8 @@ if (width.value > 991) {
                 unique-key="newItemRecord"
                 :dispatch="{ buyer_id: activeTab?.buyer_id }"
                 :is-new-item="true"
-                :selected-allocation="selection['newItemRecord']?.selected || {}"
-                @allocation="(id) => setUpdateSelection('newItemRecord', id)"
+                :selected="selection['newItemRecord']?.selected || {}"
+                @toSelect="(id) => setUpdateSelection('newItemRecord', id)"
                 @create="() => setActiveTab(activeTab?.buyer_id)"
               />
               <template v-for="dispatch in dispatches?.data" :key="dispatch.id">
@@ -251,8 +228,8 @@ if (width.value > 991) {
                   ref="details"
                   :unique-key="`${dispatch.id}`"
                   :dispatch="dispatch"
-                  :selected-allocation="selection[dispatch.id]?.selected || {}"
-                  @allocation="(buyerId) => setUpdateSelection(dispatch.id, buyerId)"
+                  :selected="selection[dispatch.id]?.selected || {}"
+                  @toSelect="(buyerId) => setUpdateSelection(dispatch.id, buyerId)"
                   @setReturnDispatch="setReturnDispatch"
                   @delete="() => setActiveTab(dispatches?.data[0]?.buyer_id)"
                 />
@@ -271,12 +248,9 @@ if (width.value > 991) {
 
     <SelectionModal
       :buyer-id="selection[selectIdentifier]?.id"
-      @allocations="(allocations) => (selection[selectIdentifier].selected = allocations)"
+      @select="(row) => (selection[selectIdentifier].selected = row)"
       @close="() => (selection[selectIdentifier].id = null)"
     />
-    <ReturnsModal
-      :dispatch="selectedReturnDispatch"
-      @close="() => (selectedReturnDispatch = null)"
-    />
+    <ReturnsModal :dispatch="selectedReturnDispatch" @close="() => (selectedReturnDispatch = null)" />
   </AppLayout>
 </template>

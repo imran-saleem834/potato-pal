@@ -21,7 +21,7 @@ const unloads = ref([]);
 const getUnloads = () => {
   loader.value = true;
   axios
-    .get(route('grower.unloads', props.growerId))
+    .get(route('sizing.grower.unloads', props.growerId))
     .then((response) => {
       unloads.value = response.data;
     })
@@ -71,10 +71,7 @@ watch(
               <span class="visually-hidden">Loading...</span>
             </div>
           </div>
-          <div
-            v-if="!loader && unloads.length <= 0"
-            class="d-flex justify-content-center text-danger fs-5 my-3"
-          >
+          <div v-if="!loader && unloads.length <= 0" class="d-flex justify-content-center text-danger fs-5 my-3">
             Data not found
           </div>
           <div v-if="!loader && unloads.length" class="table-responsive">
@@ -97,21 +94,15 @@ watch(
                 <template v-for="unload in unloads" :key="unload.id">
                   <tr>
                     <td>
-                      {{
-                        getSingleCategoryNameByType(unload.receival.categories, 'grower-group') || '-'
-                      }}
+                      {{ getSingleCategoryNameByType(unload.receival.categories, 'grower-group') || '-' }}
                     </td>
                     <td>{{ unload.receival.grower?.grower_name || '-' }}</td>
                     <td>{{ unload.receival.paddock }}</td>
                     <td>
-                      {{
-                        getSingleCategoryNameByType(unload.receival.categories, 'seed-variety') || '-'
-                      }}
+                      {{ getSingleCategoryNameByType(unload.receival.categories, 'seed-variety') || '-' }}
                     </td>
                     <td>
-                      {{
-                        getSingleCategoryNameByType(unload.receival.categories, 'seed-generation') || '-'
-                      }}
+                      {{ getSingleCategoryNameByType(unload.receival.categories, 'seed-generation') || '-' }}
                     </td>
                     <td>
                       {{ getSingleCategoryNameByType(unload.categories, 'seed-type') || '-' }}
@@ -122,11 +113,7 @@ watch(
                     <td>{{ getBinSizesValue(unload.bin_size) }}</td>
                     <td>{{ toTonnes(unload.weight) }}</td>
                     <td>
-                      <input
-                        type="checkbox"
-                        @click="onSelectUnload(unload)"
-                        data-bs-dismiss="modal"
-                      />
+                      <input type="checkbox" @click="onSelectUnload(unload)" data-bs-dismiss="modal" />
                     </td>
                   </tr>
                 </template>
