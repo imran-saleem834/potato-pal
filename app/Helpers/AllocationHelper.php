@@ -22,6 +22,7 @@ class AllocationHelper
             ->when($filter['id'] ?? null, function (Builder $query, $id) {
                 return $query->whereIn('id', Arr::wrap($id));
             })
+            ->doesntHave('sizing')
             ->get()
             ->map(function ($allocation) {
                 // Set available bins
@@ -64,8 +65,10 @@ class AllocationHelper
                 return $query->whereIn('id', Arr::wrap($id));
             })
             ->get()
-            ->map(function ($cutting) {
-                return self::setAvailableForCutting($cutting);
+            ->map(function ($model) {
+                $model = self::setAvailableBins($model);
+                $model = self::removeReallocationBins($model);
+                return static::removeDispatchAndSetReturnBins($model);
             });
     }
 
@@ -80,9 +83,11 @@ class AllocationHelper
             ->when($filter['id'] ?? null, function (Builder $query, $id) {
                 return $query->whereIn('id', Arr::wrap($id));
             })
+            ->doesntHave('sizing')
             ->get()
-            ->map(function ($allocation) {
-                return static::setAvailableForAllocation($allocation);
+            ->map(function ($model) {
+                $model = static::setAvailableForAllocation($model);
+                return self::removeDispatchAndSetReturnBins($model);
             });
     }
 
@@ -106,14 +111,8 @@ class AllocationHelper
                 $model->available_half_tonnes = $model->half_tonnes;
                 $model->available_one_tonnes  = $model->one_tonnes;
                 $model->available_two_tonnes  = $model->two_tonnes;
-
-                // Remove cutting bins
-                foreach ($model->cuttingItems as $item) {
-                    $model->available_half_tonnes -= $item->half_tonnes;
-                    $model->available_one_tonnes  -= $item->one_tonnes;
-                    $model->available_two_tonnes  -= $item->two_tonnes;
-                }
-
+                
+                $model = static::removeCuttingBins($model);
                 return static::removeDispatchAndSetReturnBins($model);
             });
     }
@@ -129,8 +128,9 @@ class AllocationHelper
                 return $query->whereIn('id', Arr::wrap($id));
             })
             ->get()
-            ->map(function ($reallocation) {
-                return self::setAvailableForReallocation($reallocation);
+            ->map(function ($model) {
+                $model = self::setAvailableBins($model);
+                return static::removeDispatchAndSetReturnBins($model);
             });
     }
 
@@ -147,15 +147,21 @@ class AllocationHelper
             $model->available_two_tonnes  -= (int) $item->bin_size === 2000 ? $item->no_of_bins : 0;
         }
 
-        return self::removeDispatchAndSetReturnBins($model);
+        return $model;
     }
 
-    public static function setAvailableForCutting($model)
+    public static function setAvailableBins($model)
     {
-        $model = static::setAvailableForReallocation($model);
+        $model->available_half_tonnes = $model->item->half_tonnes;
+        $model->available_one_tonnes  = $model->item->one_tonnes;
+        $model->available_two_tonnes  = $model->item->two_tonnes;
 
-        // Remove reallocation bins
-        foreach ($model->reallocationItems as $item) {
+        return $model;
+    }
+
+    public static function removeCuttingBins($model)
+    {
+        foreach ($model->cuttingItems as $item) {
             $model->available_half_tonnes -= $item->half_tonnes;
             $model->available_one_tonnes  -= $item->one_tonnes;
             $model->available_two_tonnes  -= $item->two_tonnes;
@@ -163,14 +169,15 @@ class AllocationHelper
 
         return $model;
     }
-
-    public static function setAvailableForReallocation($model)
+    public static function removeReallocationBins($model)
     {
-        $model->available_half_tonnes = $model->item->half_tonnes;
-        $model->available_one_tonnes  = $model->item->one_tonnes;
-        $model->available_two_tonnes  = $model->item->two_tonnes;
+        foreach ($model->reallocationItems as $item) {
+            $model->available_half_tonnes -= $item->half_tonnes;
+            $model->available_one_tonnes  -= $item->one_tonnes;
+            $model->available_two_tonnes  -= $item->two_tonnes;
+        }
 
-        return static::removeDispatchAndSetReturnBins($model);
+        return $model;
     }
 
     public static function removeDispatchAndSetReturnBins($model)
