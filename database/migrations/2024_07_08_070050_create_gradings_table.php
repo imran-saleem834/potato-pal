@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('gradings', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('buyer_id');
-            $table->foreignId('allocation_id');
+            $table->foreignId('user_id');
+            $table->morphs('gradeable');
             $table->string('bins_tipped')->nullable();
             $table->string('bins_graded')->nullable();
             $table->float('weight')->nullable();
