@@ -2,7 +2,7 @@
 import { ref, watch } from 'vue';
 import DataTable from 'datatables.net-vue3';
 import DataTablesCore from 'datatables.net';
-import { getSingleCategoryNameByType } from '@/helper.js';
+import { getBinSizesValue, getSingleCategoryNameByType } from '@/helper.js';
 
 DataTable.use(DataTablesCore);
 
@@ -92,6 +92,7 @@ watch(
                   <th>Gen</th>
                   <th>Seed type</th>
                   <th>Class</th>
+                  <th>Tipped Bins</th>
                   <th>Half tonnes</th>
                   <th>One tonnes</th>
                   <th>Two tonnes</th>
@@ -120,6 +121,12 @@ watch(
                     </td>
                     <td>
                       {{ getSingleCategoryNameByType(getAllocation(cutting).categories, 'seed-class') || '-' }}
+                    </td>
+                    <td>
+                      <template v-if="cutting.type === 'allocation'">
+                        {{ getBinSizesValue(cutting.item.bin_size) }} X {{ cutting.item.no_of_bins }}
+                      </template>
+                      <template v-else>-</template>
                     </td>
                     <td>{{ `${cutting.available_half_tonnes} Bins` }}</td>
                     <td>{{ `${cutting.available_one_tonnes} Bins` }}</td>

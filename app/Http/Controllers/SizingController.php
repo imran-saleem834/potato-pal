@@ -185,8 +185,7 @@ class SizingController extends Controller
                                             ->orWhere('grower_name', 'LIKE', "%{$search}%");
                                     });
                             });
-                        }
-                        );
+                        });
                 });
             })
             ->where('user_id', $buyerId)

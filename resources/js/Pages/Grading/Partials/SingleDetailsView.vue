@@ -1,12 +1,15 @@
 <script setup>
 import { Link } from '@inertiajs/vue3';
-import { getBinSizesValue, getSingleCategoryNameByType } from '@/helper.js';
-import { onMounted, onUpdated } from 'vue';
 import * as bootstrap from 'bootstrap';
+import { computed, onMounted, onUpdated } from 'vue';
+import { getBinSizesValue, getSingleCategoryNameByType } from '@/helper.js';
 
-defineProps({
+const props = defineProps({
   grading: Object,
 });
+
+const isAllocation = computed(() => props.grading.gradeable_type === 'App\\Models\\Allocation');
+const receival = computed(() => (isAllocation.value ? props.grading.gradeable : props.grading.gradeable.receival));
 
 onMounted(() => {
   const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
@@ -23,7 +26,8 @@ onUpdated(() => {
   <table class="table table-sm align-middle">
     <thead>
       <tr>
-        <th>Allocation ID</th>
+        <th v-if="isAllocation">Allocation ID</th>
+        <th v-else>Unload ID</th>
         <th class="d-none d-md-table-cell">Grower</th>
         <th class="d-none d-md-table-cell">Paddock</th>
         <th class="d-none d-xl-table-cell">Variety</th>
@@ -37,33 +41,37 @@ onUpdated(() => {
     <tbody>
       <tr>
         <td>
-          <Link :href="route('allocations.index', { buyerId: grading.buyer_id })">
-            {{ grading.allocation_id }}
+          <Link v-if="isAllocation" :href="route('allocations.index', { buyerId: grading.user_id })">
+            {{ grading.gradeable_id }}
+          </Link>
+          <Link v-else :href="route('unloading.index', { receivalId: grading.gradeable.receival_id })">
+            {{ grading.gradeable_id }}
           </Link>
         </td>
+        <td class="d-none d-md-table-cell text-primary">{{ receival?.grower?.grower_name }}</td>
         <td class="d-none d-md-table-cell text-primary">
-          {{ grading.allocation?.grower?.grower_name }}
+          <template v-if="isAllocation">{{ grading.gradeable?.paddock }}</template>
+          <template v-else>{{ grading.gradeable?.receival?.paddocks[0] }}</template>
         </td>
-        <td class="d-none d-md-table-cell text-primary">{{ grading.allocation.paddock }}</td>
         <td class="d-none d-xl-table-cell text-primary">
-          {{ getSingleCategoryNameByType(grading.allocation.categories, 'seed-variety') || '-' }}
+          {{ getSingleCategoryNameByType(receival.categories, 'seed-variety') || '-' }}
         </td>
         <td class="d-none d-md-table-cell text-primary">
-          {{ getSingleCategoryNameByType(grading.allocation.categories, 'seed-generation') || '-' }}
+          {{ getSingleCategoryNameByType(receival.categories, 'seed-generation') || '-' }}
         </td>
         <td class="text-primary">
-          {{ getSingleCategoryNameByType(grading.allocation.categories, 'seed-type') || '-' }}
+          {{ getSingleCategoryNameByType(grading.gradeable.categories, 'seed-type') || '-' }}
           <a
             data-bs-toggle="tooltip"
             data-bs-html="true"
             class="d-xl-none"
             :data-bs-title="`
             <div class='text-start'>
-              Grower: ${grading.allocation.grower.grower_name}<br/>
-              Paddock: ${grading.allocation.paddock}<br/>
-              Variety: ${getSingleCategoryNameByType(grading.allocation.categories, 'seed-variety') || '-'}<br/>
-              Gen.: ${getSingleCategoryNameByType(grading.allocation.categories, 'seed-generation') || '-'}<br/>
-              Class: ${getSingleCategoryNameByType(grading.allocation.categories, 'seed-class') || '-'}
+              Grower: ${receival.grower.grower_name}<br/>
+              Paddock: ${isAllocation ? grading.gradeable?.paddock : grading.gradeable?.receival?.paddocks[0]}<br/>
+              Variety: ${getSingleCategoryNameByType(receival.categories, 'seed-variety') || '-'}<br/>
+              Gen.: ${getSingleCategoryNameByType(receival.categories, 'seed-generation') || '-'}<br/>
+              Class: ${getSingleCategoryNameByType(receival.categories, 'seed-class') || '-'}
             </div>
           `"
           >
@@ -71,10 +79,16 @@ onUpdated(() => {
           </a>
         </td>
         <td class="d-none d-xl-table-cell text-primary">
-          {{ getSingleCategoryNameByType(grading.allocation.categories, 'seed-class') || '-' }}
+          {{ getSingleCategoryNameByType(receival.categories, 'seed-class') || '-' }}
         </td>
-        <td class="text-primary">{{ getBinSizesValue(grading.allocation.item.bin_size) }}</td>
-        <td class="text-primary">{{ grading.allocation.item.no_of_bins }}</td>
+        <td class="text-primary">
+          <template v-if="isAllocation">{{ getBinSizesValue(grading.gradeable.item.bin_size) }}</template>
+          <template v-else>{{ getBinSizesValue(grading.gradeable?.bin_size) }}</template>
+        </td>
+        <td class="text-primary">
+          <template v-if="isAllocation">{{ grading.gradeable.item.no_of_bins }}</template>
+          <template v-else>{{ grading.gradeable?.no_of_bins }}</template>
+        </td>
       </tr>
     </tbody>
   </table>

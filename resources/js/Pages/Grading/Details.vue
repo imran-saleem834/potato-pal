@@ -5,8 +5,10 @@ import { DatePicker } from 'v-calendar';
 import Multiselect from '@vueform/multiselect';
 import { useToast } from 'vue-toastification';
 import TextInput from '@/Components/TextInput.vue';
+import UlLiButton from '@/Components/UlLiButton.vue';
 import ConfirmedModal from '@/Components/ConfirmedModal.vue';
 import SingleDetailsView from '@/Pages/Grading/Partials/SingleDetailsView.vue';
+import SelectedUnloadView from '@/Pages/Grading/Partials/SelectedUnloadView.vue';
 import SelectedAllocationView from '@/Pages/Grading/Partials/SelectedAllocationView.vue';
 
 const toast = useToast();
@@ -28,7 +30,7 @@ const props = defineProps({
   selectedAllocation: Object,
 });
 
-const emit = defineEmits(['allocation', 'create', 'delete']);
+const emit = defineEmits(['toSelect', 'create', 'delete']);
 
 const isEdit = ref(false);
 const loader = ref(false);
@@ -40,8 +42,12 @@ const tonnes = {
 };
 
 const form = useForm({
-  buyer_id: props.grading.buyer_id,
-  allocation_id: props.grading.allocation_id,
+  type: props.grading?.gradeable_type
+    ? props.grading.gradeable_type === 'App\\Models\\Allocation'
+      ? 'allocation'
+      : 'unload'
+    : null,
+  user_id: props.grading.user_id,
   bins_tipped: props.grading.bins_tipped || { ...tonnes },
   bins_graded: props.grading.bins_graded || { ...tonnes },
   weight: props.grading.weight,
@@ -51,6 +57,7 @@ const form = useForm({
   no_of_crew: props.grading.no_of_crew,
   comments: props.grading.comments,
   selected_allocation: {},
+  selected_unload: {},
 });
 
 watch(
@@ -60,8 +67,12 @@ watch(
       return;
     }
     form.clearErrors();
-    form.buyer_id = grading.buyer_id;
-    form.allocation_id = grading.allocation_id;
+    form.type = grading?.gradeable_type
+      ? grading.gradeable_type === 'App\\Models\\Allocation'
+        ? 'allocation'
+        : 'unload'
+      : null;
+    form.user_id = grading.user_id;
     form.bins_tipped = grading.bins_tipped || { ...tonnes };
     form.bins_graded = grading.bins_graded || { ...tonnes };
     form.weight = grading.weight;
@@ -77,25 +88,47 @@ watch(
   () => props.selectedAllocation,
   (allocation) => {
     if (Object.values(allocation).length > 0) {
-      form.selected_allocation = allocation;
+      if (isAllocation.value) {
+        form.selected_allocation = allocation;
+      } else {
+        form.selected_unload = allocation;
+      }
     }
   },
 );
 
-const isForm = computed(() => {
-  return isEdit.value || props.isNew || props.isNewItem;
-});
+const isForm = computed(() => isEdit.value || props.isNew || props.isNewItem);
+const isAllocation = computed(() => form.type === 'allocation');
 
-const onChangeBuyer = () => (form.selected_allocation = {});
+const onChangeUser = () => {
+  form.selected_allocation = {};
+  form.selected_unload = {};
+};
+
+const onChangeType = (value) => {
+  form.type = value;
+  form.user_id = null;
+  onChangeUser();
+};
 
 const setIsEdit = () => {
   isEdit.value = true;
   loader.value = true;
 
+  const params = {
+    isEdit: true,
+  };
+
   axios
-    .get(route('buyers.allocations', props.grading.buyer_id))
+    .get(route(isAllocation.value ? 'grading.buyers.allocations' : 'grading.grower.unloads', props.grading.user_id), {
+      params,
+    })
     .then((response) => {
-      form.selected_allocation = response.data.find((item) => props.grading.allocation_id === item.id);
+      if (isAllocation.value) {
+        form.selected_allocation = response.data.find((item) => props.grading.gradeable_id === item.id);
+      } else {
+        form.selected_unload = response.data.find((item) => props.grading.gradeable_id === item.id);
+      }
     })
     .catch(() => {})
     .finally(() => {
@@ -146,18 +179,33 @@ defineExpose({
   <div v-if="isNew" class="user-boxes">
     <table class="table input-table mb-0">
       <tr>
-        <th>Buyer Name</th>
+        <th>Grading Data</th>
+        <td>
+          <UlLiButton
+            :is-form="true"
+            :value="form.type"
+            :error="form.errors.type"
+            :items="[
+              { value: 'unload', label: 'Unload' },
+              { value: 'allocation', label: 'Allocation' },
+            ]"
+            @click="onChangeType"
+          />
+        </td>
+      </tr>
+      <tr v-if="form.type">
+        <th>{{ isAllocation ? 'Buyer Name' : 'Grower Name' }}</th>
         <td>
           <Multiselect
-            v-model="form.buyer_id"
+            v-model="form.user_id"
             mode="single"
-            placeholder="Choose a buyer"
+            :placeholder="`Choose a ${isAllocation ? 'buyer' : 'grower'}`"
             :searchable="true"
-            :options="$page.props.buyers"
-            @change="onChangeBuyer"
-            :class="{ 'is-invalid': form.errors.buyer_id }"
+            :options="isAllocation ? $page.props.buyers : $page.props.growers"
+            @change="onChangeUser"
+            :class="{ 'is-invalid': form.errors.user_id }"
           />
-          <div v-if="form.errors.buyer_id" class="invalid-feedback p-0 m-0" v-text="form.errors.buyer_id" />
+          <div v-if="form.errors.user_id" class="invalid-feedback p-0 m-0" v-text="form.errors.user_id" />
         </td>
       </tr>
     </table>
@@ -165,27 +213,43 @@ defineExpose({
 
   <h4 v-if="isNew">Grading Details</h4>
   <div class="user-boxes position-relative" :class="{ 'pe-5': !isForm }">
-    <table v-if="isForm && form.buyer_id" class="table input-table">
-      <tr>
-        <td class="text-center">
-          <button
-            class="btn btn-red input-group-text px-1 px-sm-2"
-            data-bs-toggle="modal"
-            data-bs-target="#allocations-modal"
-            v-text="'Select Allocation'"
-            @click="emit('allocation', form.buyer_id)"
+    <div v-if="isForm && form.user_id" class="d-flex justify-content-between mb-2">
+      <div>
+        <template v-if="!isNew">
+          <UlLiButton
+            :is-form="true"
+            :value="form.type"
+            :error="form.errors.type"
+            :items="[
+              { value: 'unload', label: 'Unload' },
+              { value: 'allocation', label: 'Allocation' },
+            ]"
+            @click="onChangeInnerType"
           />
-          <div
-            v-if="form.errors.selected_allocation"
-            class="invalid-feedback p-0 m-0"
-            v-text="form.errors.selected_allocation"
-          />
-        </td>
-      </tr>
-    </table>
+        </template>
+      </div>
+      <div v-if="form.type">
+        <button
+          class="btn btn-red input-group-text px-1 px-sm-2"
+          data-bs-toggle="modal"
+          :data-bs-target="isAllocation ? '#allocations-modal' : '#unloads-modal'"
+          v-text="isAllocation ? 'Select Allocation' : 'Select Unload'"
+          @click="emit('toSelect', isAllocation ? 'allocation' : 'unload', form.user_id)"
+        />
+      </div>
+    </div>
 
     <template v-if="isForm">
-      <SelectedAllocationView :form="form" :loader="loader" :allocation="form.selected_allocation" />
+      <template v-if="form.errors.selected_allocation">
+        <div class="is-invalid"></div>
+        <div class="invalid-feedback p-0 m-0" v-text="form.errors.selected_allocation" />
+      </template>
+      <template v-if="form.errors.selected_unload">
+        <div class="is-invalid"></div>
+        <div class="invalid-feedback p-0 m-0" v-text="form.errors.selected_unload" />
+      </template>
+      <SelectedAllocationView v-if="isAllocation" :loader="loader" :allocation="form.selected_allocation" />
+      <SelectedUnloadView v-else :loader="loader" :unload="form.selected_unload" />
       <label class="form-label">Bins Tipped</label>
       <div class="row">
         <div class="col-12 col-sm-6 col-md-4 col-lg-6 col-xl-4 mb-3">

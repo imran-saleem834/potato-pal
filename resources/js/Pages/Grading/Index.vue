@@ -8,6 +8,7 @@ import LeftBar from '@/Components/LeftBar.vue';
 import Pagination from '@/Components/Pagination.vue';
 import { getCategoriesByType } from '@/helper.js';
 import { useWindowSize } from 'vue-window-size';
+import UnloadsModal from '@/Pages/Grading/Partials/UnloadsModal.vue';
 import AllocationsModal from '@/Pages/Grading/Partials/AllocationsModal.vue';
 
 const { width, height } = useWindowSize();
@@ -42,7 +43,7 @@ watch(
 watch(search, (value) => {
   router.get(
     route('grading.index'),
-    { search: value, buyer: buyer.value, buyerId: activeTab.value.buyer_id },
+    { search: value, buyer: buyer.value, userId: activeTab.value.user_id },
     {
       preserveState: true,
       preserveScroll: true,
@@ -54,7 +55,7 @@ watch(search, (value) => {
 watch(buyer, (value) => {
   router.get(
     route('grading.index'),
-    { search: search.value, buyer: value, buyerId: activeTab.value.buyer_id },
+    { search: search.value, buyer: value, userId: activeTab.value.user_id },
     {
       preserveState: true,
       preserveScroll: true,
@@ -68,7 +69,7 @@ const filter = (keyword) => (buyer.value = keyword);
 const getGradings = (id) => {
   router.get(
     route('grading.index'),
-    { buyerId: id },
+    { userId: id },
     {
       preserveState: true,
       preserveScroll: true,
@@ -96,13 +97,13 @@ const setNewRecord = () => {
   activeTab.value = null;
 };
 
-const setUpdateSelection = (identifier, id) => {
+const setUpdateSelection = (identifier, type, id) => {
   selectIdentifier.value = identifier;
-  selection[identifier] = { id: id, selected: {} };
+  selection[identifier] = { id, type, selected: {} };
 };
 
 if (width.value > 991) {
-  setActiveTab(gradings.value.data[0]?.buyer_id);
+  setActiveTab(gradings.value.data[0]?.user_id);
 }
 </script>
 
@@ -130,8 +131,8 @@ if (width.value > 991) {
           <LeftBar
             :items="navBuyers"
             :active-tab="activeTab?.id"
-            :row-1="{ title: 'Buyer Name', value: 'buyer.buyer_name' }"
-            :row-2="{ title: 'Contact Name', value: 'buyer.name' }"
+            :row-1="{ title: 'Buyer Name', value: 'user.buyer_name' }"
+            :row-2="{ title: 'Grower Name', value: 'user.grower_name' }"
             @click="getGradings"
           />
         </div>
@@ -143,8 +144,8 @@ if (width.value > 991) {
               unique-key="newRecord"
               :is-new="true"
               :selected-allocation="selection['newRecord']?.selected || {}"
-              @allocation="(id) => setUpdateSelection('newRecord', id)"
-              @create="() => setActiveTab(navBuyers[0]?.buyer_id)"
+              @toSelect="(type, id) => setUpdateSelection('newRecord', type, id)"
+              @create="() => setActiveTab(navBuyers[0]?.user_id)"
             />
             <template v-else>
               <div v-if="activeTab" class="user-boxes">
@@ -159,19 +160,19 @@ if (width.value > 991) {
                   <tbody>
                     <tr class="align-middle border-0">
                       <td class="pb-0 d-none d-sm-table-cell border-0">
-                        <Link :href="route('users.index', { userId: activeTab?.buyer_id })">
-                          {{ activeTab?.buyer?.name }}
+                        <Link :href="route('users.index', { userId: activeTab?.user_id })">
+                          {{ activeTab?.user?.grower_name }}
                         </Link>
                       </td>
                       <td class="pb-0 border-0">
-                        <Link :href="route('users.index', { userId: activeTab?.buyer_id })">
-                          {{ activeTab?.buyer?.buyer_name }}
+                        <Link :href="route('users.index', { userId: activeTab?.user_id })">
+                          {{ activeTab?.user?.buyer_name }}
                         </Link>
                       </td>
                       <td class="pb-0 border-0">
-                        <ul v-if="getCategoriesByType(activeTab?.buyer?.categories, 'buyer-group').length > 0">
+                        <ul v-if="getCategoriesByType(activeTab?.user?.categories, 'buyer-group').length > 0">
                           <li
-                            v-for="category in getCategoriesByType(activeTab?.buyer?.categories, 'buyer-group')"
+                            v-for="category in getCategoriesByType(activeTab?.user?.categories, 'buyer-group')"
                             :key="category.id"
                           >
                             <a>{{ category.category.name }}</a>
@@ -199,11 +200,11 @@ if (width.value > 991) {
                 v-if="isNewItemRecord"
                 ref="details"
                 unique-key="newItemRecord"
-                :grading="{ buyer_id: activeTab?.buyer_id }"
+                :grading="{ user_id: activeTab?.user_id }"
                 :is-new-item="true"
                 :selected-allocation="selection['newItemRecord']?.selected || {}"
-                @allocation="(id) => setUpdateSelection('newItemRecord', id)"
-                @create="() => setActiveTab(activeTab?.buyer_id)"
+                @toSelect="(type, id) => setUpdateSelection('newItemRecord', type, id)"
+                @create="() => setActiveTab(activeTab?.user_id)"
               />
               <template v-for="grading in gradings?.data" :key="grading.id">
                 <Details
@@ -211,8 +212,8 @@ if (width.value > 991) {
                   :unique-key="`${grading.id}`"
                   :grading="grading"
                   :selected-allocation="selection[grading.id]?.selected || {}"
-                  @allocation="(buyerId) => setUpdateSelection(grading.id, buyerId)"
-                  @delete="() => setActiveTab(grading?.data[0]?.buyer_id)"
+                  @toSelect="(type, userId) => setUpdateSelection(grading.id, type, userId)"
+                  @delete="() => setActiveTab(grading?.data[0]?.user_id)"
                 />
               </template>
               <div class="float-end">
@@ -228,8 +229,14 @@ if (width.value > 991) {
     </div>
 
     <AllocationsModal
-      :buyer-id="selection[selectIdentifier]?.id"
+      :buyer-id="selection[selectIdentifier]?.type === 'allocation' ? selection[selectIdentifier]?.id : null"
       @allocation="(allocation) => (selection[selectIdentifier].selected = allocation)"
+      @close="() => (selection[selectIdentifier].id = null)"
+    />
+
+    <UnloadsModal
+      :grower-id="selection[selectIdentifier]?.type === 'unload' ? selection[selectIdentifier]?.id : null"
+      @unload="(unload) => (selection[selectIdentifier].selected = unload)"
       @close="() => (selection[selectIdentifier].id = null)"
     />
   </AppLayout>

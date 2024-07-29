@@ -52,6 +52,8 @@ class SizingRequest extends FormRequest
         return [
             'selected_allocation'    => 'allocation',
             'selected_allocation.id' => 'allocation',
+            'selected_unload'        => 'unload',
+            'selected_unload.id'     => 'unload',
             'items.*.seed_type'      => 'seed type',
             'items.*.fungicide'      => 'fungicide type',
             'items.*.half_tonnes'    => 'half tonnes',

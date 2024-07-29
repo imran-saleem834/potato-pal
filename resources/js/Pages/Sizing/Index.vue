@@ -1,13 +1,13 @@
 <script setup>
 import { reactive, ref, watch } from 'vue';
 import { router, Link } from '@inertiajs/vue3';
-import AppLayout from '@/Layouts/AppLayout.vue';
-import TopBar from '@/Components/TopBar.vue';
-import Details from '@/Pages/Sizing/Details.vue';
-import LeftBar from '@/Components/LeftBar.vue';
-import Pagination from '@/Components/Pagination.vue';
 import { getCategoriesByType } from '@/helper.js';
 import { useWindowSize } from 'vue-window-size';
+import TopBar from '@/Components/TopBar.vue';
+import LeftBar from '@/Components/LeftBar.vue';
+import AppLayout from '@/Layouts/AppLayout.vue';
+import Details from '@/Pages/Sizing/Details.vue';
+import Pagination from '@/Components/Pagination.vue';
 import UnloadsModal from '@/Pages/Sizing/Partials/UnloadsModal.vue';
 import AllocationsModal from '@/Pages/Sizing/Partials/AllocationsModal.vue';
 

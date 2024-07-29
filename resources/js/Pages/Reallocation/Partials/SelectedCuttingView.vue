@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from 'vue';
-import { getSingleCategoryNameByType } from '@/helper.js';
+import { getBinSizesValue, getSingleCategoryNameByType } from '@/helper.js';
 
 const props = defineProps({
   loader: Boolean,
@@ -32,6 +32,7 @@ const allocation = computed(() => {
           <th class="d-none d-md-table-cell">Gen.</th>
           <th>Seed type</th>
           <th class="d-none d-md-table-cell">Class</th>
+          <th>Tipped Bins</th>
           <th>Half tonnes</th>
           <th>One tonnes</th>
           <th>Two tonnes</th>
@@ -73,6 +74,12 @@ const allocation = computed(() => {
           </td>
           <td class="d-none d-md-table-cell text-primary">
             {{ getSingleCategoryNameByType(allocation.categories, 'seed-class') || '-' }}
+          </td>
+          <td class="text-primary">
+            <template v-if="cutting.type === 'allocation'">
+              {{ getBinSizesValue(cutting.item.bin_size) }} X {{ cutting.item.no_of_bins }}
+            </template>
+            <template v-else>-</template>
           </td>
           <td class="text-primary">{{ `${cutting.available_half_tonnes} Bins` }}</td>
           <td class="text-primary">{{ `${cutting.available_one_tonnes} Bins` }}</td>

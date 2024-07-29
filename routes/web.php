@@ -116,11 +116,18 @@ Route::middleware([
         ->middleware('weighbridges')
         ->name('weighbridges.index');
 
-    Route::resource('/sizing', SizingController::class)->middleware('grading');
-    Route::get('/buyers/{id}/sizing/allocations', [SizingController::class, 'allocations'])->name('sizing.buyers.allocations');
-    Route::get('/growers/{id}/sizing/unloads', [SizingController::class, 'unloads'])->name('sizing.grower.unloads');
+    Route::group(['middleware' => 'grading'], function () {
+        Route::resource('/grading', GradingController::class)->only(['index', 'store', 'update', 'destroy']);
+        Route::get('/grading/buyers/{id}/allocations', [GradingController::class, 'allocations'])->name('grading.buyers.allocations');
+        Route::get('/grading/growers/{id}/unloads', [GradingController::class, 'unloads'])->name('grading.grower.unloads');
+    });
 
-    Route::resource('/grading', GradingController::class)->middleware('grading');
+    Route::group(['middleware' => 'grading'], function () {
+        Route::resource('/sizing', SizingController::class)->only(['index', 'store', 'update', 'destroy']);
+        Route::get('/sizing/buyers/{id}/allocations', [SizingController::class, 'allocations'])->name('sizing.buyers.allocations');
+        Route::get('/sizing/growers/{id}/unloads', [SizingController::class, 'unloads'])->name('sizing.grower.unloads');
+    });
+    
     Route::resource('/chemical-application', ChemicalApplicationController::class)->middleware('grading');
     Route::resource('/bulk-bagging', BulkBaggingController::class)->middleware('grading');
     Route::get('/buyers/{id}/allocations', [GradingController::class, 'allocations'])->name('buyers.allocations');

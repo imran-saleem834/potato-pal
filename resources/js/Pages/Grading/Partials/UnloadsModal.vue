@@ -7,23 +7,23 @@ import { toTonnes, getBinSizesValue, getSingleCategoryNameByType } from '@/helpe
 DataTable.use(DataTablesCore);
 
 const props = defineProps({
-  buyerId: {
+  growerId: {
     type: Number,
     default: null,
   },
 });
 
-const emit = defineEmits(['allocation', 'close']);
+const emit = defineEmits(['unload', 'close']);
 
 const loader = ref(false);
-const allocations = ref([]);
+const unloads = ref([]);
 
-const getAllocations = () => {
+const getUnloads = () => {
   loader.value = true;
   axios
-    .get(route('grading.buyers.allocations', props.buyerId))
+    .get(route('grading.grower.unloads', props.growerId))
     .then((response) => {
-      allocations.value = response.data;
+      unloads.value = response.data;
     })
     .catch(() => {})
     .finally(() => {
@@ -32,31 +32,31 @@ const getAllocations = () => {
 };
 
 const onCloseModal = () => {
-  allocations.value = [];
+  unloads.value = [];
   emit('close');
 };
 
-const onSelectAllocation = (allocation) => {
-  emit('allocation', allocation);
+const onSelectUnload = (unload) => {
+  emit('unload', unload);
   onCloseModal();
 };
 
 watch(
-  () => props.buyerId,
-  (buyerId) => {
-    if (buyerId) {
-      getAllocations();
+  () => props.growerId,
+  (growerId) => {
+    if (growerId) {
+      getUnloads();
     }
   },
 );
 </script>
 
 <template>
-  <div class="modal fade" id="allocations-modal" tabindex="-1" role="dialog">
+  <div class="modal fade" id="unloads-modal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-xl">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="allocations-modal-Label">Select Allocation</h5>
+          <h5 class="modal-title" id="unloads-modal-Label">Select Unload</h5>
           <button
             type="button"
             class="btn-close"
@@ -71,10 +71,10 @@ watch(
               <span class="visually-hidden">Loading...</span>
             </div>
           </div>
-          <div v-if="!loader && allocations.length <= 0" class="d-flex justify-content-center text-danger fs-5 my-3">
+          <div v-if="!loader && unloads.length <= 0" class="d-flex justify-content-center text-danger fs-5 my-3">
             Data not found
           </div>
-          <div v-if="!loader && allocations.length" class="table-responsive">
+          <div v-if="!loader && unloads.length" class="table-responsive">
             <DataTable class="table mb-0">
               <thead>
                 <tr>
@@ -91,29 +91,29 @@ watch(
                 </tr>
               </thead>
               <tbody>
-                <template v-for="allocation in allocations" :key="allocation.id">
+                <template v-for="unload in unloads" :key="unload.id">
                   <tr>
                     <td>
-                      {{ getSingleCategoryNameByType(allocation.categories, 'grower-group') || '-' }}
+                      {{ getSingleCategoryNameByType(unload.receival.categories, 'grower-group') || '-' }}
                     </td>
-                    <td>{{ allocation.grower?.grower_name || '-' }}</td>
-                    <td>{{ allocation.paddock }}</td>
+                    <td>{{ unload.receival.grower?.grower_name || '-' }}</td>
+                    <td>{{ unload.receival.paddock }}</td>
                     <td>
-                      {{ getSingleCategoryNameByType(allocation.categories, 'seed-variety') || '-' }}
-                    </td>
-                    <td>
-                      {{ getSingleCategoryNameByType(allocation.categories, 'seed-generation') || '-' }}
+                      {{ getSingleCategoryNameByType(unload.receival.categories, 'seed-variety') || '-' }}
                     </td>
                     <td>
-                      {{ getSingleCategoryNameByType(allocation.categories, 'seed-type') || '-' }}
+                      {{ getSingleCategoryNameByType(unload.receival.categories, 'seed-generation') || '-' }}
                     </td>
                     <td>
-                      {{ getSingleCategoryNameByType(allocation.categories, 'seed-class') || '-' }}
+                      {{ getSingleCategoryNameByType(unload.categories, 'seed-type') || '-' }}
                     </td>
-                    <td>{{ getBinSizesValue(allocation.item.bin_size) }}</td>
-                    <td>{{ toTonnes(allocation.item.weight) }}</td>
                     <td>
-                      <input type="checkbox" @click="onSelectAllocation(allocation)" data-bs-dismiss="modal" />
+                      {{ getSingleCategoryNameByType(unload.receival.categories, 'seed-class') || '-' }}
+                    </td>
+                    <td>{{ getBinSizesValue(unload.bin_size) }}</td>
+                    <td>{{ toTonnes(unload.weight) }}</td>
+                    <td>
+                      <input type="checkbox" @click="onSelectUnload(unload)" data-bs-dismiss="modal" />
                     </td>
                   </tr>
                 </template>

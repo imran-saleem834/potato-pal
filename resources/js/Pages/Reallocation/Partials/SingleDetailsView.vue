@@ -2,7 +2,7 @@
 import { Link } from '@inertiajs/vue3';
 import * as bootstrap from 'bootstrap';
 import { computed, onMounted, onUpdated } from 'vue';
-import { getSingleCategoryNameByType } from '@/helper.js';
+import { getBinSizesValue, getSingleCategoryNameByType } from '@/helper.js';
 import ReturnItems from '@/Components/ReturnItems.vue';
 
 const props = defineProps({
@@ -39,6 +39,7 @@ onUpdated(() => {
         <th class="d-none d-md-table-cell">Gen.</th>
         <th>Seed type</th>
         <th class="d-none d-xl-table-cell">Class</th>
+        <th>Tipped Bins</th>
         <th v-if="reallocation.item.half_tonnes > 0">Half tonnes</th>
         <th v-if="reallocation.item.one_tonnes > 0">One tonnes</th>
         <th v-if="reallocation.item.two_tonnes > 0">Two tonnes</th>
@@ -87,6 +88,12 @@ onUpdated(() => {
         </td>
         <td class="d-none d-xl-table-cell text-primary">
           {{ getSingleCategoryNameByType(allocation.categories, 'seed-class') || '-' }}
+        </td>
+        <td class="text-primary">
+          <template v-if="reallocation.item.foreignable.type === 'allocation'">
+            {{ getBinSizesValue(reallocation.item.foreignable.item.bin_size) }} X {{ reallocation.item.foreignable.item.no_of_bins }}
+          </template>
+          <template v-else>-</template>
         </td>
         <td v-if="reallocation.item.half_tonnes > 0" class="text-primary">
           {{ `${reallocation.item.half_tonnes} Bins` }}

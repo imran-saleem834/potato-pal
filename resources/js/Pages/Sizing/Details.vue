@@ -106,10 +106,7 @@ const updateItemsOnChangeSizing = () => {
   });
 };
 
-const isForm = computed(() => {
-  return isEdit.value || props.isNew || props.isNewItem;
-});
-
+const isForm = computed(() => isEdit.value || props.isNew || props.isNewItem);
 const isAllocation = computed(() => form.type === 'allocation');
 
 const onChangeUser = () => {
@@ -139,8 +136,6 @@ const setIsEdit = () => {
   const params = {
     isEdit: true,
   };
-
-  console.log(params);
 
   axios
     .get(route(isAllocation.value ? 'sizing.buyers.allocations' : 'sizing.grower.unloads', props.sizing.user_id), {
@@ -204,7 +199,7 @@ defineExpose({
   <div v-if="isNew" class="user-boxes">
     <table class="table input-table mb-0">
       <tr>
-        <th>Sizing Type</th>
+        <th>Sizing Data</th>
         <td>
           <UlLiButton
             :is-form="true"

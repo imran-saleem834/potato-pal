@@ -16,8 +16,9 @@ class Grading extends Model
      * @var array<string>
      */
     protected $fillable = [
-        'buyer_id',
-        'allocation_id',
+        'user_id',
+        'gradeable_id',
+        'gradeable_type',
         'bins_tipped',
         'bins_graded',
         'weight',
@@ -38,13 +39,13 @@ class Grading extends Model
         'bins_graded' => 'array',
     ];
 
-    public function buyer()
+    public function user()
     {
-        return $this->belongsTo(User::class, 'buyer_id');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function allocation(): BelongsTo
+    public function gradeable()
     {
-        return $this->belongsTo(Allocation::class);
+        return $this->morphTo();
     }
 }

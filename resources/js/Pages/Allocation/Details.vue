@@ -279,7 +279,7 @@ defineExpose({
           :data-bs-target="`#relocate-${uniqueKey}`"
           @click="() => (reallocate = allocation)"
         >
-          Relocate
+          Reallocate
         </button>
       </div>
 
