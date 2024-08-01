@@ -1,5 +1,4 @@
 import moment from 'moment';
-import { binSizes } from '@/const.js';
 import { getCategoriesByType, getSingleCategoryNameByType } from '@/helper.js';
 
 const samples = [
@@ -68,6 +67,13 @@ const columns = [
     },
   },
   {
+    title: 'Paddock',
+    data: 'receival.paddocks',
+    render: function (data, type, row) {
+      return data?.length ? data[0] : '';
+    },
+  },
+  {
     title: 'Grower Group',
     data: 'receival.categories',
     render: function (categories, type, row) {
@@ -100,19 +106,6 @@ const columns = [
   {
     title: 'Growers’s Docket No',
     data: 'receival.grower_docket_no',
-    render: function (categories, type, row) {
-      if (getCategoriesByType(categories, 'seed-generation').length) {
-        return getSingleCategoryNameByType(categories, 'seed-generation');
-      }
-      return '';
-    },
-  },
-  {
-    title: 'Processor',
-    data: 'processor',
-    render: function (data, type, row) {
-      return binSizes.find((binSize) => binSize.value === data)?.label || '';
-    },
   },
   {
     title: 'Inspection ID',
@@ -127,7 +120,13 @@ const columns = [
   },
   {
     title: 'Cool Store',
-    data: 'cool_store',
+    data: 'receival.grower.categories',
+    render: function (categories, type, row) {
+      if (getCategoriesByType(categories, 'cool-store').length) {
+        return getSingleCategoryNameByType(categories, 'cool-store');
+      }
+      return '';
+    },
   },
   {
     title: 'Size',
@@ -180,8 +179,22 @@ export default [
       },
     },
     {
+      title: 'Skin Russeting',
+      data: 'skin_russeting',
+      render: function (data, type, row) {
+        return data ? 'Yes' : 'No';
+      },
+    },
+    {
       title: 'Minor Skin Cracking',
       data: 'minor_skin_cracking',
+      render: function (data, type, row) {
+        return data ? 'Yes' : 'No';
+      },
+    },
+    {
+      title: 'Silver Scurf',
+      data: 'silver_scurf',
       render: function (data, type, row) {
         return data ? 'Yes' : 'No';
       },
@@ -194,8 +207,15 @@ export default [
       },
     },
     {
+      title: 'Black Dot',
+      data: 'black_dot',
+      render: function (data, type, row) {
+        return data ? 'Yes' : 'No';
+      },
+    },
+    {
       title: 'Regarding',
-      data: 'regarding',
+      data: 'regrading',
       render: function (data, type, row) {
         return data ? 'Yes' : 'No';
       },
@@ -203,6 +223,10 @@ export default [
     {
       title: 'Comments',
       data: 'comment',
+    },
+    {
+      title: 'Status',
+      data: 'status',
     },
     {
       title: 'Time Added',

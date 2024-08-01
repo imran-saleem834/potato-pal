@@ -30,6 +30,7 @@ const buyer = ref(props.filters.buyer);
 const details = ref(null);
 const selectIdentifier = ref(null);
 const selection = reactive({});
+const selectedReturns = ref(null);
 const selectedReturnDispatch = ref(null);
 
 watch(
@@ -105,6 +106,11 @@ const setUpdateSelection = (identifier, id) => {
 
 const setReturnDispatch = (returnDispatch) => {
   selectedReturnDispatch.value = returnDispatch;
+};
+
+const setEditReturns = (returnDispatch, returnItem) => {
+  setReturnDispatch(returnDispatch);
+  selectedReturns.value = returnItem;
 };
 
 if (width.value > 991) {
@@ -230,8 +236,9 @@ if (width.value > 991) {
                   :dispatch="dispatch"
                   :selected="selection[dispatch.id]?.selected || {}"
                   @toSelect="(buyerId) => setUpdateSelection(dispatch.id, buyerId)"
-                  @setReturnDispatch="setReturnDispatch"
                   @delete="() => setActiveTab(dispatches?.data[0]?.buyer_id)"
+                  @setReturnDispatch="setReturnDispatch"
+                  @setEditReturns="setEditReturns"
                 />
               </template>
               <div class="float-end">
@@ -251,6 +258,10 @@ if (width.value > 991) {
       @select="(row) => (selection[selectIdentifier].selected = row)"
       @close="() => (selection[selectIdentifier].id = null)"
     />
-    <ReturnsModal :dispatch="selectedReturnDispatch" @close="() => (selectedReturnDispatch = null)" />
+    <ReturnsModal 
+      :dispatch="selectedReturnDispatch"
+      :returns="selectedReturns"
+      @close="() => (selectedReturnDispatch = null)" 
+    />
   </AppLayout>
 </template>

@@ -98,15 +98,12 @@ const printLabels = () => {
 };
 
 const buyers = computed(() => {
-  if (form.labelable_type === 'App\\Models\\CuttingAllocation') {
+  if (form.labelable_type === 'App\\Models\\Cutting') {
     return props.cuttings
-      .filter(
-        (cutting, index, self) =>
-          index === self.findIndex((t) => t.allocation.buyer_id === cutting.allocation.buyer_id),
-      )
+      .filter((cutting, index, self) => index === self.findIndex((t) => t.buyer_id === cutting.buyer_id))
       .map((cutting) => ({
-        value: cutting.allocation.buyer_id,
-        label: cutting.allocation.buyer.buyer_name,
+        value: cutting.buyer_id,
+        label: cutting.buyer.buyer_name,
       }));
   } else if (form.labelable_type === 'App\\Models\\Reallocation') {
     return props.reallocations
@@ -123,28 +120,43 @@ const buyers = computed(() => {
 });
 
 const exGrowers = computed(() => {
-  if (form.labelable_type === 'App\\Models\\CuttingAllocation') {
+  if (form.labelable_type === 'App\\Models\\Cutting') {
     return props.cuttings
-      .filter((cutting) => cutting.allocation.buyer_id === form.buyer_id)
+      .filter((cutting) => cutting.buyer_id === form.buyer_id)
       .filter(
-        (cutting, index, self) =>
-          index === self.findIndex((t) => t.allocation.grower_id === cutting.allocation.grower_id),
+        (cutting, index, self) => index === self.findIndex((t) => {
+          const cuttingAllocation = cutting.type === 'sizing' ? cutting.item.foreignable.allocatable.sizeable : cutting.item.foreignable;
+          const tAllocation = t.type === 'sizing' ? t.item.foreignable.allocatable.sizeable : t.item.foreignable;
+          return tAllocation.grower_id === cuttingAllocation.grower_id;
+        }),
       )
-      .map((cutting) => ({
-        value: cutting.allocation.grower_id,
-        label: cutting.allocation.grower.grower_name,
-      }));
+      .map((cutting) => {
+        const allocation = cutting.type === 'sizing' ? cutting.item.foreignable.allocatable.sizeable : cutting.item.foreignable;
+        return {
+          value: allocation.grower_id,
+          label: allocation.grower.grower_name,
+        }
+      });
   } else if (form.labelable_type === 'App\\Models\\Reallocation') {
     return props.reallocations
       .filter((reallocation) => reallocation.buyer_id === form.buyer_id)
       .filter(
-        (reallocation, index, self) =>
-          index === self.findIndex((t) => t.allocation.grower_id === reallocation.allocation.grower_id),
+        (reallocation, index, self) => index === self.findIndex((t) => {
+          const cuttingOfReallocation = reallocation.item.foreignable;
+          const cuttingTofReallocation = t.item.foreignable;
+          const cuttingAllocation = cuttingOfReallocation.type === 'sizing' ? cuttingOfReallocation.item.foreignable.allocatable.sizeable : cuttingOfReallocation.item.foreignable;
+          const tAllocation = cuttingTofReallocation.type === 'sizing' ? cuttingTofReallocation.item.foreignable.allocatable.sizeable : cuttingTofReallocation.item.foreignable;
+          return tAllocation.grower_id === cuttingAllocation.grower_id;
+        }),
       )
-      .map((reallocation) => ({
-        value: reallocation.allocation.grower_id,
-        label: reallocation.allocation.grower.grower_name,
-      }));
+      .map((reallocation) => {
+        const cutting = reallocation.item.foreignable;
+        const allocation = cutting.type === 'sizing' ? cutting.item.foreignable.allocatable.sizeable : cutting.item.foreignable;
+        return {
+          value: allocation.grower_id,
+          label: allocation.grower.grower_name,
+        };
+      });
   }
 
   return props.allocations
@@ -154,26 +166,49 @@ const exGrowers = computed(() => {
 });
 
 const paddockOptions = computed(() => {
-  if (form.labelable_type === 'App\\Models\\CuttingAllocation') {
+  if (form.labelable_type === 'App\\Models\\Cutting') {
     return props.cuttings
-      .filter((cutting) => cutting.allocation.buyer_id === form.buyer_id)
-      .filter((cutting) => cutting.allocation.grower_id === form.grower_id)
+      .filter((cutting) => cutting.buyer_id === form.buyer_id)
+      .filter((cutting) => {
+        const allocation = cutting.type === 'sizing' ? cutting.item.foreignable.allocatable.sizeable : cutting.item.foreignable;
+        return allocation.grower_id === form.grower_id
+      })
       .filter(
-        (cutting, index, self) => index === self.findIndex((t) => t.allocation.paddock === cutting.allocation.paddock),
+        (cutting, index, self) => index === self.findIndex((t) => {
+          const cuttingAllocation = cutting.type === 'sizing' ? cutting.item.foreignable.allocatable.sizeable : cutting.item.foreignable;
+          const tAllocation = t.type === 'sizing' ? t.item.foreignable.allocatable.sizeable : t.item.foreignable;
+          return tAllocation.paddock === cuttingAllocation.paddock;
+        }),
       )
-      .map((cutting) => ({ value: cutting.allocation.paddock, label: cutting.allocation.paddock }));
+      .map((cutting) => {
+        const allocation = cutting.type === 'sizing' ? cutting.item.foreignable.allocatable.sizeable : cutting.item.foreignable;
+        return { value: allocation.paddock, label: allocation.paddock };
+      });
   } else if (form.labelable_type === 'App\\Models\\Reallocation') {
     return props.reallocations
       .filter((reallocation) => reallocation.buyer_id === form.buyer_id)
-      .filter((reallocation) => reallocation.allocation.grower_id === form.grower_id)
+      .filter((reallocation) => {
+        const cutting = reallocation.item.foreignable;
+        const allocation = cutting.type === 'sizing' ? cutting.item.foreignable.allocatable.sizeable : cutting.item.foreignable;
+        return allocation.grower_id === form.grower_id;
+      })
       .filter(
-        (reallocation, index, self) =>
-          index === self.findIndex((t) => t.allocation.paddock === reallocation.allocation.paddock),
+        (reallocation, index, self) => index === self.findIndex((t) => {
+          const cuttingOfReallocation = reallocation.item.foreignable;
+          const cuttingTofReallocation = t.item.foreignable;
+          const cuttingAllocation = cuttingOfReallocation.type === 'sizing' ? cuttingOfReallocation.item.foreignable.allocatable.sizeable : cuttingOfReallocation.item.foreignable;
+          const tAllocation = cuttingTofReallocation.type === 'sizing' ? cuttingTofReallocation.item.foreignable.allocatable.sizeable : cuttingTofReallocation.item.foreignable;
+          return tAllocation.paddock === cuttingAllocation.paddock;
+        }),
       )
-      .map((reallocation) => ({
-        value: reallocation.allocation.paddock,
-        label: reallocation.allocation.paddock,
-      }));
+      .map((reallocation) => {
+        const cutting = reallocation.item.foreignable;
+        const allocation = cutting.type === 'sizing' ? cutting.item.foreignable.allocatable.sizeable : cutting.item.foreignable;
+        return {
+          value: allocation.paddock,
+          label: allocation.paddock,
+        }
+      });
   }
 
   return props.allocations
@@ -184,24 +219,35 @@ const paddockOptions = computed(() => {
 });
 
 const allocationOption = computed(() => {
-  if (form.labelable_type === 'App\\Models\\CuttingAllocation') {
+  if (form.labelable_type === 'App\\Models\\Cutting') {
     return props.cuttings
-      .filter((cutting) => cutting.allocation.buyer_id === form.buyer_id)
-      .filter((cutting) => cutting.allocation.grower_id === form.grower_id)
-      .filter((cutting) => cutting.allocation.paddock === form.paddock)
-      .map((cutting) => ({
-        value: cutting.id,
-        label: `${cutting.id}; Size: ${getBinSizesValue(cutting.allocation.bin_size)}; Bins to cut: ${cutting.no_of_bins}}`,
-      }));
+      .filter((cutting) => cutting.buyer_id === form.buyer_id)
+      .filter((cutting) => {
+        const allocation = cutting.type === 'sizing' ? cutting.item.foreignable.allocatable.sizeable : cutting.item.foreignable;
+        return allocation.grower_id === form.grower_id && allocation.paddock === form.paddock
+      })
+      .map((cutting) => {
+        return {
+          value: cutting.id,
+          label: `${cutting.id}; Size: ${getBinSizesValue(cutting.item.bin_size)}; Bins to cut: ${cutting.item.no_of_bins}}`,
+        }
+      });
   } else if (form.labelable_type === 'App\\Models\\Reallocation') {
     return props.reallocations
       .filter((reallocation) => reallocation.buyer_id === form.buyer_id)
-      .filter((reallocation) => reallocation.allocation.grower_id === form.grower_id)
-      .filter((reallocation) => reallocation.allocation.paddock === form.paddock)
-      .map((reallocation) => ({
-        value: reallocation.id,
-        label: `${reallocation.id}; Size: ${getBinSizesValue(reallocation.allocation.bin_size)}; Bins: ${reallocation.no_of_bins}; W: ${toTonnes(reallocation.weight)}`,
-      }));
+      .filter((reallocation) => {
+        const cutting = reallocation.item.foreignable;
+        const allocation = cutting.type === 'sizing' ? cutting.item.foreignable.allocatable.sizeable : cutting.item.foreignable;
+        return allocation.grower_id === form.grower_id && allocation.paddock === form.paddock;
+      })
+      .map((reallocation) => {
+        const cutting = reallocation.item.foreignable;
+        const allocation = cutting.type === 'sizing' ? cutting.item.foreignable.allocatable.sizeable : cutting.item.foreignable;
+        return {
+          value: reallocation.id,
+          label: `${reallocation.id}; Size: ${getBinSizesValue(allocation.item.bin_size)}; Bins: ${reallocation.item.no_of_bins}`,
+        };
+      });
   }
 
   return props.allocations
@@ -210,23 +256,18 @@ const allocationOption = computed(() => {
     .filter((allocation) => allocation.paddock === form.paddock)
     .map((allocation) => ({
       value: allocation.id,
-      label: `${allocation.id}; Size: ${getBinSizesValue(allocation.bin_size)}; Bins: ${allocation.no_of_bins}; W: ${toTonnes(allocation.weight)}`,
+      label: `${allocation.id}; Size: ${getBinSizesValue(allocation.item.bin_size)}; Bins: ${allocation.item.no_of_bins}; W: ${toTonnes(allocation.item.weight)}`,
     }));
 });
 
 const idSelectionLabel = computed(() => {
-  const labeled = form.labelable_type.split('\\').at(-1);
-  if (labeled === 'CuttingAllocation') {
-    return 'Cutting';
-  }
-  return labeled;
+  return form.labelable_type.split('\\').at(-1);
 });
 
 const idSelectionRoute = computed(() => {
-  const labeled = form.labelable_type.split('\\').at(-1);
-  if (labeled === 'CuttingAllocation') {
+  if (idSelectionLabel.value === 'Cutting') {
     return route('cuttings.index', { buyerId: props.label.buyer_id });
-  } else if (labeled === 'Reallocation') {
+  } else if (idSelectionLabel.value === 'Reallocation') {
     return route('reallocations.index', { buyerId: props.label.buyer_id });
   }
   return route('allocations.index', { buyerId: props.label.buyer_id });
@@ -287,7 +328,7 @@ const printObj = {
                 :items="[
                   { value: 'App\\Models\\Allocation', label: 'Allocation' },
                   { value: 'App\\Models\\Reallocation', label: 'Reallocation' },
-                  { value: 'App\\Models\\CuttingAllocation', label: 'Cutting' },
+                  { value: 'App\\Models\\Cutting', label: 'Cutting' },
                 ]"
                 @click="onChangeLabelType"
               />

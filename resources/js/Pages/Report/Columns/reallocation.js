@@ -12,7 +12,7 @@ export default [
     },
   },
   {
-    title: 'Allocation Buyer Name',
+    title: 'Ex Buyer Name',
     data: 'allocation_buyer',
     render: function (data, type, row) {
       const url = route('allocations.index', { buyerId: data.id });
@@ -21,20 +21,34 @@ export default [
   },
   {
     title: 'Grower',
-    data: 'allocation.grower',
+    data: 'item.foreignable.item.foreignable',
     render: function (data, type, row) {
+      data = data.grower;
+      if (row.item.foreignable.type === 'sizing') {
+        data = row.item.foreignable.item.foreignable.allocatable.sizeable.grower;
+      }
       const url = route('users.index', { userId: data.id });
       return `<a href="${url}" class="text-black inertia-link">${data.grower_name}</a>`;
     },
   },
   {
     title: 'Paddock',
-    data: 'allocation.paddock',
+    data: 'item.foreignable.item.foreignable',
+    render: function (data, type, row) {
+      if (row.item.foreignable.type === 'sizing') {
+        data = row.item.foreignable.item.foreignable.allocatable.sizeable;
+      }
+      return data.paddock;
+    },
   },
   {
     title: 'Seed Type',
-    data: 'allocation.categories',
-    render: function (categories, type, row) {
+    data: 'item.foreignable.item.foreignable',
+    render: function (data, type, row) {
+      let categories = data.categories;
+      if (row.item.foreignable.type === 'sizing') {
+        categories = row.item.foreignable.item.foreignable.categories;
+      }
       if (getCategoriesByType(categories, 'seed-type').length) {
         return getSingleCategoryNameByType(categories, 'seed-type');
       }
@@ -42,34 +56,13 @@ export default [
     },
   },
   {
-    title: 'Bin Size',
-    data: 'allocation.bin_size',
-    render: function (data, type, row) {
-      return binSizes.find((binSize) => binSize.value === data)?.label;
-    },
-  },
-  {
-    title: 'No of Bins',
-    data: 'no_of_bins',
-  },
-  {
-    title: 'Weight',
-    data: 'weight',
-    render: function (data, type, row) {
-      return toTonnes(data);
-    },
-  },
-  {
-    title: 'Time Added',
-    data: 'created_at',
-    render: function (data, type, row) {
-      return moment(data).format('DD/MM/YYYY hh:mm A');
-    },
-  },
-  {
     title: 'Grower Group',
-    data: 'allocation.categories',
-    render: function (categories, type, row) {
+    data: 'item.foreignable.item.foreignable',
+    render: function (data, type, row) {
+      let categories = data.categories;
+      if (row.item.foreignable.type === 'sizing') {
+        categories = row.item.foreignable.item.foreignable.allocatable.sizeable.categories;
+      }
       if (getCategoriesByType(categories, 'grower-group').length) {
         return getSingleCategoryNameByType(categories, 'grower-group');
       }
@@ -78,8 +71,12 @@ export default [
   },
   {
     title: 'Seed Variety',
-    data: 'allocation.categories',
-    render: function (categories, type, row) {
+    data: 'item.foreignable.item.foreignable',
+    render: function (data, type, row) {
+      let categories = data.categories;
+      if (row.item.foreignable.type === 'sizing') {
+        categories = row.item.foreignable.item.foreignable.allocatable.sizeable.categories;
+      }
       if (getCategoriesByType(categories, 'seed-variety').length) {
         return getSingleCategoryNameByType(categories, 'seed-variety');
       }
@@ -88,8 +85,12 @@ export default [
   },
   {
     title: 'Seed Generation',
-    data: 'allocation.categories',
-    render: function (categories, type, row) {
+    data: 'item.foreignable.item.foreignable',
+    render: function (data, type, row) {
+      let categories = data.categories;
+      if (row.item.foreignable.type === 'sizing') {
+        categories = row.item.foreignable.item.foreignable.allocatable.sizeable.categories;
+      }
       if (getCategoriesByType(categories, 'seed-generation').length) {
         return getSingleCategoryNameByType(categories, 'seed-generation');
       }
@@ -98,8 +99,12 @@ export default [
   },
   {
     title: 'Seed Class',
-    data: 'allocation.categories',
-    render: function (categories, type, row) {
+    data: 'item.foreignable.item.foreignable',
+    render: function (data, type, row) {
+      let categories = data.categories;
+      if (row.item.foreignable.type === 'sizing') {
+        categories = row.item.foreignable.item.foreignable.allocatable.sizeable.categories;
+      }
       if (getCategoriesByType(categories, 'seed-class').length) {
         return getSingleCategoryNameByType(categories, 'seed-class');
       }
@@ -107,7 +112,40 @@ export default [
     },
   },
   {
+    title: 'Data Source',
+    data: 'item.foreignable.type',
+  },
+  {
+    title: 'Tipped Bins',
+    data: 'item.foreignable.item',
+    render: function (item, type, row) {
+      if (row.item.foreignable.type === 'sizing') {
+        return '-';
+      }
+      return binSizes.find((binSize) => binSize.value === item.foreignable.item.bin_size)?.label + ' X ' + item.foreignable.item.no_of_bins;
+    },
+  },
+  {
+    title: 'Half Tonnes',
+    data: 'item.half_tonnes',
+  },
+  {
+    title: 'One Tonnes',
+    data: 'item.one_tonnes',
+  },
+  {
+    title: 'Two Tonnes',
+    data: 'item.two_tonnes',
+  },
+  {
     title: 'Comments',
     data: 'comment',
+  },
+  {
+    title: 'Time Added',
+    data: 'created_at',
+    render: function (data, type, row) {
+      return moment(data).format('DD/MM/YYYY hh:mm A');
+    },
   },
 ];

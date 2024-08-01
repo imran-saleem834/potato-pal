@@ -10,6 +10,7 @@ class Report extends Model
     use HasFactory;
 
     const TYPES = [
+        'user'         => 'User',
         'receival'     => 'Receival',
         'unload'       => 'Unload',
         'tia-sample'   => 'Tia Sample',

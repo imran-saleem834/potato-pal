@@ -28,17 +28,20 @@ class Label extends Model
 
     public function scopeSearch(Builder $query, $search)
     {
-        return $query->where('id', 'LIKE', "%$search%")
-            ->orWhere('labelable_type', 'LIKE', "%$search%")
-            ->orWhere('labelable_id', 'LIKE', "%$search%")
-            ->orWhere('grower_id', 'LIKE', "%$search%")
-            ->orWhere('paddock', 'LIKE', "%$search%")
-            ->orWhere('receival_id', 'LIKE', "%$search%")
-            ->orWhere('type', 'LIKE', "%$search%")
-            ->orWhere('comments', 'LIKE', "%$search%")
-            ->orWhereRelation('grower', function (Builder $query) use ($search) {
-                return $query->where('grower_name', 'LIKE', "%{$search}%");
-            });
+        return $query->where(function (Builder $query) use ($search) {
+            return $query
+                ->where('id', 'LIKE', "%$search%")
+                ->orWhere('labelable_type', 'LIKE', "%$search%")
+                ->orWhere('labelable_id', 'LIKE', "%$search%")
+                ->orWhere('grower_id', 'LIKE', "%$search%")
+                ->orWhere('paddock', 'LIKE', "%$search%")
+                ->orWhere('receival_id', 'LIKE', "%$search%")
+                ->orWhere('type', 'LIKE', "%$search%")
+                ->orWhere('comments', 'LIKE', "%$search%")
+                ->orWhereRelation('grower', function (Builder $query) use ($search) {
+                    return $query->where('grower_name', 'LIKE', "%{$search}%");
+                });
+        });
     }
 
     public function labelable()

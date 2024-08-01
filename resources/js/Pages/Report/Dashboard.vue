@@ -4,6 +4,7 @@ import LogoutButton from '@/Components/LogoutButton.vue';
 import InstallConfirmedModal from '@/Components/InstallConfirmedModal.vue';
 
 const menus = [
+  { route: route('reports.show', 'user'), image: 'menu1.png', label: 'Users' },
   { route: route('reports.show', 'receival'), image: 'menu2.png', label: 'Receivals' },
   { route: route('reports.show', 'unload'), image: 'menu3.png', label: 'Unloading' },
   { route: route('reports.show', 'tia-sample'), image: 'menu4.png', label: 'TIA Sampling' },

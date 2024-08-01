@@ -1,6 +1,6 @@
 import moment from 'moment';
-import { getCategoriesByType, getSingleCategoryNameByType, toTonnes } from '@/helper.js';
 import { binSizes } from '@/const.js';
+import { getCategoriesByType, getSingleCategoryNameByType, toTonnes } from '@/helper.js';
 
 export default [
   {
@@ -18,10 +18,6 @@ export default [
       const url = route('receivals.index', { receivalId: data });
       return `<a href="${url}" class="text-black inertia-link">${data}</a>`;
     },
-  },
-  {
-    title: 'Weighbridge Id',
-    data: 'id',
   },
   {
     title: 'Seed Type',
@@ -42,14 +38,7 @@ export default [
         { value: 'BU2', label: 'BU2' },
         { value: 'BU3', label: 'BU3' },
       ];
-      return channels.find((channel) => channel.value === data)?.label;
-    },
-  },
-  {
-    title: 'Bin Size',
-    data: 'bin_size',
-    render: function (data, type, row) {
-      return binSizes.find((binSize) => binSize.value === data)?.label;
+      return channels.find((channel) => channel.value === data)?.label || '';
     },
   },
   {
@@ -60,7 +49,14 @@ export default [
         { value: 1, label: 'System 1' },
         { value: 2, label: 'System 2' },
       ];
-      return systems.find((system) => system.value === data)?.label;
+      return systems.find((system) => system.value === data)?.label || '';
+    },
+  },
+  {
+    title: 'Bin Size',
+    data: 'bin_size',
+    render: function (data, type, row) {
+      return binSizes.find((binSize) => binSize.value === data)?.label;
     },
   },
   {

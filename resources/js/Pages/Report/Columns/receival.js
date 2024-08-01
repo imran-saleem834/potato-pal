@@ -105,6 +105,10 @@ export default [
     data: 'driver_name',
   },
   {
+    title: 'Status',
+    data: 'status',
+  },
+  {
     title: 'Comments',
     data: 'comments',
   },

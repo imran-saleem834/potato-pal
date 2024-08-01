@@ -10,18 +10,22 @@ const props = defineProps({
     type: Object,
     default: null,
   },
+  returns: {
+    type: Object,
+    default: null,
+  },
 });
 
 const emit = defineEmits(['close']);
 
 const form = useForm({
   dispatch: props.dispatch,
-  created_at: null,
-  docket_no: '',
-  comment: '',
-  half_tonnes: '',
-  one_tonnes: '',
-  two_tonnes: '',
+  created_at: props.returns?.returns?.created_at?.split('.')[0].replace('T', ' ') || '',
+  docket_no: props.returns?.returns?.docket_no || '',
+  comment: props.returns?.returns?.comment || '',
+  half_tonnes: props.returns?.half_tonnes || '',
+  one_tonnes: props.returns?.one_tonnes || '',
+  two_tonnes: props.returns?.two_tonnes || ''
 });
 
 const storeRecord = () => {
@@ -36,12 +40,34 @@ const storeRecord = () => {
   });
 };
 
+const updateRecord = () => {
+  form.patch(route('returns.update', props.returns.returns.id), {
+    preserveScroll: true,
+    preserveState: true,
+    onSuccess: () => {
+      const modal = document.getElementById(`returns-modal`);
+      modal.querySelector('.btn-close').click();
+      emit('close');
+    },
+  });
+};
+
 const allocation = computed(() => {
-  if (props.dispatch.type === 'reallocation') {
+  const type = props.dispatch.dispatch_type;
+  if (type === 'reallocation') {
+    if (props.dispatch.item.foreignable.item.foreignable.type === 'sizing') {
+      return props.dispatch.item.foreignable.item.foreignable.item.foreignable.allocatable.sizeable;
+    }
     return props.dispatch.item.foreignable.item.foreignable.item.foreignable;
-  } else if (props.dispatch.type === 'cutting') {
+  } else if (type === 'cutting') {
+    if (props.dispatch.item.foreignable.type === 'sizing') {
+      return props.dispatch.item.foreignable.item.foreignable.allocatable.sizeable;
+    }
     return props.dispatch.item.foreignable.item.foreignable;
+  } else if (type === 'sizing') {
+    return props.dispatch.item.foreignable.allocatable.sizeable;
   }
+
   return props.dispatch.item.foreignable;
 });
 
@@ -53,6 +79,20 @@ watch(
     }
   },
 );
+
+watch(
+  () => props.returns,
+  (returns) => {
+    if (returns) {
+      form.created_at = returns?.returns?.created_at?.split('.')[0].replace('T', ' ') || '';
+      form.docket_no = returns?.returns?.docket_no || '';
+      form.comment = returns?.returns?.comment || '';
+      form.half_tonnes = returns?.half_tonnes || '';
+      form.one_tonnes = returns?.one_tonnes || '';
+      form.two_tonnes = returns?.two_tonnes || '';
+    }
+  },
+);
 </script>
 
 <template>
@@ -60,7 +100,7 @@ watch(
     <div class="modal-dialog modal-xl">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 v-if="dispatch" class="modal-title" id="returns-modal-Label">Return {{ dispatch.type }}</h5>
+          <h5 v-if="dispatch" class="modal-title" id="returns-modal-Label">Returns</h5>
           <button
             type="button"
             class="btn-close"
@@ -86,7 +126,7 @@ watch(
               </thead>
               <tbody>
                 <tr>
-                  <td>{{ dispatch.type.toUpperCase() }}</td>
+                  <td>{{ dispatch.dispatch_type.toUpperCase() }}</td>
                   <td>
                     {{ getSingleCategoryNameByType(allocation.categories, 'grower-group') || '-' }}
                   </td>
@@ -99,7 +139,26 @@ watch(
                     {{ getSingleCategoryNameByType(allocation.categories, 'seed-generation') || '-' }}
                   </td>
                   <td>
-                    {{ getSingleCategoryNameByType(allocation.categories, 'seed-type') || '-' }}
+                    <template v-if="dispatch.dispatch_type === 'cutting'">Cut Seed</template>
+                    <template v-else-if="dispatch.dispatch_type === 'sizing'">
+                      {{ getSingleCategoryNameByType(dispatch.item.foreignable.categories, 'seed-type') || '-' }}
+                    </template>
+                    <template v-else-if="dispatch.dispatch_type === 'reallocation'">
+                      <template v-if="dispatch.item.foreignable.item.foreignable.type === 'sizing'">
+                        {{
+                          getSingleCategoryNameByType(
+                            dispatch.item.foreignable.item.foreignable.item.foreignable.categories,
+                            'seed-type',
+                          ) || '-'
+                        }}
+                      </template>
+                      <template v-else>
+                        {{ getSingleCategoryNameByType(allocation.categories, 'seed-type') || '-' }}
+                      </template>
+                    </template>
+                    <template v-else>
+                      {{ getSingleCategoryNameByType(allocation.categories, 'seed-type') || '-' }}
+                    </template>
                   </td>
                   <td>
                     {{ getSingleCategoryNameByType(allocation.categories, 'seed-class') || '-' }}
@@ -172,7 +231,8 @@ watch(
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-red" @click="storeRecord">Save Return</button>
+          <button v-if="returns?.id" type="button" class="btn btn-red" @click="updateRecord">Save Return</button>
+          <button v-else type="button" class="btn btn-red" @click="storeRecord">Save Return</button>
         </div>
       </div>
     </div>

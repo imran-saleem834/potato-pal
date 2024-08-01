@@ -8,8 +8,9 @@ const props = defineProps({
 });
 
 const allocation = computed(() => {
-  if (props.label.labelable.allocation) {
-    return props.label.labelable.allocation;
+  if (props.label.labelable_type === 'App\\Models\\Cutting') {
+    const cutting = props.label.labelable;
+    return cutting.type === 'sizing' ? cutting.item.foreignable.allocatable.sizeable : cutting.item.foreignable;
   } else {
     return props.label.labelable;
   }
@@ -21,7 +22,7 @@ const allocation = computed(() => {
     <div class="d-flex align-items-center p-3 header mb-2" style="background: #e5e5e5">
       <img src="/images/black-white-logo.png" alt="logo" class="me-2" style="width: 100px" />
       <div>
-        <div>CHERRY HILL COOLSTORES</div>
+        <div>CHERRY HILL COOL STORES</div>
         <div class="fw-normal">Leaders in seed potato management</div>
       </div>
     </div>
@@ -82,8 +83,8 @@ const allocation = computed(() => {
           <td>{{ label.receival.driver_name }}</td>
         </tr>
         <tr>
-          <td class="text-light-emphasis">{{ getBinSizesValue(allocation.bin_size) }} Bins X</td>
-          <td>{{ allocation.no_of_bins }}</td>
+          <td class="text-light-emphasis">{{ getBinSizesValue(allocation.item.bin_size) }} Bins X</td>
+          <td>{{ allocation.item.no_of_bins }}</td>
         </tr>
         <tr>
           <td class="text-light-emphasis">COMMENTS</td>

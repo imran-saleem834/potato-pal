@@ -10,6 +10,8 @@ const props = defineProps({
   dispatch: Object,
 });
 
+defineEmits(['editReturns']);
+
 const isCutting = computed(() => props.dispatch.dispatch_type === 'cutting');
 const isSizing = computed(() => props.dispatch.dispatch_type === 'sizing');
 const isAllocation = computed(() => props.dispatch.dispatch_type === 'allocation');
@@ -180,5 +182,9 @@ onUpdated(() => {
     </div>
   </div>
 
-  <ReturnItems :items="dispatch.return_items" />
+  <ReturnItems 
+    :items="dispatch.return_items"
+    :can-edit="true"
+    @edit="(item) => $emit('editReturns', item)"
+  />
 </template>

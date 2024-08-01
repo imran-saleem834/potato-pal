@@ -4,7 +4,15 @@ import { binSizes } from '@/const.js';
 
 export default [
   {
-    title: 'Buyer Name',
+    title: 'Allocation ID',
+    data: 'buyer',
+    render: function (data, type, row) {
+      const url = route('allocations.index', { buyerId: row.id });
+      return `<a href="${url}" class="text-black inertia-link">${data.id}</a>`;
+    },
+  },
+  {
+    title: 'Buyer',
     data: 'buyer',
     render: function (data, type, row) {
       const url = route('allocations.index', { buyerId: data.id });
@@ -20,6 +28,16 @@ export default [
     },
   },
   {
+    title: 'Grower Group',
+    data: 'categories',
+    render: function (categories, type, row) {
+      if (getCategoriesByType(categories, 'grower-group').length) {
+        return getSingleCategoryNameByType(categories, 'grower-group');
+      }
+      return '';
+    },
+  },
+  {
     title: 'Paddock',
     data: 'paddock',
   },
@@ -29,41 +47,6 @@ export default [
     render: function (categories, type, row) {
       if (getCategoriesByType(categories, 'seed-type').length) {
         return getSingleCategoryNameByType(categories, 'seed-type');
-      }
-      return '';
-    },
-  },
-  {
-    title: 'Bin Size',
-    data: 'bin_size',
-    render: function (data, type, row) {
-      return binSizes.find((binSize) => binSize.value === data)?.label;
-    },
-  },
-  {
-    title: 'No of Bins',
-    data: 'no_of_bins',
-  },
-  {
-    title: 'Weight',
-    data: 'weight',
-    render: function (data, type, row) {
-      return toTonnes(data);
-    },
-  },
-  {
-    title: 'Time Added',
-    data: 'created_at',
-    render: function (data, type, row) {
-      return moment(data).format('DD/MM/YYYY hh:mm A');
-    },
-  },
-  {
-    title: 'Grower Group',
-    data: 'categories',
-    render: function (categories, type, row) {
-      if (getCategoriesByType(categories, 'grower-group').length) {
-        return getSingleCategoryNameByType(categories, 'grower-group');
       }
       return '';
     },
@@ -96,6 +79,31 @@ export default [
         return getSingleCategoryNameByType(categories, 'seed-class');
       }
       return '';
+    },
+  },
+  {
+    title: 'Bin Size',
+    data: 'item.bin_size',
+    render: function (data, type, row) {
+      return binSizes.find((binSize) => binSize.value === data)?.label;
+    },
+  },
+  {
+    title: 'No of Bins',
+    data: 'item.no_of_bins',
+  },
+  {
+    title: 'Weight',
+    data: 'item.weight',
+    render: function (data, type, row) {
+      return toTonnes(data);
+    },
+  },
+  {
+    title: 'Time Added',
+    data: 'created_at',
+    render: function (data, type, row) {
+      return moment(data).format('DD/MM/YYYY hh:mm A');
     },
   },
   {

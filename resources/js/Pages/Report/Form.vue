@@ -35,6 +35,7 @@ const form = useForm({
     end: props.report.filters?.end,
     grower_ids: props.report.filters?.grower_ids,
     grower_groups: props.report.filters?.grower_groups,
+    buyer_groups: props.report.filters?.buyer_groups,
     paddocks: props.report.filters?.paddocks,
     seed_varieties: props.report.filters?.seed_varieties,
     seed_generations: props.report.filters?.seed_generations,
@@ -53,6 +54,7 @@ const form = useForm({
   },
 });
 
+const isUserForm = computed(() => page.props.type === 'user');
 const isReceivalForm = computed(() => page.props.type === 'receival');
 const isUnloadForm = computed(() => page.props.type === 'unload');
 const isTiaSampleForm = computed(() => page.props.type === 'tia-sample');
@@ -106,7 +108,7 @@ defineExpose({
       <h4>Grower Filter</h4>
       <div class="user-boxes">
         <table class="table input-table mb-0">
-          <tr>
+          <tr v-if="!isUserForm">
             <th>Growers</th>
             <td>
               <Multiselect
@@ -186,7 +188,7 @@ defineExpose({
       <h4>Seed Filter</h4>
       <div class="user-boxes">
         <table class="table input-table mb-0">
-          <tr>
+          <tr v-if="!isUserForm">
             <th>Seed Varieties</th>
             <td>
               <Multiselect
@@ -202,7 +204,7 @@ defineExpose({
               </div>
             </td>
           </tr>
-          <tr>
+          <tr v-if="!isUserForm">
             <th>Seed Generations</th>
             <td>
               <Multiselect
@@ -266,7 +268,7 @@ defineExpose({
               </div>
             </td>
           </tr>
-          <tr v-if="isReceivalForm" class="d-none">
+          <tr v-if="isUserForm">
             <th>Cool Stores</th>
             <td>
               <Multiselect
@@ -279,6 +281,22 @@ defineExpose({
               />
               <div v-if="form.errors['filters.cool_stores']" class="invalid-feedback">
                 {{ form.errors['filters.cool_stores'] }}
+              </div>
+            </td>
+          </tr>
+          <tr v-if="isUserForm">
+            <th>Buyer Groups</th>
+            <td>
+              <Multiselect
+                v-model="form.filters.buyer_groups"
+                mode="tags"
+                placeholder="Choose a buyer group"
+                :searchable="true"
+                :class="{ 'is-invalid': form.errors['filters.buyer_groups'] }"
+                :options="getCategoriesDropDownByType(page.props.categories, 'buyer-group')"
+              />
+              <div v-if="form.errors['filters.buyer_groups']" class="invalid-feedback">
+                {{ form.errors['filters.buyer_groups'] }}
               </div>
             </td>
           </tr>
@@ -435,7 +453,7 @@ defineExpose({
                 :options="[
                   { value: 'App\\Models\\Allocation', label: 'Allocation' },
                   { value: 'App\\Models\\Reallocation', label: 'Reallocation' },
-                  { value: 'App\\Models\\CuttingAllocation', label: 'Cutting' },
+                  { value: 'App\\Models\\Cutting', label: 'Cutting' },
                 ]"
               />
               <div v-if="form.errors['filters.labelable_type']" class="invalid-feedback">

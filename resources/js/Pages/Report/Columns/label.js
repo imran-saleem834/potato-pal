@@ -8,7 +8,7 @@ export default [
       const labelTypes = [
         { value: 'App\\Models\\Allocation', label: 'Allocation' },
         { value: 'App\\Models\\Reallocation', label: 'Reallocation' },
-        { value: 'App\\Models\\CuttingAllocation', label: 'Cutting' },
+        { value: 'App\\Models\\Cutting', label: 'Cutting' },
       ];
 
       const labeled = labelTypes.find((labelType) => labelType.value === data).label;

@@ -5,7 +5,7 @@ import { binSizes } from '@/const.js';
 export default [
   {
     title: 'Buyer Name',
-    data: 'allocation.buyer',
+    data: 'buyer',
     render: function (data, type, row) {
       const url = route('cuttings.index', { buyerId: data.id });
       return `<a href="${url}" class="text-black inertia-link">${data.buyer_name}</a>`;
@@ -13,20 +13,34 @@ export default [
   },
   {
     title: 'Grower',
-    data: 'allocation.grower',
+    data: 'item.foreignable',
     render: function (data, type, row) {
+      data = data.grower
+      if (row.type === 'sizing') {
+        data = row.item.foreignable.allocatable.sizeable.grower;
+      }
       const url = route('users.index', { userId: data.id });
       return `<a href="${url}" class="text-black inertia-link">${data.grower_name}</a>`;
     },
   },
   {
     title: 'Paddock',
-    data: 'allocation.paddock',
+    data: 'item.foreignable',
+    render: function (data, type, row) {
+      if (row.type === 'sizing') {
+        data = row.item.foreignable.allocatable.sizeable;
+      }
+      return data.paddock;
+    },
   },
   {
     title: 'Seed Type',
-    data: 'allocation.categories',
-    render: function (categories, type, row) {
+    data: 'item.foreignable',
+    render: function (data, type, row) {
+      let categories = data.categories;
+      if (row.type === 'sizing') {
+        categories = row.item.foreignable.categories;
+      }
       if (getCategoriesByType(categories, 'seed-type').length) {
         return getSingleCategoryNameByType(categories, 'seed-type');
       }
@@ -34,19 +48,90 @@ export default [
     },
   },
   {
-    title: 'Bin Size',
-    data: 'allocation.bin_size',
+    title: 'Grower Group',
+    data: 'item.foreignable',
     render: function (data, type, row) {
-      return binSizes.find((binSize) => binSize.value === data)?.label;
+      let categories = data.categories;
+      if (row.type === 'sizing') {
+        categories = row.item.foreignable.allocatable.sizeable.categories;
+      }
+      if (getCategoriesByType(categories, 'grower-group').length) {
+        return getSingleCategoryNameByType(categories, 'grower-group');
+      }
+      return '';
     },
   },
   {
-    title: 'Bins to cut',
-    data: 'no_of_bins',
+    title: 'Seed Variety',
+    data: 'item.foreignable',
+    render: function (data, type, row) {
+      let categories = data.categories;
+      if (row.type === 'sizing') {
+        categories = row.item.foreignable.allocatable.sizeable.categories;
+      }
+      if (getCategoriesByType(categories, 'seed-variety').length) {
+        return getSingleCategoryNameByType(categories, 'seed-variety');
+      }
+      return '';
+    },
+  },
+  {
+    title: 'Seed Generation',
+    data: 'item.foreignable',
+    render: function (data, type, row) {
+      let categories = data.categories;
+      if (row.type === 'sizing') {
+        categories = row.item.foreignable.allocatable.sizeable.categories;
+      }
+      if (getCategoriesByType(categories, 'seed-generation').length) {
+        return getSingleCategoryNameByType(categories, 'seed-generation');
+      }
+      return '';
+    },
+  },
+  {
+    title: 'Seed Class',
+    data: 'item.foreignable',
+    render: function (data, type, row) {
+      let categories = data.categories;
+      if (row.type === 'sizing') {
+        categories = row.item.foreignable.allocatable.sizeable.categories;
+      }
+      if (getCategoriesByType(categories, 'seed-class').length) {
+        return getSingleCategoryNameByType(categories, 'seed-class');
+      }
+      return '';
+    },
+  },
+  {
+    title: 'Data Source',
+    data: 'type',
+  },
+  {
+    title: 'Tipped Bins',
+    data: 'item',
+    render: function (item, type, row) {
+      if (row.type === 'sizing') {
+        return '-';
+      }
+      return binSizes.find((binSize) => binSize.value === item.bin_size)?.label + ' X ' + item.no_of_bins;
+    },
+  },
+  {
+    title: 'Half Tonnes',
+    data: 'item.half_tonnes',
+  },
+  {
+    title: 'One Tonnes',
+    data: 'item.one_tonnes',
+  },
+  {
+    title: 'Two Tonnes',
+    data: 'item.two_tonnes',
   },
   {
     title: 'Fungicide',
-    data: 'cutting.categories',
+    data: 'categories',
     render: function (categories, type, row) {
       if (getCategoriesByType(categories, 'fungicide').length) {
         return getSingleCategoryNameByType(categories, 'fungicide');
@@ -56,57 +141,23 @@ export default [
   },
   {
     title: 'Cut By',
-    data: 'cutting.cut_by',
+    data: 'categories',
+    render: function (categories, type, row) {
+      if (getCategoriesByType(categories, 'cool-store').length) {
+        return getSingleCategoryNameByType(categories, 'cool-store');
+      }
+      return '';
+    },
   },
   {
     title: 'Time of Cut',
-    data: 'cutting.cut_date',
+    data: 'cut_date',
     render: function (data, type, row) {
       return data ? moment(data).format('DD/MM/YYYY') : '';
     },
   },
   {
-    title: 'Grower Group',
-    data: 'allocation.categories',
-    render: function (categories, type, row) {
-      if (getCategoriesByType(categories, 'grower-group').length) {
-        return getSingleCategoryNameByType(categories, 'grower-group');
-      }
-      return '';
-    },
-  },
-  {
-    title: 'Seed Variety',
-    data: 'allocation.categories',
-    render: function (categories, type, row) {
-      if (getCategoriesByType(categories, 'seed-variety').length) {
-        return getSingleCategoryNameByType(categories, 'seed-variety');
-      }
-      return '';
-    },
-  },
-  {
-    title: 'Seed Generation',
-    data: 'allocation.categories',
-    render: function (categories, type, row) {
-      if (getCategoriesByType(categories, 'seed-generation').length) {
-        return getSingleCategoryNameByType(categories, 'seed-generation');
-      }
-      return '';
-    },
-  },
-  {
-    title: 'Seed Class',
-    data: 'allocation.categories',
-    render: function (categories, type, row) {
-      if (getCategoriesByType(categories, 'seed-class').length) {
-        return getSingleCategoryNameByType(categories, 'seed-class');
-      }
-      return '';
-    },
-  },
-  {
     title: 'Comments',
-    data: 'cutting.comment',
+    data: 'comment',
   },
 ];

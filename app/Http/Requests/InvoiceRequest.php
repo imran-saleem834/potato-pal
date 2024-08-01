@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Grade;
+use App\Models\Grading;
 use App\Models\Cutting;
 use App\Models\Receival;
 use Illuminate\Validation\Rule;
@@ -29,7 +29,7 @@ class InvoiceRequest extends FormRequest
             'invoiceable_type' => [
                 'required',
                 'string',
-                Rule::in([Receival::class, Grade::class, Cutting::class]),
+                Rule::in([Receival::class, Grading::class, Cutting::class]),
             ],
             'invoiceable_id'   => ['required', 'numeric'],
         ];

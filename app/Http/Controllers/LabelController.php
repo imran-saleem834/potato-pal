@@ -4,14 +4,16 @@ namespace App\Http\Controllers;
 
 use Inertia\Inertia;
 use App\Models\Label;
+use App\Models\Cutting;
 use App\Models\Receival;
 use App\Models\Allocation;
+use App\Models\SizingItem;
 use App\Models\Reallocation;
 use Illuminate\Http\Request;
-use App\Models\CuttingAllocation;
 use App\Helpers\NotificationHelper;
 use App\Http\Requests\LabelRequest;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class LabelController extends Controller
 {
@@ -24,9 +26,7 @@ class LabelController extends Controller
         $labels = Label::query()
             ->with(['grower:id,grower_name'])
             ->when($request->input('search'), function (Builder $query, $search) {
-                return $query->where(function (Builder $subQuery) use ($search) {
-                    return $subQuery->search($search);
-                });
+                return $query->search($search);
             })
             ->latest()
             ->paginate(20)
@@ -50,8 +50,33 @@ class LabelController extends Controller
     {
         return Allocation::query()
             ->with([
+                'item',
                 'buyer:id,buyer_name',
                 'grower:id,grower_name',
+            ])
+            ->get();
+    }
+
+    private function getCuttings()
+    {
+        return Cutting::query()
+            ->with([
+                'buyer:id,buyer_name',
+                'item.foreignable' => function (MorphTo $morphTo) {
+                    $morphTo->morphWith([
+                        Allocation::class => [
+                            'categories.category',
+                            'grower:id,grower_name',
+                            'buyer:id,buyer_name',
+                        ],
+                        SizingItem::class => [
+                            'categories.category',
+                            'allocatable.sizeable.categories.category',
+                            'allocatable.sizeable.grower:id,grower_name',
+                            'allocatable.sizeable.buyer:id,buyer_name',
+                        ],
+                    ]);
+                },
             ])
             ->get();
     }
@@ -60,21 +85,24 @@ class LabelController extends Controller
     {
         return Reallocation::query()
             ->with([
-                'buyer'             => fn ($query) => $query->select(['id', 'buyer_name']),
-                'allocation.item',
-                'allocation.buyer:id,buyer_name',
-                'allocation.grower:id,grower_name',
-            ])
-            ->get();
-    }
-
-    private function getCuttings()
-    {
-        return CuttingAllocation::query()
-            ->with([
-                'allocation.item',
-                'allocation.buyer:id,buyer_name',
-                'allocation.grower:id,grower_name',
+                'buyer:id,buyer_name',
+                'item.foreignable.item.foreignable' => function (MorphTo $morphTo) {
+                    $morphTo->morphWith([
+                        Allocation::class => [
+                            'item',
+                            'categories.category',
+                            'grower:id,grower_name',
+                            'buyer:id,buyer_name'
+                        ],
+                        SizingItem::class => [
+                            'categories.category',
+                            'allocatable.sizeable.item',
+                            'allocatable.sizeable.categories.category',
+                            'allocatable.sizeable.buyer:id,buyer_name',
+                            'allocatable.sizeable.grower:id,grower_name',
+                        ],
+                    ]);
+                },
             ])
             ->get();
     }
@@ -145,9 +173,16 @@ class LabelController extends Controller
     {
         return Label::with([
             'labelable' => fn ($query) => $query->morphWith([
-                Allocation::class        => ['categories.category'],
-                Reallocation::class      => ['allocation.categories.category', 'allocation.buyer:id,buyer_name'],
-                CuttingAllocation::class => ['allocation.categories.category'],
+                Allocation::class        => [
+                    'item',
+                    'categories.category',
+                    'buyer:id,buyer_name',
+                ],
+                Reallocation::class      => [
+                    'item.foreignable.item.foreignable.categories.category', 
+                    'item.foreignable.item.foreignable.buyer:id,buyer_name'
+                ],
+                Cutting::class           => ['item.foreignable.categories.category'],
             ]),
             'receival:id,driver_name,created_at',
             'receival.categories.category',

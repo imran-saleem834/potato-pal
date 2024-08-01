@@ -4,7 +4,6 @@ import { computed, watch } from 'vue';
 import { useForm, Link } from '@inertiajs/vue3';
 import Multiselect from '@vueform/multiselect';
 import { useToast } from 'vue-toastification';
-import { toCamelCase } from '@/helper.js';
 import UlLiButton from '@/Components/UlLiButton.vue';
 
 const toast = useToast();
@@ -39,11 +38,10 @@ const isForm = computed(() => props.isEdit || props.isNew);
 const invoiceableLabel = computed(() => form.invoiceable_type.split('\\').at(-1));
 
 const invoiceableRoute = computed(() => {
-  const invoiced = form.invoiceable_type.split('\\').at(-1);
-  if (invoiced === 'Cutting') {
+  if (invoiceableLabel.value === 'Cutting') {
     return route('cuttings.index', { buyerId: props.invoice.invoiceable.buyer_id });
-  } else if (invoiced === 'Grade') {
-    return route('gradings.index', { gradeId: props.invoice.invoiceable_id });
+  } else if (invoiceableLabel.value === 'Grading') {
+    return route('grading.index', { userId: props.invoice.invoiceable.buyer_id });
   }
   return route('receivals.index', { receivalId: props.invoice.invoiceable_id });
 });
@@ -58,19 +56,19 @@ const onChangeInvoiceType = (value) => {
 const options = computed(() => {
   if (invoiceableLabel.value === 'Cutting') {
     return props.cuttings.map((cutting) => ({
-      value: cutting.buyer_id,
-      label: `${cutting.id}; Buyer: ${cutting.buyer.buyer_name}`,
+      value: cutting.id,
+      label: `Cutting ID: ${cutting.id}; Buyer: ${cutting.buyer.buyer_name}`,
     }));
-  } else if (invoiceableLabel.value === 'Grade') {
+  } else if (invoiceableLabel.value === 'Grading') {
     return props.grades.map((grade) => ({
       value: grade.id,
-      label: `${grade.id}; Category: ${toCamelCase(grade.category.replace('-', ' '))}; Grower: ${grade.unload?.receival?.grower?.grower_name}`,
+      label: `Grade ID: ${grade.id}; Buyer: ${grade.user.buyer_name}`,
     }));
   }
 
   return props.receivals.map((receival) => ({
     value: receival.id,
-    label: `${receival.id}; Grower: ${receival.grower.grower_name}`,
+    label: `Receival ID: ${receival.id}; Grower: ${receival.grower.grower_name}`,
   }));
 });
 
@@ -115,7 +113,7 @@ defineExpose({
             :error="form.errors.invoiceable_type"
             :items="[
               { value: 'App\\Models\\Receival', label: 'Receival' },
-              { value: 'App\\Models\\Grade', label: 'Grade' },
+              { value: 'App\\Models\\Grading', label: 'Grading' },
               { value: 'App\\Models\\Cutting', label: 'Cutting' },
             ]"
             @click="onChangeInvoiceType"
@@ -136,7 +134,7 @@ defineExpose({
           />
           <template v-else-if="invoice.invoiceable_id">
             <Link class="p-0" :href="invoiceableRoute">
-              <template v-if="invoiceableLabel === 'Grade'">
+              <template v-if="invoiceableLabel === 'Grading'">
                 {{ invoiceableLabel }} Id: {{ invoice.invoiceable_id }}
               </template>
               <template v-else-if="invoiceableLabel === 'Cutting'">

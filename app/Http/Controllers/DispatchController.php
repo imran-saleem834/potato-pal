@@ -244,33 +244,6 @@ class DispatchController extends Controller
         return to_route('dispatches.index');
     }
 
-    public function returns(ReturnRequest $request)
-    {
-        $inputs = $request->validated('dispatch');
-
-        $return = DispatchReturn::create($request->validated());
-
-        if (! empty($request->validated('created_at'))) {
-            $return->created_at = Carbon::parse($request->validated('created_at'));
-            $return->save();
-        }
-
-        AllocationItem::create([
-            'allocatable_type' => Dispatch::class,
-            'allocatable_id'   => $inputs['id'],
-            'foreignable_type' => $this->getForeignableType($inputs['type']),
-            'foreignable_id'   => $inputs['item']['foreignable']['id'],
-            'returned_id'      => $return->id,
-            'half_tonnes'      => $request->validated('half_tonnes') ?? 0,
-            'one_tonnes'       => $request->validated('one_tonnes') ?? 0,
-            'two_tonnes'       => $request->validated('two_tonnes') ?? 0,
-        ]);
-
-        NotificationHelper::addedAction('Return', $inputs['id']);
-
-        return to_route('dispatches.index', ['buyerId' => $inputs['buyer_id']]);
-    }
-
     private function getDispatchs($buyerId, $search = '')
     {
         return Dispatch::query()

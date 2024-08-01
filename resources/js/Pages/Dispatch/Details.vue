@@ -28,7 +28,7 @@ const props = defineProps({
   selected: Object,
 });
 
-const emit = defineEmits(['toSelect', 'setReturnDispatch', 'create', 'delete']);
+const emit = defineEmits(['toSelect', 'setReturnDispatch', 'setEditReturns', 'create', 'delete']);
 
 const isEdit = ref(false);
 const loader = ref(false);
@@ -317,7 +317,10 @@ defineExpose({
         class="btn btn-black p-1 position-absolute bottom-0 end-0"
         v-text="'Return'"
       />
-      <SingleDetailsView :dispatch="dispatch" />
+      <SingleDetailsView 
+        :dispatch="dispatch" 
+        @editReturns="(item) => $emit('setEditReturns', dispatch, item)" 
+      />
     </template>
   </div>
 

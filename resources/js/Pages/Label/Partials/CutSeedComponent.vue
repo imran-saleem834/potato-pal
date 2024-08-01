@@ -7,8 +7,9 @@ const props = defineProps({
 });
 
 const allocation = computed(() => {
-  if (props.label.labelable.allocation) {
-    return props.label.labelable.allocation;
+  if (props.label.labelable_type === 'App\\Models\\Cutting') {
+    const cutting = props.label.labelable;
+    return cutting.type === 'sizing' ? cutting.item.foreignable.allocatable.sizeable : cutting.item.foreignable;
   } else {
     return props.label.labelable;
   }

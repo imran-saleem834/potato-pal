@@ -14,6 +14,7 @@ use App\Http\Controllers\GradingController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DispatchController;
+use App\Http\Controllers\ReturnsController;
 use App\Http\Controllers\ReceivalController;
 use App\Http\Controllers\TiaSampleController;
 use App\Http\Controllers\UnloadingController;
@@ -93,7 +94,7 @@ Route::middleware([
 
     Route::middleware(['dispatch'])->group(function () {
         Route::resource('/dispatches', DispatchController::class)->except(['create', 'edit', 'show']);
-        Route::post('/returns', [DispatchController::class, 'returns'])->name('returns.store');
+        Route::resource('/returns', ReturnsController::class)->only(['store', 'update', 'destroy']);
 
         Route::group(['prefix' => 'buyers/{id}/dispatch', 'as' => 'dispatch.buyers.'], function () {
             Route::get('/allocations', [DispatchController::class, 'allocations'])->name('allocation');

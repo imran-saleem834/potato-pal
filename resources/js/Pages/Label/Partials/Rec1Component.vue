@@ -8,8 +8,9 @@ const props = defineProps({
 });
 
 const allocation = computed(() => {
-  if (props.label.labelable.allocation) {
-    return props.label.labelable.allocation;
+  if (props.label.labelable_type === 'App\\Models\\Cutting') {
+    const cutting = props.label.labelable;
+    return cutting.type === 'sizing' ? cutting.item.foreignable.allocatable.sizeable : cutting.item.foreignable;
   } else {
     return props.label.labelable;
   }
@@ -63,8 +64,8 @@ const allocation = computed(() => {
           <td>{{ getSingleCategoryNameByType(allocation.categories, 'seed-type') }}</td>
         </tr>
         <tr>
-          <td class="text-light-emphasis">{{ getBinSizesValue(allocation.bin_size) }} Bins X</td>
-          <td>{{ allocation.no_of_bins }}</td>
+          <td class="text-light-emphasis">{{ getBinSizesValue(allocation.item.bin_size) }} Bins X</td>
+          <td>{{ allocation.item.no_of_bins }}</td>
         </tr>
         <tr>
           <td class="text-light-emphasis">COMMENTS</td>

@@ -48,27 +48,17 @@ class InvoiceController extends Controller
 
     private function getReceivals()
     {
-        return Receival::query()
-            ->with(['grower' => fn ($query) => $query->select(['id', 'grower_name'])])
-            ->get();
+        return Receival::query()->with(['grower:id,grower_name'])->get();
     }
 
     private function getGrades()
     {
-        return Grading::query()
-            ->with([
-                'unload:id,receival_id',
-                'unload.receival:id,grower_id',
-                'unload.receival.grower:id,grower_name',
-            ])
-            ->get();
+        return Grading::query()->with(['user:id,buyer_name'])->get();
     }
 
     private function getCuttings()
     {
-        return Cutting::query()
-            ->with(['buyer' => fn ($query) => $query->select(['id', 'buyer_name'])])
-            ->get();
+        return Cutting::query()->with(['buyer:id,buyer_name'])->get();
     }
 
     /**
@@ -88,7 +78,7 @@ class InvoiceController extends Controller
     {
         $invoice = Invoice::create($request->validated());
 
-        $this->createInvoice($invoice);
+        // $this->createInvoice($invoice);
 
         NotificationHelper::addedAction('Invoice', $invoice->id);
 
@@ -148,23 +138,23 @@ class InvoiceController extends Controller
                     'AccountCode' => 200,
                     'TaxType'     => 'NONE',
 
-                    //                            <ItemCode>".$line_item['ItemCode']."</ItemCode>
-                    //					        <Description>".$line_item['Description']."</Description>
-                    //							<UnitAmount>".$line_item['UnitAmount']."</UnitAmount>
-                    //							<TaxType>".$line_item['TaxType']."</TaxType>
-                    //							<TaxAmount>".$line_item['TaxAmount']."</TaxAmount>
-                    //		  					<LineAmount>".$line_item['LineAmount']."</LineAmount>
-                    //		                    <AccountCode>".$line_item['AccountCode']."</AccountCode>
-                    //							<Quantity>".$line_item['Quantity']."</Quantity>
-                    //							<LineItemID>".$line_item['LineItemID']."</LineItemID>
+                    //   <ItemCode>".$line_item['ItemCode']."</ItemCode>
+                    // <Description>".$line_item['Description']."</Description>
+                    // <UnitAmount>".$line_item['UnitAmount']."</UnitAmount>
+                    // <TaxType>".$line_item['TaxType']."</TaxType>
+                    // <TaxAmount>".$line_item['TaxAmount']."</TaxAmount>
+                    // <LineAmount>".$line_item['LineAmount']."</LineAmount>
+                    // <AccountCode>".$line_item['AccountCode']."</AccountCode>
+                    // <Quantity>".$line_item['Quantity']."</Quantity>
+                    // <LineItemID>".$line_item['LineItemID']."</LineItemID>
 
-                    //                            <ItemCode>".$Code."</ItemCode>
-                    //					        <Description>".$Description."</Description>
-                    //							<UnitAmount>".$UnitPrice."</UnitAmount>
-                    //							<TaxType>".$TaxType."</TaxType>
-                    //		  					<LineAmount>".$LineAmount."</LineAmount>
-                    //		                    <AccountCode>".$AccountCode."</AccountCode>
-                    //							<Quantity>".$invoice_net_weight."</Quantity>
+                    //   <ItemCode>".$Code."</ItemCode>
+                    // <Description>".$Description."</Description>
+                    // <UnitAmount>".$UnitPrice."</UnitAmount>
+                    // <TaxType>".$TaxType."</TaxType>
+                    // <LineAmount>".$LineAmount."</LineAmount>
+                    // <AccountCode>".$AccountCode."</AccountCode>
+                    // <Quantity>".$invoice_net_weight."</Quantity>
                 ],
             ],
         ]);
