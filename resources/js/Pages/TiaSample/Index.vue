@@ -149,5 +149,28 @@ if (width.value > 991) {
         <div class="clearfix"></div>
       </div>
     </div>
+
+    <div
+      tabindex="-1"
+      data-bs-scroll="true"
+      id="offcanvasWithBothOptions"
+      class="offcanvas offcanvas-end"
+      aria-labelledby="offcanvasWithBothOptionsLabel"
+    >
+      <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasWithBothOptionsLabel">Tia Sampling</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body">
+        <p>Try scrolling the rest of the page to see this option in action.</p>
+        <ul>
+          <li><a href="">Unique ID <span class="fa fa-angle-right"></span> </a></li>
+          <li><a href="">Name <span class="fa fa-angle-right"></span> </a></li>
+          <li><a href="">Email <span class="fa fa-angle-right"></span> </a></li>
+          <li><a href="">Username <span class="fa fa-angle-right"></span> </a></li>
+          <li><a href="">User Access <span class="fa fa-angle-right"></span> </a></li>
+        </ul>
+      </div>
+    </div>
   </AppLayout>
 </template>

@@ -9,6 +9,7 @@ import ConfirmedModal from '@/Components/ConfirmedModal.vue';
 import CustomDatePicker from '@/Components/CustomDatePicker.vue';
 import SelectedView from '@/Pages/Cutting/Partials/SelectedView.vue';
 import SingleDetailsView from '@/Pages/Cutting/Partials/SingleDetailsView.vue';
+import ReallocationModal from '@/Pages/Cutting/Partials/ReallocationModal.vue';
 import { getCategoryIdsByType, getCategoryByKeyword, getCategoriesDropDownByType } from '@/helper.js';
 
 const page = usePage();
@@ -35,6 +36,7 @@ const emit = defineEmits(['allocation', 'create', 'delete']);
 
 const isEdit = ref(false);
 const loader = ref(false);
+const reallocate = ref({});
 
 const getDefaultCategoryId = (categories, type, keyword) => {
   let categoriesIds = getCategoryIdsByType(categories, type);
@@ -319,6 +321,16 @@ defineExpose({
           <template v-else><i class="bi bi-trash"></i></template>
         </button>
       </div>
+      <div class="btn-group position-absolute bottom-0 end-0">
+        <button
+          class="btn btn-black p-1 z-1"
+          data-bs-toggle="modal"
+          :data-bs-target="`#relocate-${uniqueKey}`"
+          @click="() => (reallocate = cutting)"
+        >
+          Reallocate
+        </button>
+      </div>
 
       <SingleDetailsView :cutting="cutting" />
     </template>
@@ -334,4 +346,6 @@ defineExpose({
     ok="Yes, Update!"
     @ok="updateRecord"
   />
+
+  <ReallocationModal :id="`relocate-${uniqueKey}`" :cutting="reallocate" @close="() => (reallocate = {})" />
 </template>

@@ -89,6 +89,10 @@ class ReallocationController extends Controller
 
         NotificationHelper::addedAction('Reallocation', $reallocation->id);
 
+        if ($request->has('returns')) {
+            return back();
+        }
+
         return to_route('reallocations.index', ['buyerId' => $reallocation->buyer_id]);
     }
 

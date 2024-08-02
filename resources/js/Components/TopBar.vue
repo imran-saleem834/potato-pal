@@ -121,6 +121,14 @@ const search = () => {
           </template>
 
           <ul>
+            <li>
+              <a role="button"
+                 class="btn btn-transparent"
+                 data-bs-toggle="offcanvas" 
+                 data-bs-target="#offcanvasWithBothOptions" 
+                 aria-controls="offcanvasWithBothOptions"
+              ><i class="bi bi-funnel"></i></a>
+            </li>
             <li v-if="!isNewRecordSelected && access.new && access.edit">
               <a role="button" @click="$emit('new')" class="btn btn-red"> <i class="bi bi-plus-lg"></i> Add </a>
             </li>

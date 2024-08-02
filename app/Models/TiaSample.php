@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class TiaSample extends Model
@@ -91,6 +93,47 @@ class TiaSample extends Model
         'skinning'                   => 'boolean',
         'regarding'                  => 'boolean',
     ];
+
+    public function scopeSearch(Builder $query, $search)
+    {
+        return $query->where(function (Builder $query) use ($search) {
+            if (str_contains($search, ':')) {
+                [$column, $search] = explode(':', $search);
+                if (Schema::hasColumn('tia_samples', $column)) {
+                    return $query->where($column, 'LIKE', "%$search%");
+                }
+            }
+            return $query
+                ->where('id', 'LIKE', "%$search%")
+                ->orWhere('status', 'LIKE', "%$search%")
+                ->orWhere('inspection_date', 'LIKE', "%$search%")
+                ->orWhere('size', 'LIKE', "%$search%")
+                ->orWhere('comment', 'LIKE', "%$search%")
+                ->orWhereRelation('receival', function (Builder $query) use ($search) {
+                    return $query
+                        ->where('id', 'LIKE', "%$search%")
+                        ->where('paddocks', 'LIKE', "%$search%")
+                        ->orWhere('grower_docket_no', 'LIKE', "%$search%")
+                        ->orWhere('chc_receival_docket_no', 'LIKE', "%$search%")
+                        ->orWhereRelation('categories.category', 'name', 'LIKE', "%{$search}%")
+                        ->orWhereRelation('grower', function (Builder $query) use ($search) {
+                            return $query
+                                ->where('name', 'LIKE', "%{$search}%")
+                                ->orWhere('grower_name', 'LIKE', "%{$search}%");
+                        })
+                        ->orWhereRelation('grower.categories.category', 'name', 'LIKE', "%{$search}%")
+                        ->orWhereRelation('unloads', function (Builder $catQuery) use ($search) {
+                            return $catQuery
+                                ->where('channel', 'LIKE', "%{$search}%")
+                                ->orWhere('no_of_bins', 'LIKE', "%{$search}%")
+                                ->orWhere('system', 'LIKE', "%{$search}%")
+                                ->orWhere('weight', 'LIKE', "%{$search}%")
+                                ->orWhere('bin_size', 'LIKE', "%{$search}%");
+                        })
+                        ->orWhereRelation('unloads.categories.category', 'name', 'LIKE', "%{$search}%");
+                });
+        });
+    }
 
     public function receival()
     {
