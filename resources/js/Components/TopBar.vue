@@ -33,6 +33,7 @@ const props = defineProps({
       delete: true,
       duplicate: false,
       print: false,
+      filter: false,
     },
   },
 });
@@ -121,12 +122,13 @@ const search = () => {
           </template>
 
           <ul>
-            <li>
-              <a role="button"
-                 class="btn btn-transparent"
-                 data-bs-toggle="offcanvas" 
-                 data-bs-target="#offcanvasWithBothOptions" 
-                 aria-controls="offcanvasWithBothOptions"
+            <li v-if="!isNewRecordSelected && !isEditRecordSelected && access.filter" title="Filter">
+              <a
+                role="button"
+                class="btn btn-transparent"
+                data-bs-toggle="offcanvas"
+                data-bs-target="#search-filter"
+                aria-controls="search-filter"
               ><i class="bi bi-funnel"></i></a>
             </li>
             <li v-if="!isNewRecordSelected && access.new && access.edit">

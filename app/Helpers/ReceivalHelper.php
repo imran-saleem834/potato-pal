@@ -26,7 +26,7 @@ class ReceivalHelper
     public static function pushForTiaSample(int $receivalId): void
     {
         if (static::isSeedClassPending($receivalId)) {
-            TiaSample::firstOrCreate(['receival_id' => $receivalId], ['size' => '70mm']);
+            TiaSample::firstOrCreate(['receival_id' => $receivalId], ['size' => '70mm', 'status' => 'pending']);
         }
     }
 

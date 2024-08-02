@@ -1,13 +1,15 @@
 <script setup>
-import { router, useForm } from '@inertiajs/vue3';
 import { ref, watch } from 'vue';
-import AppLayout from '@/Layouts/AppLayout.vue';
-import TopBar from '@/Components/TopBar.vue';
-import Details from '@/Pages/TiaSample/Details.vue';
-import LeftBar from '@/Components/LeftBar.vue';
+import { tiaStatus } from '@/const.js';
 import { useToast } from 'vue-toastification';
 import { useWindowSize } from 'vue-window-size';
+import { router, useForm } from '@inertiajs/vue3';
+import TopBar from '@/Components/TopBar.vue';
+import LeftBar from '@/Components/LeftBar.vue';
 import Actions from '@/Components/Actions.vue';
+import AppLayout from '@/Layouts/AppLayout.vue';
+import Details from '@/Pages/TiaSample/Details.vue';
+import SearchFilter from "@/Components/SearchFilter.vue";
 
 const toast = useToast();
 const { width, height } = useWindowSize();
@@ -96,6 +98,7 @@ if (width.value > 991) {
       :is-new-record-selected="isNewRecord"
       :access="{
         new: false,
+        filter: true,
       }"
       @new="setNewRecord"
       @edit="() => setEdit(tiaSample?.id)"
@@ -150,27 +153,17 @@ if (width.value > 991) {
       </div>
     </div>
 
-    <div
-      tabindex="-1"
-      data-bs-scroll="true"
-      id="offcanvasWithBothOptions"
-      class="offcanvas offcanvas-end"
-      aria-labelledby="offcanvasWithBothOptionsLabel"
-    >
-      <div class="offcanvas-header">
-        <h5 class="offcanvas-title" id="offcanvasWithBothOptionsLabel">Tia Sampling</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-      </div>
-      <div class="offcanvas-body">
-        <p>Try scrolling the rest of the page to see this option in action.</p>
-        <ul>
-          <li><a href="">Unique ID <span class="fa fa-angle-right"></span> </a></li>
-          <li><a href="">Name <span class="fa fa-angle-right"></span> </a></li>
-          <li><a href="">Email <span class="fa fa-angle-right"></span> </a></li>
-          <li><a href="">Username <span class="fa fa-angle-right"></span> </a></li>
-          <li><a href="">User Access <span class="fa fa-angle-right"></span> </a></li>
-        </ul>
-      </div>
-    </div>
+    <SearchFilter 
+      title="Tia Sampling"
+      :fields="[
+        { name: 'id', label: 'Inspection ID' },
+        { 
+          name: 'status', 
+          label: 'Status', 
+          options: tiaStatus
+        }
+      ]"
+      @search="filter"
+    />
   </AppLayout>
 </template>

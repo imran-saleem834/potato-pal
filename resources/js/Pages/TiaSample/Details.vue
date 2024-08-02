@@ -1,15 +1,15 @@
 <script setup>
 import moment from 'moment';
 import { computed, watch } from 'vue';
-import { useForm, Link } from '@inertiajs/vue3';
 import { useToast } from 'vue-toastification';
-import TextInput from '@/Components/TextInput.vue';
+import { useForm, Link } from '@inertiajs/vue3';
+import { tiaStatus, booleanArray } from '@/const.js';
+import { toTonnes, getSingleCategoryNameByType } from '@/helper.js';
 import Images from '@/Components/Images.vue';
+import TextInput from '@/Components/TextInput.vue';
 import UlLiButton from '@/Components/UlLiButton.vue';
 import TdOfCategories from '@/Components/TdOfCategories.vue';
 import CustomDatePicker from '@/Components/CustomDatePicker.vue';
-import { binSizes, tiaStatus, booleanArray } from '@/const.js';
-import { toTonnes, getSingleCategoryNameByType } from '@/helper.js';
 
 const toast = useToast();
 

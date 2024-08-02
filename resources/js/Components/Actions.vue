@@ -23,6 +23,7 @@ const props = defineProps({
       delete: true,
       duplicate: false,
       print: false,
+      filter: false,
     },
   },
 });
@@ -33,6 +34,8 @@ const access = computed(() => ({
   edit: true,
   delete: true,
   duplicate: false,
+  print: false,
+  filter: false,
   ...props.access,
 }));
 
@@ -71,6 +74,15 @@ const emit = defineEmits(['unset', 'edit', 'new', 'store', 'update', 'delete', '
       <a role="button" @click="$emit('new')" class="btn btn-red">
         <i class="bi bi-plus-lg"></i> <span class="d-none d-md-inline-block">Add</span>
       </a>
+    </li>
+    <li v-if="!isNewRecordSelected && !isEditRecordSelected && access.filter" class="d-inline-block d-lg-none" title="Filter">
+      <a
+        role="button"
+        class="btn btn-transparent"
+        data-bs-toggle="offcanvas"
+        data-bs-target="#search-filter"
+        aria-controls="search-filter"
+      ><i class="bi bi-funnel"></i></a>
     </li>
     <li v-if="!isNewRecordSelected && access.new && !access.edit">
       <a role="button" @click="$emit('new')" class="btn btn-red" title="Add new">

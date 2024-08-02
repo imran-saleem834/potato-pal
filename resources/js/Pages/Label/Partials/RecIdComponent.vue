@@ -11,9 +11,26 @@ const allocation = computed(() => {
   if (props.label.labelable_type === 'App\\Models\\Cutting') {
     const cutting = props.label.labelable;
     return cutting.type === 'sizing' ? cutting.item.foreignable.allocatable.sizeable : cutting.item.foreignable;
+  } else if (props.label.labelable_type === 'App\\Models\\Reallocation') {
+    const reallocation = props.label.labelable;
+    const cutting = reallocation.item.foreignable;
+    return cutting.type === 'sizing' ? cutting.item.foreignable.allocatable.sizeable : cutting.item.foreignable;
   } else {
     return props.label.labelable;
   }
+});
+
+const seedTypeCategories = computed(() => {
+  if (props.label.labelable_type === 'App\\Models\\Cutting') {
+    const cutting = props.label.labelable;
+    return cutting.item.foreignable.categories;
+  } else if (props.label.labelable_type === 'App\\Models\\Reallocation') {
+    const reallocation = props.label.labelable;
+    const cutting = reallocation.item.foreignable;
+    return cutting.item.foreignable.categories;
+  }
+
+  return props.label.labelable.categories;
 });
 </script>
 
@@ -72,7 +89,7 @@ const allocation = computed(() => {
         </tr>
         <tr>
           <td class="text-light-emphasis">SEED TYPE</td>
-          <td>{{ getSingleCategoryNameByType(allocation.categories, 'seed-type') }}</td>
+          <td>{{ getSingleCategoryNameByType(seedTypeCategories, 'seed-type') }}</td>
         </tr>
         <tr v-if="label.receival">
           <td class="text-light-emphasis">TRANSPORT CO</td>

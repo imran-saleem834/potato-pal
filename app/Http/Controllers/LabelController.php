@@ -178,11 +178,40 @@ class LabelController extends Controller
                     'categories.category',
                     'buyer:id,buyer_name',
                 ],
-                Reallocation::class      => [
-                    'item.foreignable.item.foreignable.categories.category', 
-                    'item.foreignable.item.foreignable.buyer:id,buyer_name'
+                Cutting::class           => [
+                    'item.foreignable' => function (MorphTo $morphTo) {
+                        $morphTo->morphWith([
+                            Allocation::class => [
+                                'item',
+                                'categories.category',
+                                'buyer:id,buyer_name',
+                            ],
+                            SizingItem::class => [
+                                'categories.category',
+                                'allocatable.sizeable.item',
+                                'allocatable.sizeable.categories.category',
+                                'allocatable.sizeable.buyer:id,buyer_name',
+                            ],
+                        ]);
+                    },
                 ],
-                Cutting::class           => ['item.foreignable.categories.category'],
+                Reallocation::class      => [
+                    'item.foreignable.item.foreignable' => function (MorphTo $morphTo) {
+                        $morphTo->morphWith([
+                            Allocation::class => [
+                                'item',
+                                'categories.category',
+                                'buyer:id,buyer_name'
+                            ],
+                            SizingItem::class => [
+                                'categories.category',
+                                'allocatable.sizeable.item',
+                                'allocatable.sizeable.categories.category',
+                                'allocatable.sizeable.buyer:id,buyer_name',
+                            ],
+                        ]);
+                    },
+                ],
             ]),
             'receival:id,driver_name,created_at',
             'receival.categories.category',
