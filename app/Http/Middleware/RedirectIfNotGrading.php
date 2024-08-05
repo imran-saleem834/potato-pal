@@ -17,10 +17,10 @@ class RedirectIfNotGrading
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::check() && in_array('admin', Auth::user()->role, true)) {
+        if (Auth::check() && Auth::user()->role === 'admin') {
             return $next($request);
         }
-        if (Auth::check() && in_array('grading', Auth::user()->role, true)) {
+        if (Auth::check() && Auth::user()->role === 'grading') {
             return $next($request);
         }
 

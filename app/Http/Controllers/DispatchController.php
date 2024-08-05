@@ -75,7 +75,7 @@ class DispatchController extends Controller
         return User::query()
             ->with(['categories' => fn ($query) => $query->with(['category'])->where('type', 'buyer-group')])
             ->select(['id', 'buyer_name'])
-            ->whereJsonContains('role', 'buyer')
+            ->whereJsonContains('access', 'buyer')
             ->get()
             ->map(fn ($user) => ['value' => $user->id, 'label' => $user->buyer_name, 'categories' => $user->categories]);
     }

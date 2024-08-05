@@ -4,7 +4,7 @@ import LogoutButton from '@/Components/LogoutButton.vue';
 import InstallConfirmedModal from '@/Components/InstallConfirmedModal.vue';
 
 const page = usePage();
-const hasRole = (roles) => page.props.auth.user.role.some((role) => roles.includes(role));
+const hasRole = (roles) => roles.includes(page.props.auth.user.role);
 
 // route('labels.index')
 // route('invoices.index')
@@ -49,7 +49,23 @@ const menus = [
     permission: ['admin', 'dispatch'],
     label: 'Dispatch',
   },
-  { route: '', image: 'menu10.png', permission: ['admin'], label: 'Reports' },
+  { 
+    route: '', 
+    image: 'menu10.png', 
+    permission: [
+      'admin', 
+      'receivals', 
+      'unloading', 
+      'tia-sampling', 
+      'allocations',
+      'cutting',
+      'reallocations',
+      'dispatch',
+      'buyer',
+      'grower',
+    ], 
+    label: 'Reports' 
+  },
   {
     route: route('cuttings.index'),
     image: 'cutting.png',
@@ -71,19 +87,19 @@ const menus = [
   {
     route: route('sizing.index'),
     image: 'size-grading.png',
-    permission: ['admin', 'grading'],
+    permission: ['admin', 'sizing'],
     label: 'Sizing',
   },
   {
     route: route('chemical-application.index'),
     image: 'chemical-application.png',
-    permission: ['admin', 'grading'],
+    permission: ['admin', 'chemical-application'],
     label: 'Chemical Application',
   },
   {
     route: route('bulk-bagging.index'),
     image: 'bulk-bagging.png',
-    permission: ['admin', 'grading'],
+    permission: ['admin', 'bulk-bagging'],
     label: 'Bulk Bagging',
   },
   {

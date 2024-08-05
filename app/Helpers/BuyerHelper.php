@@ -41,7 +41,7 @@ class BuyerHelper
     {
         return User::query()
             ->select(['id', 'buyer_name'])
-            ->whereJsonContains('role', 'buyer')
+            ->whereJsonContains('access', 'buyer')
             ->get()
             ->map(fn ($user) => ['value' => $user->id, 'label' => $user->buyer_name]);
     }
@@ -50,7 +50,7 @@ class BuyerHelper
     {
         return User::query()
             ->select(['id', 'grower_name'])
-            ->whereJsonContains('role', 'grower')
+            ->whereJsonContains('access', 'grower')
             ->get()
             ->map(fn ($user) => ['value' => $user->id, 'label' => $user->grower_name]);
     }

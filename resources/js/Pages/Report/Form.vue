@@ -268,7 +268,7 @@ defineExpose({
               </div>
             </td>
           </tr>
-          <tr v-if="isUserForm">
+          <tr v-if="isUserForm || isCuttingForm">
             <th>Cool Stores</th>
             <td>
               <Multiselect
@@ -515,7 +515,7 @@ defineExpose({
               </div>
             </td>
           </tr>
-          <tr v-if="isReallocationForm || isDispatchForm">
+          <tr v-if="isReallocationForm">
             <th>Allocation Buyers</th>
             <td>
               <Multiselect
@@ -547,7 +547,7 @@ defineExpose({
               </div>
             </td>
           </tr>
-          <tr>
+          <tr v-if="isAllocationForm">
             <th>Bin Sizes</th>
             <td>
               <Multiselect

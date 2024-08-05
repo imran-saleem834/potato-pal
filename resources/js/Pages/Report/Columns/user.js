@@ -28,7 +28,7 @@ export default [
   },
   {
     title: 'User Access',
-    data: 'role',
+    data: 'access',
     render: function (data, type, row) {
       return data.join(', ');
     },

@@ -35,6 +35,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'username',
         'phone',
         'role',
+        'access',
         'password',
         'email_verified_at',
         'grower_name',
@@ -63,7 +64,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'role'              => 'array',
+        'access'            => 'array',
         'grower_tags'       => 'array',
         'buyer_tags'        => 'array',
         'paddocks'          => 'array',
@@ -85,7 +86,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function hasVerifiedEmail()
     {
-        return ! is_null($this->email_verified_at) && ! is_null($this->role);
+        return ! is_null($this->email_verified_at) && ! is_null($this->access);
     }
 
     public function categories(): MorphMany

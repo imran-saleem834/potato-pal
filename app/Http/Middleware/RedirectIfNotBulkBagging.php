@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Providers\RouteServiceProvider;
 use Symfony\Component\HttpFoundation\Response;
 
-class RedirectIfNotWeighbridges
+class RedirectIfNotBulkBagging
 {
     /**
      * Handle an incoming request.
@@ -20,7 +20,7 @@ class RedirectIfNotWeighbridges
         if (Auth::check() && Auth::user()->role === 'admin') {
             return $next($request);
         }
-        if (Auth::check() && Auth::user()->role === 'weighbridges') {
+        if (Auth::check() && Auth::user()->role === 'bulk-bagging') {
             return $next($request);
         }
 

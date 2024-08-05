@@ -24,6 +24,10 @@ const UserAccess = [
   { value: 'dispatch', label: 'Dispatch' },
   { value: 'cutting', label: 'Cutting' },
   { value: 'weighbridge', label: 'Weighbridges' },
+  { value: 'grading', label: 'Grading' },
+  { value: 'sizing', label: 'Sizing' },
+  { value: 'chemical-application', label: 'Chemical Application' },
+  { value: 'bulk-bagging', label: 'Bulk Bagging' },
   { value: 'notification', label: 'Notifications' },
   { value: 'notes', label: 'Notes' },
   { value: 'files', label: 'Files' },
@@ -44,7 +48,7 @@ const form = useForm({
   email: props.user.email,
   username: props.user.username,
   phone: props.user.phone,
-  role: props.user.role,
+  access: props.user.access,
   cool_store: getCategoryIdsByType(props.user.categories, 'cool-store'),
   grower_group: getCategoryIdsByType(props.user.categories, 'grower-group'),
   grower_name: props.user.grower_name,
@@ -65,7 +69,7 @@ watch(
     form.email = user.email;
     form.username = user.username;
     form.phone = user.phone;
-    form.role = user.role;
+    form.access = user.access;
     form.password = '';
     form.password_confirmation = '';
     form.cool_store = getCategoryIdsByType(user.categories, 'cool-store');
@@ -80,8 +84,8 @@ watch(
 
 const isForm = computed(() => props.isEdit || props.isNew);
 
-const isBuyerSelected = computed(() => form.role?.find((r) => r === 'buyer'));
-const isGrowerSelected = computed(() => form.role?.find((r) => r === 'grower'));
+const isBuyerSelected = computed(() => form.access?.find((r) => r === 'buyer'));
+const isGrowerSelected = computed(() => form.access?.find((r) => r === 'grower'));
 
 const addMorePaddocks = () => form.paddocks.push({ name: '', address: '', gps: '', hectares: '' });
 const removePaddocks = (index) => (form.paddocks = form.paddocks.filter((paddocks, i) => i !== index));
@@ -234,15 +238,15 @@ const autocompleteInput = (index) => {
             <td :class="{ 'pb-0': !isForm }">
               <Multiselect
                 v-if="isForm"
-                v-model="form.role"
+                v-model="form.access"
                 mode="tags"
                 placeholder="Choose a user access"
                 :searchable="true"
                 :options="UserAccess"
               />
-              <ul class="p-0" v-else-if="user.role">
-                <li v-for="role in user.role" :key="role">
-                  <a>{{ UserAccess.find((access) => access.value === role)?.label }}</a>
+              <ul class="p-0" v-else-if="user.access.length > 0">
+                <li v-for="access in user.access" :key="access">
+                  <a>{{ UserAccess.find((role) => role.value === access)?.label }}</a>
                 </li>
               </ul>
               <template v-else>-</template>

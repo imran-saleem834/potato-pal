@@ -46,6 +46,7 @@ Route::middleware([
 ])->group(function () {
     Route::inertia('/dashboard', 'Dashboard');
     Route::inertia('/', 'Dashboard')->name('dashboard');
+    Route::post('/role/{role}', [UserController::class, 'changeRole'])->name('change-role');
 
     Route::middleware(['admin'])->group(function () {
         Route::resource('/users', UserController::class)->except(['create', 'edit']);
@@ -56,10 +57,10 @@ Route::middleware([
         Route::resource('/invoices', InvoiceController::class);
 
         Route::get('/labels/{label}/print/{type}', [LabelController::class, 'label'])->name('labels.print');
-
-        Route::resource('/reports', ReportController::class);
-        Route::get('/reports/{report}/result', [ReportController::class, 'result'])->name('reports.result');
     });
+
+    Route::resource('/reports', ReportController::class);
+    Route::get('/reports/{report}/result', [ReportController::class, 'result'])->name('reports.result');
 
     Route::middleware(['receivals'])->group(function () {
         Route::post('/receivals/{id}/push/unload', [ReceivalController::class, 'pushForUnload'])
@@ -123,14 +124,16 @@ Route::middleware([
         Route::get('/grading/growers/{id}/unloads', [GradingController::class, 'unloads'])->name('grading.grower.unloads');
     });
 
-    Route::group(['middleware' => 'grading'], function () {
+    Route::group(['middleware' => 'sizing'], function () {
         Route::resource('/sizing', SizingController::class)->only(['index', 'store', 'update', 'destroy']);
         Route::get('/sizing/buyers/{id}/allocations', [SizingController::class, 'allocations'])->name('sizing.buyers.allocations');
         Route::get('/sizing/growers/{id}/unloads', [SizingController::class, 'unloads'])->name('sizing.grower.unloads');
     });
     
-    Route::resource('/chemical-application', ChemicalApplicationController::class)->middleware('grading');
-    Route::resource('/bulk-bagging', BulkBaggingController::class)->middleware('grading');
+    Route::resource('/chemical-application', ChemicalApplicationController::class)
+        ->middleware('chemical-application');
+    Route::resource('/bulk-bagging', BulkBaggingController::class)
+        ->middleware('bulk-bagging');
     Route::get('/buyers/{id}/allocations', [GradingController::class, 'allocations'])->name('buyers.allocations');
 
     Route::resource('/notifications', NotificationController::class)->middleware('notifications');
@@ -180,7 +183,11 @@ Route::get('/abc2', function () {
 });
 
 Route::get('/abc3', function () {
-
+    $users = \App\Models\User::all();
+    foreach ($users as $user) {
+        $user->role = in_array('admin', $user->access) ? 'admin' : ($user->access[0] ?? null);
+        $user->save();
+    }
 });
 
 Route::get('/download-receivals', function () {

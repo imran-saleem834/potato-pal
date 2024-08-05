@@ -4,6 +4,10 @@ import { router } from '@inertiajs/vue3';
 const logout = () => {
   router.post(route('logout'));
 };
+
+const loginAs = (role) => {
+  router.post(route('change-role', role));
+};
 </script>
 
 <template>
@@ -41,6 +45,16 @@ const logout = () => {
           <li>
             <h6 class="dropdown-header">{{ $page.props.auth.user.name }}</h6>
           </li>
+          <li v-for="role in $page.props.auth.user.access" :key="role">
+            <a
+              href="javascript:;"
+              class="dropdown-item" 
+              @click.prevent="loginAs(role)"
+              :class="{ 'active' : $page.props.auth.user.role === role }"
+            >
+              Login as {{ role.toUpperCase() }}
+            </a>
+          </li>
           <li><a class="dropdown-item" href="javascript:;" @click.prevent="logout">Logout</a></li>
         </ul>
       </li>
@@ -54,16 +68,28 @@ const logout = () => {
           <h1 class="modal-title fs-5" id="modal-logout-label">{{ $page.props.auth.user.name }}</h1>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div class="modal-body d-flex justify-content-between">
-          <div>
-            <img
-              :src="$page.props.auth.user.profile_photo_url"
-              :alt="$page.props.auth.user.name"
-              class="rounded-circle"
-            />
-            <span class="ms-2">{{ $page.props.auth.user.name }}</span>
-          </div>
-          <div>
+        <div class="modal-body">
+          <ul class="list-unstyled">
+            <li v-for="role in $page.props.auth.user.access" :key="role" class="p-1">
+              <a
+                href="javascript:;"
+                class="dropdown-item"
+                @click.prevent="loginAs(role)"
+                :class="{ 'active' : $page.props.auth.user.role === role }"
+              >
+                Login as {{ role.toUpperCase() }}
+              </a>
+            </li>
+          </ul>
+          <div class="d-flex justify-content-between">
+            <div>
+              <img
+                :src="$page.props.auth.user.profile_photo_url"
+                :alt="$page.props.auth.user.name"
+                class="rounded-circle"
+              />
+              <span class="ms-2">{{ $page.props.auth.user.name }}</span>
+            </div>
             <button class="btn btn-red" type="button" @click.prevent="logout">Logout</button>
           </div>
         </div>

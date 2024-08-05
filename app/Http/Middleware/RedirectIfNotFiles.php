@@ -17,10 +17,10 @@ class RedirectIfNotFiles
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::check() && in_array('admin', Auth::user()->role, true)) {
+        if (Auth::check() && Auth::user()->role === 'admin') {
             return $next($request);
         }
-        if (Auth::check() && in_array('files', Auth::user()->role, true)) {
+        if (Auth::check() && Auth::user()->role === 'files') {
             return $next($request);
         }
 

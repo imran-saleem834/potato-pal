@@ -46,7 +46,7 @@ class ReceivalController extends Controller
             'users'      => User::query()
                 ->with(['categories.category'])
                 ->select(['id', 'name', 'grower_name', 'paddocks'])
-                ->whereJsonContains('role', 'grower')
+                ->whereJsonContains('access', 'grower')
                 ->get(),
             'categories' => Category::whereIn('type', Receival::CATEGORY_TYPES)->get(),
             'buyers'     => fn () => $this->buyers(),
@@ -58,7 +58,7 @@ class ReceivalController extends Controller
     {
         return User::query()
             ->select(['id', 'buyer_name'])
-            ->whereJsonContains('role', 'buyer')
+            ->whereJsonContains('access', 'buyer')
             ->get()
             ->map(fn ($user) => ['value' => $user->id, 'label' => $user->buyer_name]);
     }

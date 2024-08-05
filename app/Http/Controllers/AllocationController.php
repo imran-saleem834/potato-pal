@@ -50,7 +50,7 @@ class AllocationController extends Controller
         $grower = User::query()
             ->with(['remainingReceivals'])
             ->select(['id', 'grower_name'])
-            ->whereJsonContains('role', 'grower')
+            ->whereJsonContains('access', 'grower')
             ->findOrFail($id);
 
         $receivals = collect([]);

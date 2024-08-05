@@ -29,7 +29,7 @@ class UserController extends Controller
                         ->orWhere('email', 'LIKE', "%$search%")
                         ->orWhere('username', 'LIKE', "%$search%")
                         ->orWhere('phone', 'LIKE', "%$search%")
-                        ->orWhere('role', 'LIKE', "%$search%")
+                        ->orWhere('access', 'LIKE', "%$search%")
                         ->orWhere('grower_name', 'LIKE', "%$search%")
                         ->orWhere('grower_tags', 'LIKE', "%$search%")
                         ->orWhere('buyer_name', 'LIKE', "%$search%")
@@ -121,6 +121,18 @@ class UserController extends Controller
         NotificationHelper::deleteAction('User', $id);
 
         return to_route('users.index');
+    }
+    
+    public function changeRole(string $role)
+    {
+        $user = User::whereJsonContains('access', $role)->find(auth()->id());
+
+        if ($user) {
+            $user->role = $role;
+            $user->save();
+        }
+
+        return back();
     }
 
     private function getUser($id)
