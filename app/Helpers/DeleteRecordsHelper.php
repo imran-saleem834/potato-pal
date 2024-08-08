@@ -2,6 +2,7 @@
 
 namespace App\Helpers;
 
+use App\Models\SizingItem;
 use App\Models\User;
 use App\Models\Unload;
 use App\Models\Cutting;
@@ -52,13 +53,39 @@ class DeleteRecordsHelper
         $allocation->loadMissing('cuttingItems.allocatable');
         foreach ($allocation->cuttingItems as $cuttingItem) {
             $cutting = $cuttingItem->allocatable;
-            static::deleteCutting($cutting);            // Delete Cutting
+            static::deleteCutting($cutting);
         }
 
         CategoriesHelper::deleteCategoryRelations($allocation->id, Allocation::class);
 
         $allocation->item()->delete();
         $allocation->delete();
+    }
+
+    public static function deleteSizing($sizing)
+    {
+        foreach ($sizing->items as $item) {
+
+            // Delete returns and dispatch items
+            static::deleteReturnItems($item);
+            $item->loadMissing('dispatchItems');
+            foreach ($item->dispatchItems as $dispatchItem) {
+                $dispatchItem->allocatable()->delete();
+                $dispatchItem->delete();
+            }
+            
+            // Delete Cutting
+            foreach ($item->cuttingItems as $cuttingItem) {
+                $cutting = $cuttingItem->allocatable;
+                static::deleteCutting($cutting);
+            }
+
+            CategoriesHelper::deleteCategoryRelations($item->id, SizingItem::class);
+
+            $item->delete();
+        }
+        
+        $sizing->delete();
     }
 
     public static function deleteCutting($cutting)

@@ -3,7 +3,7 @@ import { watch } from "vue";
 import Multiselect from '@vueform/multiselect';
 import { useForm, usePage } from '@inertiajs/vue3';
 import TextInput from '@/Components/TextInput.vue';
-import { getSingleCategoryNameByType } from '@/helper.js';
+import { toTonnes, getSingleCategoryNameByType } from '@/helper.js';
 
 const page = usePage();
 const props = defineProps({
@@ -116,7 +116,7 @@ watch(
                   <td>{{ allocation.item.half_tonnes }} Bins</td>
                   <td>{{ allocation.item.one_tonnes }} Bins</td>
                   <td>{{ allocation.item.two_tonnes }} Bins</td>
-                  <td>{{ allocation.item.weight }} kg</td>
+                  <td>{{ toTonnes(allocation.item.weight) }}</td>
                 </tr>
                 </tbody>
               </table>
@@ -176,7 +176,7 @@ watch(
                     v-model="form.allocations[allocation.id].weight"
                     @input="onChangeBins"
                   />
-                  <div class="input-group-text">kg</div>
+                  <div class="input-group-text">tonnes</div>
                 </div>
                 <div v-if="form.errors[`allocations.${allocation.id}.weight`]" class="invalid-feedback">
                   {{ form.errors[`allocations.${allocation.id}.weight`] }}
@@ -235,7 +235,7 @@ watch(
                   <div class="input-group-text">Weight</div>
                 </template>
                 <template #addon>
-                  <div class="input-group-text">kg</div>
+                  <div class="input-group-text">tonnes</div>
                 </template>
               </TextInput>
             </div>

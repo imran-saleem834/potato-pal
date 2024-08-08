@@ -34,6 +34,9 @@ const form = useForm({
   selected_cutting: props.cutting,
   allocation_buyer_id: props.cutting.buyer_id,
   buyer_id: null,
+  from_half_tonnes: null,
+  from_one_tonnes: null,
+  from_two_tonnes: null,
   half_tonnes: null,
   one_tonnes: null,
   two_tonnes: null,
@@ -108,14 +111,26 @@ const storeRecord = () => {
                   <td>{{ getSingleCategoryNameByType(allocation.categories, 'seed-generation') || '-' }}</td>
                   <td>{{ getSingleCategoryNameByType(seedTypeCategories, 'seed-type') || '-' }}</td>
                   <td>{{ getSingleCategoryNameByType(allocation.categories, 'seed-class') || '-' }}</td>
-                  <td>{{ cutting.item.half_tonnes }} Bins</td>
-                  <td>{{ cutting.item.one_tonnes }} Bins</td>
-                  <td>{{ cutting.item.two_tonnes }} Bins</td>
+                  <td>
+                    {{ `${cutting.item.from_half_tonnes} Tipped Bins` }}
+                    <br/>
+                    {{ `${cutting.item.half_tonnes} Bins` }}
+                  </td>
+                  <td>
+                    {{ `${cutting.item.from_one_tonnes} Tipped Bins` }}
+                    <br/>
+                    {{ `${cutting.item.one_tonnes} Bins` }}
+                  </td>
+                  <td>
+                    {{ `${cutting.item.from_two_tonnes} Tipped Bins` }}
+                    <br/>
+                    {{ `${cutting.item.two_tonnes} Bins` }}
+                  </td>
                 </tr>
               </tbody>
             </table>
           </div>
-          <div class="row my-3">
+          <div class="row mt-3">
             <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mb-3">
               <label class="form-label">Buyer to allocate</label>
               <Multiselect
@@ -132,6 +147,42 @@ const storeRecord = () => {
               <label class="form-label">Comments</label>
               <TextInput v-model="form.comment" :error="form.errors.comment" type="text" />
             </div>
+          </div>
+          <h4 class="mt-0 mb-3">Reallocate bins tipped:</h4>
+          <div class="row">
+            <div class="col-12 col-sm-6 col-md-4 col-lg-6 col-xl-4 mb-3">
+              <TextInput type="text" v-model="form.from_half_tonnes" :error="form.errors.from_half_tonnes">
+                <template #prefix-addon>
+                  <div class="input-group-text">Half tonne</div>
+                </template>
+                <template #addon>
+                  <div class="input-group-text">Bins</div>
+                </template>
+              </TextInput>
+            </div>
+            <div class="col-12 col-sm-6 col-md-4 col-lg-6 col-xl-4 mb-3">
+              <TextInput type="text" v-model="form.from_one_tonnes" :error="form.errors.from_one_tonnes">
+                <template #prefix-addon>
+                  <div class="input-group-text">One tonne</div>
+                </template>
+                <template #addon>
+                  <div class="input-group-text">Bins</div>
+                </template>
+              </TextInput>
+            </div>
+            <div class="col-12 col-sm-6 col-md-4 col-lg-6 col-xl-4 mb-3">
+              <TextInput type="text" v-model="form.from_two_tonnes" :error="form.errors.from_two_tonnes">
+                <template #prefix-addon>
+                  <div class="input-group-text">Two tonne</div>
+                </template>
+                <template #addon>
+                  <div class="input-group-text">Bins</div>
+                </template>
+              </TextInput>
+            </div>
+          </div>
+          <h4 class="mt-0 mb-3">Reallocate cut into bins:</h4>
+          <div class="row">
             <div class="col-12 col-sm-6 col-md-4 col-lg-6 col-xl-4 mb-3">
               <TextInput type="text" v-model="form.half_tonnes" :error="form.errors.half_tonnes">
                 <template #prefix-addon>

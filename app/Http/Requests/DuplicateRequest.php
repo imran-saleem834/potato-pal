@@ -34,14 +34,6 @@ class DuplicateRequest extends FormRequest
             'weight'      => ['required', 'numeric'],
         ];
 
-        $allocationInputs  = $this->input('allocations');
-        $allocationIds     = Arr::pluck($allocationInputs, ['id']);
-        $this->allocations = Allocation::query()
-            ->select(['id', 'grower_id', 'paddock'])
-            ->with(['categories', 'item'])
-            ->whereIn('id', $allocationIds)
-            ->get();
-
         foreach ($this->allocations as $allocation) {
             $halfCondition                                      = ($allocation->item->half_tonnes > 0) ? 'lt' : 'lte';
             $oneCondition                                       = ($allocation->item->one_tonnes > 0) ? 'lt' : 'lte';
@@ -69,7 +61,7 @@ class DuplicateRequest extends FormRequest
                 'required',
                 'numeric',
                 'gte:0',
-                "lt:{$allocation->item->weight}"
+                "lte:{$allocation->item->weight}"
             ];
         }
 
@@ -91,6 +83,29 @@ class DuplicateRequest extends FormRequest
             $attributes["allocations.{$allocation->id}.weight"]      = 'weight';
         }
         return $attributes;
+    }
+
+    /**
+     * Prepare the data for validation.
+     *
+     * @return void
+     */
+    public function prepareForValidation()
+    {
+        $allocationInputs  = $this->input('allocations');
+        $allocationIds     = Arr::pluck($allocationInputs, ['id']);
+        $this->allocations = Allocation::query()
+            ->select(['id', 'grower_id', 'paddock'])
+            ->with(['categories', 'item'])
+            ->whereIn('id', $allocationIds)
+            ->get();
+        
+        $inputAllocation = $this->input("allocations");
+        foreach ($this->allocations as $allocation) {
+            $weight                                     = max($inputAllocation[$allocation->id]['weight'], 0) * 1000;
+            $inputAllocation[$allocation->id]['weight'] = $weight;
+        }
+        $this->merge(["allocations" => $inputAllocation]);
     }
 
     /**
@@ -156,27 +171,27 @@ class DuplicateRequest extends FormRequest
                 $isSeedGenerationSame,
                 $isSeedClassSame
             ) {
-                //                if (!$isGrowerSame) {
-                //                    $validator->errors()->add('allocations', 'Grower does not matched!');
-                //                }
+                if (!$isGrowerSame) {
+                    $validator->errors()->add('allocations', 'Grower does not matched!');
+                }
                 if (!$isGrowerGroupSame) {
                     $validator->errors()->add('allocations', 'Grower group does not matched!');
                 }
-                //                if (!$isPaddockSame) {
-                //                    $validator->errors()->add('allocations', 'Paddock does not matched!');
-                //                }
-                //                if (!$isSeedTypeSame) {
-                //                    $validator->errors()->add('allocations', 'Seed type does not matched!');
-                //                }
-                //                if (!$isSeedVarietySame) {
-                //                    $validator->errors()->add('allocations', 'Seed variety does not matched!');
-                //                }
-                //                if (!$isSeedGenerationSame) {
-                //                    $validator->errors()->add('allocations', 'Seed generation does not matched!');
-                //                }
-                //                if (!$isSeedClassSame) {
-                //                    $validator->errors()->add('allocations', 'Seed class does not matched!');
-                //                }
+                if (!$isPaddockSame) {
+                    $validator->errors()->add('allocations', 'Paddock does not matched!');
+                }
+                if (!$isSeedTypeSame) {
+                    $validator->errors()->add('allocations', 'Seed type does not matched!');
+                }
+                if (!$isSeedVarietySame) {
+                    $validator->errors()->add('allocations', 'Seed variety does not matched!');
+                }
+                if (!$isSeedGenerationSame) {
+                    $validator->errors()->add('allocations', 'Seed generation does not matched!');
+                }
+                if (!$isSeedClassSame) {
+                    $validator->errors()->add('allocations', 'Seed class does not matched!');
+                }
             }
         ];
     }

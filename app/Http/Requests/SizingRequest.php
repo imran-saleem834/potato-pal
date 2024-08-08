@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Allocation;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 
 class SizingRequest extends FormRequest
@@ -59,6 +61,38 @@ class SizingRequest extends FormRequest
             'items.*.half_tonnes'    => 'half tonnes',
             'items.*.one_tonnes'     => 'one tonnes',
             'items.*.two_tonnes'     => 'two_tonnes',
+        ];
+    }
+
+    /**
+     * Get the "after" validation callables for the request.
+     */
+    public function after(): array
+    {
+        $binsInKgInput = 0;
+        $allocationId  = $this->input('selected_allocation.id');
+        $allocation    = Allocation::with(['item'])->find($allocationId);
+        foreach ($this->input('items') as $item) {
+            $binsInKgInput +=
+                $item['half_tonnes'] * 500 +
+                $item['one_tonnes'] * 1000 +
+                $item['two_tonnes'] * 2000;
+        }
+
+        $binsInKg =
+            $allocation->item->half_tonnes * 500 +
+            $allocation->item->one_tonnes * 1000 +
+            $allocation->item->two_tonnes * 2000;
+
+        return [
+            function (Validator $validator) use ($binsInKg, $binsInKgInput) {
+                if ($binsInKgInput > $binsInKg) {
+                    $validator->errors()->add(
+                        'selected_allocation',
+                        'Sizing should be less then or equal to no of bins in the allocation.'
+                    );
+                }
+            }
         ];
     }
 }

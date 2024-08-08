@@ -122,26 +122,18 @@ watch(
               <tbody>
                 <template v-for="row in data" :key="row.id">
                   <tr>
-                    <td>
-                      {{ getSingleCategoryNameByType(getAllocation(row).categories, 'grower-group') || '-' }}
-                    </td>
+                    <td>{{ getSingleCategoryNameByType(getAllocation(row).categories, 'grower-group') || '-' }}</td>
                     <td>{{ getAllocation(row).grower?.grower_name || '-' }}</td>
                     <td>{{ getAllocation(row).paddock }}</td>
-                    <td>
-                      {{ getSingleCategoryNameByType(getAllocation(row).categories, 'seed-variety') || '-' }}
-                    </td>
-                    <td>
-                      {{ getSingleCategoryNameByType(getAllocation(row).categories, 'seed-generation') || '-' }}
-                    </td>
+                    <td>{{ getSingleCategoryNameByType(getAllocation(row).categories, 'seed-variety') || '-' }}</td>
+                    <td>{{ getSingleCategoryNameByType(getAllocation(row).categories, 'seed-generation') || '-' }}</td>
                     <td v-if="type === 'sizing'">
                       {{ getSingleCategoryNameByType(row.categories, 'seed-type') || '-' }}
                     </td>
                     <td v-else>
                       {{ getSingleCategoryNameByType(getAllocation(row).categories, 'seed-type') || '-' }}
                     </td>
-                    <td>
-                      {{ getSingleCategoryNameByType(getAllocation(row).categories, 'seed-class') || '-' }}
-                    </td>
+                    <td>{{ getSingleCategoryNameByType(getAllocation(row).categories, 'seed-class') || '-' }}</td>
                     <td>{{ `${row.available_half_tonnes} Bins` }}</td>
                     <td>{{ `${row.available_one_tonnes} Bins` }}</td>
                     <td>{{ `${row.available_two_tonnes} Bins` }}</td>
