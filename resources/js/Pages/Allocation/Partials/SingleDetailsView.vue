@@ -1,7 +1,7 @@
 <script setup>
 import { Link } from '@inertiajs/vue3';
 import ReturnItems from '@/Components/ReturnItems.vue';
-import { toTonnes, getBinSizesValue, getSingleCategoryNameByType } from '@/helper.js';
+import { toTonnes, getSingleCategoryNameByType } from '@/helper.js';
 
 defineProps({
   allocation: Object,
@@ -37,20 +37,20 @@ defineProps({
       </span>
     </div>
     <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-      <span>Bin size: </span>
-      <span class="text-primary">{{ getBinSizesValue(allocation.item.bin_size) }}</span>
+      <span>Half Tonnes: </span>
+      <span class="text-primary">{{ allocation.item.half_tonnes }} bins</span>
     </div>
     <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-      <span>Allocated bins: </span>
-      <span class="text-primary">{{ allocation.item.no_of_bins }}</span>
+      <span>One Tonnes: </span>
+      <span class="text-primary">{{ allocation.item.one_tonnes }} bins</span>
     </div>
     <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-      <span>Allocated weight: </span>
+      <span>Two Tonnes: </span>
+      <span class="text-primary">{{ allocation.item.two_tonnes }} bins</span>
+    </div>
+    <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+      <span>Weight: </span>
       <span class="text-primary">{{ toTonnes(allocation.item.weight) }}</span>
-    </div>
-    <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-      <span>Bins tipped for cutting: </span>
-      <span class="text-primary">{{ allocation.cutting_items_sum_no_of_bins || '0' }}</span>
     </div>
     <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
       <span>No of bulk bags out: </span>
@@ -78,10 +78,33 @@ defineProps({
         {{ getSingleCategoryNameByType(allocation.categories, 'seed-type') || '-' }}
       </span>
     </div>
-    <div class="col-12 mb-1 pb-1">
+    <div class="col-12 col-sm-4 col-md-6 col-lg-4 col-xl-6 mb-1 pb-1">
       <span>Comments: </span>
       <span class="text-primary">{{ allocation.comment }}</span>
     </div>
+    <template 
+      v-if="
+      allocation.cutting_items_sum_from_half_tonnes > 0 || 
+      allocation.cutting_items_sum_from_one_tonnes > 0 || 
+      allocation.cutting_items_sum_from_two_tonnes > 0"
+    >
+      <div class="py-1 border-top w-100"></div>
+      <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+        <span class="text-danger">Bins tipped:</span>
+      </div>
+      <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+        <span>Half Tonnes: </span>
+        <span class="text-primary">{{ allocation.cutting_items_sum_from_half_tonnes || '0' }} bins</span>
+      </div>
+      <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+        <span>One Tonnes: </span>
+        <span class="text-primary">{{ allocation.cutting_items_sum_from_one_tonnes || '0' }} bins</span>
+      </div>
+      <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+        <span>Two Tonnes: </span>
+        <span class="text-primary">{{ allocation.cutting_items_sum_from_two_tonnes || '0' }} bins</span>
+      </div>
+    </template>
 
     <ReturnItems :items="allocation.return_items" />
   </div>

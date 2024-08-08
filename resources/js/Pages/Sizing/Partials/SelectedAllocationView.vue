@@ -1,5 +1,5 @@
 <script setup>
-import { toTonnes, getBinSizesValue, getSingleCategoryNameByType } from '@/helper.js';
+import { toTonnes, getSingleCategoryNameByType } from '@/helper.js';
 
 defineProps({
   loader: Boolean,
@@ -23,9 +23,10 @@ defineProps({
           <th class="d-none d-md-table-cell">Gen.</th>
           <th>Seed type</th>
           <th class="d-none d-md-table-cell">Class</th>
-          <th>Bin size</th>
+          <th>Half Tonnes</th>
+          <th>One Tonnes</th>
+          <th>Two Tonnes</th>
           <th class="d-none d-md-table-cell">Weight</th>
-          <th>No of bins</th>
         </tr>
       </thead>
       <tbody>
@@ -61,11 +62,12 @@ defineProps({
           <td class="d-none d-md-table-cell text-primary">
             {{ getSingleCategoryNameByType(allocation.categories, 'seed-class') || '-' }}
           </td>
-          <td class="text-primary">{{ getBinSizesValue(allocation.item.bin_size) }}</td>
+          <td class="text-primary">{{ allocation.item.half_tonnes }}</td>
+          <td class="text-primary">{{ allocation.item.one_tonnes }}</td>
+          <td class="text-primary">{{ allocation.item.two_tonnes }}</td>
           <td class="d-none d-md-table-cell text-primary">
             {{ toTonnes(allocation.item.weight) }}
           </td>
-          <td class="text-primary">{{ allocation.item.no_of_bins }}</td>
         </tr>
       </tbody>
     </table>

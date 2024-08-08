@@ -108,9 +108,9 @@ const storeRecord = () => {
                   <td>{{ getSingleCategoryNameByType(allocation.categories, 'seed-generation') || '-' }}</td>
                   <td>{{ getSingleCategoryNameByType(seedTypeCategories, 'seed-type') || '-' }}</td>
                   <td>{{ getSingleCategoryNameByType(allocation.categories, 'seed-class') || '-' }}</td>
-                  <td>{{ cutting.item.half_tonnes || '0' }} Bins</td>
-                  <td>{{ cutting.item.one_tonnes || '0' }} Bins</td>
-                  <td>{{ cutting.item.two_tonnes || '0' }} Bins</td>
+                  <td>{{ cutting.item.half_tonnes }} Bins</td>
+                  <td>{{ cutting.item.one_tonnes }} Bins</td>
+                  <td>{{ cutting.item.two_tonnes }} Bins</td>
                 </tr>
               </tbody>
             </table>

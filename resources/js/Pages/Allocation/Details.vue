@@ -1,14 +1,13 @@
 <script setup>
-import { computed, ref, watch } from 'vue';
 import { useForm } from '@inertiajs/vue3';
-import { getCategoryIdsByType } from '@/helper.js';
-import Multiselect from '@vueform/multiselect';
-import TextInput from '@/Components/TextInput.vue';
+import { computed, ref, watch } from 'vue';
 import { useToast } from 'vue-toastification';
+import Multiselect from '@vueform/multiselect';
+import { getCategoryIdsByType } from '@/helper.js';
+import TextInput from '@/Components/TextInput.vue';
 import ConfirmedModal from '@/Components/ConfirmedModal.vue';
 import SingleDetailsView from '@/Pages/Allocation/Partials/SingleDetailsView.vue';
 import SelectedReceivalView from '@/Pages/Allocation/Partials/SelectedReceivalView.vue';
-import ReallocationModal from '@/Pages/Allocation/Partials/ReallocationModal.vue';
 
 const toast = useToast();
 
@@ -33,15 +32,14 @@ const emit = defineEmits(['grower', 'create', 'delete']);
 
 const isEdit = ref(false);
 const loader = ref(false);
-const reallocate = ref({});
+const reallocate = ref([]);
 
 const form = useForm({
   buyer_id: props.allocation.buyer_id,
   grower_id: props.allocation.grower_id,
   unique_key: props.allocation.unique_key,
-  no_of_bins: props.allocation.item?.no_of_bins,
+  no_of_bins: parseFloat(props.allocation.item?.half_tonnes) + parseFloat(props.allocation.item?.one_tonnes) + parseFloat(props.allocation.item?.two_tonnes),
   weight: (props.allocation.item?.weight || 0) / 1000,
-  bin_size: props.allocation.item?.bin_size,
   paddock: props.allocation.paddock,
   comment: props.allocation.comment,
   grower_group: getCategoryIdsByType(props.allocation.categories, 'grower-group'),
@@ -62,9 +60,8 @@ watch(
     form.buyer_id = allocation.buyer_id;
     form.grower_id = allocation.grower_id;
     form.unique_key = allocation.unique_key;
-    form.no_of_bins = allocation.item?.no_of_bins;
+    form.no_of_bins = parseFloat(allocation.item?.half_tonnes) + parseFloat(allocation.item?.one_tonnes) + parseFloat(allocation.item?.two_tonnes);
     form.weight = (allocation.item?.weight || 0) / 1000;
-    form.bin_size = allocation.item?.bin_size;
     form.paddock = allocation.paddock;
     form.comment = allocation.comment;
     form.grower_group = getCategoryIdsByType(allocation.categories, 'grower-group');
@@ -89,7 +86,6 @@ const onSelectReceival = (receival) => {
   form.unique_key = receival.unique_key;
   form.no_of_bins = null;
   form.weight = null;
-  form.bin_size = receival.bin_size;
   form.paddock = receival.paddock;
   form.grower_group = getCategoryIdsByType(receival.receival_categories, 'grower-group');
   form.seed_type = getCategoryIdsByType(receival.unload_categories, 'seed-type');
@@ -263,23 +259,13 @@ defineExpose({
       </div>
     </template>
     <template v-else>
-      <div class="btn-group position-absolute top-0 end-0">
+      <div v-if="!allocation.is_merger" class="btn-group position-absolute top-0 end-0">
         <button @click="setIsEdit" class="btn btn-red p-1 z-1"><i class="bi bi-pen"></i></button>
         <button data-bs-toggle="modal" :data-bs-target="`#delete-allocation-${uniqueKey}`" class="btn btn-red p-1 z-1">
           <template v-if="form.processing">
             <i class="bi bi-arrow-repeat d-inline-block spin"></i>
           </template>
           <template v-else><i class="bi bi-trash"></i></template>
-        </button>
-      </div>
-      <div class="btn-group position-absolute bottom-0 end-0">
-        <button
-          class="btn btn-black p-1 z-1"
-          data-bs-toggle="modal"
-          :data-bs-target="`#relocate-${uniqueKey}`"
-          @click="() => (reallocate = allocation)"
-        >
-          Reallocate
         </button>
       </div>
 
@@ -302,6 +288,4 @@ defineExpose({
     ok="Yes, Update!"
     @ok="updateRecord"
   />
-
-  <ReallocationModal :id="`relocate-${uniqueKey}`" :allocation="reallocate" @close="() => (reallocate = {})" />
 </template>

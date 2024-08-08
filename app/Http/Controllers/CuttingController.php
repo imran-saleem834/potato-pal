@@ -49,7 +49,7 @@ class CuttingController extends Controller
 
     public function allocations(Request $request, $id)
     {
-        $allocations = AllocationHelper::getAvailableAllocationForCutting(
+        $allocations = AllocationHelper::getAvailableAllocation(
             ['buyer_id' => $id],
             ['categories.category', 'grower:id,grower_name']
         );
@@ -59,7 +59,7 @@ class CuttingController extends Controller
 
     public function sizing(Request $request, $id)
     {
-        $sizings = AllocationHelper::getAvailableSizingForDispatch(
+        $sizings = AllocationHelper::getAvailableSizing(
             ['user_id' => $id],
             [
                 'categories.category',
@@ -85,8 +85,9 @@ class CuttingController extends Controller
             'allocatable_id'   => $cutting->id,
             'foreignable_type' => $this->getForeignableType($cutting->type),
             'foreignable_id'   => $inputs['id'],
-            'bin_size'         => $inputs['item']['bin_size'] ?? null,
-            'no_of_bins'       => $inputs['no_of_bins'] ?? null,
+            'from_half_tonnes' => $request->validated('from_half_tonnes') ?? 0,
+            'from_one_tonnes'  => $request->validated('from_one_tonnes') ?? 0,
+            'from_two_tonnes'  => $request->validated('from_two_tonnes') ?? 0,
             'half_tonnes'      => $request->validated('half_tonnes') ?? 0,
             'one_tonnes'       => $request->validated('one_tonnes') ?? 0,
             'two_tonnes'       => $request->validated('two_tonnes') ?? 0,
@@ -119,11 +120,12 @@ class CuttingController extends Controller
                 'returned_id'      => null,
             ],
             [
-                'bin_size'    => $inputs['item']['bin_size'] ?? null,
-                'no_of_bins'  => $inputs['no_of_bins'] ?? null,
-                'half_tonnes' => $request->validated('half_tonnes') ?? 0,
-                'one_tonnes'  => $request->validated('one_tonnes') ?? 0,
-                'two_tonnes'  => $request->validated('two_tonnes') ?? 0,
+                'from_half_tonnes' => $request->validated('from_half_tonnes') ?? 0,
+                'from_one_tonnes'  => $request->validated('from_one_tonnes') ?? 0,
+                'from_two_tonnes'  => $request->validated('from_two_tonnes') ?? 0,
+                'half_tonnes'      => $request->validated('half_tonnes') ?? 0,
+                'one_tonnes'       => $request->validated('one_tonnes') ?? 0,
+                'two_tonnes'       => $request->validated('two_tonnes') ?? 0,
             ],
         );
 

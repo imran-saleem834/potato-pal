@@ -1,9 +1,9 @@
 <script setup>
 import moment from 'moment';
+import * as bootstrap from 'bootstrap';
 import { Link } from '@inertiajs/vue3';
 import { computed, onMounted, onUpdated } from 'vue';
 import { getSingleCategoryNameByType } from '@/helper.js';
-import * as bootstrap from 'bootstrap';
 import ReturnItems from '@/Components/ReturnItems.vue';
 
 const props = defineProps({

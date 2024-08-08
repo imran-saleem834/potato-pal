@@ -30,8 +30,9 @@ onUpdated(() => {
         <th class="d-none d-md-table-cell">Gen.</th>
         <th>Seed type</th>
         <th class="d-none d-xl-table-cell">Class</th>
-        <th>Bin size</th>
-        <th>No of bins</th>
+        <th>Half Tonnes</th>
+        <th>One Tonnes</th>
+        <th>Two Tonnes</th>
       </tr>
     </thead>
     <tbody>
@@ -75,10 +76,9 @@ onUpdated(() => {
         <td class="d-none d-xl-table-cell text-primary">
           {{ getSingleCategoryNameByType(chemicalApplication.allocation.categories, 'seed-class') || '-' }}
         </td>
-        <td class="text-primary">
-          {{ getBinSizesValue(chemicalApplication.allocation.item.bin_size) }}
-        </td>
-        <td class="text-primary">{{ chemicalApplication.allocation.item.no_of_bins }}</td>
+        <td class="text-primary">{{ chemicalApplication.allocation.item.half_tonnes }} bins</td>
+        <td class="text-primary">{{ chemicalApplication.allocation.item.one_tonnes }} bins</td>
+        <td class="text-primary">{{ chemicalApplication.allocation.item.two_tonnes }} bins</td>
       </tr>
     </tbody>
   </table>

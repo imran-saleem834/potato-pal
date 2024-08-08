@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Scopes\HideMergerScope;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
@@ -11,6 +12,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Allocation extends Model
 {
     use HasFactory;
+
+    const CATEGORY_INPUTS = [
+        'grower_group',
+        'seed_type',
+        'seed_variety',
+        'seed_generation',
+        'seed_class',
+    ];
 
     /**
      * The attributes that are mass assignable.
@@ -23,15 +32,28 @@ class Allocation extends Model
         'unique_key',
         'paddock',
         'comment',
+        'is_merger',
+        'merger_id',
     ];
 
-    const CATEGORY_INPUTS = [
-        'grower_group',
-        'seed_type',
-        'seed_variety',
-        'seed_generation',
-        'seed_class',
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'is_merger' => 'boolean',
     ];
+
+    /**
+     * The "booted" method of the model.
+     *
+     * @return void
+     */
+    protected static function booted()
+    {
+        static::addGlobalScope(new HideMergerScope);
+    }
 
     public function buyer()
     {

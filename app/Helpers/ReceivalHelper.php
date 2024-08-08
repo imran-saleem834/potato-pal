@@ -9,6 +9,7 @@ use App\Models\TiaSample;
 use App\Models\Allocation;
 use App\Models\RemainingReceival;
 use App\Models\CategoriesRelation;
+use App\Models\Scopes\HideMergerScope;
 use Illuminate\Database\Eloquent\Builder;
 
 class ReceivalHelper
@@ -132,14 +133,18 @@ class ReceivalHelper
             }
 
             $allocations = Allocation::query()
+                ->withoutGlobalScope(HideMergerScope::class)
                 ->select(['id'])
                 ->with(['item'])
                 ->where('grower_id', $growerId)
                 ->where('unique_key', $uniqueKey)
+                ->where('is_merger', 0)
                 ->get();
 
             foreach ($allocations as $allocation) {
-                $remainingReceival->no_of_bins -= $allocation->item->no_of_bins;
+                $remainingReceival->no_of_bins -= $allocation->item->half_tonnes + 
+                                                  $allocation->item->one_tonnes + 
+                                                  $allocation->item->two_tonnes;
                 $remainingReceival->weight     -= $allocation->item->weight;
             }
 

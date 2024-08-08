@@ -1,14 +1,15 @@
 <script setup>
 import { reactive, ref, watch } from 'vue';
 import { router, Link } from '@inertiajs/vue3';
-import AppLayout from '@/Layouts/AppLayout.vue';
-import TopBar from '@/Components/TopBar.vue';
-import Details from '@/Pages/Allocation/Details.vue';
-import LeftBar from '@/Components/LeftBar.vue';
-import Pagination from '@/Components/Pagination.vue';
-import { getCategoriesByType } from '@/helper.js';
 import { useWindowSize } from 'vue-window-size';
+import { getCategoriesByType } from '@/helper.js';
+import TopBar from '@/Components/TopBar.vue';
+import LeftBar from '@/Components/LeftBar.vue';
+import AppLayout from '@/Layouts/AppLayout.vue';
+import Details from '@/Pages/Allocation/Details.vue';
+import Pagination from '@/Components/Pagination.vue';
 import ReceivalsModal from '@/Pages/Allocation/Partials/ReceivalsModal.vue';
+import ReallocationModal from '@/Pages/Allocation/Partials/ReallocationModal.vue';
 
 const { width, height } = useWindowSize();
 
@@ -28,6 +29,7 @@ const buyer = ref(props.filters.buyer);
 const details = ref(null);
 const selectIdentifier = ref(null);
 const selection = reactive({});
+const reallocate = ref([]);
 
 watch(
   () => props?.single,
@@ -189,6 +191,13 @@ if (width.value > 991) {
                   <input v-model="search" type="text" class="form-control" placeholder="Search Allocations..." />
                 </div>
                 <div class="col-12 col-sm-4 col-lg-4 mb-3 mb-sm-4 text-end">
+                  <button
+                    v-if="reallocate.length > 0"
+                    class="btn btn-black me-2"
+                    data-bs-toggle="modal"
+                    data-bs-target="#relocate-modal"
+                    v-text="'Reallocate'"
+                  />
                   <button class="btn btn-black" :disabled="isNewItemRecord" @click="isNewItemRecord = true">
                     <i class="bi bi-plus-lg"></i> Add allocation
                   </button>
@@ -204,7 +213,7 @@ if (width.value > 991) {
                 @grower="(id) => setUpdateSelection('newItemRecord', id)"
                 @create="() => setActiveTab(activeTab?.buyer_id)"
               />
-              <template v-for="allocation in allocations?.data" :key="allocation.id">
+              <div class="position-relative" v-for="allocation in allocations?.data" :key="allocation.id">
                 <Details
                   ref="details"
                   :unique-key="`${allocation.id}`"
@@ -213,7 +222,19 @@ if (width.value > 991) {
                   @grower="(growerId) => setUpdateSelection(allocation.id, growerId)"
                   @delete="() => setActiveTab(allocations?.data[0]?.buyer_id)"
                 />
-              </template>
+                <div v-if="!allocation.is_merger" class="btn-group position-absolute bottom-0 end-0">
+                  <div class="form-check">
+                    <input 
+                      v-model="reallocate" 
+                      class="form-check-input" 
+                      type="checkbox" 
+                      :value="allocation.id" 
+                      :id="`reallocate-${allocation.id}`"
+                    >
+                    <label class="form-check-label" :for="`reallocate-${allocation.id}`">Reallocate&nbsp;</label>
+                  </div>
+                </div>
+              </div>
               <div class="float-end">
                 <Pagination :links="allocations.links" />
               </div>
@@ -230,6 +251,11 @@ if (width.value > 991) {
       :grower-id="selection[selectIdentifier]?.id"
       @receival="(receival) => (selection[selectIdentifier].selected = receival)"
       @close="() => (selection[selectIdentifier].id = null)"
+    />
+
+    <ReallocationModal 
+      :allocations="allocations?.data.filter((all) => reallocate.includes(all.id))" 
+      @close="() => (reallocate = [])" 
     />
   </AppLayout>
 </template>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use App\Models\Unload;
 use App\Models\Receival;
@@ -15,6 +16,7 @@ use App\Helpers\CategoriesHelper;
 use App\Models\CategoriesRelation;
 use App\Helpers\NotificationHelper;
 use App\Helpers\DeleteRecordsHelper;
+use App\Http\Requests\DuplicateRequest;
 use App\Http\Requests\AllocationRequest;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -91,16 +93,20 @@ class AllocationController extends Controller
     {
         $allocation = Allocation::create($request->validated());
 
-        $inputs = $request->only(Allocation::CATEGORY_INPUTS);
-        CategoriesHelper::createRelationOfTypes($inputs, $allocation->id, Allocation::class);
+        $receival = $request->validated('select_receival');
+        $binSize = $receival['bin_size'];
 
         AllocationItem::create([
             'allocatable_type' => Allocation::class,
             'allocatable_id'   => $allocation->id,
-            'bin_size'         => $request->input('bin_size'),
-            'no_of_bins'       => $request->input('no_of_bins'),
             'weight'           => $request->input('weight'),
+            'half_tonnes'      => $binSize === 500 ?  $request->input('no_of_bins') : 0,
+            'one_tonnes'       => $binSize === 1000 ? $request->input('no_of_bins') : 0,
+            'two_tonnes'       => $binSize === 2000 ? $request->input('no_of_bins') : 0,
         ]);
+
+        $inputs = $request->only(Allocation::CATEGORY_INPUTS);
+        CategoriesHelper::createRelationOfTypes($inputs, $allocation->id, Allocation::class);
 
         ReceivalHelper::calculateRemainingReceivals($allocation->grower_id);
 
@@ -115,27 +121,30 @@ class AllocationController extends Controller
     public function update(AllocationRequest $request, string $id)
     {
         $allocation = Allocation::find($id);
-        $buyerId    = $allocation->buyer_id;
         $allocation->update($request->validated());
         $allocation->save();
 
-        $inputs = $request->only(Allocation::CATEGORY_INPUTS);
-        CategoriesHelper::createRelationOfTypes($inputs, $allocation->id, Allocation::class);
+        $receival = $request->validated('select_receival');
+        $binSize = $receival['bin_size'];
 
         AllocationItem::updateOrCreate(
+            ['allocatable_type' => Allocation::class, 'allocatable_id' => $allocation->id, 'returned_id' => null],
             [
-                'allocatable_type' => Allocation::class,
-                'allocatable_id'   => $allocation->id,
-                'returned_id'      => null,
-            ],
-            $request->safe()->only(['bin_size', 'no_of_bins', 'weight'])
+                'weight'      => $request->input('weight'),
+                'half_tonnes' => $binSize === 500 ?  $request->input('no_of_bins') : 0,
+                'one_tonnes'  => $binSize === 1000 ? $request->input('no_of_bins') : 0,
+                'two_tonnes'  => $binSize === 2000 ? $request->input('no_of_bins') : 0,
+            ]
         );
+
+        $inputs = $request->only(Allocation::CATEGORY_INPUTS);
+        CategoriesHelper::createRelationOfTypes($inputs, $allocation->id, Allocation::class);
 
         ReceivalHelper::calculateRemainingReceivals($allocation->grower_id);
 
         NotificationHelper::updatedAction('Allocation', $id);
 
-        return to_route('allocations.index', ['buyerId' => $buyerId]);
+        return to_route('allocations.index', ['buyerId' => $allocation->buyer_id]);
     }
 
     /**
@@ -161,43 +170,79 @@ class AllocationController extends Controller
         return to_route('allocations.index');
     }
 
-    public function duplicate(Request $request, string $id)
+    public function duplicate(DuplicateRequest $request)
     {
-        $allocation = Allocation::with(['categories', 'item'])->find($id);
+        $inputs           = $request->validated();
+        $allocationInputs = $inputs['allocations'];
+        $allocationIds    = Arr::pluck($allocationInputs, ['id']);
+        $allocations      = Allocation::query()
+            ->with(['categories', 'item'])
+            ->whereIn('id', $allocationIds)
+            ->get()
+            ->map(function ($allocation) use ($allocationInputs) {
+                $inputs = Arr::first($allocationInputs, fn($input) => $input['id'] === $allocation->id);
 
-        $request->validate([
-            'buyer_id'   => ['required', 'numeric', 'exists:users,id'],
-            'no_of_bins' => ['required', 'numeric', 'gt:0', "max:{$allocation->item->no_of_bins}"],
-            'weight'     => ['required', 'numeric', 'gt:0', "max:{$allocation->item->weight}"],
-        ]);
+                $allocation->half_tonnes = $inputs['half_tonnes'];
+                $allocation->one_tonnes  = $inputs['one_tonnes'];
+                $allocation->two_tonnes  = $inputs['two_tonnes'];
+                $allocation->weight      = $inputs['weight'];
+                return $allocation;
+            });
 
-        $newAllocation = Allocation::create(array_merge(
-            $request->only('buyer_id'),
-            $allocation->only(['grower_id', 'unique_key', 'paddock', 'comment'])
+        $mergeAllocation = Allocation::create(array_merge(
+            $request->safe()->only(['buyer_id']),
+            $allocations->first()->only(['grower_id', 'paddock', 'comment']),
+            ['is_merger' => 1]
         ));
 
         AllocationItem::create([
             'allocatable_type' => Allocation::class,
-            'allocatable_id'   => $newAllocation->id,
-            'bin_size'         => $allocation->item->bin_size,
-            'no_of_bins'       => $request->input('no_of_bins'),
-            'weight'           => $request->input('weight'),
+            'allocatable_id'   => $mergeAllocation->id,
+            'weight'           => $inputs['weight'],
+            'half_tonnes'      => $inputs['half_tonnes'],
+            'one_tonnes'       => $inputs['one_tonnes'],
+            'two_tonnes'       => $inputs['two_tonnes'],
         ]);
 
-        foreach ($allocation->categories as $category) {
+        foreach ($allocations->first()->categories as $category) {
             CategoriesRelation::create([
                 'category_id'        => $category->category_id,
-                'categorizable_id'   => $newAllocation->id,
+                'categorizable_id'   => $mergeAllocation->id,
                 'categorizable_type' => Allocation::class,
                 'type'               => $category->type,
             ]);
         }
 
-        $allocation->item->weight     = abs($allocation->item->weight - $request->input('weight'));
-        $allocation->item->no_of_bins = abs($allocation->item->no_of_bins - $request->input('no_of_bins'));
-        $allocation->item->save();
+        foreach ($allocations as $allocation) {
+            $newAllocation = Allocation::create(array_merge(
+                $allocation->only(['buyer_id', 'grower_id', 'unique_key', 'paddock', 'comment']),
+                ['merger_id' => $mergeAllocation->id]
+            ));
 
-        NotificationHelper::duplicatedAction('Allocation', $allocation->id);
+            AllocationItem::create([
+                'allocatable_type' => Allocation::class,
+                'allocatable_id'   => $newAllocation->id,
+                'weight'           => $allocation->weight,
+                'half_tonnes'      => $allocation->half_tonnes,
+                'one_tonnes'       => $allocation->one_tonnes,
+                'two_tonnes'       => $allocation->two_tonnes,
+            ]);
+
+            foreach ($allocation->categories as $category) {
+                CategoriesRelation::create([
+                    'category_id'        => $category->category_id,
+                    'categorizable_id'   => $newAllocation->id,
+                    'categorizable_type' => Allocation::class,
+                    'type'               => $category->type,
+                ]);
+            }
+
+            $allocation->item->weight      = $allocation->item->weight      - $allocation->weight;
+            $allocation->item->half_tonnes = $allocation->item->half_tonnes - $allocation->half_tonnes;
+            $allocation->item->one_tonnes  = $allocation->item->one_tonnes  - $allocation->one_tonnes;
+            $allocation->item->two_tonnes  = $allocation->item->two_tonnes  - $allocation->two_tonnes;
+            $allocation->item->save();
+        }
 
         return back();
     }
@@ -211,7 +256,9 @@ class AllocationController extends Controller
                 'categories.category',
                 'grower:id,grower_name',
             ])
-            ->withSum(['cuttingItems'], 'no_of_bins')
+            ->withSum(['cuttingItems'], 'from_half_tonnes')
+            ->withSum(['cuttingItems'], 'from_one_tonnes')
+            ->withSum(['cuttingItems'], 'from_two_tonnes')
             ->withSum(['baggings'], 'no_of_bulk_bags_out')
             ->withSum(['baggings'], 'net_weight_bags_out')
             ->when($search, function (Builder $query, $search) {

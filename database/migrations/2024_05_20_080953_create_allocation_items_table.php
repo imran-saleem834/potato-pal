@@ -16,9 +16,10 @@ return new class extends Migration
             $table->morphs('allocatable');
             $table->nullableMorphs('foreignable');
             $table->foreignId('returned_id')->nullable();
-            $table->float('bin_size')->nullable();
-            $table->float('no_of_bins')->nullable();
             $table->float('weight')->nullable();
+            $table->float('from_half_tonnes')->nullable();
+            $table->float('from_one_tonnes')->nullable();
+            $table->float('from_two_tonnes')->nullable();
             $table->float('half_tonnes')->nullable();
             $table->float('one_tonnes')->nullable();
             $table->float('two_tonnes')->nullable();

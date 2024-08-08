@@ -78,9 +78,9 @@ class DispatchRequest extends FormRequest
         } elseif ($type === 'cutting') {
             return AllocationHelper::getAvailableCuttingsForReallocation(['id' => $id]);
         } elseif ($type === 'sizing') {
-            return AllocationHelper::getAvailableSizingForDispatch(['id' => $id]);
+            return AllocationHelper::getAvailableSizing(['id' => $id]);
         }
 
-        return AllocationHelper::getAvailableAllocationForDispatch(['id' => $id]);
+        return AllocationHelper::getAvailableAllocation(['id' => $id]);
     }
 }

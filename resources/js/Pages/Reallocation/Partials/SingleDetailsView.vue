@@ -11,7 +11,7 @@ const props = defineProps({
 
 const isSizing = computed(() => props.reallocation.item.foreignable.type === 'sizing');
 const allocation = computed(() => {
-  if (props.reallocation.item.foreignable.type === 'sizing') {
+  if (isSizing.value) {
     return props.reallocation.item.foreignable.item.foreignable.allocatable.sizeable;
   }
   return props.reallocation.item.foreignable.item.foreignable;
@@ -32,6 +32,7 @@ onUpdated(() => {
   <table class="table table-sm align-middle">
     <thead>
       <tr>
+        <th>Cutting ID</th>
         <th>Allocation ID</th>
         <th class="d-none d-md-table-cell">Grower</th>
         <th class="d-none d-md-table-cell">Paddock</th>
@@ -39,14 +40,15 @@ onUpdated(() => {
         <th class="d-none d-md-table-cell">Gen.</th>
         <th>Seed type</th>
         <th class="d-none d-xl-table-cell">Class</th>
-        <th>Tipped Bins</th>
-        <th v-if="reallocation.item.half_tonnes > 0">Half tonnes</th>
-        <th v-if="reallocation.item.one_tonnes > 0">One tonnes</th>
-        <th v-if="reallocation.item.two_tonnes > 0">Two tonnes</th>
       </tr>
     </thead>
     <tbody>
       <tr>
+        <td>
+          <Link :href="route('cuttings.index', { buyerId: reallocation.item.foreignable.buyer_id })">
+            {{ reallocation.item.foreignable.id }}
+          </Link>
+        </td>
         <td>
           <Link :href="route('allocations.index', { buyerId: allocation.buyer_id })">
             {{ allocation.id }}
@@ -62,9 +64,7 @@ onUpdated(() => {
         </td>
         <td class="text-primary">
           <template v-if="isSizing">
-            {{
-              getSingleCategoryNameByType(reallocation.item.foreignable.item.foreignable.categories, 'seed-type') || '-'
-            }}
+            {{ getSingleCategoryNameByType(reallocation.item.foreignable.item.foreignable.categories, 'seed-type') || '-' }}
           </template>
           <template v-else>
             {{ getSingleCategoryNameByType(allocation.categories, 'seed-type') || '-' }}
@@ -89,27 +89,42 @@ onUpdated(() => {
         <td class="d-none d-xl-table-cell text-primary">
           {{ getSingleCategoryNameByType(allocation.categories, 'seed-class') || '-' }}
         </td>
-        <td class="text-primary">
-          <template v-if="reallocation.item.foreignable.type === 'allocation'">
-            {{ getBinSizesValue(reallocation.item.foreignable.item.bin_size) }} X {{ reallocation.item.foreignable.item.no_of_bins }}
-          </template>
-          <template v-else>-</template>
-        </td>
-        <td v-if="reallocation.item.half_tonnes > 0" class="text-primary">
-          {{ `${reallocation.item.half_tonnes} Bins` }}
-        </td>
-        <td v-if="reallocation.item.one_tonnes > 0" class="text-primary">
-          {{ `${reallocation.item.one_tonnes} Bins` }}
-        </td>
-        <td v-if="reallocation.item.two_tonnes > 0" class="text-primary">
-          {{ `${reallocation.item.two_tonnes} Bins` }}
-        </td>
       </tr>
     </tbody>
   </table>
 
   <h4 class="mt-3 mb-2">Reallocation Details:</h4>
   <div class="row allocation-items-box">
+    <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+      <span>Reallocate bins tipped:</span>
+    </div>
+    <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+      <span>Half Tonne: </span>
+      <span class="text-primary">{{ reallocation.item.from_half_tonnes || '0' }} Bins</span>
+    </div>
+    <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+      <span>One Tonne: </span>
+      <span class="text-primary">{{ reallocation.item.from_one_tonnes || '0' }} Bins</span>
+    </div>
+    <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+      <span>Two Tonne: </span>
+      <span class="text-primary">{{ reallocation.item.from_two_tonnes || '0' }} Bins</span>
+    </div>
+    <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+      <span>Reallocate cut into bins:</span>
+    </div>
+    <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+      <span>Half Tonne: </span>
+      <span class="text-primary">{{ reallocation.item.half_tonnes || '0' }} Bins</span>
+    </div>
+    <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+      <span>One Tonne: </span>
+      <span class="text-primary">{{ reallocation.item.one_tonnes || '0' }} Bins</span>
+    </div>
+    <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+      <span>Two Tonne: </span>
+      <span class="text-primary">{{ reallocation.item.two_tonnes || '0' }} Bins</span>
+    </div>
     <div class="col-12 col-sm-6 col-md-3 mb-1 pb-1">
       <span>Reallocate ID: </span>
       <span class="text-primary">{{ reallocation.id }}</span>

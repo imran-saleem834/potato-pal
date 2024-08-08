@@ -35,6 +35,9 @@ const loader = ref(false);
 const form = useForm({
   buyer_id: props.reallocation.buyer_id,
   allocation_buyer_id: props.reallocation.allocation_buyer_id,
+  from_half_tonnes: props.reallocation.item?.from_half_tonnes,
+  from_one_tonnes: props.reallocation.item?.from_one_tonnes,
+  from_two_tonnes: props.reallocation.item?.from_two_tonnes,
   half_tonnes: props.reallocation.item?.half_tonnes,
   one_tonnes: props.reallocation.item?.one_tonnes,
   two_tonnes: props.reallocation.item?.two_tonnes,
@@ -51,6 +54,9 @@ watch(
     form.clearErrors();
     form.buyer_id = reallocation.buyer_id;
     form.allocation_buyer_id = reallocation.allocation_buyer_id;
+    form.from_half_tonnes = reallocation.item?.from_half_tonnes;
+    form.from_one_tonnes = reallocation.item?.from_one_tonnes;
+    form.from_two_tonnes = reallocation.item?.from_two_tonnes;
     form.half_tonnes = reallocation.item?.half_tonnes;
     form.one_tonnes = reallocation.item?.one_tonnes;
     form.two_tonnes = reallocation.item?.two_tonnes;
@@ -197,6 +203,40 @@ defineExpose({
 
     <template v-if="isForm">
       <SelectedCuttingView :loader="loader" :cutting="form.selected_cutting" />
+      <h4 class="mt-0 mb-3">Reallocate bins tipped:</h4>
+      <div class="row">
+        <div class="col-12 col-sm-6 col-md-4 col-lg-6 col-xl-4 mb-3">
+          <TextInput type="text" v-model="form.from_half_tonnes" :error="form.errors.from_half_tonnes">
+            <template #prefix-addon>
+              <div class="input-group-text">Half tonne</div>
+            </template>
+            <template #addon>
+              <div class="input-group-text">Bins</div>
+            </template>
+          </TextInput>
+        </div>
+        <div class="col-12 col-sm-6 col-md-4 col-lg-6 col-xl-4 mb-3">
+          <TextInput type="text" v-model="form.from_one_tonnes" :error="form.errors.from_one_tonnes">
+            <template #prefix-addon>
+              <div class="input-group-text">One tonne</div>
+            </template>
+            <template #addon>
+              <div class="input-group-text">Bins</div>
+            </template>
+          </TextInput>
+        </div>
+        <div class="col-12 col-sm-6 col-md-4 col-lg-6 col-xl-4 mb-3">
+          <TextInput type="text" v-model="form.from_two_tonnes" :error="form.errors.from_two_tonnes">
+            <template #prefix-addon>
+              <div class="input-group-text">Two tonne</div>
+            </template>
+            <template #addon>
+              <div class="input-group-text">Bins</div>
+            </template>
+          </TextInput>
+        </div>
+      </div>
+      <h4 class="mt-0 mb-3">Reallocate cut into bins:</h4>
       <div class="row">
         <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 mb-3">
           <TextInput type="text" v-model="form.half_tonnes" :error="form.errors.half_tonnes">

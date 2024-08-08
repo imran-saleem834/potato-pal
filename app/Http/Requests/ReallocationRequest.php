@@ -40,17 +40,26 @@ class ReallocationRequest extends FormRequest
                 ->find($this->route('reallocation'));
 
             if (! empty($reallocation->item)) {
+                $cutting->available_from_half_tonnes = $cutting->available_from_half_tonnes + $reallocation->item->from_half_tonnes;
+                $cutting->available_from_one_tonnes  = $cutting->available_from_one_tonnes + $reallocation->item->from_one_tonnes;
+                $cutting->available_from_two_tonnes  = $cutting->available_from_two_tonnes + $reallocation->item->from_two_tonnes;
+                
                 $cutting->available_half_tonnes = $cutting->available_half_tonnes + $reallocation->item->half_tonnes;
                 $cutting->available_one_tonnes  = $cutting->available_one_tonnes + $reallocation->item->one_tonnes;
                 $cutting->available_two_tonnes  = $cutting->available_two_tonnes + $reallocation->item->two_tonnes;
             }
         }
 
+        $rules['from_half_tonnes'] = ['nullable', 'numeric', "max:{$cutting->available_from_half_tonnes}"];
+        $rules['from_one_tonnes']  = ['nullable', 'numeric', "max:{$cutting->available_from_one_tonnes}"];
+        $rules['from_two_tonnes']  = ['nullable', 'numeric', "max:{$cutting->available_from_two_tonnes}"];
+
         $rules['half_tonnes'] = ['nullable', 'numeric', "max:{$cutting->available_half_tonnes}"];
         $rules['one_tonnes']  = ['nullable', 'numeric', "max:{$cutting->available_one_tonnes}"];
         $rules['two_tonnes']  = ['nullable', 'numeric', "max:{$cutting->available_two_tonnes}"];
 
         return $rules;
+        // 
     }
 
     /**

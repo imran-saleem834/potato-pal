@@ -113,16 +113,9 @@ watch(
                   <th>Gen</th>
                   <th>Seed type</th>
                   <th>Class</th>
-                  <template v-if="type === 'sizing'">
-                    <th>Half tonnes</th>
-                    <th>One tonnes</th>
-                    <th>Two tonnes</th>
-                  </template>
-                  <template v-else>
-                    <th>Bin size</th>
-                    <th>Weight</th>
-                    <th>Bins available to cut</th>
-                  </template>
+                  <th>Half tonnes</th>
+                  <th>One tonnes</th>
+                  <th>Two tonnes</th>
                   <th>Select</th>
                 </tr>
               </thead>
@@ -149,16 +142,9 @@ watch(
                     <td>
                       {{ getSingleCategoryNameByType(getAllocation(row).categories, 'seed-class') || '-' }}
                     </td>
-                    <template v-if="type === 'sizing'">
-                      <td>{{ `${row.available_half_tonnes} Bins` }}</td>
-                      <td>{{ `${row.available_one_tonnes} Bins` }}</td>
-                      <td>{{ `${row.available_two_tonnes} Bins` }}</td>
-                    </template>
-                    <template v-else>
-                      <td>{{ getBinSizesValue(row.item.bin_size) }}</td>
-                      <td>{{ toTonnes(row.item.weight) }}</td>
-                      <td>{{ row.available_no_of_bins }}</td>
-                    </template>
+                    <td>{{ `${row.available_half_tonnes} Bins` }}</td>
+                    <td>{{ `${row.available_one_tonnes} Bins` }}</td>
+                    <td>{{ `${row.available_two_tonnes} Bins` }}</td>
                     <td>
                       <input type="checkbox" @click="onSelect(row)" data-bs-dismiss="modal" />
                     </td>

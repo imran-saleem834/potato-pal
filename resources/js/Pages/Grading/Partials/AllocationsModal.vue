@@ -85,7 +85,9 @@ watch(
                   <th>Gen</th>
                   <th>Seed type</th>
                   <th>Class</th>
-                  <th>Bin size</th>
+                  <th>Half Tonnes</th>
+                  <th>One Tonnes</th>
+                  <th>Two Tonnes</th>
                   <th>Weight</th>
                   <th>Select</th>
                 </tr>
@@ -110,7 +112,9 @@ watch(
                     <td>
                       {{ getSingleCategoryNameByType(allocation.categories, 'seed-class') || '-' }}
                     </td>
-                    <td>{{ getBinSizesValue(allocation.item.bin_size) }}</td>
+                    <td>{{ allocation.item.half_tonnes }} bins</td>
+                    <td>{{ allocation.item.one_tonnes }} bins</td>
+                    <td>{{ allocation.item.two_tonnes }} bins</td>
                     <td>{{ toTonnes(allocation.item.weight) }}</td>
                     <td>
                       <input type="checkbox" @click="onSelectAllocation(allocation)" data-bs-dismiss="modal" />

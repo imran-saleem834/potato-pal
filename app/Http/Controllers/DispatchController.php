@@ -82,7 +82,7 @@ class DispatchController extends Controller
 
     public function allocations(Request $request, $id)
     {
-        $allocations = AllocationHelper::getAvailableAllocationForDispatch(
+        $allocations = AllocationHelper::getAvailableAllocation(
             ['buyer_id' => $id],
             ['categories.category', 'grower:id,grower_name']
         );
@@ -140,7 +140,7 @@ class DispatchController extends Controller
 
     public function sizings(Request $request, $id)
     {
-        $sizings = AllocationHelper::getAvailableSizingForDispatch(
+        $sizings = AllocationHelper::getAvailableSizing(
             ['user_id' => $id],
             [
                 'categories.category',

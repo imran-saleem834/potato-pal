@@ -12,7 +12,7 @@ const props = defineProps({
 
 const isSizing = computed(() => props.cutting.type === 'sizing');
 const allocation = computed(() => {
-  if (props.cutting.type === 'sizing') {
+  if (isSizing.value) {
     return props.cutting.item.foreignable.allocatable.sizeable;
   }
   return props.cutting.item.foreignable;
@@ -40,15 +40,6 @@ onUpdated(() => {
         <th class="d-none d-md-table-cell">Gen.</th>
         <th>Seed type</th>
         <th class="d-none d-xl-table-cell">Class</th>
-        <template v-if="!isSizing">
-          <th>Bin size</th>
-          <th>Bins Tipped</th>
-        </template>
-        <template v-else>
-          <th>Half Tonnes</th>
-          <th>One Tonnes</th>
-          <th>Two Tonnes</th>
-        </template>
       </tr>
     </thead>
     <tbody>
@@ -102,15 +93,6 @@ onUpdated(() => {
         <td class="d-none d-xl-table-cell text-primary">
           {{ getSingleCategoryNameByType(allocation.categories, 'seed-class') || '-' }}
         </td>
-        <template v-if="!isSizing">
-          <td class="text-primary">{{ getBinSizesValue(cutting.item.bin_size) }}</td>
-          <td class="text-primary">{{ cutting.item.no_of_bins }}</td>
-        </template>
-        <template v-else>
-          <td class="text-primary">{{ cutting.item.foreignable.half_tonnes || '0' }} Bins</td>
-          <td class="text-primary">{{ cutting.item.foreignable.one_tonnes || '0' }} Bins</td>
-          <td class="text-primary">{{ cutting.item.foreignable.two_tonnes || '0' }} Bins</td>
-        </template>
       </tr>
     </tbody>
   </table>
@@ -118,17 +100,32 @@ onUpdated(() => {
   <h4 class="mt-0 mb-3">Cutting Details:</h4>
   <div class="row allocation-items-box">
     <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
-      <span>Bins Cut into:</span>
+      <span>Original bins tipped:</span>
     </div>
-    <div v-if="parseInt(cutting.item.half_tonnes) > 0" class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+    <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+      <span>Half Tonne: </span>
+      <span class="text-primary">{{ cutting.item.from_half_tonnes || '0' }} Bins</span>
+    </div>
+    <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+      <span>One Tonne: </span>
+      <span class="text-primary">{{ cutting.item.from_one_tonnes || '0' }} Bins</span>
+    </div>
+    <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+      <span>Two Tonne: </span>
+      <span class="text-primary">{{ cutting.item.from_two_tonnes || '0' }} Bins</span>
+    </div>
+    <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+      <span>Cut into no. of bins:</span>
+    </div>
+    <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
       <span>Half Tonne: </span>
       <span class="text-primary">{{ cutting.item.half_tonnes || '0' }} Bins</span>
     </div>
-    <div v-if="parseInt(cutting.item.one_tonnes) > 0" class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+    <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
       <span>One Tonne: </span>
       <span class="text-primary">{{ cutting.item.one_tonnes || '0' }} Bins</span>
     </div>
-    <div v-if="parseInt(cutting.item.two_tonnes) > 0" class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
+    <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
       <span>Two Tonne: </span>
       <span class="text-primary">{{ cutting.item.two_tonnes || '0' }} Bins</span>
     </div>

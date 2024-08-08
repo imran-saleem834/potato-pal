@@ -35,25 +35,25 @@ class AllocationRequest extends FormRequest
         $weight   = $receival['weight'] ?? 0;
 
         $rules = [
-            'buyer_id'        => ['required', 'numeric', 'exists:users,id'],
-            'grower_id'       => ['required', 'numeric', 'exists:users,id'],
-            'unique_key'      => ['required', 'string'],
-            'no_of_bins'      => ['required', 'numeric', 'gt:0', "max:$noOfBins"],
-            'weight'          => ['required', 'numeric', 'gte:0', "max:$weight"],
-            'bin_size'        => ['required', 'numeric', Rule::in([500, 1000, 2000])],
-            'paddock'         => ['required', 'string'],
-            'comment'         => ['nullable', 'string', 'max:255'],
-            'grower_group'    => ['required', 'array', 'max:1'],
-            'seed_variety'    => ['required', 'array', 'max:1'],
-            'seed_generation' => ['required', 'array', 'max:1'],
-            'seed_class'      => ['required', 'array', 'max:1'],
-            'seed_type'       => ['required', 'array', 'max:1'],
+            'buyer_id'                 => ['required', 'numeric', 'exists:users,id'],
+            'grower_id'                => ['required', 'numeric', 'exists:users,id'],
+            'unique_key'               => ['required', 'string'],
+            'no_of_bins'               => ['required', 'numeric', 'gt:0', "max:$noOfBins"],
+            'weight'                   => ['required', 'numeric', 'gte:0', "max:$weight"],
+            'select_receival.bin_size' => ['required', 'numeric', Rule::in([500, 1000, 2000])],
+            'paddock'                  => ['required', 'string'],
+            'comment'                  => ['nullable', 'string', 'max:255'],
+            'grower_group'             => ['required', 'array', 'max:1'],
+            'seed_variety'             => ['required', 'array', 'max:1'],
+            'seed_generation'          => ['required', 'array', 'max:1'],
+            'seed_class'               => ['required', 'array', 'max:1'],
+            'seed_type'                => ['required', 'array', 'max:1'],
         ];
 
         if ($this->isMethod('PATCH')) {
             $allocation = Allocation::select(['id', 'unique_key'])->with(['item'])->find($this->route('allocation'));
             if ($receival['unique_key'] === $allocation->unique_key) {
-                $noOfBins = $allocation->item->no_of_bins + $noOfBins;
+                $noOfBins = $allocation->item->half_tonnes + $allocation->item->one_tonnes + $allocation->item->two_tonnes + $noOfBins;
                 $weight   = $allocation->item->weight + $weight;
             }
 

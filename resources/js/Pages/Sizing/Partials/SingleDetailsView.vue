@@ -34,8 +34,15 @@ onUpdated(() => {
         <th class="d-none d-md-table-cell">Gen.</th>
         <th>Seed type</th>
         <th class="d-none d-xl-table-cell">Class</th>
-        <th>Bin size</th>
-        <th>No of bins</th>
+        <template v-if="isAllocation">
+          <th>Half Tonnes</th>
+          <th>One Tonnes</th>
+          <th>Two Tonnes</th>
+        </template>
+        <template v-else>
+          <th>Bin size</th>
+          <th>No of bins</th>  
+        </template>
       </tr>
     </thead>
     <tbody>
@@ -81,14 +88,15 @@ onUpdated(() => {
         <td class="d-none d-xl-table-cell text-primary">
           {{ getSingleCategoryNameByType(receival.categories, 'seed-class') || '-' }}
         </td>
-        <td class="text-primary">
-          <template v-if="isAllocation">{{ getBinSizesValue(sizing.sizeable.item.bin_size) }}</template>
-          <template v-else>{{ getBinSizesValue(sizing.sizeable?.bin_size) }}</template>
-        </td>
-        <td class="text-primary">
-          <template v-if="isAllocation">{{ sizing.sizeable.item.no_of_bins }}</template>
-          <template v-else>{{ sizing.sizeable?.no_of_bins }}</template>
-        </td>
+        <template v-if="isAllocation">
+          <td class="text-primary">{{ sizing.sizeable.item.half_tonnes }} bins</td>
+          <td class="text-primary">{{ sizing.sizeable.item.one_tonnes }} bins</td>
+          <td class="text-primary">{{ sizing.sizeable.item.two_tonnes }} bins</td>  
+        </template>
+        <template v-else>
+          <td class="text-primary">{{ getBinSizesValue(sizing.sizeable?.bin_size) }}</td>
+          <td class="text-primary">{{ sizing.sizeable?.no_of_bins }}</td>
+        </template>
       </tr>
     </tbody>
   </table>

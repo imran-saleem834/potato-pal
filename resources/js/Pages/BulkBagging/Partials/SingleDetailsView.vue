@@ -30,8 +30,9 @@ onUpdated(() => {
         <th class="d-none d-md-table-cell">Gen.</th>
         <th>Seed type</th>
         <th class="d-none d-xl-table-cell">Class</th>
-        <th>Bin size</th>
-        <th>No of bins</th>
+        <th>Half Tonnes</th>
+        <th>One Tonnes</th>
+        <th>Two Tonnes</th>
       </tr>
     </thead>
     <tbody>
@@ -73,8 +74,9 @@ onUpdated(() => {
         <td class="d-none d-xl-table-cell text-primary">
           {{ getSingleCategoryNameByType(bulkBagging.allocation.categories, 'seed-class') || '-' }}
         </td>
-        <td class="text-primary">{{ getBinSizesValue(bulkBagging.allocation.item.bin_size) }}</td>
-        <td class="text-primary">{{ bulkBagging.allocation.item.no_of_bins }}</td>
+        <td class="text-primary">{{ bulkBagging.allocation.item.half_tonnes }} bins</td>
+        <td class="text-primary">{{ bulkBagging.allocation.item.one_tonnes }} bins</td>
+        <td class="text-primary">{{ bulkBagging.allocation.item.two_tonnes }} bins</td>
       </tr>
     </tbody>
   </table>

@@ -1,27 +1,20 @@
 <script setup>
-import { computed, watchEffect } from 'vue';
-import TextInput from '@/Components/TextInput.vue';
-import { toTonnes, getBinSizesValue, getSingleCategoryNameByType } from '@/helper.js';
+import { computed } from 'vue';
+import { getSingleCategoryNameByType } from '@/helper.js';
 
 const props = defineProps({
   loader: Boolean,
   selected: Object,
-  form: {
-    required: true,
-  },
 });
 
 const emit = defineEmits(['update:modelValue']);
 
+const isSizing = computed(() => props.selected.type === 'sizing');
 const allocation = computed(() => {
-  if (props.selected.type === 'sizing') {
+  if (isSizing.value) {
     return props.selected.allocatable.sizeable;
   }
   return props.selected;
-});
-
-watchEffect(() => {
-  emit('update:modelValue', props.form);
 });
 </script>
 
@@ -41,17 +34,9 @@ watchEffect(() => {
           <th class="d-none d-md-table-cell">Gen.</th>
           <th>Seed type</th>
           <th class="d-none d-md-table-cell">Class</th>
-          <template v-if="selected.type === 'sizing'">
-            <th>Half tonnes</th>
-            <th>One tonnes</th>
-            <th>Two tonnes</th>
-          </template>
-          <template v-else>
-            <th>Bin size</th>
-            <th>Weight</th>
-            <th>Available/No of bins</th>
-            <th>Bins to cut</th>
-          </template>
+          <th>Half tonnes</th>
+          <th>One tonnes</th>
+          <th>Two tonnes</th>
         </tr>
       </thead>
       <tbody>
@@ -65,7 +50,7 @@ watchEffect(() => {
             {{ getSingleCategoryNameByType(allocation.categories, 'seed-generation') || '-' }}
           </td>
           <td class="text-primary">
-            <template v-if="selected.type === 'sizing'">
+            <template v-if="isSizing">
               {{ getSingleCategoryNameByType(selected.categories, 'seed-type') || '-' }}
             </template>
             <template v-else>
@@ -91,23 +76,9 @@ watchEffect(() => {
           <td class="d-none d-md-table-cell text-primary">
             {{ getSingleCategoryNameByType(allocation.categories, 'seed-class') || '-' }}
           </td>
-          <template v-if="selected.type === 'sizing'">
-            <td class="text-primary">{{ `${selected.available_half_tonnes} Bins` }}</td>
-            <td class="text-primary">{{ `${selected.available_one_tonnes} Bins` }}</td>
-            <td class="text-primary">{{ `${selected.available_two_tonnes} Bins` }}</td>
-          </template>
-          <template v-else>
-            <td class="text-primary">{{ getBinSizesValue(allocation.item.bin_size) }}</td>
-            <td class="text-primary">{{ toTonnes(allocation.item.weight) }}</td>
-            <td class="text-primary">{{ allocation.available_no_of_bins }}</td>
-            <td style="max-width: 150px">
-              <TextInput
-                v-model="form.selected_allocation.no_of_bins"
-                :error="form.errors[`selected_allocation.no_of_bins`]"
-                type="text"
-              />
-            </td>
-          </template>
+          <td class="text-primary">{{ `${selected.available_half_tonnes} bins` }}</td>
+          <td class="text-primary">{{ `${selected.available_one_tonnes} bins` }}</td>
+          <td class="text-primary">{{ `${selected.available_two_tonnes} bins` }}</td>
         </tr>
       </tbody>
     </table>

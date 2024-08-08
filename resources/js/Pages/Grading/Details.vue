@@ -111,6 +111,11 @@ const onChangeType = (value) => {
   onChangeUser();
 };
 
+const onChangeInnerType = (value) => {
+  form.type = value;
+  onChangeUser();
+};
+
 const setIsEdit = () => {
   isEdit.value = true;
   loader.value = true;

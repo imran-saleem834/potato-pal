@@ -1,8 +1,8 @@
 <script setup>
 import { useToast } from 'vue-toastification';
+import Multiselect from '@vueform/multiselect';
 import { useForm, usePage } from '@inertiajs/vue3';
 import { computed, onMounted, onUpdated, ref, watch } from 'vue';
-import Multiselect from '@vueform/multiselect';
 import * as bootstrap from 'bootstrap';
 import TextInput from '@/Components/TextInput.vue';
 import ConfirmedModal from '@/Components/ConfirmedModal.vue';
@@ -52,6 +52,9 @@ const getDefaultCategoryId = (categories, type, keyword) => {
 const form = useForm({
   buyer_id: props.cutting.buyer_id,
   type: props.cutting.type,
+  from_half_tonnes: props.cutting.item?.from_half_tonnes,
+  from_one_tonnes: props.cutting.item?.from_one_tonnes,
+  from_two_tonnes: props.cutting.item?.from_two_tonnes,
   half_tonnes: props.cutting.item?.half_tonnes,
   one_tonnes: props.cutting.item?.one_tonnes,
   two_tonnes: props.cutting.item?.two_tonnes,
@@ -71,6 +74,9 @@ watch(
     form.clearErrors();
     form.buyer_id = cutting.buyer_id;
     form.type = cutting.type;
+    form.from_half_tonnes = cutting.item?.from_half_tonnes;
+    form.from_one_tonnes = cutting.item?.from_one_tonnes;
+    form.from_two_tonnes = cutting.item?.from_two_tonnes;
     form.half_tonnes = cutting.item?.half_tonnes;
     form.one_tonnes = cutting.item?.one_tonnes;
     form.two_tonnes = cutting.item?.two_tonnes;
@@ -108,6 +114,9 @@ const setIsEdit = () => {
       form.selected_allocation.bin_size = props.cutting.item.bin_size;
       form.selected_allocation.no_of_bins = props.cutting.item.no_of_bins;
       form.selected_allocation.type = form.type;
+      form.from_half_tonnes = props.cutting.item.from_half_tonnes;
+      form.from_one_tonnes = props.cutting.item.from_one_tonnes;
+      form.from_two_tonnes = props.cutting.item.from_two_tonnes;
       form.half_tonnes = props.cutting.item.half_tonnes;
       form.one_tonnes = props.cutting.item.one_tonnes;
       form.two_tonnes = props.cutting.item.two_tonnes;
@@ -217,8 +226,41 @@ defineExpose({
     </table>
 
     <template v-if="isForm">
-      <SelectedView :form="form" :loader="loader" :selected="form.selected_allocation" />
-      <h4 class="mt-0 mb-3">Cutting Details</h4>
+      <SelectedView :loader="loader" :selected="form.selected_allocation" />
+      <h4 class="mt-0 mb-3">Original bins tipped:</h4>
+      <div class="row">
+        <div class="col-12 col-sm-6 col-md-4 col-lg-6 col-xl-4 mb-3">
+          <TextInput type="text" v-model="form.from_half_tonnes" :error="form.errors.from_half_tonnes">
+            <template #prefix-addon>
+              <div class="input-group-text">Half tonne</div>
+            </template>
+            <template #addon>
+              <div class="input-group-text">Bins</div>
+            </template>
+          </TextInput>
+        </div>
+        <div class="col-12 col-sm-6 col-md-4 col-lg-6 col-xl-4 mb-3">
+          <TextInput type="text" v-model="form.from_one_tonnes" :error="form.errors.from_one_tonnes">
+            <template #prefix-addon>
+              <div class="input-group-text">One tonne</div>
+            </template>
+            <template #addon>
+              <div class="input-group-text">Bins</div>
+            </template>
+          </TextInput>
+        </div>
+        <div class="col-12 col-sm-6 col-md-4 col-lg-6 col-xl-4 mb-3">
+          <TextInput type="text" v-model="form.from_two_tonnes" :error="form.errors.from_two_tonnes">
+            <template #prefix-addon>
+              <div class="input-group-text">Two tonne</div>
+            </template>
+            <template #addon>
+              <div class="input-group-text">Bins</div>
+            </template>
+          </TextInput>
+        </div>
+      </div>
+      <h4 class="mt-0 mb-3">Cut into no. of bins:</h4>
       <div class="row">
         <div class="col-12 col-sm-6 col-md-4 col-lg-6 col-xl-4 mb-3">
           <TextInput type="text" v-model="form.half_tonnes" :error="form.errors.half_tonnes">
@@ -250,7 +292,8 @@ defineExpose({
             </template>
           </TextInput>
         </div>
-        <div class="w-100 d-block"></div>
+      </div>
+      <div class="row">
         <div class="col-12 col-sm-6 col-md-3 col-lg-6 col-xl-3 mb-3">
           <label class="form-label">Date Cut</label>
           <CustomDatePicker :form="form" field="cut_date" mode="date" format="YYYY-MM-DD" />

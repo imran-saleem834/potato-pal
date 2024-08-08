@@ -25,47 +25,54 @@ onUpdated(() => {
 <template>
   <table class="table table-sm align-middle">
     <thead>
-      <tr>
-        <th v-if="isAllocation">Allocation ID</th>
-        <th v-else>Unload ID</th>
-        <th class="d-none d-md-table-cell">Grower</th>
-        <th class="d-none d-md-table-cell">Paddock</th>
-        <th class="d-none d-xl-table-cell">Variety</th>
-        <th class="d-none d-md-table-cell">Gen.</th>
-        <th>Seed type</th>
-        <th class="d-none d-xl-table-cell">Class</th>
+    <tr>
+      <th v-if="isAllocation">Allocation ID</th>
+      <th v-else>Unload ID</th>
+      <th class="d-none d-md-table-cell">Grower</th>
+      <th class="d-none d-md-table-cell">Paddock</th>
+      <th class="d-none d-xl-table-cell">Variety</th>
+      <th class="d-none d-md-table-cell">Gen.</th>
+      <th>Seed type</th>
+      <th class="d-none d-xl-table-cell">Class</th>
+      <template v-if="isAllocation">
+        <th>Half Tonnes</th>
+        <th>One Tonnes</th>
+        <th>Two Tonnes</th>
+      </template>
+      <template v-else>
         <th>Bin size</th>
         <th>No of bins</th>
-      </tr>
+      </template>
+    </tr>
     </thead>
     <tbody>
-      <tr>
-        <td>
-          <Link v-if="isAllocation" :href="route('allocations.index', { buyerId: grading.user_id })">
-            {{ grading.gradeable_id }}
-          </Link>
-          <Link v-else :href="route('unloading.index', { receivalId: grading.gradeable.receival_id })">
-            {{ grading.gradeable_id }}
-          </Link>
-        </td>
-        <td class="d-none d-md-table-cell text-primary">{{ receival?.grower?.grower_name }}</td>
-        <td class="d-none d-md-table-cell text-primary">
-          <template v-if="isAllocation">{{ grading.gradeable?.paddock }}</template>
-          <template v-else>{{ grading.gradeable?.receival?.paddocks[0] }}</template>
-        </td>
-        <td class="d-none d-xl-table-cell text-primary">
-          {{ getSingleCategoryNameByType(receival.categories, 'seed-variety') || '-' }}
-        </td>
-        <td class="d-none d-md-table-cell text-primary">
-          {{ getSingleCategoryNameByType(receival.categories, 'seed-generation') || '-' }}
-        </td>
-        <td class="text-primary">
-          {{ getSingleCategoryNameByType(grading.gradeable.categories, 'seed-type') || '-' }}
-          <a
-            data-bs-toggle="tooltip"
-            data-bs-html="true"
-            class="d-xl-none"
-            :data-bs-title="`
+    <tr>
+      <td>
+        <Link v-if="isAllocation" :href="route('allocations.index', { buyerId: grading.user_id })">
+          {{ grading.gradeable_id }}
+        </Link>
+        <Link v-else :href="route('unloading.index', { receivalId: grading.gradeable.receival_id })">
+          {{ grading.gradeable_id }}
+        </Link>
+      </td>
+      <td class="d-none d-md-table-cell text-primary">{{ receival?.grower?.grower_name }}</td>
+      <td class="d-none d-md-table-cell text-primary">
+        <template v-if="isAllocation">{{ grading.gradeable?.paddock }}</template>
+        <template v-else>{{ grading.gradeable?.receival?.paddocks[0] }}</template>
+      </td>
+      <td class="d-none d-xl-table-cell text-primary">
+        {{ getSingleCategoryNameByType(receival.categories, 'seed-variety') || '-' }}
+      </td>
+      <td class="d-none d-md-table-cell text-primary">
+        {{ getSingleCategoryNameByType(receival.categories, 'seed-generation') || '-' }}
+      </td>
+      <td class="text-primary">
+        {{ getSingleCategoryNameByType(grading.gradeable.categories, 'seed-type') || '-' }}
+        <a
+          data-bs-toggle="tooltip"
+          data-bs-html="true"
+          class="d-xl-none"
+          :data-bs-title="`
             <div class='text-start'>
               Grower: ${receival.grower.grower_name}<br/>
               Paddock: ${isAllocation ? grading.gradeable?.paddock : grading.gradeable?.receival?.paddocks[0]}<br/>
@@ -74,22 +81,23 @@ onUpdated(() => {
               Class: ${getSingleCategoryNameByType(receival.categories, 'seed-class') || '-'}
             </div>
           `"
-          >
-            <i class="bi bi-question-circle fs-6 text-black"></i>
-          </a>
-        </td>
-        <td class="d-none d-xl-table-cell text-primary">
-          {{ getSingleCategoryNameByType(receival.categories, 'seed-class') || '-' }}
-        </td>
-        <td class="text-primary">
-          <template v-if="isAllocation">{{ getBinSizesValue(grading.gradeable.item.bin_size) }}</template>
-          <template v-else>{{ getBinSizesValue(grading.gradeable?.bin_size) }}</template>
-        </td>
-        <td class="text-primary">
-          <template v-if="isAllocation">{{ grading.gradeable.item.no_of_bins }}</template>
-          <template v-else>{{ grading.gradeable?.no_of_bins }}</template>
-        </td>
-      </tr>
+        >
+          <i class="bi bi-question-circle fs-6 text-black"></i>
+        </a>
+      </td>
+      <td class="d-none d-xl-table-cell text-primary">
+        {{ getSingleCategoryNameByType(receival.categories, 'seed-class') || '-' }}
+      </td>
+      <template v-if="isAllocation">
+        <td class="text-primary">{{ grading.gradeable.item.half_tonnes }} bins</td>
+        <td class="text-primary">{{ grading.gradeable.item.one_tonnes }} bins</td>
+        <td class="text-primary">{{ grading.gradeable.item.two_tonnes }} bins</td>
+      </template>
+      <template v-else>
+        <td class="text-primary">{{ getBinSizesValue(grading.gradeable?.bin_size) }}</td>
+        <td class="text-primary">{{ grading.gradeable?.no_of_bins }}</td>
+      </template>
+    </tr>
     </tbody>
   </table>
 
