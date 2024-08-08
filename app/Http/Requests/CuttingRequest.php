@@ -44,7 +44,7 @@ class CuttingRequest extends FormRequest
 
         if ($this->input('type') === 'allocation') {
             $rules['selected_allocation.id'] = ['nullable', 'numeric', 'exists:allocations,id'];
-            $model = AllocationHelper::getAvailableAllocation(['id' => $inputs['id']])->first();
+            $model = AllocationHelper::getAvailableAllocations(['id' => $inputs['id']])->first();
         } else {
             $rules['selected_allocation.id'] = ['nullable', 'numeric', 'exists:allocation_items,id'];
             $model = AllocationHelper::getAvailableSizing(['id' => $inputs['id']])->first();

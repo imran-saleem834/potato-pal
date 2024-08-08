@@ -49,7 +49,7 @@ class CuttingController extends Controller
 
     public function allocations(Request $request, $id)
     {
-        $allocations = AllocationHelper::getAvailableAllocation(
+        $allocations = AllocationHelper::getAvailableAllocations(
             ['buyer_id' => $id],
             ['categories.category', 'grower:id,grower_name']
         );

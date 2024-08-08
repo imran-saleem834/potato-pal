@@ -143,12 +143,8 @@ watch(
                   >
                     <td>{{ getAllocation(row).grower?.grower_name || '-' }}</td>
                     <td>{{ getAllocation(row).paddock }}</td>
-                    <td>
-                      {{ getSingleCategoryNameByType(getAllocation(row).categories, 'seed-variety') || '-' }}
-                    </td>
-                    <td>
-                      {{ getSingleCategoryNameByType(getAllocation(row).categories, 'seed-generation') || '-' }}
-                    </td>
+                    <td>{{ getSingleCategoryNameByType(getAllocation(row).categories, 'seed-variety') || '-' }}</td>
+                    <td>{{ getSingleCategoryNameByType(getAllocation(row).categories, 'seed-generation') || '-' }}</td>
                     <td>
                       <template v-if="isCutting">Cut Seed</template>
                       <template v-else-if="isSizing">
@@ -171,12 +167,25 @@ watch(
                         {{ getSingleCategoryNameByType(getAllocation(row).categories, 'seed-type') || '-' }}
                       </template>
                     </td>
+                    <td>{{ getSingleCategoryNameByType(getAllocation(row).categories, 'seed-class') || '-' }}</td>
                     <td>
-                      {{ getSingleCategoryNameByType(getAllocation(row).categories, 'seed-class') || '-' }}
+                      <template v-if="isCutting || isReallocation">
+                        {{ `${row.available_from_half_tonnes} Tipped Bins` }} <br />
+                      </template>
+                      {{ `${row.available_half_tonnes} Bins` }}
                     </td>
-                    <td>{{ `${row.available_half_tonnes} Bins` }}</td>
-                    <td>{{ `${row.available_one_tonnes} Bins` }}</td>
-                    <td>{{ `${row.available_two_tonnes} Bins` }}</td>
+                    <td>
+                      <template v-if="isCutting || isReallocation">
+                        {{ `${row.available_from_one_tonnes} Tipped Bins` }} <br />
+                      </template>
+                      {{ `${row.available_one_tonnes} Bins` }}
+                    </td>
+                    <td>
+                      <template v-if="isCutting || isReallocation">
+                        {{ `${row.available_from_two_tonnes} Tipped Bins` }} <br />
+                      </template>
+                      {{ `${row.available_two_tonnes} Bins` }}
+                    </td>
                     <td v-if="isAllocation">{{ row.baggings_sum_no_of_bulk_bags_out || '0' }}</td>
                     <td>
                       <input type="checkbox" @click="onSelect(row)" data-bs-dismiss="modal" />

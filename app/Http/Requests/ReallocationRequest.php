@@ -32,7 +32,7 @@ class ReallocationRequest extends FormRequest
         ];
 
         $inputs  = $this->input('selected_cutting', []);
-        $cutting = AllocationHelper::getAvailableCuttingsForReallocation(['id' => $inputs['id']])->first();
+        $cutting = AllocationHelper::getAvailableCuttings(['id' => $inputs['id']])->first();
 
         if ($this->isMethod('PATCH')) {
             $reallocation = Reallocation::query()
@@ -59,7 +59,6 @@ class ReallocationRequest extends FormRequest
         $rules['two_tonnes']  = ['nullable', 'numeric', "max:{$cutting->available_two_tonnes}"];
 
         return $rules;
-        // 
     }
 
     /**

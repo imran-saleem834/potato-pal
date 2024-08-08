@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class AllocationHelper
 {
-    public static function getAvailableAllocation(array $filter, ?array $with = [])
+    public static function getAvailableAllocations(array $filter, ?array $with = [])
     {
         return Allocation::query()
             ->with(array_merge(['item', 'cuttingItems', 'dispatchItems', 'returnItems'], $with))
@@ -32,7 +32,7 @@ class AllocationHelper
             });
     }
 
-    public static function getAvailableCuttingsForReallocation(array $filter, ?array $with = [])
+    public static function getAvailableCuttings(array $filter, ?array $with = [])
     {
         return Cutting::query()
             ->with(array_merge(['item.foreignable', 'reallocationItems', 'dispatchItems', 'returnItems'], $with))
@@ -44,11 +44,8 @@ class AllocationHelper
             })
             ->get()
             ->map(function ($model) {
-                $model->available_from_half_tonnes = $model->item->from_half_tonnes;
-                $model->available_from_one_tonnes  = $model->item->from_one_tonnes;
-                $model->available_from_two_tonnes  = $model->item->from_two_tonnes;
-                
                 $model = self::setAvailableBins($model);
+                $model = self::setAvailableFromBins($model);
                 $model = self::removeReallocationBins($model);
                 return static::removeDispatchAndSetReturnBins($model);
             });
@@ -79,7 +76,7 @@ class AllocationHelper
             });
     }
 
-    public static function getAvailableReallocationForDispatch(array $filter, ?array $with = [])
+    public static function getAvailableReallocations(array $filter, ?array $with = [])
     {
         return Reallocation::query()
             ->with(array_merge(['item', 'returnItems', 'dispatchItems', 'buyer:id,buyer_name'], $with))
@@ -92,24 +89,9 @@ class AllocationHelper
             ->get()
             ->map(function ($model) {
                 $model = self::setAvailableBins($model);
+                $model = self::setAvailableFromBins($model);
                 return static::removeDispatchAndSetReturnBins($model);
             });
-    }
-
-    public static function setAvailableForAllocation($model)
-    {
-        $model->available_half_tonnes = (int) $model->item->bin_size === 500 ? $model->item->no_of_bins : 0;
-        $model->available_one_tonnes  = (int) $model->item->bin_size === 1000 ? $model->item->no_of_bins : 0;
-        $model->available_two_tonnes  = (int) $model->item->bin_size === 2000 ? $model->item->no_of_bins : 0;
-
-        // Remove cutting bins
-        foreach ($model->cuttingItems as $item) {
-            $model->available_half_tonnes -= (int) $item->bin_size === 500 ? $item->no_of_bins : 0;
-            $model->available_one_tonnes  -= (int) $item->bin_size === 1000 ? $item->no_of_bins : 0;
-            $model->available_two_tonnes  -= (int) $item->bin_size === 2000 ? $item->no_of_bins : 0;
-        }
-
-        return $model;
     }
 
     public static function setAvailableBins($model)
@@ -117,6 +99,15 @@ class AllocationHelper
         $model->available_half_tonnes = $model->item->half_tonnes;
         $model->available_one_tonnes  = $model->item->one_tonnes;
         $model->available_two_tonnes  = $model->item->two_tonnes;
+
+        return $model;
+    }
+
+    public static function setAvailableFromBins($model)
+    {
+        $model->available_from_half_tonnes = $model->item->from_half_tonnes;
+        $model->available_from_one_tonnes  = $model->item->from_one_tonnes;
+        $model->available_from_two_tonnes  = $model->item->from_two_tonnes;
 
         return $model;
     }
@@ -137,6 +128,10 @@ class AllocationHelper
             $model->available_half_tonnes -= $item->half_tonnes;
             $model->available_one_tonnes  -= $item->one_tonnes;
             $model->available_two_tonnes  -= $item->two_tonnes;
+
+            $model->available_from_half_tonnes -= $item->from_half_tonnes;
+            $model->available_from_one_tonnes  -= $item->from_one_tonnes;
+            $model->available_from_two_tonnes  -= $item->from_two_tonnes;
         }
 
         return $model;

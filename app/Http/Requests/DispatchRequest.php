@@ -74,13 +74,13 @@ class DispatchRequest extends FormRequest
     private function getAvailableBins(string $type, $id)
     {
         if ($type === 'reallocation') {
-            return AllocationHelper::getAvailableReallocationForDispatch(['id' => $id]);
+            return AllocationHelper::getAvailableReallocations(['id' => $id]);
         } elseif ($type === 'cutting') {
-            return AllocationHelper::getAvailableCuttingsForReallocation(['id' => $id]);
+            return AllocationHelper::getAvailableCuttings(['id' => $id]);
         } elseif ($type === 'sizing') {
             return AllocationHelper::getAvailableSizing(['id' => $id]);
         }
 
-        return AllocationHelper::getAvailableAllocation(['id' => $id]);
+        return AllocationHelper::getAvailableAllocations(['id' => $id]);
     }
 }

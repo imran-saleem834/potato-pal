@@ -46,7 +46,7 @@ class ReallocationController extends Controller
 
     public function cuttings(Request $request, $id)
     {
-        $cuttings = AllocationHelper::getAvailableCuttingsForReallocation(
+        $cuttings = AllocationHelper::getAvailableCuttings(
             ['buyer_id' => $id],
             [
                 'item.foreignable' => function (MorphTo $morphTo) {

@@ -55,9 +55,9 @@ onUpdated(() => {
         <th class="d-none d-md-table-cell">Gen.</th>
         <th>Seed type</th>
         <th class="d-none d-xl-table-cell">Class</th>
-        <th v-if="dispatch.item.half_tonnes > 0">Half tonnes</th>
-        <th v-if="dispatch.item.one_tonnes > 0">One tonnes</th>
-        <th v-if="dispatch.item.two_tonnes > 0">Two tonnes</th>
+        <th>Half tonnes</th>
+        <th>One tonnes</th>
+        <th>Two tonnes</th>
       </tr>
     </thead>
     <tbody>
@@ -111,15 +111,9 @@ onUpdated(() => {
         <td class="d-none d-xl-table-cell text-primary">
           {{ getSingleCategoryNameByType(allocation.categories, 'seed-class') || '-' }}
         </td>
-        <td v-if="dispatch.item.half_tonnes > 0" class="text-primary">
-          {{ `${dispatch.item.half_tonnes} Bins` }}
-        </td>
-        <td v-if="dispatch.item.one_tonnes > 0" class="text-primary">
-          {{ `${dispatch.item.one_tonnes} Bins` }}
-        </td>
-        <td v-if="dispatch.item.two_tonnes > 0" class="text-primary">
-          {{ `${dispatch.item.two_tonnes} Bins` }}
-        </td>
+        <td class="text-primary">{{ `${dispatch.item.half_tonnes} Bins` }}</td>
+        <td class="text-primary">{{ `${dispatch.item.one_tonnes} Bins` }}</td>
+        <td class="text-primary">{{ `${dispatch.item.two_tonnes} Bins` }}</td>
       </tr>
     </tbody>
   </table>

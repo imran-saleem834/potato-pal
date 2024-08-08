@@ -18,7 +18,8 @@ return new class extends Migration
             $table->string('unique_key', 80)->nullable();
             $table->string('paddock', 100)->nullable();
             $table->string('comment', 255)->nullable();
-            $table->boolean('is_hidden')->default(0);
+            $table->boolean('is_merger')->default(0);
+            $table->foreignId('merger_id')->nullable();
             $table->timestamps();
         });
     }

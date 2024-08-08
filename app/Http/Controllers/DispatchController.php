@@ -82,7 +82,7 @@ class DispatchController extends Controller
 
     public function allocations(Request $request, $id)
     {
-        $allocations = AllocationHelper::getAvailableAllocation(
+        $allocations = AllocationHelper::getAvailableAllocations(
             ['buyer_id' => $id],
             ['categories.category', 'grower:id,grower_name']
         );
@@ -92,7 +92,7 @@ class DispatchController extends Controller
 
     public function reallocations(Request $request, $id)
     {
-        $reallocations = AllocationHelper::getAvailableReallocationForDispatch(
+        $reallocations = AllocationHelper::getAvailableReallocations(
             ['buyer_id' => $id],
             [
                 'item.foreignable.item.foreignable' => function (MorphTo $morphTo) {
@@ -116,7 +116,7 @@ class DispatchController extends Controller
 
     public function cuttings(Request $request, $id)
     {
-        $cuttings = AllocationHelper::getAvailableCuttingsForReallocation(
+        $cuttings = AllocationHelper::getAvailableCuttings(
             ['buyer_id' => $id],
             [
                 'item.foreignable' => function (MorphTo $morphTo) {

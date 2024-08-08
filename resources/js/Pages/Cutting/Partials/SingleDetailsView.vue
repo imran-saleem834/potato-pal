@@ -4,7 +4,7 @@ import { Link } from '@inertiajs/vue3';
 import * as bootstrap from 'bootstrap';
 import { computed, onMounted, onUpdated } from 'vue';
 import ReturnItems from '@/Components/ReturnItems.vue';
-import { getBinSizesValue, getSingleCategoryNameByType } from '@/helper.js';
+import { toTonnes, getSingleCategoryNameByType } from '@/helper.js';
 
 const props = defineProps({
   cutting: Object,
@@ -97,7 +97,10 @@ onUpdated(() => {
     </tbody>
   </table>
 
-  <h4 class="mt-0 mb-3">Cutting Details:</h4>
+  <div class="d-flex justify-content-between">
+    <h4 class="mt-0 mb-3">Cutting Details:</h4>
+    <span class="text-danger">(Waste: {{ toTonnes(cutting.item.waste) }})</span>
+  </div>
   <div class="row allocation-items-box">
     <div class="col-12 col-sm-4 col-md-3 col-lg-4 col-xl-3 mb-1 pb-1">
       <span>Original bins tipped:</span>

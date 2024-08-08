@@ -40,6 +40,7 @@ const allocation = computed(() => {
     <table class="table table-sm align-middle mb-3">
       <thead>
         <tr>
+          <th class="d-none d-md-table-cell">Source</th>
           <th class="d-none d-md-table-cell">Grower</th>
           <th class="d-none d-md-table-cell">Paddock</th>
           <th class="d-none d-md-table-cell">Variety</th>
@@ -54,6 +55,12 @@ const allocation = computed(() => {
       </thead>
       <tbody>
         <tr>
+          <td class="d-none d-md-table-cell text-primary">
+            <template v-if="isReallocation">Reallocation</template>
+            <template v-else-if="isCutting">Sizing</template>
+            <template v-else-if="isSizing">Sizing</template>
+            <template v-else>Allocation</template>
+          </td>
           <td class="d-none d-md-table-cell text-primary">{{ allocation.grower.grower_name }}</td>
           <td class="d-none d-md-table-cell text-primary">{{ allocation.paddock }}</td>
           <td class="d-none d-md-table-cell text-primary">
@@ -100,9 +107,24 @@ const allocation = computed(() => {
           <td class="d-none d-md-table-cell text-primary">
             {{ getSingleCategoryNameByType(allocation.categories, 'seed-class') || '-' }}
           </td>
-          <td class="text-primary">{{ `${selected.available_half_tonnes} Bins` }}</td>
-          <td class="text-primary">{{ `${selected.available_one_tonnes} Bins` }}</td>
-          <td class="text-primary">{{ `${selected.available_two_tonnes} Bins` }}</td>
+          <td class="text-primary">
+            <template v-if="isCutting || isReallocation">
+              {{ `${selected.available_from_half_tonnes} Tipped Bins` }} <br />  
+            </template>
+            {{ `${selected.available_half_tonnes} Bins` }}
+          </td>
+          <td class="text-primary">
+            <template v-if="isCutting || isReallocation">
+              {{ `${selected.available_from_one_tonnes} Tipped Bins` }} <br />
+            </template>
+            {{ `${selected.available_one_tonnes} Bins` }}
+          </td>
+          <td class="text-primary">
+            <template v-if="isCutting || isReallocation">
+              {{ `${selected.available_from_two_tonnes} Tipped Bins` }} <br />
+            </template>
+            {{ `${selected.available_two_tonnes} Bins` }}
+          </td>
           <td v-if="isAllocation" class="text-primary">
             {{ allocation.baggings_sum_no_of_bulk_bags_out || '0' }}
           </td>

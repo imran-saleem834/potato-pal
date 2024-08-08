@@ -92,7 +92,6 @@ watch(
                   <th>Gen</th>
                   <th>Seed type</th>
                   <th>Class</th>
-                  <th>Tipped Bins</th>
                   <th>Half tonnes</th>
                   <th>One tonnes</th>
                   <th>Two tonnes</th>
@@ -123,14 +122,20 @@ watch(
                       {{ getSingleCategoryNameByType(getAllocation(cutting).categories, 'seed-class') || '-' }}
                     </td>
                     <td>
-                      <template v-if="cutting.type === 'allocation'">
-                        {{ getBinSizesValue(cutting.item.bin_size) }} X {{ cutting.item.no_of_bins }}
-                      </template>
-                      <template v-else>-</template>
+                      {{ `${cutting.available_from_half_tonnes} Tipped Bins` }} 
+                      <br/> 
+                      {{ `${cutting.available_half_tonnes} Bins` }}
                     </td>
-                    <td>{{ `${cutting.available_half_tonnes} Bins` }}</td>
-                    <td>{{ `${cutting.available_one_tonnes} Bins` }}</td>
-                    <td>{{ `${cutting.available_two_tonnes} Bins` }}</td>
+                    <td>
+                      {{ `${cutting.available_from_one_tonnes} Tipped Bins` }}
+                      <br/>
+                      {{ `${cutting.available_one_tonnes} Bins` }}
+                    </td>
+                    <td>
+                      {{ `${cutting.available_from_two_tonnes} Tipped Bins` }}
+                      <br/>
+                      {{ `${cutting.available_two_tonnes} Bins` }}
+                    </td>
                     <td>
                       <input type="checkbox" @click="onSelectCutting(cutting)" data-bs-dismiss="modal" />
                     </td>
